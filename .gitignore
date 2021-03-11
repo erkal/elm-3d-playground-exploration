@@ -1,0 +1,11 @@
+.DS_Store
+.idea
+
+/.cache
+/node_modules
+/elm-stuff
+/dev-temp
+/compiled
+
+yarn-error.log
+yarn.lock

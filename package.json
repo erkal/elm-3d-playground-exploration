@@ -1,0 +1,24 @@
+{
+  "name": "3d-playground",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "erkal",
+  "license": "MIT",
+  "dependencies": {},
+  "scripts": {
+    "deploy": "surge --project ./dist --domain erkal.surge.sh",
+    "dev": "bash scripts/dev.sh",
+    "build": "bash scripts/build.sh"
+  },
+  "devDependencies": {
+    "elm": "^0.19.1-5",
+    "elm-format": "^0.8.5",
+    "elm-hot": "^1.1.6",
+    "node-elm-compiler": "^5.0.5",
+    "parcel": "^1.12.4",
+    "surge": "^0.21.7"
+  },
+  "resolutions": {
+    "@babel/preset-env": "7.13.8"
+  }
+}
