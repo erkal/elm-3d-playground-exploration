@@ -1,9 +1,9 @@
 .DS_Store
 .idea
 
-/.cache
-/node_modules
-/elm-stuff
+.cache
+node_modules
+elm-stuff
 /dev-temp
 /compiled
 
