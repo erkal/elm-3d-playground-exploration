@@ -1,11 +1,13 @@
 .DS_Store
 .idea
 
-.cache
-node_modules
 elm-stuff
+
+/.cache
+/node_modules
+
+/dist
 /dev-temp
-/compiled
 
 yarn-error.log
 yarn.lock
