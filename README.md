@@ -5,6 +5,13 @@ A copy of [evancz/elm-playground](https://package.elm-lang.org/packages/evancz/e
 You have to have yarn installed.
 In your terminal, navigate to the directory of the repository.
 
+First, run
+```bash
+yarn install
+```
+to install all dependencies.
+
+
 For development:
 ```bash
 yarn dev
