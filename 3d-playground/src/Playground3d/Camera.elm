@@ -3,6 +3,7 @@ module Playground3d.Camera exposing
     , mouseOverXY
     , mouseOverYZ
     , mouseOverZX
+    , mouseRay
     , orthographic
     , perspective
     )
@@ -15,10 +16,12 @@ import Length exposing (Length, Meters, inMeters)
 import Pixels
 import Plane3d exposing (Plane3d)
 import Playground3d exposing (Computer, Mouse, Screen)
-import Playground3d.Geometry exposing (Point)
+import Playground3d.Geometry exposing (Point, Vector)
 import Point2d
 import Point3d exposing (Point3d)
+import Quantity
 import Rectangle2d
+import Vector3d
 import Viewpoint3d
 
 
@@ -60,6 +63,35 @@ orthographic properties =
                 }
         , viewportHeight = Length.meters properties.viewportHeight
         }
+
+
+{-| get the intersection point of the mouse-ray with a plane
+-}
+mouseRay : Camera -> Computer -> Vector
+mouseRay camera { screen, mouse } =
+    let
+        screenRect =
+            Rectangle2d.withDimensions
+                ( Pixels.float screen.width
+                , Pixels.float screen.height
+                )
+                (Angle.degrees 0)
+                (Point2d.pixels 0 0)
+
+        mousePosition =
+            Point2d.xy
+                (Pixels.float mouse.x)
+                (Pixels.float mouse.y)
+
+        toVector v =
+            ( v |> Vector3d.xComponent |> Quantity.toFloat
+            , v |> Vector3d.yComponent |> Quantity.toFloat
+            , v |> Vector3d.zComponent |> Quantity.toFloat
+            )
+    in
+    mousePosition
+        |> Camera3d.ray camera screenRect
+        |> (Axis3d.direction >> Direction3d.toVector >> Vector3d.normalize >> toVector)
 
 
 {-| get the intersection point of the mouse-ray and a triangle

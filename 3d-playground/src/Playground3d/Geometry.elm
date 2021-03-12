@@ -1,4 +1,4 @@
-module Playground3d.Geometry exposing (..)
+module Playground3d.Geometry exposing (Point, Vector, translateBy)
 
 
 type alias Point =
@@ -10,3 +10,11 @@ type alias Point =
 
 type alias Vector =
     ( Float, Float, Float )
+
+
+translateBy : Vector -> Point -> Point
+translateBy ( dx, dy, dz ) p =
+    { x = p.x + dx
+    , y = p.y + dy
+    , z = p.z + dz
+    }

@@ -2,22 +2,19 @@ module Main exposing (main)
 
 import Color exposing (blue, green, hsl, red, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, block, game, group, line, moveY, rotateY, spin, toX, toXY, toY, wave)
+import Playground3d exposing (Computer, Mouse, Shape, block, cube, game, group, line, moveY, toX, toY, wave)
 import Playground3d.Camera exposing (Camera, perspective)
+import Playground3d.Geometry exposing (Point, Vector, translateBy)
 import Playground3d.Scene as Scene
 
 
 main =
-    game
-        view
-        update
-        initialModel
+    game view update initialModel
 
 
 type alias Model =
-    { x : Float
-    , y : Float
-    , z : Float
+    { cameraPosition : Point
+    , lookingDirection : Vector
     }
 
 
@@ -27,9 +24,8 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { x = 0
-    , y = 2
-    , z = 10
+    { lookingDirection = ( 0, 0, -1 )
+    , cameraPosition = Point 0 3 10
     }
 
 
@@ -38,10 +34,10 @@ initialModel =
 
 
 update : Computer -> Model -> Model
-update computer model =
+update ({ keyboard } as computer) model =
     { model
-        | x = model.x + 0.1 * toX computer.keyboard
-        , z = model.z - 0.1 * toY computer.keyboard
+        | lookingDirection = model.lookingDirection
+        , cameraPosition = model.cameraPosition |> translateBy ( 0.1 * toX keyboard, 0, -0.1 * toY keyboard )
     }
 
 
@@ -55,8 +51,8 @@ view computer model =
         { screen = computer.screen
         , camera =
             perspective
-                { focalPoint = { x = model.x, y = 2, z = model.z - 10 }
-                , eyePoint = { x = model.x, y = model.y, z = model.z }
+                { focalPoint = model.cameraPosition |> translateBy model.lookingDirection
+                , eyePoint = model.cameraPosition
                 , upDirection = { x = 0, y = 1, z = 0 }
                 }
         , backgroundColor = white
@@ -74,11 +70,6 @@ shapes computer model =
     ]
 
 
-floor : Shape
-floor =
-    block white ( 30, 2, 30 ) |> moveY -1
-
-
 axes : Shape
 axes =
     group
@@ -88,11 +79,17 @@ axes =
         ]
 
 
+floor : Shape
+floor =
+    block white ( 30, 2, 30 )
+        |> moveY -1
+
+
 shelf : Computer -> Shape
 shelf computer =
     let
         color =
             hsl (wave 0 1 10 computer.time) 0.8 0.8
     in
-    block color ( 1.5, 2, 1 )
+    cube color 2
         |> moveY 1
