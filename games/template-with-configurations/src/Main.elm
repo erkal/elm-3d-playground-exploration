@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import Color exposing (hsl, white)
-import Dict
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, cube, gameWithConfigurations, getFloat, initConfigurations, rotateY)
 import Playground3d.Camera exposing (Camera, perspective)
