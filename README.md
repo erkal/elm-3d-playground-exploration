@@ -3,29 +3,26 @@
 A copy of [evancz/elm-playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/) where elm/svg is replaced by [ianmackenzie/elm-3d-scene](https://package.elm-lang.org/packages/ianmackenzie/elm-3d-scene/latest/).
 
 # For Development 
-You have to have yarn installed.
+First [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable) if you don't have it already.
 
-Clone the repository and navigate into it
+Clone the repository
 ```bash
 git clone https://github.com/erkal/elm-3d-playground-exploration.git
+```
+and navigate into it:
+```bash
 cd elm-3d-playground-exploration
 ```
 
-First, run
+To install all dependencies, type
 ```bash
 yarn install
 ```
-to install all dependencies.
 
-
-For development:
+Then, if you want to work on a game, type
 ```bash
 yarn dev
 ```
+enter the number you asked for and open the shown url in your browser.
 
-For building:
-```bash
-yarn build
-```
-
-
+To create a new game, just duplicate one of the directories in `games` directory and you are ready: `yarn dev` will show your new game in  the list.
