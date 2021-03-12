@@ -6,10 +6,10 @@ module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , scale
+    , gameWithConfigurations, getFloat, initConfigurations, scale
     )
 
-{-| NOTE: Following code is copied from evancz/elm-playground
+{-| NOTE: Most of the following code is copied from evancz/elm-playground
 
 
 # Playground
@@ -62,11 +62,12 @@ import Browser.Events as E
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Direction3d
-import Html exposing (Html, div)
+import Html exposing (Html, div, h1, text)
 import Html.Attributes exposing (style)
 import Json.Decode as D
 import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
+import Playground3d.Configurations as Configurations exposing (Configurations)
 import Playground3d.Geometry exposing (Point)
 import Point3d exposing (Point3d)
 import Scene3d
@@ -100,7 +101,17 @@ type alias Computer =
     , keyboard : Keyboard
     , screen : Screen
     , time : Time
+    , configurations : Configurations
     }
+
+
+initConfigurations =
+    Configurations.Configurations
+
+
+getFloat : String -> Computer -> Float
+getFloat key { configurations } =
+    configurations |> Configurations.getFloat key
 
 
 
@@ -518,9 +529,19 @@ game :
     -> memory
     -> Program () (Game memory) Msg
 game viewMemory updateMemory initialMemory =
+    gameWithConfigurations viewMemory updateMemory Configurations.empty initialMemory
+
+
+gameWithConfigurations :
+    (Computer -> memory -> Html Never)
+    -> (Computer -> memory -> memory)
+    -> Configurations
+    -> memory
+    -> Program () (Game memory) Msg
+gameWithConfigurations viewMemory updateMemory initialConfigurations initialMemory =
     let
         init () =
-            ( Game E.Visible initialMemory initialComputer
+            ( Game E.Visible initialMemory (initialComputer initialConfigurations)
             , Task.perform GotViewport Dom.getViewport
             )
 
@@ -530,7 +551,9 @@ game viewMemory updateMemory initialMemory =
                 , style "top" "0px"
                 , style "left" "0px"
                 ]
-                [ Html.map (always NoOp) (viewMemory computer memory) ]
+                [ Html.map ConfigurationsInput (Configurations.view computer.configurations)
+                , Html.map (always NoOp) (viewMemory computer memory)
+                ]
 
         update msg model =
             ( gameUpdate updateMemory msg model
@@ -553,12 +576,13 @@ game viewMemory updateMemory initialMemory =
         }
 
 
-initialComputer : Computer
-initialComputer =
+initialComputer : Configurations -> Computer
+initialComputer initialConfigurations =
     { mouse = Mouse 0 0 False False
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
     , time = Time (Time.millisToPosix 0)
+    , configurations = initialConfigurations
     }
 
 
@@ -591,6 +615,7 @@ type Game memory
 
 type Msg
     = NoOp
+    | ConfigurationsInput Configurations.Msg
     | KeyChanged Bool String
     | Tick Time.Posix
     | GotViewport Dom.Viewport
@@ -606,6 +631,13 @@ gameUpdate updateMemory msg (Game vis memory computer) =
     case msg of
         NoOp ->
             Game vis memory computer
+
+        ConfigurationsInput configurationsMsg ->
+            Game vis memory <|
+                { computer
+                    | configurations =
+                        computer.configurations |> Configurations.update configurationsMsg
+                }
 
         Tick time ->
             Game vis (updateMemory computer memory) <|
