@@ -2,23 +2,13 @@ module Main exposing (main)
 
 import Color exposing (hsl, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, cube, gameWithConfigurations, getFloat, initConfigurations, rotateY)
+import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, rotateY)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene
 
 
 main =
-    gameWithConfigurations
-        view
-        update
-        (initConfigurations
-            [ ( "hue", ( 0, 0.5, 1 ) )
-            , ( "saturation", ( 0, 0.5, 1 ) )
-            , ( "lightness", ( 0, 0.5, 1 ) )
-            , ( "rotation", ( 0, 0, 2 * pi ) )
-            ]
-        )
-        initialModel
+    gameWithConfigurations view update initialConfigurations initialModel
 
 
 type alias Model =
@@ -27,6 +17,15 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    configurations
+        [ ( "hue", ( 0, 0.5, 1 ) )
+        , ( "saturation", ( 0, 0.5, 1 ) )
+        , ( "lightness", ( 0, 0.5, 1 ) )
+        , ( "rotation", ( 0, 0, 2 * pi ) )
+        ]
 
 
 initialModel : Model

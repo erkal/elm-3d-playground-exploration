@@ -6,7 +6,7 @@ module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , gameWithConfigurations, getFloat, initConfigurations, scale
+    , configurations, gameWithConfigurations, getFloat, scale
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -105,7 +105,7 @@ type alias Computer =
     }
 
 
-initConfigurations =
+configurations =
     Configurations.Configurations
 
 
