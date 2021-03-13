@@ -19,5 +19,4 @@ read -r i
 directory=${dirs[$i]}
 rm -rf dev-temp/"$directory"
 mkdir -p dev-temp/"$directory"
-cp -R games/"$directory"/assets dev-temp/"$directory"
 parcel games/"$directory"/index.html --out-dir dev-temp/"$directory"

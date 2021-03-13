@@ -19,6 +19,5 @@ read -r i
 directory=${dirs[$i]}
 rm -rf dist/"$directory"
 mkdir -p dist/"$directory"
-cp -R games/"$directory"/assets dist/"$directory"
 parcel build games/"$directory"/index.html --out-dir dist/"$directory" --out-file index.html --public-url ./
 http-server dist/"$directory"

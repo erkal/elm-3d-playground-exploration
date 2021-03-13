@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {},
   "scripts": {
-    "deploy": "surge --project ./dist --domain erkal.surge.sh",
+    "deploy": "bash scripts/deploy.sh",
     "dev": "bash scripts/dev.sh",
     "build": "bash scripts/build.sh"
   },

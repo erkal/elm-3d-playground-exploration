@@ -1,6 +1,9 @@
 # elm-3d-playground-exploration
 
-A copy of [evancz/elm-playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/) where elm/svg is replaced by [ianmackenzie/elm-3d-scene](https://package.elm-lang.org/packages/ianmackenzie/elm-3d-scene/latest/).
+A modification of [evancz/elm-playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/) where elm/svg is replaced by [ianmackenzie/elm-3d-scene](https://package.elm-lang.org/packages/ianmackenzie/elm-3d-scene/latest/).
+
+# Demos
+[link to all demos](https://github.com/erkal/elm-3d-playground-exploration/blob/main/DEMOS.md)
 
 # For Development 
 First [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable) if you don't have it already.

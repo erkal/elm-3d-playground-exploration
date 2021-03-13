@@ -110,8 +110,8 @@ configurations =
 
 
 getFloat : String -> Computer -> Float
-getFloat key { configurations } =
-    configurations |> Configurations.getFloat key
+getFloat key computer =
+    computer.configurations |> Configurations.getFloat key
 
 
 
