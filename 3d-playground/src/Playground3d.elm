@@ -551,7 +551,7 @@ gameWithConfigurations viewMemory updateMemory initialConfigurations initialMemo
                 , style "top" "0px"
                 , style "left" "0px"
                 ]
-                [ Html.map ConfigurationsInput (Configurations.view computer.configurations)
+                [ div [ style "position" "absolute" ] [ Html.map ConfigurationsInput (Configurations.view computer.configurations) ]
                 , Html.map (always NoOp) (viewMemory computer memory)
                 ]
 

@@ -88,6 +88,6 @@ view configurations =
         [ style "margin" "20px"
         , style "font" "0.8rem 'Fira Sans', sans-serif"
         ]
-        [ h1 [] [ text "Floats" ]
-        , div [] (configurations.floats |> List.map floatSlider)
+        [ div [] (configurations.floats |> List.map floatSlider)
+        , br [] []
         ]
