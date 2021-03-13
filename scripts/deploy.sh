@@ -11,7 +11,7 @@ rm -rf dist
 rm -rf DEMOS.md
 
 touch DEMOS.md
-echo '#Demos' >>DEMOS.md
+echo '# Demos' >>DEMOS.md
 echo '' >>DEMOS.md
 
 for ((i = 1; i <= ${#dirs[@]}; i++)); do
