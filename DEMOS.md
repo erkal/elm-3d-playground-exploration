@@ -1,4 +1,4 @@
-#Demos
+# Demos
 
 - camera-control: [demo](https://erkal.surge.sh/camera-control), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/camera-control/src)
 - mouse-ray-with-squares: [demo](https://erkal.surge.sh/mouse-ray-with-squares), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/mouse-ray-with-squares/src)
