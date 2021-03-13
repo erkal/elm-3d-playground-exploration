@@ -4,7 +4,7 @@ import Color exposing (black, blue, brown, darkGreen, gray, green, hsl, lightBlu
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, Shape, block, cube, cylinder, game, group, line, move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, sphere, spin, triangle, wave)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, cylinder, game, gameWithConfigurations, getFloat, group, line, move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, sphere, spin, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene
@@ -14,7 +14,7 @@ import Temperature
 
 
 main =
-    game view update initialModel
+    gameWithConfigurations view update initialConfigurations initialModel
 
 
 type alias Model =
@@ -28,6 +28,12 @@ type alias Model =
 initialModel : Model
 initialModel =
     {}
+
+
+initialConfigurations =
+    configurations
+        [ ( "number of tree blocks", ( 1, 16, 20 ) )
+        ]
 
 
 
@@ -225,7 +231,7 @@ tree : Computer -> Shape
 tree computer =
     let
         n =
-            16
+            getFloat "number of tree blocks" computer
 
         layerBlock i =
             let
@@ -244,7 +250,7 @@ tree computer =
     in
     group
         [ block brown ( 0.2, 8, 0.2 )
-        , group (List.map layerBlock (List.range 0 (n - 1)))
+        , group (List.map layerBlock (List.range 0 (Basics.floor n - 1)))
         ]
 
 
