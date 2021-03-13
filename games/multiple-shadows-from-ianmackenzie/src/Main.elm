@@ -33,6 +33,7 @@ initialModel =
 initialConfigurations =
     configurations
         [ ( "number of tree blocks", ( 1, 16, 20 ) )
+        , ( "turning speed of the tree", ( 0.1, 1, 4 ) )
         ]
 
 
@@ -246,7 +247,7 @@ tree computer =
             in
             block wavyColor ( width, height, width )
                 |> moveY (toFloat i * 1.2 * height)
-                |> rotateY (toFloat i * wave 3 5 10 computer.time)
+                |> rotateY (getFloat "turning speed of the tree" computer * toFloat i * wave 3 5 10 computer.time)
     in
     group
         [ block brown ( 0.2, 8, 0.2 )
