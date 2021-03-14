@@ -1,6 +1,7 @@
 # Demos
 
 - camera-control: [demo](https://erkal.surge.sh/camera-control), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/camera-control/src)
+- dancing-cubes: [demo](https://erkal.surge.sh/dancing-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/dancing-cubes/src)
 - grid-board: [demo](https://erkal.surge.sh/grid-board), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/grid-board/src)
 - mouse-ray-with-squares: [demo](https://erkal.surge.sh/mouse-ray-with-squares), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/mouse-ray-with-squares/src)
 - mouse-ray: [demo](https://erkal.surge.sh/mouse-ray), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/mouse-ray/src)
