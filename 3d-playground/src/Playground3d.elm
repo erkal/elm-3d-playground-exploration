@@ -6,7 +6,7 @@ module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, getFloat, scale
+    , configurations, gameWithConfigurations, getFloat, scale, waveWithDelay
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -429,6 +429,11 @@ wave lo hi period time =
     lo + (hi - lo) * (1 + cos (turns (toFrac period time))) / 2
 
 
+waveWithDelay : Float -> Number -> Number -> Number -> Time -> Number
+waveWithDelay delay lo hi period time =
+    lo + (hi - lo) * (1 + cos (turns (toFracWithDelay delay period time))) / 2
+
+
 {-| Zig zag between two numbers.
 
 Here is an [`animation`](#animation) with a rectangle that tips back and forth:
@@ -452,16 +457,21 @@ zigzag lo hi period time =
     lo + (hi - lo) * abs (2 * toFrac period time - 1)
 
 
-toFrac : Float -> Time -> Float
-toFrac period (Time posix) =
+toFracWithDelay : Float -> Float -> Time -> Float
+toFracWithDelay delay period (Time posix) =
     let
         ms =
-            Time.posixToMillis posix
+            Time.posixToMillis posix + round (delay * 1000)
 
         p =
             period * 1000
     in
     toFloat (modBy (round p) ms) / p
+
+
+toFrac : Float -> Time -> Float
+toFrac period time =
+    toFracWithDelay 0 period time
 
 
 
