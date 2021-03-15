@@ -69,8 +69,8 @@ initialConfigurations =
         , ( "camera x", ( 0, 8, 16 ) )
         , ( "camera y", ( 0, 0, 10 ) )
         , ( "camera z", ( 0, 6, 16 ) )
-        , ( "hue", ( 0, 0.8, 1 ) )
-        , ( "saturation", ( 0, 0.7, 1 ) )
+        , ( "saturation", ( 0, 0.8, 1 ) )
+        , ( "lightness", ( 0, 0.7, 1 ) )
         ]
 
 
@@ -97,8 +97,8 @@ cubes computer =
             cube
                 (hsl
                     ratio
-                    (getFloat "hue" computer)
                     (getFloat "saturation" computer)
+                    (getFloat "lightness" computer)
                 )
                 (getFloat "cube size" computer)
                 |> moveZ (getFloat "radius" computer)
