@@ -60,15 +60,15 @@ view computer model =
 
 initialConfigurations =
     configurations
-        [ ( "radius", ( 0, 1, 10 ) )
-        , ( "number of cubes", ( 1, 25, 100 ) )
-        , ( "cube size", ( 0.1, 0.7, 4 ) )
+        [ ( "radius", ( 0, 1, 6 ) )
+        , ( "number of cubes", ( 1, 30, 100 ) )
+        , ( "cube size", ( 0.1, 1, 4 ) )
         , ( "cycle duration", ( 1, 5, 10 ) )
-        , ( "wave height", ( 0.5, 1, 6 ) )
+        , ( "wave height", ( 0.5, 1.5, 6 ) )
         , ( "number of waves", ( 1, 2, 20 ) )
-        , ( "camera x", ( 0, 4, 10 ) )
+        , ( "camera x", ( 0, 8, 16 ) )
         , ( "camera y", ( 0, 0, 10 ) )
-        , ( "camera z", ( 0, 4, 10 ) )
+        , ( "camera z", ( 0, 6, 16 ) )
         , ( "hue", ( 0, 0.8, 1 ) )
         , ( "saturation", ( 0, 0.7, 1 ) )
         ]
