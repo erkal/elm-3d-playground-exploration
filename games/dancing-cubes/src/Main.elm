@@ -61,7 +61,7 @@ view computer model =
 initialConfigurations =
     configurations
         [ ( "radius", ( 0, 1, 6 ) )
-        , ( "number of cubes", ( 1, 30, 100 ) )
+        , ( "number of cubes", ( 1, 19, 100 ) )
         , ( "cube size", ( 0.1, 1, 4 ) )
         , ( "cycle duration", ( 1, 5, 10 ) )
         , ( "wave height", ( 0.5, 1.5, 6 ) )
