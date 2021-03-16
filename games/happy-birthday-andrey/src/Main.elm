@@ -68,10 +68,10 @@ insertCube : Computer -> Model -> Model
 insertCube computer model =
     case Camera.mouseOverXY (camera computer) computer of
         Just p ->
-            let
-                e =
-                    model.cubes |> Debug.log ""
-            in
+            --let
+            --    e =
+            --        model.cubes |> Debug.log ""
+            --in
             { model | cubes = Set.insert ( round p.x, round p.y ) model.cubes }
 
         Nothing ->
