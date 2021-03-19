@@ -1,6 +1,6 @@
 module TrixelGrid.Vertex exposing
     ( Vertex
-    , fromGridCoordinates
+    , toWorldCoordinates
     , vertex
     )
 
@@ -17,19 +17,8 @@ vertex =
     Vertex
 
 
-fromGridCoordinates : Vertex -> { x : Float, y : Float }
-fromGridCoordinates (Vertex ( u, v )) =
-    let
-        i =
-            { x = 0
-            , y = 1
-            }
-
-        j =
-            { x = cos (degrees 30)
-            , y = sin (degrees 30)
-            }
-    in
-    { x = i.x * toFloat u + j.x * toFloat v
-    , y = i.y * toFloat u + j.y * toFloat v
+toWorldCoordinates : Vertex -> { x : Float, y : Float }
+toWorldCoordinates (Vertex ( u, v )) =
+    { x = cos (degrees 30) * toFloat u
+    , y = sin (degrees 30) * toFloat u + toFloat v
     }
