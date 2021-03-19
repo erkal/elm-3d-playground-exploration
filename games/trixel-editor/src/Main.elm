@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, red, white)
+import Color exposing (Color, black, blue, red, white, yellow)
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle)
 import Playground3d.Camera exposing (Camera, perspective)
@@ -88,6 +88,7 @@ view computer model =
         [ drawVertices
         , drawFaces computer model
         , drawMouse computer model
+        , drawMouseOveredVertex computer model
         ]
 
 
@@ -97,6 +98,18 @@ drawMouse computer model =
         |> moveX model.mouse.x
         |> moveY model.mouse.y
         |> moveZ model.mouse.z
+
+
+drawMouseOveredVertex : Computer -> Model -> Shape
+drawMouseOveredVertex computer model =
+    let
+        { u, v } =
+            Vertex.fromWorldCoordinates
+                { x = model.mouse.x
+                , y = model.mouse.y
+                }
+    in
+    drawVertex yellow 0.3 (vertex ( floor u, floor v ))
 
 
 drawFaces : Computer -> Model -> Shape
@@ -127,7 +140,7 @@ drawFaces computer model =
                 { x, y } =
                     face
                         |> Face.lowerRight
-                        |> Vertex.toWorldCoordinates
+                        |> Vertex.worldCoordinates
             in
             drawCorrectFace face
                 |> moveX x
@@ -135,6 +148,17 @@ drawFaces computer model =
     in
     group
         (model.faces |> List.map drawFace)
+
+
+drawVertex : Color -> Float -> Vertex -> Shape
+drawVertex color radius v =
+    let
+        { x, y } =
+            Vertex.worldCoordinates v
+    in
+    cube color radius
+        |> moveX x
+        |> moveY y
 
 
 drawVertices : Shape
@@ -147,21 +171,11 @@ drawVertices =
                     List.map (\j -> ( i, j )) columns
             in
             List.concatMap row
-
-        drawVertex : Vertex -> Shape
-        drawVertex v =
-            let
-                { x, y } =
-                    Vertex.toWorldCoordinates v
-            in
-            cube black 0.05
-                |> moveX x
-                |> moveY y
     in
     group
         (cartesianProduct
             (List.range -1 1)
             (List.range -2 2)
             |> List.map vertex
-            |> List.map drawVertex
+            |> List.map (drawVertex black 0.1)
         )
