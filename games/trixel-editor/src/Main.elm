@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (Color, black, blue, red, white, yellow)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle)
+import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
@@ -85,16 +85,19 @@ view computer model =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ drawVertices
-        , drawFaces computer model
-        , drawMouse computer model
-        , drawMouseOveredVertex computer model
+        [ group
+            [ drawVertices
+            , drawFaces computer model
+            , drawMouse computer model
+            , drawMouseOveredVertex computer model
+            ]
+            |> rotateZ (wave -0.1 0.1 5 computer.time)
         ]
 
 
 drawMouse : Computer -> Model -> Shape
 drawMouse computer model =
-    sphere black 0.1
+    sphere red 0.1
         |> moveX model.mouse.x
         |> moveY model.mouse.y
         |> moveZ model.mouse.z
