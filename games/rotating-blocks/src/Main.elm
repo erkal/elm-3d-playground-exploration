@@ -51,8 +51,8 @@ view computer model =
     Scene.sunny
         { screen = computer.screen
         , camera = camera
-        , sunlightAzimuth = degrees -45
-        , sunlightElevation = degrees -45
+        , sunlightAzimuth = 0
+        , sunlightElevation = 0
         , backgroundColor = lightBlue
         }
         (shapes computer model)
