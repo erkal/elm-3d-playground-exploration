@@ -3,7 +3,7 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import Color exposing (Color, black, blue, purple, red, white, yellow)
+import Color exposing (Color, black, blue, gray, purple, red, white, yellow)
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
@@ -30,8 +30,8 @@ type alias Model =
 initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
-        , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 13, 40 ) )
+        , ( "camera y", ( -40, -5, 0 ) )
+        , ( "camera z", ( 1, 10, 40 ) )
         ]
 
 
@@ -106,7 +106,7 @@ view computer model =
 
 floorBlock : Computer -> Shape
 floorBlock computer =
-    block purple ( 7, 7, 1 )
+    block gray ( 7, 7, 1 )
         |> moveZ -0.7
 
 
@@ -129,23 +129,6 @@ drawMouseOveredFace computer model =
     drawFace newFace
 
 
-drawLeftFace : Shape
-drawLeftFace =
-    triangle blue
-        ( { x = 0, y = 0, z = 0 }
-        , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
-        , { x = 0, y = 1, z = 0 }
-        )
-
-
-drawRightFace : Shape
-drawRightFace =
-    drawLeftFace
-        |> rotateZ (degrees 180)
-        |> moveX (cos (degrees 30))
-        |> moveY (1 + sin (degrees 30))
-
-
 drawFace : Face -> Shape
 drawFace face =
     let
@@ -153,6 +136,21 @@ drawFace face =
             face
                 |> Face.lowerRight
                 |> Vertex.worldCoordinates
+
+        drawLeftFace : Shape
+        drawLeftFace =
+            triangle white
+                ( { x = 0, y = 0, z = 0 }
+                , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
+                , { x = 0, y = 1, z = 0 }
+                )
+
+        drawRightFace : Shape
+        drawRightFace =
+            drawLeftFace
+                |> rotateZ (degrees 180)
+                |> moveX (cos (degrees 30))
+                |> moveY (1 + sin (degrees 30))
     in
     (if Face.isLeft face then
         drawLeftFace
@@ -194,8 +192,8 @@ drawVertices =
     in
     group
         (cartesianProduct
-            (List.range -1 1)
-            (List.range -2 2)
+            (List.range -3 3)
+            (List.range -3 3)
             |> List.map vertex
             |> List.map (drawVertex black 0.1)
         )
