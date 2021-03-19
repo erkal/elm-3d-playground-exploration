@@ -38,6 +38,10 @@ initialConfigurations =
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, -5, 0 ) )
         , ( "camera z", ( 1, 10, 40 ) )
+        , ( "azimuth for third light", ( -pi, 1, pi ) )
+        , ( "elevation for third light", ( -pi, -2, pi ) )
+        , ( "azimuth for fourth light", ( -pi, 1, pi ) )
+        , ( "elevation for fourth light", ( -pi, -2, pi ) )
         ]
 
 
@@ -110,16 +114,16 @@ view computer model =
 
         thirdLight =
             Light.directional
-                { azimuth = degrees 0
-                , elevation = degrees 0
+                { azimuth = getFloat "azimuth for third light" computer
+                , elevation = getFloat "elevation for third light" computer
                 , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
-                , intensity = Illuminance.lux 100
+                , intensity = Illuminance.lux 120
                 }
 
         fourthLight =
             Light.soft
-                { azimuth = degrees 0
-                , elevation = degrees 0
+                { azimuth = getFloat "azimuth for fourth light" computer
+                , elevation = getFloat "elevation for fourth light" computer
                 , chromaticity = Scene3d.Light.fluorescent
                 , intensityAbove = Illuminance.lux 20
                 , intensityBelow = Illuminance.lux 10
