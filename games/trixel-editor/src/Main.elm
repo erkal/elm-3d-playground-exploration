@@ -3,9 +3,9 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import Color exposing (Color, black, blue, red, white, yellow)
+import Color exposing (Color, black, blue, purple, red, white, yellow)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
@@ -19,7 +19,7 @@ main =
 
 type alias Model =
     { faces : List Face
-    , mouseOverXY : Point
+    , mouseOveredUV : { u : Float, v : Float }
     }
 
 
@@ -29,7 +29,9 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "test", ( 0, 0.5, 1 ) )
+        [ ( "camera x", ( -40, 0, 40 ) )
+        , ( "camera y", ( -40, 0, 0 ) )
+        , ( "camera z", ( 1, 13, 40 ) )
         ]
 
 
@@ -41,8 +43,8 @@ initialModel =
         , rightFace 1 1
         , rightFace -1 -1
         ]
-    , mouseOverXY =
-        Point 0 0 0
+    , mouseOveredUV =
+        { u = 0, v = 0 }
     }
 
 
@@ -53,28 +55,32 @@ initialModel =
 update : Computer -> Model -> Model
 update computer model =
     model
-        |> updateMouse computer
+        |> updateMouseOverXY computer
 
 
-updateMouse : Computer -> Model -> Model
-updateMouse computer model =
-    case Playground3d.Camera.mouseOverXY camera computer of
+updateMouseOverXY : Computer -> Model -> Model
+updateMouseOverXY computer model =
+    case Playground3d.Camera.mouseOverXY (camera computer) computer of
         Nothing ->
             model
 
         Just p ->
-            { model | mouseOverXY = p }
+            { model | mouseOveredUV = Vertex.fromWorldCoordinates { x = p.x, y = p.y } }
 
 
 
 -- VIEW
 
 
-camera : Camera
-camera =
+camera : Computer -> Camera
+camera computer =
     perspective
         { focalPoint = { x = 0, y = 0, z = 0 }
-        , eyePoint = { x = 0, y = 0, z = 13 }
+        , eyePoint =
+            { x = getFloat "camera x" computer
+            , y = getFloat "camera y" computer
+            , z = getFloat "camera z" computer
+            }
         , upDirection = { x = 0, y = 1, z = 0 }
         }
 
@@ -83,37 +89,32 @@ view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
         { screen = computer.screen
-        , camera = camera
+        , camera = camera computer
         , backgroundColor = white
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
         [ group
-            [ drawVertices
+            [ floorBlock computer
+            , drawVertices
             , drawFaces computer model
-            , drawMouse computer model
             , drawMouseOveredFace computer model
             ]
             |> rotateZ (wave -0.1 0.1 5 computer.time)
         ]
 
 
-drawMouse : Computer -> Model -> Shape
-drawMouse computer model =
-    sphere red 0.1
-        |> moveX model.mouseOverXY.x
-        |> moveY model.mouseOverXY.y
-        |> moveZ model.mouseOverXY.z
+floorBlock : Computer -> Shape
+floorBlock computer =
+    block purple ( 7, 7, 1 )
+        |> moveZ -0.7
 
 
 drawMouseOveredFace : Computer -> Model -> Shape
 drawMouseOveredFace computer model =
     let
         { u, v } =
-            Vertex.fromWorldCoordinates
-                { x = model.mouseOverXY.x
-                , y = model.mouseOverXY.y
-                }
+            model.mouseOveredUV
 
         frac f =
             f - toFloat (floor f)
