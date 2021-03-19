@@ -157,7 +157,7 @@ view computer model =
 
 floorBlock : Computer -> Shape
 floorBlock computer =
-    block gray ( 7, 7, 1 )
+    block gray ( 5, 7, 1 )
         |> moveZ -0.7
 
 
@@ -244,7 +244,7 @@ drawVertices =
     group
         (cartesianProduct
             (List.range -3 3)
-            (List.range -3 3)
+            (List.range -2 2)
             |> List.map vertex
             |> List.map (drawVertex black 0.1)
         )
