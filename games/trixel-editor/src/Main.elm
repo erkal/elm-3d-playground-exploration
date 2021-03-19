@@ -1,5 +1,8 @@
 module Main exposing (main)
 
+-- The coordinate system is as described in the following article
+-- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
+
 import Color exposing (Color, black, blue, red, white, yellow)
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
@@ -16,7 +19,7 @@ main =
 
 type alias Model =
     { faces : List Face
-    , mouse : Point
+    , mouseOverXY : Point
     }
 
 
@@ -38,7 +41,7 @@ initialModel =
         , rightFace 1 1
         , rightFace -1 -1
         ]
-    , mouse =
+    , mouseOverXY =
         Point 0 0 0
     }
 
@@ -60,7 +63,7 @@ updateMouse computer model =
             model
 
         Just p ->
-            { model | mouse = p }
+            { model | mouseOverXY = p }
 
 
 
@@ -89,7 +92,7 @@ view computer model =
             [ drawVertices
             , drawFaces computer model
             , drawMouse computer model
-            , drawMouseOveredVertex computer model
+            , drawMouseOveredFace computer model
             ]
             |> rotateZ (wave -0.1 0.1 5 computer.time)
         ]
@@ -98,57 +101,70 @@ view computer model =
 drawMouse : Computer -> Model -> Shape
 drawMouse computer model =
     sphere red 0.1
-        |> moveX model.mouse.x
-        |> moveY model.mouse.y
-        |> moveZ model.mouse.z
+        |> moveX model.mouseOverXY.x
+        |> moveY model.mouseOverXY.y
+        |> moveZ model.mouseOverXY.z
 
 
-drawMouseOveredVertex : Computer -> Model -> Shape
-drawMouseOveredVertex computer model =
+drawMouseOveredFace : Computer -> Model -> Shape
+drawMouseOveredFace computer model =
     let
         { u, v } =
             Vertex.fromWorldCoordinates
-                { x = model.mouse.x
-                , y = model.mouse.y
+                { x = model.mouseOverXY.x
+                , y = model.mouseOverXY.y
                 }
+
+        frac f =
+            f - toFloat (floor f)
+
+        newFace =
+            if frac u + frac v < 1 then
+                Face.leftFace (floor u) (floor v)
+
+            else
+                Face.rightFace (floor u) (floor v)
     in
-    drawVertex yellow 0.3 (vertex ( floor u, floor v ))
+    drawFace newFace
+
+
+drawLeftFace : Shape
+drawLeftFace =
+    triangle blue
+        ( { x = 0, y = 0, z = 0 }
+        , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
+        , { x = 0, y = 1, z = 0 }
+        )
+
+
+drawRightFace : Shape
+drawRightFace =
+    drawLeftFace
+        |> rotateZ (degrees 180)
+        |> moveX (cos (degrees 30))
+        |> moveY (1 + sin (degrees 30))
+
+
+drawFace : Face -> Shape
+drawFace face =
+    let
+        { x, y } =
+            face
+                |> Face.lowerRight
+                |> Vertex.worldCoordinates
+    in
+    (if Face.isLeft face then
+        drawLeftFace
+
+     else
+        drawRightFace
+    )
+        |> moveX x
+        |> moveY y
 
 
 drawFaces : Computer -> Model -> Shape
 drawFaces computer model =
-    let
-        drawLeftFace =
-            triangle blue
-                ( { x = 0, y = 0, z = 0 }
-                , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
-                , { x = 0, y = 1, z = 0 }
-                )
-
-        drawRightFace =
-            drawLeftFace
-                |> rotateZ (degrees 180)
-                |> moveX (cos (degrees 30))
-                |> moveY (1 + sin (degrees 30))
-
-        drawCorrectFace face =
-            if Face.isLeft face then
-                drawLeftFace
-
-            else
-                drawRightFace
-
-        drawFace face =
-            let
-                { x, y } =
-                    face
-                        |> Face.lowerRight
-                        |> Vertex.worldCoordinates
-            in
-            drawCorrectFace face
-                |> moveX x
-                |> moveY y
-    in
     group
         (model.faces |> List.map drawFace)
 
