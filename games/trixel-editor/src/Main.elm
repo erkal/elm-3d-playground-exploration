@@ -3,12 +3,18 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import Color exposing (Color, black, blue, gray, purple, red, white, yellow)
+import Color exposing (Color, black, blue, gray, lightBlue, purple, red, white, yellow)
 import Html exposing (Html)
+import Illuminance
+import LuminousFlux
 import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, sphere, spin, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
+import Playground3d.Light as Light
 import Playground3d.Scene as Scene
+import Scene3d
+import Scene3d.Light
+import Temperature
 import TrixelGrid.Face as Face exposing (Face, leftFace, rightFace)
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 
@@ -87,12 +93,53 @@ camera computer =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    Scene.sunny
+    let
+        firstLight =
+            Light.point
+                { position = { x = -2, y = 4, z = 1 }
+                , chromaticity = Scene3d.Light.incandescent
+                , intensity = LuminousFlux.lumens 6000
+                }
+
+        secondLight =
+            Light.point
+                { position = { x = 2, y = 3, z = 1 }
+                , chromaticity = Scene3d.Light.fluorescent
+                , intensity = LuminousFlux.lumens 6000
+                }
+
+        thirdLight =
+            Light.directional
+                { azimuth = degrees -90
+                , elevation = degrees -45
+                , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
+                , intensity = Illuminance.lux 100
+                }
+
+        fourthLight =
+            Light.soft
+                { azimuth = degrees 0
+                , elevation = degrees -45
+                , chromaticity = Scene3d.Light.fluorescent
+                , intensityAbove = Illuminance.lux 20
+                , intensityBelow = Illuminance.lux 10
+                }
+    in
+    Scene.custom
         { screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
-        , sunlightAzimuth = -(degrees 135)
-        , sunlightElevation = -(degrees 45)
+        , lights =
+            Scene3d.fourLights
+                firstLight
+                secondLight
+                thirdLight
+                fourthLight
+        , clipDepth = 0.1
+        , exposure = Scene3d.exposureValue 6
+        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+        , whiteBalance = Scene3d.Light.fluorescent
+        , antialiasing = Scene3d.multisampling
+        , backgroundColor = lightBlue
         }
         [ group
             [ floorBlock computer

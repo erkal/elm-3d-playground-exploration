@@ -12,3 +12,4 @@
 - rotating-blocks: [demo](https://erkal.surge.sh/rotating-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/rotating-blocks/src)
 - template-with-configurations: [demo](https://erkal.surge.sh/template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/template-with-configurations/src)
 - template: [demo](https://erkal.surge.sh/template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/template/src)
+- trixel-editor: [demo](https://erkal.surge.sh/trixel-editor), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/trixel-editor/src)
