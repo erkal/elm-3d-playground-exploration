@@ -72,7 +72,7 @@ view computer model =
         thirdLight =
             Light.directional
                 { azimuth = degrees 0
-                , elevation = degrees 0
+                , elevation = degrees 180
                 , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
                 , intensity = Illuminance.lux 300
                 }
@@ -80,7 +80,7 @@ view computer model =
         fourthLight =
             Light.soft
                 { azimuth = degrees 0
-                , elevation = degrees 0
+                , elevation = degrees 180
                 , chromaticity = Scene3d.Light.fluorescent
                 , intensityAbove = Illuminance.lux 60
                 , intensityBelow = Illuminance.lux 60
