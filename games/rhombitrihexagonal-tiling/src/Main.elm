@@ -72,12 +72,11 @@ makeUnit : Computer -> ( Int, Int ) -> Shape
 makeUnit computer ( x, y ) =
     let
         duration =
-            30
+            20
 
         bouncyRotate shape =
             shape
-                |> scale (1 + wave 0 -0.1 (2 * duration) computer.time)
-                |> rotateX (wave 0 (2 * pi) duration computer.time ^ 2)
+                |> rotateX (wave 0 rotDegree duration computer.time)
 
         twoBlock =
             group
@@ -106,7 +105,7 @@ makeUnit computer ( x, y ) =
                 |> rotateAroundHexagonCenter (degrees 240)
 
         rotDegree =
-            2 * pi
+            pi
     in
     group
         [ twoBlock
@@ -116,8 +115,8 @@ makeUnit computer ( x, y ) =
         , squareBlockOnRight
         , squareBlockOnLeft
         ]
-        |> rotateX (wave -rotDegree rotDegree duration computer.time)
-        |> rotateY (wave -rotDegree rotDegree duration computer.time)
+        |> rotateX (wave 0 rotDegree duration computer.time)
+        |> rotateY (wave 0 rotDegree duration computer.time)
         |> moveX (toFloat x * (3 + sqrt 3))
         |> moveY (toFloat y * (1 + sqrt 3))
         |> moveZ (wave -1 1 7 computer.time)
@@ -127,7 +126,7 @@ allShapes : Computer -> Shape
 allShapes computer =
     group
         (cartesianProduct
-            (List.range -2 2)
+            (List.range -1 1)
             (List.range -1 1)
             |> List.map (makeUnit computer)
         )
