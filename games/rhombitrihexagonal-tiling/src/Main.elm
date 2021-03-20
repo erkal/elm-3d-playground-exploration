@@ -71,6 +71,14 @@ view computer model =
 makeUnit : Computer -> ( Int, Int ) -> Shape
 makeUnit computer ( x, y ) =
     let
+        duration =
+            30
+
+        bouncyRotate shape =
+            shape
+                |> scale (1 + wave 0 -0.1 (2 * duration) computer.time)
+                |> rotateX (wave 0 (2 * pi) duration computer.time ^ 2)
+
         twoBlock =
             group
                 [ triangleBlock computer
@@ -78,6 +86,7 @@ makeUnit computer ( x, y ) =
                     |> rotateZ (degrees 90)
                 , squareBlock computer
                 ]
+                |> bouncyRotate
 
         rotateAroundHexagonCenter angle shape =
             shape
@@ -87,11 +96,13 @@ makeUnit computer ( x, y ) =
 
         squareBlockOnRight =
             squareBlock computer
+                |> bouncyRotate
                 |> moveY ((1 + sqrt 3) / 2)
                 |> moveX ((3 + sqrt 3) / 2)
 
         squareBlockOnLeft =
             squareBlock computer
+                |> bouncyRotate
                 |> rotateAroundHexagonCenter (degrees 240)
 
         rotDegree =
@@ -105,8 +116,8 @@ makeUnit computer ( x, y ) =
         , squareBlockOnRight
         , squareBlockOnLeft
         ]
-        |> rotateX (wave -rotDegree rotDegree (4 * rotDegree) computer.time)
-        |> rotateY (wave -rotDegree rotDegree (4 * rotDegree) computer.time)
+        |> rotateX (wave -rotDegree rotDegree duration computer.time)
+        |> rotateY (wave -rotDegree rotDegree duration computer.time)
         |> moveX (toFloat x * (3 + sqrt 3))
         |> moveY (toFloat y * (1 + sqrt 3))
         |> moveZ (wave -1 1 7 computer.time)
