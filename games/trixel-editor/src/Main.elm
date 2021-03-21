@@ -5,16 +5,10 @@ module Main exposing (main)
 
 import Color exposing (Color, black, gray, lightBlue, white)
 import Html exposing (Html)
-import Illuminance
-import LuminousFlux
 import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
-import Playground3d.Light as Light
 import Playground3d.Scene as Scene
-import Scene3d
-import Scene3d.Light
-import Temperature
 import TrixelGrid.Face as Face exposing (Face, leftFace, rightFace)
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 
@@ -38,10 +32,6 @@ initialConfigurations =
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, -5, 0 ) )
         , ( "camera z", ( 1, 10, 40 ) )
-        , ( "azimuth for third light", ( -pi, 1, pi ) )
-        , ( "elevation for third light", ( -pi, -2, pi ) )
-        , ( "azimuth for fourth light", ( -pi, 1, pi ) )
-        , ( "elevation for fourth light", ( -pi, -2, pi ) )
         ]
 
 
