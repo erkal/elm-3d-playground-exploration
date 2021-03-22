@@ -96,7 +96,8 @@ view computer model =
         }
         [ group
             [ floorBlock computer
-            , drawVertices
+
+            --, drawVertices
             , drawFaces computer model
             , drawMouseOveredFace computer model
             ]
