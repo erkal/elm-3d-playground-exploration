@@ -12,23 +12,7 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d
-    exposing
-        ( Computer
-        , Shape
-        , block
-        , configurations
-        , cube
-        , gameWithConfigurationsAndEditor
-        , getFloat
-        , group
-        , moveX
-        , moveY
-        , moveZ
-        , rotateZ
-        , triangle
-        , wave
-        )
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, triangle, wave, waveWithDelay)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
@@ -72,7 +56,9 @@ initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 20, 40 ) )
+        , ( "camera z", ( 1, 26, 40 ) )
+        , ( "maximum rotation degree", ( 0, 0.5, pi ) )
+        , ( "rotation duration", ( 1, 7, 20 ) )
         ]
 
 
@@ -169,7 +155,8 @@ view computer model =
 
             --, drawVertices
             , drawFaces computer model
-            , drawMouseOveredFace computer model
+
+            --, drawMouseOveredFace computer model
             ]
         ]
 
@@ -182,12 +169,12 @@ floorBlock computer model =
                 |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
     in
     block color ( 10, 14, 1 )
-        |> moveZ -0.6
+        |> moveZ -1.5
 
 
 drawMouseOveredFace : Computer -> Model -> Shape
 drawMouseOveredFace computer model =
-    drawFace
+    drawFace computer
         (LS.current model.levels).palette
         ( Face.at model.mouseOveredUV, model.selectedColorIndex )
 
@@ -199,11 +186,11 @@ drawFaces computer model =
             LS.current model.levels
     in
     group
-        (world.trixels |> AnyDict.toList |> List.map (drawFace world.palette))
+        (world.trixels |> AnyDict.toList |> List.map (drawFace computer world.palette))
 
 
-drawFace : Palette -> ( Face, ColorIndex ) -> Shape
-drawFace palette ( face, colorIndex ) =
+drawFace : Computer -> Palette -> ( Face, ColorIndex ) -> Shape
+drawFace computer palette ( face, colorIndex ) =
     let
         { x, y } =
             face
@@ -224,6 +211,22 @@ drawFace palette ( face, colorIndex ) =
                 |> rotateZ (degrees 180)
                 |> moveX (cos (degrees 30))
                 |> moveY (1 + sin (degrees 30))
+
+        maxRot =
+            getFloat "maximum rotation degree" computer
+
+        duration =
+            getFloat "rotation duration" computer
+
+        delay =
+            x
+                + y
+                + (if Face.isLeft face then
+                    0
+
+                   else
+                    0.5
+                  )
     in
     (if Face.isLeft face then
         drawLeftFace
@@ -231,6 +234,9 @@ drawFace palette ( face, colorIndex ) =
      else
         drawRightFace
     )
+        |> rotateX (waveWithDelay delay -maxRot maxRot duration computer.time)
+        --|> rotateY (waveWithDelay delay -maxRot maxRot duration computer.time)
+        --|> rotateZ (waveWithDelay delay -maxRot maxRot duration computer.time)
         |> moveX x
         |> moveY y
 
@@ -330,9 +336,7 @@ viewEditor computer model =
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         , style "overflow" "scroll"
         ]
-        [ levelSelection model
-        , hr [] []
-        , h2 [] [ text "Editing the selected level" ]
+        [ h2 [] [ text "Editing the selected level" ]
         , div [] [ text "Press mouse to add trixel" ]
         , div [] [ text "Hold shift and press mouse to remove trixel" ]
         , hr [] []
@@ -340,6 +344,8 @@ viewEditor computer model =
         , div [] [ selectColorPalette model ]
         , div [] [ buttonForSettingBackgroundColor ]
         , div [] [ viewColorPalette model ]
+        , hr [] []
+        , levelSelection model
         , hr [] []
         , h2 [] [ text "What More?" ]
         ]
