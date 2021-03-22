@@ -86,7 +86,7 @@ view configurations =
     in
     div
         [ style "margin" "20px"
-        , style "font" "0.8rem 'Fira Sans', sans-serif"
+        , style "position" "fixed"
         ]
         [ div [] (configurations.floats |> List.map floatSlider)
         , br [] []

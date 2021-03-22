@@ -6,7 +6,7 @@ module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, getFloat, scale, waveWithDelay
+    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, scale, waveWithDelay
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -62,8 +62,9 @@ import Browser.Events as E
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Direction3d
-import Html exposing (Html, div, h1, text)
+import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (style)
+import Html.Events exposing (onClick)
 import Json.Decode as D
 import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
@@ -127,14 +128,14 @@ You could draw a circle around the mouse with a program like this:
     main =
         game view update 0
 
-    view computer memory =
+    view computer gameModel =
         [ circle yellow 40
             |> moveX computer.mouse.x
             |> moveY computer.mouse.y
         ]
 
-    update computer memory =
-        memory
+    update computer gameModel =
+        gameModel
 
 You could also use `computer.mouse.down` to change the color of the circle
 while the mouse button is down.
@@ -499,11 +500,11 @@ just moves to the right:
 
 This shows the three important parts of a game:
 
-1.  `memory` - makes it possible to store information. So with our green square,
-    we save the `offset` in memory. It starts out at `0`.
+1.  `gameModel` - makes it possible to store information. So with our green square,
+    we save the `offset` in gameModel. It starts out at `0`.
 2.  `view` - lets us say which shapes to put on screen. So here we move our
-    square right by the `offset` saved in memory.
-3.  `update` - lets us update the memory. We are incrementing the `offset` by
+    square right by the `offset` saved in gameModel.
+3.  `update` - lets us update the gameModel. We are incrementing the `offset` by
     a tiny amount on each frame.
 
 The `update` function is called about 60 times per second, so our little
@@ -534,43 +535,89 @@ Notice that in the `update` we use information from the keyboard to update the
 
 -}
 game :
-    (Computer -> memory -> Html Never)
-    -> (Computer -> memory -> memory)
-    -> memory
-    -> Program () (Game memory) Msg
-game viewMemory updateMemory initialMemory =
-    gameWithConfigurations viewMemory updateMemory Configurations.empty initialMemory
+    (Computer -> gameModel -> Html Never)
+    -> (Computer -> gameModel -> gameModel)
+    -> gameModel
+    -> Program () (Model gameModel) (Msg Never)
+game viewGameModel updateGameModel initialGameModel =
+    gameWithConfigurations
+        viewGameModel
+        updateGameModel
+        Configurations.empty
+        initialGameModel
 
 
 gameWithConfigurations :
-    (Computer -> memory -> Html Never)
-    -> (Computer -> memory -> memory)
+    (Computer -> gameModel -> Html Never)
+    -> (Computer -> gameModel -> gameModel)
     -> Configurations
-    -> memory
-    -> Program () (Game memory) Msg
-gameWithConfigurations viewMemory updateMemory initialConfigurations initialMemory =
+    -> gameModel
+    -> Program () (Model gameModel) (Msg Never)
+gameWithConfigurations viewGameModel updateGameModel initialConfigurations initialGameModel =
+    gameWithConfigurationsAndEditor
+        viewGameModel
+        updateGameModel
+        initialConfigurations
+        initialGameModel
+        (\_ _ -> div [] [])
+        (\_ _ gameModel -> gameModel)
+
+
+gameWithConfigurationsAndEditor :
+    (Computer -> gameModel -> Html Never)
+    -> (Computer -> gameModel -> gameModel)
+    -> Configurations
+    -> gameModel
+    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
+    -> Program () (Model gameModel) (Msg levelEditorMsg)
+gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initialGameModel viewEditor updateFromEditor =
     let
         init () =
-            ( Game E.Visible initialMemory (initialComputer initialConfigurations)
+            ( { computer = initialComputer initialConfigurations
+              , gameModel = initialGameModel
+              , visibility = E.Visible
+              , leftBarState = ShowingEditor
+              }
             , Task.perform GotViewport Dom.getViewport
             )
 
-        view (Game _ memory computer) =
+        view { gameModel, computer, leftBarState } =
             div
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
+                , style "width" (String.fromFloat computer.screen.width ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
+                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
+                , style "font-size" "12px"
+                , style "touch-action" "none"
                 ]
-                [ div [ style "position" "absolute" ] [ Html.map ConfigurationsInput (Configurations.view computer.configurations) ]
-                , Html.map (always NoOp) (viewMemory computer memory)
+                [ div
+                    [ style "position" "fixed"
+                    ]
+                    [ case leftBarState of
+                        ShowingConfigurationInput ->
+                            div []
+                                [ button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
+                                , Html.map FromConfigurationEditor (Configurations.view computer.configurations)
+                                ]
+
+                        ShowingEditor ->
+                            div []
+                                [ button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
+                                , Html.map FromLevelEditor (viewEditor computer gameModel)
+                                ]
+                    ]
+                , Html.map (always NoOp) (viewGameModel computer gameModel)
                 ]
 
         update msg model =
-            ( gameUpdate updateMemory msg model
+            ( gameUpdate updateGameModel updateFromEditor msg model
             , Cmd.none
             )
 
-        subscriptions (Game visibility _ _) =
+        subscriptions { visibility } =
             case visibility of
                 E.Hidden ->
                     E.onVisibilityChange VisibilityChanged
@@ -600,7 +647,7 @@ initialComputer initialConfigurations =
 -- SUBSCRIPTIONS
 
 
-gameSubscriptions : Sub Msg
+gameSubscriptions : Sub (Msg levelEditorMsg)
 gameSubscriptions =
     Sub.batch
         [ E.onResize Resized
@@ -619,13 +666,25 @@ gameSubscriptions =
 -- GAME HELPERS
 
 
-type Game memory
-    = Game E.Visibility memory Computer
+type alias Model gameModel =
+    { computer : Computer
+    , gameModel : gameModel
+    , leftBarState : LeftBarState
+    , visibility : E.Visibility
+    }
 
 
-type Msg
+type LeftBarState
+    = ShowingConfigurationInput
+    | ShowingEditor
+
+
+type Msg levelEditorMsg
     = NoOp
-    | ConfigurationsInput Configurations.Msg
+    | ClickedShowLevelEditorButton
+    | ClickedShowConfigurationEditorButton
+    | FromLevelEditor levelEditorMsg
+    | FromConfigurationEditor Configurations.Msg
     | KeyChanged Bool String
     | Tick Time.Posix
     | GotViewport Dom.Viewport
@@ -636,35 +695,53 @@ type Msg
     | MouseButton Bool
 
 
-gameUpdate : (Computer -> memory -> memory) -> Msg -> Game memory -> Game memory
-gameUpdate updateMemory msg (Game vis memory computer) =
+gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
+gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
     case msg of
         NoOp ->
-            Game vis memory computer
+            model
 
-        ConfigurationsInput configurationsMsg ->
-            Game vis memory <|
-                { computer
-                    | configurations =
-                        computer.configurations |> Configurations.update configurationsMsg
-                }
+        ClickedShowLevelEditorButton ->
+            { model | leftBarState = ShowingEditor }
+
+        ClickedShowConfigurationEditorButton ->
+            { model | leftBarState = ShowingConfigurationInput }
+
+        FromLevelEditor levelEditorMsg ->
+            { model
+                | gameModel = updateFromEditor model.computer levelEditorMsg model.gameModel
+            }
+
+        FromConfigurationEditor configurationsMsg ->
+            { model
+                | computer = { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
+            }
 
         Tick time ->
-            Game vis (updateMemory computer memory) <|
-                if computer.mouse.click then
-                    { computer | time = Time time, mouse = mouseClick False computer.mouse }
+            { model
+                | gameModel = updateGameModel computer model.gameModel
+                , computer =
+                    if computer.mouse.click then
+                        { computer | time = Time time, mouse = mouseClick False computer.mouse }
 
-                else
-                    { computer | time = Time time }
+                    else
+                        { computer | time = Time time }
+            }
 
         GotViewport { viewport } ->
-            Game vis memory { computer | screen = toScreen viewport.width viewport.height }
+            { model
+                | computer = { computer | screen = toScreen viewport.width viewport.height }
+            }
 
         Resized w h ->
-            Game vis memory { computer | screen = toScreen (toFloat w) (toFloat h) }
+            { model
+                | computer = { computer | screen = toScreen (toFloat w) (toFloat h) }
+            }
 
         KeyChanged isDown key ->
-            Game vis memory { computer | keyboard = updateKeyboard isDown key computer.keyboard }
+            { model
+                | computer = { computer | keyboard = updateKeyboard isDown key computer.keyboard }
+            }
 
         MouseMove pageX pageY ->
             let
@@ -674,21 +751,28 @@ gameUpdate updateMemory msg (Game vis memory computer) =
                 y =
                     computer.screen.top - pageY
             in
-            Game vis memory { computer | mouse = mouseMove x y computer.mouse }
+            { model
+                | computer = { computer | mouse = mouseMove x y computer.mouse }
+            }
 
         MouseClick ->
-            Game vis memory { computer | mouse = mouseClick True computer.mouse }
+            { model
+                | computer = { computer | mouse = mouseClick True computer.mouse }
+            }
 
         MouseButton isDown ->
-            Game vis memory { computer | mouse = mouseDown isDown computer.mouse }
+            { model
+                | computer = { computer | mouse = mouseDown isDown computer.mouse }
+            }
 
         VisibilityChanged visibility ->
-            Game visibility
-                memory
-                { computer
-                    | keyboard = emptyKeyboard
-                    , mouse = Mouse computer.mouse.x computer.mouse.y False False
-                }
+            { model
+                | computer =
+                    { computer
+                        | keyboard = emptyKeyboard
+                        , mouse = Mouse computer.mouse.x computer.mouse.y False False
+                    }
+            }
 
 
 

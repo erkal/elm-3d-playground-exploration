@@ -3,24 +3,65 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import Color exposing (Color, black, gray, lightBlue, white)
-import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateZ, triangle, wave)
+import Color exposing (Color, black, white)
+import ColorPalette exposing (Palette(..))
+import Dict.Any as AnyDict exposing (AnyDict)
+import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
+import Html.Attributes exposing (style, value)
+import Html.Events exposing (onClick)
+import Html.Events.Extra exposing (onChange)
+import LevelSelector as LS exposing (Levels)
+import List.Nonempty as Nonempty
+import Playground3d
+    exposing
+        ( Computer
+        , Shape
+        , block
+        , configurations
+        , cube
+        , gameWithConfigurationsAndEditor
+        , getFloat
+        , group
+        , moveX
+        , moveY
+        , moveZ
+        , rotateZ
+        , triangle
+        , wave
+        )
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
 import TrixelGrid.Face as Face exposing (Face, leftFace, rightFace)
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
+import World exposing (ColorIndex, World)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations initialModel
+    gameWithConfigurationsAndEditor
+        view
+        update
+        initialConfigurations
+        initialModel
+        viewEditor
+        updateFromEditor
 
 
 type alias Model =
-    { faces : List Face
+    { levels : Levels World
+    , selectedColorIndex : Int
     , mouseOveredUV : { u : Float, v : Float }
     }
+
+
+mapCurrentWorld : (World -> World) -> Model -> Model
+mapCurrentWorld up model =
+    { model | levels = LS.mapCurrent up model.levels }
+
+
+currentPalette : Model -> Palette
+currentPalette =
+    .levels >> LS.current >> .palette
 
 
 
@@ -30,21 +71,16 @@ type alias Model =
 initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
-        , ( "camera y", ( -40, -5, 0 ) )
-        , ( "camera z", ( 1, 10, 40 ) )
+        , ( "camera y", ( -40, 0, 0 ) )
+        , ( "camera z", ( 1, 20, 40 ) )
         ]
 
 
 initialModel : Model
 initialModel =
-    { faces =
-        [ leftFace 0 0
-        , rightFace 0 0
-        , rightFace 1 1
-        , rightFace -1 -1
-        ]
-    , mouseOveredUV =
-        { u = 0, v = 0 }
+    { levels = LS.singleton World.empty
+    , mouseOveredUV = { u = 0, v = 0 }
+    , selectedColorIndex = 255
     }
 
 
@@ -56,6 +92,33 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> updateMouseOverXY computer
+        |> insertTrixelOnMouseDown computer
+        |> removeTrixelOnShiftMouseDown computer
+
+
+insertTrixelOnMouseDown : Computer -> Model -> Model
+insertTrixelOnMouseDown computer model =
+    if computer.mouse.down then
+        model
+            |> mapCurrentWorld
+                (World.insert
+                    (Face.at model.mouseOveredUV)
+                    model.selectedColorIndex
+                )
+
+    else
+        model
+
+
+removeTrixelOnShiftMouseDown : Computer -> Model -> Model
+removeTrixelOnShiftMouseDown computer model =
+    if computer.keyboard.shift && computer.mouse.down then
+        model
+            |> mapCurrentWorld
+                (World.remove (Face.at model.mouseOveredUV))
+
+    else
+        model
 
 
 updateMouseOverXY : Computer -> Model -> Model
@@ -65,7 +128,13 @@ updateMouseOverXY computer model =
             model
 
         Just p ->
-            { model | mouseOveredUV = Vertex.fromWorldCoordinates { x = p.x, y = p.y } }
+            { model
+                | mouseOveredUV =
+                    Vertex.fromWorldCoordinates
+                        { x = p.x
+                        , y = p.y
+                        }
+            }
 
 
 
@@ -90,48 +159,51 @@ view computer model =
     Scene.sunny
         { screen = computer.screen
         , camera = camera computer
-        , backgroundColor = lightBlue
+        , backgroundColor = white
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
         [ group
-            [ floorBlock computer
+            [ group []
+            , floorBlock computer model
 
             --, drawVertices
             , drawFaces computer model
             , drawMouseOveredFace computer model
             ]
-            |> rotateZ (wave -0.1 0.1 5 computer.time)
         ]
 
 
-floorBlock : Computer -> Shape
-floorBlock computer =
-    block gray ( 5, 7, 1 )
-        |> moveZ -0.7
+floorBlock : Computer -> Model -> Shape
+floorBlock computer model =
+    let
+        color =
+            (LS.current model.levels).palette
+                |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
+    in
+    block color ( 10, 14, 1 )
+        |> moveZ -0.6
 
 
 drawMouseOveredFace : Computer -> Model -> Shape
 drawMouseOveredFace computer model =
+    drawFace
+        (LS.current model.levels).palette
+        ( Face.at model.mouseOveredUV, model.selectedColorIndex )
+
+
+drawFaces : Computer -> Model -> Shape
+drawFaces computer model =
     let
-        { u, v } =
-            model.mouseOveredUV
-
-        frac f =
-            f - toFloat (floor f)
-
-        newFace =
-            if frac u + frac v < 1 then
-                Face.leftFace (floor u) (floor v)
-
-            else
-                Face.rightFace (floor u) (floor v)
+        world =
+            LS.current model.levels
     in
-    drawFace newFace
+    group
+        (world.trixels |> AnyDict.toList |> List.map (drawFace world.palette))
 
 
-drawFace : Face -> Shape
-drawFace face =
+drawFace : Palette -> ( Face, ColorIndex ) -> Shape
+drawFace palette ( face, colorIndex ) =
     let
         { x, y } =
             face
@@ -140,7 +212,7 @@ drawFace face =
 
         drawLeftFace : Shape
         drawLeftFace =
-            triangle white
+            triangle (ColorPalette.get colorIndex palette)
                 ( { x = 0, y = 0, z = 0 }
                 , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
                 , { x = 0, y = 1, z = 0 }
@@ -161,12 +233,6 @@ drawFace face =
     )
         |> moveX x
         |> moveY y
-
-
-drawFaces : Computer -> Model -> Shape
-drawFaces computer model =
-    group
-        (model.faces |> List.map drawFace)
 
 
 drawVertex : Color -> Float -> Vertex -> Shape
@@ -196,5 +262,195 @@ drawVertices =
             (List.range -3 3)
             (List.range -2 2)
             |> List.map vertex
-            |> List.map (drawVertex black 0.1)
+            |> List.map (drawVertex black 0.02)
+        )
+
+
+
+-- EDITOR
+
+
+type EditorMsg
+    = SelectPalette Palette
+    | SelectColor Int
+    | PressedButtonForSettingBackgroundColor
+      -- LEVEL SELECTOR:
+    | PressedPreviousLevelButton
+    | PressedNextLevelButton
+    | PressedAddLevelButton
+    | PressedRemoveLevelButton
+    | PressedMoveLevelOneUoButton
+
+
+updateFromEditor : Computer -> EditorMsg -> Model -> Model
+updateFromEditor computer editorMsg model =
+    case editorMsg of
+        SelectPalette palette ->
+            model
+                |> mapCurrentWorld (World.setPalette palette)
+
+        SelectColor colorIndex ->
+            { model | selectedColorIndex = colorIndex }
+
+        PressedButtonForSettingBackgroundColor ->
+            model
+                |> mapCurrentWorld (World.setBackgroundColorIndex model.selectedColorIndex)
+
+        -- LEVEL SELECTOR:
+        PressedPreviousLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToPrevious
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedNextLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToNext
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedAddLevelButton ->
+            { model | levels = model.levels |> LS.add World.empty }
+
+        PressedRemoveLevelButton ->
+            { model | levels = model.levels |> LS.removeCurrent }
+
+        PressedMoveLevelOneUoButton ->
+            { model | levels = model.levels |> LS.moveLevelOneUp }
+
+
+viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor computer model =
+    div
+        [ style "margin" "20px"
+        , style "height" (String.fromFloat computer.screen.height ++ "px")
+        , style "overflow" "scroll"
+        ]
+        [ levelSelection model
+        , hr [] []
+        , h2 [] [ text "Editing the selected level" ]
+        , div [] [ text "Press mouse to add trixel" ]
+        , div [] [ text "Hold shift and press mouse to remove trixel" ]
+        , hr [] []
+        , h2 [] [ text "Color Palette" ]
+        , div [] [ selectColorPalette model ]
+        , div [] [ buttonForSettingBackgroundColor ]
+        , div [] [ viewColorPalette model ]
+        , hr [] []
+        , h2 [] [ text "What More?" ]
+        ]
+
+
+buttonForSettingBackgroundColor : Html EditorMsg
+buttonForSettingBackgroundColor =
+    button
+        [ style "margin" "10px"
+        , onClick PressedButtonForSettingBackgroundColor
+        ]
+        [ text "Set selected color as background color" ]
+
+
+levelSelection : Model -> Html EditorMsg
+levelSelection model =
+    div []
+        [ h2 [] [ text "Level Selection" ]
+        , p []
+            [ button [ onClick PressedPreviousLevelButton ] [ text "<" ]
+            , span [ style "margin" "10px" ]
+                [ text <|
+                    String.concat
+                        [ String.fromInt (LS.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LS.size model.levels)
+                        ]
+                ]
+            , button [ onClick PressedNextLevelButton ] [ text ">" ]
+            ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedAddLevelButton ] [ text "Add level" ] ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedRemoveLevelButton ] [ text "Remove current level" ] ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedMoveLevelOneUoButton ] [ text "Move level one up" ] ]
+        ]
+
+
+optionWith : Palette -> Html EditorMsg
+optionWith palette =
+    option
+        [ value (ColorPalette.toString palette) ]
+        [ text (ColorPalette.toString palette) ]
+
+
+selectColorPalette : Model -> Html EditorMsg
+selectColorPalette model =
+    div [ style "margin" "5px" ]
+        [ text "Choose a palette:"
+        , select
+            [ onChange (ColorPalette.fromString >> SelectPalette)
+            , value (ColorPalette.toString (currentPalette model))
+            ]
+            (List.map optionWith [ Parula, Inferno, Magma, Plasma, Viridis ])
+        ]
+
+
+viewColorPalette : Model -> Html EditorMsg
+viewColorPalette model =
+    let
+        world =
+            LS.current model.levels
+
+        boxSize =
+            16
+
+        gutter =
+            0
+
+        borderOfSelected =
+            2
+
+        m =
+            20
+
+        showColor i color =
+            let
+                translateX =
+                    toFloat (modBy m i) * (boxSize + gutter)
+
+                translateY =
+                    toFloat (i // m) * (boxSize + gutter)
+
+                ( border, boxSize_ ) =
+                    if model.selectedColorIndex == i then
+                        ( borderOfSelected, boxSize - 2 * borderOfSelected )
+
+                    else
+                        ( 0, boxSize )
+            in
+            div
+                [ style "position" "absolute"
+                , style "width" (String.fromFloat boxSize_ ++ "px")
+                , style "height" (String.fromFloat boxSize_ ++ "px")
+                , style "background-color" (Color.toCssString color)
+                , style "transform"
+                    ("translate("
+                        ++ String.fromFloat translateX
+                        ++ "px,"
+                        ++ String.fromFloat translateY
+                        ++ "px)"
+                    )
+                , onClick (SelectColor i)
+                , style "border" ("solid white " ++ String.fromFloat border ++ "px")
+                ]
+                []
+    in
+    div
+        [ style "position" "relative"
+        , style "overflow" "scroll"
+        , style "height" "210px"
+        ]
+        (ColorPalette.colors world.palette
+            |> Nonempty.indexedMap showColor
+            |> Nonempty.toList
         )
