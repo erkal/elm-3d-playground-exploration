@@ -96,29 +96,29 @@ mouseRay camera { screen, mouse } =
 
 {-| get the intersection point of the mouse-ray and a triangle
 -}
-mouseOverXY : Camera -> Computer -> Maybe Point
-mouseOverXY camera computer =
-    mouseOverPlane camera computer Plane3d.xy
+mouseOverXY : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverXY camera screen xy =
+    mouseOverPlane camera screen xy Plane3d.xy
 
 
 {-| get the intersection point of the mouse-ray and a triangle
 -}
-mouseOverYZ : Camera -> Computer -> Maybe Point
-mouseOverYZ camera computer =
-    mouseOverPlane camera computer Plane3d.yz
+mouseOverYZ : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverYZ camera screen xy =
+    mouseOverPlane camera screen xy Plane3d.yz
 
 
 {-| get the intersection point of the mouse-ray and a triangle
 -}
-mouseOverZX : Camera -> Computer -> Maybe Point
-mouseOverZX camera computer =
-    mouseOverPlane camera computer Plane3d.zx
+mouseOverZX : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverZX camera screen xy =
+    mouseOverPlane camera screen xy Plane3d.zx
 
 
 {-| get the intersection point of the mouse-ray with a plane
 -}
-mouseOverPlane : Camera -> Computer -> Plane3d Meters () -> Maybe Point
-mouseOverPlane camera { screen, mouse } plane =
+mouseOverPlane : Camera -> Screen -> { a | x : Float, y : Float } -> Plane3d Meters () -> Maybe Point
+mouseOverPlane camera screen { x, y } plane =
     let
         screenRect =
             Rectangle2d.withDimensions
@@ -130,8 +130,8 @@ mouseOverPlane camera { screen, mouse } plane =
 
         mousePosition =
             Point2d.xy
-                (Pixels.float mouse.x)
-                (Pixels.float mouse.y)
+                (Pixels.float x)
+                (Pixels.float y)
 
         toPoint p =
             Point

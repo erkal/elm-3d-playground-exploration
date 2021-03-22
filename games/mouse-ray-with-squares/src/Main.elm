@@ -81,7 +81,7 @@ floorCubes : Computer -> Shape
 floorCubes computer =
     let
         p =
-            Camera.mouseOverZX camera computer
+            Camera.mouseOverZX camera computer.screen computer.mouse
                 |> Maybe.withDefault { x = 0, y = 0, z = 0 }
 
         distFromP ( x, z ) =
@@ -133,7 +133,7 @@ cartesianProduct columns =
 
 mouseIndicator : Computer -> Model -> Shape
 mouseIndicator computer model =
-    case Camera.mouseOverZX camera computer of
+    case Camera.mouseOverZX camera computer.screen computer.mouse of
         Just p ->
             cylinder (hsl 0 0.75 0.75) 0.1 3
                 |> moveX p.x

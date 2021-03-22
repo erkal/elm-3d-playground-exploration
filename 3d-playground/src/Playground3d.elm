@@ -1,4 +1,4 @@
-module Playground3d exposing
+port module Playground3d exposing
     ( game
     , Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ
@@ -61,6 +61,7 @@ import Browser.Dom as Dom
 import Browser.Events as E
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
+import Dict exposing (Dict)
 import Direction3d
 import Html exposing (Html, button, div, h1, text)
 import Html.Attributes exposing (style)
@@ -73,12 +74,35 @@ import Playground3d.Geometry exposing (Point)
 import Point3d exposing (Point3d)
 import Scene3d
 import Scene3d.Material as Material exposing (Material)
-import Set
+import Set exposing (Set)
 import Sphere3d exposing (Sphere3d)
 import Task
 import Time
 import Triangle3d exposing (Triangle3d)
 import Vector3d
+
+
+
+-- PORTS FOR TOUCH EVENTS
+
+
+port touchStart : (List TouchEvent -> msg) -> Sub msg
+
+
+port touchMove : (List TouchEvent -> msg) -> Sub msg
+
+
+port touchEnd : (List TouchEvent -> msg) -> Sub msg
+
+
+port touchCancel : (List TouchEvent -> msg) -> Sub msg
+
+
+type alias TouchEvent =
+    { identifier : Int
+    , pageX : Float
+    , pageY : Float
+    }
 
 
 
@@ -99,6 +123,7 @@ in games where you want some mouse or keyboard interaction.
 -}
 type alias Computer =
     { mouse : Mouse
+    , touches : Dict Int { x : Float, y : Float }
     , keyboard : Keyboard
     , screen : Screen
     , time : Time
@@ -576,8 +601,8 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init () =
             ( { computer = initialComputer initialConfigurations
               , gameModel = initialGameModel
-              , editorIsOn = True
-              , activeEditorTab = LevelEditorTab
+              , editorIsOn = False
+              , activeEditorTab = ConfigurationEditorTab
               , visibility = E.Visible
               }
             , Task.perform GotViewport Dom.getViewport
@@ -601,21 +626,21 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                         case activeEditorTab of
                             ConfigurationEditorTab ->
                                 div []
-                                    [ button [ onClick HideEditor ] [ text "✕" ]
+                                    [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
                                     , button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
                                     , Html.map FromConfigurationEditor (Configurations.view computer.configurations)
                                     ]
 
                             LevelEditorTab ->
                                 div []
-                                    [ button [ onClick HideEditor ] [ text "✕" ]
+                                    [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
                                     , button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
                                     , Html.map FromLevelEditor (viewEditor computer gameModel)
                                     ]
 
                       else
                         div []
-                            [ button [ onClick ShowEditor ] [ text "≡" ] ]
+                            [ button [ style "font-size" "30px", onClick ShowEditor ] [ text "≡" ] ]
                     ]
                 , Html.map (always NoOp) (viewGameModel computer gameModel)
                 ]
@@ -644,6 +669,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
 initialComputer : Configurations -> Computer
 initialComputer initialConfigurations =
     { mouse = Mouse 0 0 False False
+    , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
     , time = Time (Time.millisToPosix 0)
@@ -667,6 +693,10 @@ gameSubscriptions =
         , E.onMouseDown (D.succeed (MouseButton True))
         , E.onMouseUp (D.succeed (MouseButton False))
         , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
+        , touchStart TouchStart
+        , touchMove TouchMove
+        , touchEnd TouchEnd
+        , touchCancel TouchCancel
         ]
 
 
@@ -702,6 +732,10 @@ type Msg levelEditorMsg
     | Resized Int Int
     | VisibilityChanged E.Visibility
     | MouseMove Float Float
+    | TouchStart (List TouchEvent)
+    | TouchMove (List TouchEvent)
+    | TouchEnd (List TouchEvent)
+    | TouchCancel (List TouchEvent)
     | MouseClick
     | MouseButton Bool
 
@@ -780,6 +814,58 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
         MouseButton isDown ->
             { model
                 | computer = { computer | mouse = mouseDown isDown computer.mouse }
+            }
+
+        TouchStart touchEvents ->
+            { model
+                | computer =
+                    { computer
+                        | touches =
+                            touchEvents
+                                |> List.foldl
+                                    (\{ identifier, pageX, pageY } ->
+                                        Dict.insert identifier
+                                            { x = computer.screen.left + pageX
+                                            , y = computer.screen.top - pageY
+                                            }
+                                    )
+                                    computer.touches
+                    }
+            }
+
+        TouchMove touchEvents ->
+            { model
+                | computer =
+                    { computer
+                        | touches =
+                            touchEvents
+                                |> List.foldl
+                                    (\{ identifier, pageX, pageY } ->
+                                        Dict.insert identifier
+                                            { x = computer.screen.left + pageX
+                                            , y = computer.screen.top - pageY
+                                            }
+                                    )
+                                    computer.touches
+                    }
+            }
+
+        TouchEnd touchEvents ->
+            { model
+                | computer =
+                    { computer
+                        | touches =
+                            touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                    }
+            }
+
+        TouchCancel touchEvents ->
+            { model
+                | computer =
+                    { computer
+                        | touches =
+                            touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                    }
             }
 
         VisibilityChanged visibility ->

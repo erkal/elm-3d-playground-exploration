@@ -56,7 +56,7 @@ update computer model =
 
 removeCube : Computer -> Model -> Model
 removeCube computer model =
-    case Camera.mouseOverXY (camera computer) computer of
+    case Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
         Just p ->
             { model | cubes = Set.remove ( round p.x, round p.y ) model.cubes }
 
@@ -66,7 +66,7 @@ removeCube computer model =
 
 insertCube : Computer -> Model -> Model
 insertCube computer model =
-    case Camera.mouseOverXY (camera computer) computer of
+    case Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
         Just p ->
             --let
             --    e =

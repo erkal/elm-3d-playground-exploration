@@ -5,6 +5,7 @@ module Main exposing (main)
 
 import Color exposing (Color, black, white)
 import ColorPalette exposing (Palette(..))
+import Dict
 import Dict.Any as AnyDict exposing (AnyDict)
 import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
 import Html.Attributes exposing (style, value)
@@ -16,7 +17,7 @@ import Playground3d exposing (Computer, Shape, block, configurations, cube, game
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
-import TrixelGrid.Face as Face exposing (Face, leftFace, rightFace)
+import TrixelGrid.Face as Face exposing (Face)
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 import World exposing (ColorIndex, World)
 
@@ -79,6 +80,7 @@ update computer model =
     model
         |> updateMouseOverXY computer
         |> insertTrixelOnMouseDown computer
+        |> insertTrixelOnTouch computer
         |> removeTrixelOnShiftMouseDown computer
 
 
@@ -96,6 +98,31 @@ insertTrixelOnMouseDown computer model =
         model
 
 
+insertTrixelOnTouch : Computer -> Model -> Model
+insertTrixelOnTouch computer model =
+    computer.touches
+        |> Dict.foldl
+            (\_ xy ->
+                case Playground3d.Camera.mouseOverXY (camera computer) computer.screen xy of
+                    Nothing ->
+                        identity
+
+                    Just p ->
+                        mapCurrentWorld
+                            (World.insert
+                                (Face.at
+                                    (Vertex.fromWorldCoordinates
+                                        { x = p.x
+                                        , y = p.y
+                                        }
+                                    )
+                                )
+                                model.selectedColorIndex
+                            )
+            )
+            model
+
+
 removeTrixelOnShiftMouseDown : Computer -> Model -> Model
 removeTrixelOnShiftMouseDown computer model =
     if computer.keyboard.shift && computer.mouse.down then
@@ -109,7 +136,7 @@ removeTrixelOnShiftMouseDown computer model =
 
 updateMouseOverXY : Computer -> Model -> Model
 updateMouseOverXY computer model =
-    case Playground3d.Camera.mouseOverXY (camera computer) computer of
+    case Playground3d.Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
         Nothing ->
             model
 
@@ -408,7 +435,7 @@ viewColorPalette model =
             LS.current model.levels
 
         boxSize =
-            16
+            13
 
         gutter =
             0
