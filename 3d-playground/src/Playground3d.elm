@@ -576,13 +576,14 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init () =
             ( { computer = initialComputer initialConfigurations
               , gameModel = initialGameModel
+              , editorIsOn = True
+              , activeEditorTab = LevelEditorTab
               , visibility = E.Visible
-              , leftBarState = ShowingEditor
               }
             , Task.perform GotViewport Dom.getViewport
             )
 
-        view { gameModel, computer, leftBarState } =
+        view { gameModel, computer, editorIsOn, activeEditorTab } =
             div
                 [ style "position" "fixed"
                 , style "top" "0px"
@@ -596,18 +597,25 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 [ div
                     [ style "position" "fixed"
                     ]
-                    [ case leftBarState of
-                        ShowingConfigurationInput ->
-                            div []
-                                [ button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
-                                , Html.map FromConfigurationEditor (Configurations.view computer.configurations)
-                                ]
+                    [ if editorIsOn then
+                        case activeEditorTab of
+                            ConfigurationEditorTab ->
+                                div []
+                                    [ button [ onClick HideEditor ] [ text "✕" ]
+                                    , button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
+                                    , Html.map FromConfigurationEditor (Configurations.view computer.configurations)
+                                    ]
 
-                        ShowingEditor ->
-                            div []
-                                [ button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
-                                , Html.map FromLevelEditor (viewEditor computer gameModel)
-                                ]
+                            LevelEditorTab ->
+                                div []
+                                    [ button [ onClick HideEditor ] [ text "✕" ]
+                                    , button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
+                                    , Html.map FromLevelEditor (viewEditor computer gameModel)
+                                    ]
+
+                      else
+                        div []
+                            [ button [ onClick ShowEditor ] [ text "≡" ] ]
                     ]
                 , Html.map (always NoOp) (viewGameModel computer gameModel)
                 ]
@@ -669,19 +677,22 @@ gameSubscriptions =
 type alias Model gameModel =
     { computer : Computer
     , gameModel : gameModel
-    , leftBarState : LeftBarState
+    , editorIsOn : Bool
+    , activeEditorTab : EditorTab
     , visibility : E.Visibility
     }
 
 
-type LeftBarState
-    = ShowingConfigurationInput
-    | ShowingEditor
+type EditorTab
+    = ConfigurationEditorTab
+    | LevelEditorTab
 
 
 type Msg levelEditorMsg
     = NoOp
     | ClickedShowLevelEditorButton
+    | HideEditor
+    | ShowEditor
     | ClickedShowConfigurationEditorButton
     | FromLevelEditor levelEditorMsg
     | FromConfigurationEditor Configurations.Msg
@@ -702,10 +713,16 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
             model
 
         ClickedShowLevelEditorButton ->
-            { model | leftBarState = ShowingEditor }
+            { model | activeEditorTab = LevelEditorTab }
+
+        HideEditor ->
+            { model | editorIsOn = False }
+
+        ShowEditor ->
+            { model | editorIsOn = True }
 
         ClickedShowConfigurationEditorButton ->
-            { model | leftBarState = ShowingConfigurationInput }
+            { model | activeEditorTab = ConfigurationEditorTab }
 
         FromLevelEditor levelEditorMsg ->
             { model
