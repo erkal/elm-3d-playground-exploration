@@ -22,3 +22,7 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
 done
 
 gh-pages -d dist
+
+underlined=$(tput smul)
+normal=$(tput sgr0)
+echo "${underlined}https://github.com/erkal/elm-3d-playground-exploration/blob/main/DEMOS.md${normal}"
