@@ -57,9 +57,10 @@ initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 15, 40 ) )
-        , ( "maximum rotation degree", ( 0, 0.5, pi ) )
-        , ( "rotation duration", ( 1, 7, 20 ) )
+        , ( "camera z", ( 1, 12, 40 ) )
+        , ( "background distance", ( -4, -1.1, -0.51 ) )
+        , ( "maximum rotation degree", ( 0, 0.2, pi ) )
+        , ( "rotation duration", ( 1, 4, 20 ) )
         , ( "delay", ( 0, 0.1, 2 ) )
         ]
 
@@ -68,7 +69,7 @@ initialModel : Model
 initialModel =
     { levels = LS.singleton World.empty
     , mouseOveredUV = { u = 0, v = 0 }
-    , selectedColorIndex = 50
+    , selectedColorIndex = 250
     }
 
 
@@ -196,8 +197,8 @@ floorBlock computer model =
             (LS.current model.levels).palette
                 |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
     in
-    block color ( 10, 14, 1 )
-        |> moveZ -1.5
+    block color ( 20, 14, 1 )
+        |> moveZ (getFloat "background distance" computer)
 
 
 drawMouseOveredFace : Computer -> Model -> Shape
@@ -370,6 +371,7 @@ viewEditor computer model =
         , h2 [] [ text "Color Palette" ]
         , div [] [ selectColorPalette model ]
         , div [] [ buttonForSettingBackgroundColor ]
+        , div [] [ text (String.fromInt model.selectedColorIndex) ]
         , div [] [ viewColorPalette model ]
         , hr [] []
         , levelSelection model
@@ -456,10 +458,14 @@ viewColorPalette model =
 
                 ( border, boxSize_ ) =
                     if model.selectedColorIndex == i then
-                        ( borderOfSelected, boxSize - 2 * borderOfSelected )
+                        ( borderOfSelected
+                        , boxSize - 2 * borderOfSelected
+                        )
 
                     else
-                        ( 0, boxSize )
+                        ( 0
+                        , boxSize
+                        )
             in
             div
                 [ style "position" "absolute"
