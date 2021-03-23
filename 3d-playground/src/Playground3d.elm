@@ -613,41 +613,44 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             , Task.perform GotViewport Dom.getViewport
             )
 
-        view { gameModel, computer, editorIsOn, activeEditorTab } =
+        view model =
             div
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
-                , style "width" (String.fromFloat computer.screen.width ++ "px")
-                , style "height" (String.fromFloat computer.screen.height ++ "px")
+                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
+                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
                 , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
                 , style "font-size" "12px"
                 , style "touch-action" "none"
                 ]
-                [ div
-                    [ style "position" "fixed"
-                    ]
-                    [ if editorIsOn then
-                        case activeEditorTab of
-                            ConfigurationEditorTab ->
-                                div []
-                                    [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
-                                    , button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
-                                    , Html.map FromConfigurationEditor (Configurations.view computer.configurations)
-                                    ]
+                [ viewLeftBar model
+                , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
+                ]
 
-                            LevelEditorTab ->
-                                div []
-                                    [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
-                                    , button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
-                                    , Html.map FromLevelEditor (viewEditor computer gameModel)
-                                    ]
+        viewLeftBar model =
+            div
+                [ style "position" "fixed"
+                ]
+                [ if model.editorIsOn then
+                    case model.activeEditorTab of
+                        ConfigurationEditorTab ->
+                            div []
+                                [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
+                                , button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
+                                , Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
+                                ]
 
-                      else
-                        div []
-                            [ button [ style "font-size" "30px", onClick ShowEditor ] [ text "≡" ] ]
-                    ]
-                , Html.map (always NoOp) (viewGameModel computer gameModel)
+                        LevelEditorTab ->
+                            div []
+                                [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
+                                , button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
+                                , Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
+                                ]
+
+                  else
+                    div []
+                        [ button [ style "font-size" "30px", onClick ShowEditor ] [ text "≡" ] ]
                 ]
 
         update msg model =
