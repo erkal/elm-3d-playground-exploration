@@ -63,9 +63,10 @@ import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
 import Direction3d
-import Html exposing (Html, button, div, h1, text)
-import Html.Attributes exposing (style)
+import Html exposing (Html, button, div, h1, option, select, text)
+import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
+import Html.Events.Extra exposing (onChange)
 import Json.Decode as D
 import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
@@ -606,8 +607,8 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             ( { computer = initialComputer flags initialConfigurations
               , gameModel = initialGameModel
-              , editorIsOn = True
-              , activeEditorTab = ConfigurationEditorTab
+              , editorIsOn = False
+              , activeEditorTab = LevelEditor
               , visibility = E.Visible
               }
             , Task.perform GotViewport Dom.getViewport
@@ -628,30 +629,57 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
                 ]
 
+        editorOnOffButton msg symbol =
+            button
+                [ style "font-size" "30px"
+                , style "width" "40px"
+                , style "height" "40px"
+                , style "float" "left"
+                , onClick msg
+                ]
+                [ text symbol ]
+
+        optionWith editorTab =
+            option
+                [ value (editorTabToString editorTab) ]
+                [ text (editorTabToString editorTab) ]
+
+        editorTabSelection model =
+            div
+                [ style "margin" "10px"
+                , style "float" "left"
+                ]
+                [ select
+                    [ onChange (editorTabFromString >> SelectTab)
+                    , value (editorTabToString model.activeEditorTab)
+                    , style "font-size" "24px"
+                    ]
+                    (List.map optionWith [ Configurations, LevelEditor ])
+                ]
+
         viewLeftBar model =
             div
                 [ style "position" "fixed"
                 ]
-                [ if model.editorIsOn then
-                    case model.activeEditorTab of
-                        ConfigurationEditorTab ->
-                            div []
-                                [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
-                                , button [ onClick ClickedShowLevelEditorButton ] [ text "Show Level Editor" ]
-                                , Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
-                                ]
+                (if model.editorIsOn then
+                    [ editorOnOffButton HideEditor "✕"
+                    , editorTabSelection model
+                    , div [ style "margin-top" "60px" ]
+                        [ viewActiveEditor model
+                        ]
+                    ]
 
-                        LevelEditorTab ->
-                            div []
-                                [ button [ style "font-size" "30px", onClick HideEditor ] [ text "✕" ]
-                                , button [ onClick ClickedShowConfigurationEditorButton ] [ text "Show Configuration Editor" ]
-                                , Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
-                                ]
+                 else
+                    [ editorOnOffButton ShowEditor "≡" ]
+                )
 
-                  else
-                    div []
-                        [ button [ style "font-size" "30px", onClick ShowEditor ] [ text "≡" ] ]
-                ]
+        viewActiveEditor model =
+            case model.activeEditorTab of
+                Configurations ->
+                    Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
+
+                LevelEditor ->
+                    Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
 
         update msg model =
             ( gameUpdate updateGameModel updateFromEditor msg model
@@ -723,16 +751,40 @@ type alias Model gameModel =
 
 
 type EditorTab
-    = ConfigurationEditorTab
-    | LevelEditorTab
+    = Configurations
+    | LevelEditor
+
+
+editorTabToString : EditorTab -> String
+editorTabToString editorTab =
+    case editorTab of
+        Configurations ->
+            "Configurations"
+
+        LevelEditor ->
+            "Level Editor"
+
+
+editorTabFromString : String -> EditorTab
+editorTabFromString str =
+    [ Configurations, LevelEditor ]
+        |> List.filterMap
+            (\editorTab ->
+                if editorTabToString editorTab == str then
+                    Just editorTab
+
+                else
+                    Nothing
+            )
+        |> List.head
+        |> Maybe.withDefault Configurations
 
 
 type Msg levelEditorMsg
     = NoOp
-    | ClickedShowLevelEditorButton
+    | SelectTab EditorTab
     | HideEditor
     | ShowEditor
-    | ClickedShowConfigurationEditorButton
     | FromLevelEditor levelEditorMsg
     | FromConfigurationEditor Configurations.Msg
     | KeyChanged Bool String
@@ -755,17 +807,14 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
         NoOp ->
             model
 
-        ClickedShowLevelEditorButton ->
-            { model | activeEditorTab = LevelEditorTab }
+        SelectTab editorTab ->
+            { model | activeEditorTab = editorTab }
 
         HideEditor ->
             { model | editorIsOn = False }
 
         ShowEditor ->
             { model | editorIsOn = True }
-
-        ClickedShowConfigurationEditorButton ->
-            { model | activeEditorTab = ConfigurationEditorTab }
 
         FromLevelEditor levelEditorMsg ->
             { model
