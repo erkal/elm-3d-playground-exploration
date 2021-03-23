@@ -601,7 +601,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init () =
             ( { computer = initialComputer initialConfigurations
               , gameModel = initialGameModel
-              , editorIsOn = False
+              , editorIsOn = True
               , activeEditorTab = ConfigurationEditorTab
               , visibility = E.Visible
               }
