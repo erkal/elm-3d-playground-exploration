@@ -3,7 +3,7 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import Color exposing (Color, black, white)
+import Color exposing (Color, black, blue, green, red, white)
 import ColorPalette exposing (Palette(..))
 import Dict
 import Dict.Any as AnyDict exposing (AnyDict)
@@ -13,7 +13,7 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, triangle, wave, waveWithDelay)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, triangle, wave, waveWithDelay)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
@@ -80,7 +80,7 @@ initialModel =
 update : Computer -> Model -> Model
 update computer model =
     model
-        |> updateMouseOverXY computer
+        |> updateMouseOverUV computer
         |> insertTrixelOnMouseDown computer
         |> insertTrixelOnTouch computer
         |> removeTrixelOnShiftMouseDown computer
@@ -136,9 +136,14 @@ removeTrixelOnShiftMouseDown computer model =
         model
 
 
-updateMouseOverXY : Computer -> Model -> Model
-updateMouseOverXY computer model =
-    case Playground3d.Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
+updateMouseOverUV : Computer -> Model -> Model
+updateMouseOverUV computer model =
+    case
+        Playground3d.Camera.mouseOverXY
+            (camera computer)
+            computer.screen
+            computer.mouse
+    of
         Nothing ->
             model
 
@@ -186,8 +191,18 @@ view computer model =
             --, drawVertices
             , drawFaces computer model
 
+            --, axes
             --, drawMouseOveredFace computer model
             ]
+        ]
+
+
+axes : Shape
+axes =
+    group
+        [ line red ( 100, 0, 0 ) -- x axis
+        , line green ( 0, 100, 0 ) -- y axis
+        , line blue ( 0, 0, 100 ) -- z axis
         ]
 
 
