@@ -59,8 +59,8 @@ initialConfigurations =
         , ( "camera y", ( -40, 0, 0 ) )
         , ( "camera z", ( 1, 12, 40 ) )
         , ( "background distance", ( -4, -1.1, -0.51 ) )
-        , ( "maximum rotation degree", ( 0, 0.2, pi ) )
-        , ( "rotation duration", ( 1, 4, 20 ) )
+        , ( "maximum rotation degree", ( 0, 0.3, pi ) )
+        , ( "rotation duration", ( 1, 5, 20 ) )
         , ( "delay", ( 0, 0.1, 2 ) )
         ]
 
@@ -172,7 +172,8 @@ camera computer =
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
-        { screen = computer.screen
+        { devicePixelRatio = computer.devicePixelRatio
+        , screen = computer.screen
         , camera = camera computer
         , backgroundColor = white
         , sunlightAzimuth = -(degrees 135)

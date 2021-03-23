@@ -128,6 +128,7 @@ type alias Computer =
     , screen : Screen
     , time : Time
     , configurations : Configurations
+    , devicePixelRatio : Float
     }
 
 
@@ -504,6 +505,10 @@ toFrac period time =
 -- GAME
 
 
+type alias Flags =
+    { devicePixelRatio : Float }
+
+
 {-| Create a game!
 
 Once you get comfortable with [`animation`](#animation), you can try making a
@@ -563,7 +568,7 @@ game :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
     -> gameModel
-    -> Program () (Model gameModel) (Msg Never)
+    -> Program Flags (Model gameModel) (Msg Never)
 game viewGameModel updateGameModel initialGameModel =
     gameWithConfigurations
         viewGameModel
@@ -577,7 +582,7 @@ gameWithConfigurations :
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
     -> gameModel
-    -> Program () (Model gameModel) (Msg Never)
+    -> Program Flags (Model gameModel) (Msg Never)
 gameWithConfigurations viewGameModel updateGameModel initialConfigurations initialGameModel =
     gameWithConfigurationsAndEditor
         viewGameModel
@@ -595,11 +600,11 @@ gameWithConfigurationsAndEditor :
     -> gameModel
     -> (Computer -> gameModel -> Html levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
-    -> Program () (Model gameModel) (Msg levelEditorMsg)
+    -> Program Flags (Model gameModel) (Msg levelEditorMsg)
 gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initialGameModel viewEditor updateFromEditor =
     let
-        init () =
-            ( { computer = initialComputer initialConfigurations
+        init flags =
+            ( { computer = initialComputer flags initialConfigurations
               , gameModel = initialGameModel
               , editorIsOn = True
               , activeEditorTab = ConfigurationEditorTab
@@ -666,14 +671,15 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         }
 
 
-initialComputer : Configurations -> Computer
-initialComputer initialConfigurations =
+initialComputer : Flags -> Configurations -> Computer
+initialComputer flags initialConfigurations =
     { mouse = Mouse 0 0 False False
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
     , time = Time (Time.millisToPosix 0)
     , configurations = initialConfigurations
+    , devicePixelRatio = flags.devicePixelRatio
     }
 
 

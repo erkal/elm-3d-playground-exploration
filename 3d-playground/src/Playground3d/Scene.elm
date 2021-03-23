@@ -5,6 +5,7 @@ import Color exposing (Color)
 import Direction3d
 import Html exposing (Html)
 import Length
+import ModifiedFromScene3d.Scenes
 import Pixels
 import Playground3d exposing (Screen, toEntities)
 import Playground3d.Camera exposing (Camera)
@@ -13,7 +14,8 @@ import Scene3d.Light exposing (Chromaticity, Light)
 
 
 sunny :
-    { screen : Screen
+    { devicePixelRatio : Float
+    , screen : Screen
     , camera : Camera
     , sunlightAzimuth : Float
     , sunlightElevation : Float
@@ -21,22 +23,23 @@ sunny :
     }
     -> List Playground3d.Shape
     -> Html Never
-sunny properties shapes =
-    Scene3d.sunny
-        { camera = properties.camera
+sunny arguments shapes =
+    ModifiedFromScene3d.Scenes.sunnyWithDevicePixelRatio
+        { devicePixelRatio = arguments.devicePixelRatio
+        , camera = arguments.camera
         , clipDepth = Length.centimeters 0.5
         , dimensions =
-            ( Pixels.int (round properties.screen.width)
-            , Pixels.int (round properties.screen.height)
+            ( Pixels.int (round arguments.screen.width)
+            , Pixels.int (round arguments.screen.height)
             )
-        , background = Scene3d.backgroundColor properties.backgroundColor
+        , background = Scene3d.backgroundColor arguments.backgroundColor
         , entities = toEntities shapes
         , shadows = True
         , upDirection = Direction3d.z
         , sunlightDirection =
             Direction3d.xyZ
-                (Angle.radians properties.sunlightAzimuth)
-                (Angle.radians properties.sunlightElevation)
+                (Angle.radians arguments.sunlightAzimuth)
+                (Angle.radians arguments.sunlightElevation)
         }
 
 

@@ -49,7 +49,8 @@ camera =
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
-        { screen = computer.screen
+        { devicePixelRatio = computer.devicePixelRatio
+        , screen = computer.screen
         , camera = camera
         , backgroundColor = lightBlue
         , sunlightAzimuth = -(degrees 135)

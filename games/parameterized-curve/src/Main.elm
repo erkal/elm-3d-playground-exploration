@@ -56,7 +56,8 @@ update computer model =
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
-        { screen = computer.screen
+        { devicePixelRatio = computer.devicePixelRatio
+        , screen = computer.screen
         , camera =
             perspective
                 { focalPoint = { x = 0, y = 3, z = 0 }
