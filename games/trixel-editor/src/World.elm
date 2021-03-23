@@ -22,7 +22,7 @@ empty : World
 empty =
     { trixels = Dict.Any.empty Face.toComparable
     , palette = Parula
-    , backgroundColorIndex = 100
+    , backgroundColorIndex = 230
     }
 
 

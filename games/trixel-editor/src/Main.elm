@@ -57,9 +57,10 @@ initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 26, 40 ) )
+        , ( "camera z", ( 1, 15, 40 ) )
         , ( "maximum rotation degree", ( 0, 0.5, pi ) )
         , ( "rotation duration", ( 1, 7, 20 ) )
+        , ( "delay", ( 0, 0.1, 2 ) )
         ]
 
 
@@ -67,7 +68,7 @@ initialModel : Model
 initialModel =
     { levels = LS.singleton World.empty
     , mouseOveredUV = { u = 0, v = 0 }
-    , selectedColorIndex = 255
+    , selectedColorIndex = 50
     }
 
 
@@ -247,12 +248,11 @@ drawFace computer palette ( face, colorIndex ) =
 
         delay =
             x
-                + y
-                + (if Face.isLeft face then
+                * (if Face.isLeft face then
                     0
 
                    else
-                    0.5
+                    getFloat "delay" computer
                   )
     in
     (if Face.isLeft face then
@@ -262,7 +262,7 @@ drawFace computer palette ( face, colorIndex ) =
         drawRightFace
     )
         |> rotateX (waveWithDelay delay -maxRot maxRot duration computer.time)
-        --|> rotateY (waveWithDelay delay -maxRot maxRot duration computer.time)
+        |> rotateY (waveWithDelay delay -maxRot maxRot duration computer.time)
         --|> rotateZ (waveWithDelay delay -maxRot maxRot duration computer.time)
         |> moveX x
         |> moveY y
