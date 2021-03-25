@@ -59,7 +59,7 @@ initialConfigurations =
         , ( "camera y", ( -40, 0, 0 ) )
         , ( "camera z", ( 1, 12, 40 ) )
         , ( "background distance", ( -4, -1.1, -0.51 ) )
-        , ( "maximum rotation degree", ( 0, 0.3, pi ) )
+        , ( "maximum rotation degree", ( 0, 0, 2 * pi ) )
         , ( "rotation duration", ( 1, 5, 20 ) )
         , ( "delay", ( 0, 0.1, 2 ) )
         ]
