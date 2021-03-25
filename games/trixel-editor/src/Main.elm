@@ -13,10 +13,11 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, triangle, wave, waveWithDelay)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scaleAround, triangle, wave, waveWithDelay)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
+import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
 import TrixelGrid.Face as Face exposing (Face)
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 import World exposing (ColorIndex, World)
@@ -59,9 +60,12 @@ initialConfigurations =
         , ( "camera y", ( -40, 0, 0 ) )
         , ( "camera z", ( 1, 12, 40 ) )
         , ( "background distance", ( -4, -1.1, -0.51 ) )
+        , ( "trixel scale", ( 0.5, 0.95, 1 ) )
         , ( "maximum rotation degree", ( 0, 0, 2 * pi ) )
         , ( "rotation duration", ( 1, 5, 20 ) )
         , ( "delay", ( 0, 0.1, 2 ) )
+        , ( "sunlight azimuth", ( 0, degrees 225, degrees 360 ) )
+        , ( "sunlight elevation", ( degrees 180, degrees 315, degrees 360 ) )
         ]
 
 
@@ -113,7 +117,7 @@ insertTrixelOnTouch computer model =
                         mapCurrentWorld
                             (World.insert
                                 (Face.at
-                                    (Vertex.fromWorldCoordinates
+                                    (fromWorldCoordinates
                                         { x = p.x
                                         , y = p.y
                                         }
@@ -150,7 +154,7 @@ updateMouseOverUV computer model =
         Just p ->
             { model
                 | mouseOveredUV =
-                    Vertex.fromWorldCoordinates
+                    fromWorldCoordinates
                         { x = p.x
                         , y = p.y
                         }
@@ -181,8 +185,8 @@ view computer model =
         , screen = computer.screen
         , camera = camera computer
         , backgroundColor = white
-        , sunlightAzimuth = -(degrees 135)
-        , sunlightElevation = -(degrees 45)
+        , sunlightAzimuth = getFloat "sunlight azimuth" computer
+        , sunlightElevation = getFloat "sunlight elevation" computer
         }
         [ group
             [ group []
@@ -239,7 +243,7 @@ drawFace computer palette ( face, colorIndex ) =
     let
         { x, y } =
             face
-                |> Face.lowerRight
+                |> Face.lowerRightVertex
                 |> Vertex.worldCoordinates
 
         drawLeftFace : Shape
@@ -263,6 +267,21 @@ drawFace computer palette ( face, colorIndex ) =
         duration =
             getFloat "rotation duration" computer
 
+        faceCenter =
+            let
+                c =
+                    toWorldCoordinates <|
+                        if Face.isLeft face then
+                            { u = 1 / 3, v = 1 / 3 }
+
+                        else
+                            { u = 2 / 3, v = 2 / 3 }
+            in
+            { x = c.x
+            , y = c.y
+            , z = 0
+            }
+
         delay =
             x
                 * (if Face.isLeft face then
@@ -271,6 +290,15 @@ drawFace computer palette ( face, colorIndex ) =
                    else
                     getFloat "delay" computer
                   )
+
+        rotationDegree =
+            waveWithDelay delay -maxRot maxRot duration computer.time
+
+        rotation =
+            identity
+                >> rotateAround faceCenter ( 0, 1, 0 ) rotationDegree
+                >> rotateAround faceCenter ( 1, 0, 0 ) rotationDegree
+                >> rotateAround faceCenter ( 0, 0, 1 ) rotationDegree
     in
     (if Face.isLeft face then
         drawLeftFace
@@ -278,9 +306,8 @@ drawFace computer palette ( face, colorIndex ) =
      else
         drawRightFace
     )
-        |> rotateX (waveWithDelay delay -maxRot maxRot duration computer.time)
-        |> rotateY (waveWithDelay delay -maxRot maxRot duration computer.time)
-        --|> rotateZ (waveWithDelay delay -maxRot maxRot duration computer.time)
+        |> scaleAround faceCenter (getFloat "trixel scale" computer)
+        |> rotation
         |> moveX x
         |> moveY y
 
