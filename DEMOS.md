@@ -1,5 +1,7 @@
 # Demos
 
+- _template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/_template-with-configurations/src)
+- _template: [demo](https://erkal.github.io/elm-3d-playground-exploration/_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/_template/src)
 - camera-control: [demo](https://erkal.github.io/elm-3d-playground-exploration/camera-control), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/camera-control/src)
 - dancing-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/dancing-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/dancing-cubes/src)
 - grid-board: [demo](https://erkal.github.io/elm-3d-playground-exploration/grid-board), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/grid-board/src)
@@ -11,6 +13,4 @@
 - recursive-tree: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-tree), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/recursive-tree/src)
 - rhombitrihexagonal-tiling: [demo](https://erkal.github.io/elm-3d-playground-exploration/rhombitrihexagonal-tiling), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/rhombitrihexagonal-tiling/src)
 - rotating-blocks: [demo](https://erkal.github.io/elm-3d-playground-exploration/rotating-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/rotating-blocks/src)
-- template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/template-with-configurations/src)
-- template: [demo](https://erkal.github.io/elm-3d-playground-exploration/template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/template/src)
 - trixel-editor: [demo](https://erkal.github.io/elm-3d-playground-exploration/trixel-editor), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/trixel-editor/src)
