@@ -32,14 +32,14 @@ initialModel =
 
 initialConfigurations =
     configurations
-        [ ( "number of blocks", ( 10, 40, 60 ) )
-        , ( "frequency", ( 1, 4, 20 ) )
-        , ( "minWidth", ( 0, 5, 35 ) )
-        , ( "maxWidth", ( 10, 24, 40 ) )
-        , ( "period", ( 0.5, 7, 10 ) )
-        , ( "lux", ( 2, 4, 5 ) )
-        , ( "intensity above", ( 0, 50, 300 ) )
-        , ( "intensity below", ( 0, 50, 300 ) )
+        [ ( "number of blocks", ( 10, 25, 60 ) )
+        , ( "frequency", ( 1, 10, 20 ) )
+        , ( "minWidth", ( 0, 35, 35 ) )
+        , ( "maxWidth", ( 10, 37, 40 ) )
+        , ( "period", ( 0.5, 5, 10 ) )
+        , ( "lux", ( 2, 5, 5 ) )
+        , ( "intensity above", ( 0, 0, 300 ) )
+        , ( "intensity below", ( 0, 0, 300 ) )
         ]
 
 
@@ -153,11 +153,12 @@ wavingBlocks ({ time } as computer) =
         frequency =
             getFloat "frequency" computer
 
-        maxWidth =
-            getFloat "maxWidth" computer
-
         minWidth =
             getFloat "minWidth" computer
+
+        maxWidth =
+            getFloat "maxWidth" computer
+                |> max minWidth
 
         period =
             getFloat "period" computer
