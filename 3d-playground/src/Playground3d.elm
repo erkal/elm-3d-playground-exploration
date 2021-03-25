@@ -6,7 +6,7 @@ port module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, rotateAround, scale, scaleAround, waveWithDelay
+    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, passedSecondsAfter, rotateAround, scale, scaleAround, waveWithDelay
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -412,6 +412,11 @@ type Time
     = Time Time.Posix
 
 
+passedSecondsAfter : Time -> Time -> Float
+passedSecondsAfter (Time start) (Time current) =
+    0.001 * toFloat (Time.posixToMillis current - Time.posixToMillis start)
+
+
 {-| Create an angle that cycles from 0 to 360 degrees over time.
 
 Here is an [`animation`](#animation) with a spinning triangle:
@@ -608,7 +613,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             ( { computer = initialComputer flags initialConfigurations
               , gameModel = initialGameModel
               , editorIsOn = True
-              , activeEditorTab = Configurations
+              , activeEditorTab = LevelEditor
               , visibility = E.Visible
               }
             , Task.perform GotViewport Dom.getViewport
@@ -1155,8 +1160,8 @@ rotate axis angle shape =
                 (List.map (rotate axis angle) drawables)
 
 
-rotateAround : Point -> Vector -> Float -> Shape -> Shape
-rotateAround axisOrigin ( dx, dy, dz ) angle =
+rotateAround : ( Point, Vector ) -> Float -> Shape -> Shape
+rotateAround ( axisOrigin, ( dx, dy, dz ) ) angle =
     rotate
         (Axis3d.through (Point3d.fromMeters axisOrigin)
             (Direction3d.unsafe { x = dx, y = dy, z = dz })
