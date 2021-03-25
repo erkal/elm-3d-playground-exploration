@@ -1,18 +1,7 @@
-module TrixelGrid.Face exposing
-    ( Face
-    , at
-    , isLeft
-    , isNeighbour
-    , leftFace
-    , lowerRightVertex
-    , rightFace
-    , toComparable
-    )
+module TrixelGrid.Face exposing (..)
 
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
-
-import TrixelGrid.Vertex as Vertex exposing (vertex)
 
 
 type Face
@@ -28,14 +17,6 @@ type LR
 -- CREATE
 
 
-leftFace =
-    Face L
-
-
-rightFace =
-    Face R
-
-
 at : { u : Float, v : Float } -> Face
 at { u, v } =
     let
@@ -43,41 +24,28 @@ at { u, v } =
             f - toFloat (floor f)
     in
     if frac u + frac v < 1 then
-        leftFace (floor u) (floor v)
+        Face L (floor u) (floor v)
 
     else
-        rightFace (floor u) (floor v)
+        Face R (floor u) (floor v)
 
 
 
 -- QUERY
 
 
-isLeft : Face -> Bool
-isLeft (Face lr _ _) =
-    lr == L
+center : Face -> { u : Float, v : Float }
+center (Face lr u v) =
+    case lr of
+        L ->
+            { u = toFloat u + 1 / 3
+            , v = toFloat v + 1 / 3
+            }
 
-
-lowerRightVertex : Face -> Vertex.Vertex
-lowerRightVertex (Face lr u v) =
-    vertex ( u, v )
-
-
-isNeighbour : Face -> Face -> Bool
-isNeighbour queriedFace (Face lr u v) =
-    List.any ((==) queriedFace) <|
-        case lr of
-            L ->
-                [ Face R u v
-                , Face R u (v - 1)
-                , Face R (u - 1) v
-                ]
-
-            R ->
-                [ Face L u (v + 1)
-                , Face L (u + 1) v
-                , Face L u v
-                ]
+        R ->
+            { u = toFloat u + 2 / 3
+            , v = toFloat v + 2 / 3
+            }
 
 
 

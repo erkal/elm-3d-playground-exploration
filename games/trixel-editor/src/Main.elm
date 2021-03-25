@@ -18,7 +18,7 @@ import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
 import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
-import TrixelGrid.Face as Face exposing (Face)
+import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 import World exposing (ColorIndex, World)
 
@@ -239,12 +239,13 @@ drawFaces computer model =
 
 
 drawFace : Computer -> Palette -> ( Face, ColorIndex ) -> Shape
-drawFace computer palette ( face, colorIndex ) =
+drawFace computer palette ( Face lr u v, colorIndex ) =
     let
         { x, y } =
-            face
-                |> Face.lowerRightVertex
-                |> Vertex.worldCoordinates
+            { u = toFloat u
+            , v = toFloat v
+            }
+                |> toWorldCoordinates
 
         drawLeftFace : Shape
         drawLeftFace =
@@ -271,40 +272,30 @@ drawFace computer palette ( face, colorIndex ) =
             let
                 c =
                     toWorldCoordinates <|
-                        if Face.isLeft face then
-                            { u = 1 / 3, v = 1 / 3 }
+                        case lr of
+                            L ->
+                                { u = 1 / 3, v = 1 / 3 }
 
-                        else
-                            { u = 2 / 3, v = 2 / 3 }
+                            R ->
+                                { u = 2 / 3, v = 2 / 3 }
             in
-            { x = c.x
-            , y = c.y
-            , z = 0
-            }
-
-        delay =
-            x
-                * (if Face.isLeft face then
-                    0
-
-                   else
-                    getFloat "delay" computer
-                  )
+            { x = c.x, y = c.y, z = 0 }
 
         rotationDegree =
-            waveWithDelay delay -maxRot maxRot duration computer.time
+            wave -maxRot maxRot duration computer.time
 
         rotation =
             identity
-                >> rotateAround faceCenter ( 0, 1, 0 ) rotationDegree
-                >> rotateAround faceCenter ( 1, 0, 0 ) rotationDegree
-                >> rotateAround faceCenter ( 0, 0, 1 ) rotationDegree
+                >> rotateAround ( faceCenter, ( 0, 1, 0 ) ) rotationDegree
+                >> rotateAround ( faceCenter, ( 1, 0, 0 ) ) rotationDegree
+                >> rotateAround ( faceCenter, ( 0, 0, 1 ) ) rotationDegree
     in
-    (if Face.isLeft face then
-        drawLeftFace
+    (case lr of
+        L ->
+            drawLeftFace
 
-     else
-        drawRightFace
+        R ->
+            drawRightFace
     )
         |> scaleAround faceCenter (getFloat "trixel scale" computer)
         |> rotation

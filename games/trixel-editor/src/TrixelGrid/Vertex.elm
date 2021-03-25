@@ -1,8 +1,4 @@
-module TrixelGrid.Vertex exposing
-    ( Vertex
-    , vertex
-    , worldCoordinates
-    )
+module TrixelGrid.Vertex exposing (..)
 
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
