@@ -6,7 +6,7 @@ port module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, scale, waveWithDelay
+    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, rotateAround, scale, scaleAround, waveWithDelay
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -53,7 +53,7 @@ port module Playground3d exposing
 
 -}
 
-import Angle
+import Angle exposing (Angle)
 import Axis3d exposing (Axis3d)
 import Block3d exposing (Block3d)
 import Browser
@@ -62,7 +62,7 @@ import Browser.Events as E
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
-import Direction3d
+import Direction3d exposing (Direction3d)
 import Html exposing (Html, button, div, h1, option, select, text)
 import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
@@ -607,7 +607,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             ( { computer = initialComputer flags initialConfigurations
               , gameModel = initialGameModel
-              , editorIsOn = False
+              , editorIsOn = True
               , activeEditorTab = LevelEditor
               , visibility = E.Visible
               }
@@ -1111,10 +1111,10 @@ sphere color radius =
 
 
 line : Color -> Vector -> Shape
-line color ( x, y, z ) =
+line color vector =
     Line color
         (LineSegment3d.fromPointAndVector Point3d.origin
-            (Vector3d.fromMeters { x = x, y = y, z = z })
+            (Vector3d.fromTuple Length.meters vector)
         )
 
 
@@ -1127,52 +1127,66 @@ group drawables =
 -- MODIFY
 
 
-rotate : Axis3d Meters () -> Float -> Shape -> Shape
-rotate axis angle drawable =
-    case drawable of
+rotate : Axis3d Meters () -> Angle -> Shape -> Shape
+rotate axis angle shape =
+    case shape of
         Block color block3d ->
             Block color
-                (block3d |> Block3d.rotateAround axis (Angle.radians angle))
+                (block3d |> Block3d.rotateAround axis angle)
 
         Triangle color triangle3d ->
             Triangle color
-                (triangle3d |> Triangle3d.rotateAround axis (Angle.radians angle))
+                (triangle3d |> Triangle3d.rotateAround axis angle)
 
         Sphere color sphere3d ->
             Sphere color
-                (sphere3d |> Sphere3d.rotateAround axis (Angle.radians angle))
+                (sphere3d |> Sphere3d.rotateAround axis angle)
 
         Cylinder color cylinder3d ->
             Cylinder color
-                (cylinder3d |> Cylinder3d.rotateAround axis (Angle.radians angle))
+                (cylinder3d |> Cylinder3d.rotateAround axis angle)
 
         Line color lineSegment3d ->
             Line color
-                (lineSegment3d |> LineSegment3d.rotateAround axis (Angle.radians angle))
+                (lineSegment3d |> LineSegment3d.rotateAround axis angle)
 
         Group drawables ->
             Group
                 (List.map (rotate axis angle) drawables)
 
 
+rotateAround : Point -> Vector -> Float -> Shape -> Shape
+rotateAround axisOrigin ( dx, dy, dz ) angle =
+    rotate
+        (Axis3d.through (Point3d.fromMeters axisOrigin)
+            (Direction3d.unsafe { x = dx, y = dy, z = dz })
+        )
+        (Angle.radians angle)
+
+
 rotateX : Float -> Shape -> Shape
-rotateX angle drawable =
-    rotate Axis3d.x angle drawable
+rotateX angle shape =
+    rotate Axis3d.x (Angle.radians angle) shape
 
 
 rotateY : Float -> Shape -> Shape
-rotateY angle drawable =
-    rotate Axis3d.y angle drawable
+rotateY angle shape =
+    rotate Axis3d.y (Angle.radians angle) shape
 
 
 rotateZ : Float -> Shape -> Shape
-rotateZ angle drawable =
-    rotate Axis3d.z angle drawable
+rotateZ angle shape =
+    rotate Axis3d.z (Angle.radians angle) shape
+
+
+scaleAround : Point -> Float -> Shape -> Shape
+scaleAround { x, y, z } factor =
+    move ( -x, -y, -z ) >> scale factor >> move ( x, y, z )
 
 
 scale : Float -> Shape -> Shape
-scale factor drawable =
-    case drawable of
+scale factor shape =
+    case shape of
         Block color block3d ->
             Block color
                 (block3d |> Block3d.scaleAbout Point3d.origin factor)
@@ -1199,12 +1213,12 @@ scale factor drawable =
 
 
 move : Vector -> Shape -> Shape
-move ( x, y, z ) drawable =
+move ( x, y, z ) shape =
     let
         translation =
             Vector3d.meters x y z
     in
-    case drawable of
+    case shape of
         Block color block3d ->
             Block color
                 (block3d |> Block3d.translateBy translation)
@@ -1256,8 +1270,8 @@ toEntities drawables =
 
 
 drawableToEntities : Shape -> List (Scene3d.Entity ())
-drawableToEntities drawable =
-    case drawable of
+drawableToEntities shape =
+    case shape of
         Block color block3d ->
             [ Scene3d.blockWithShadow (material color) block3d ]
 
