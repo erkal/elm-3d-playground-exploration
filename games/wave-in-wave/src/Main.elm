@@ -37,6 +37,9 @@ initialConfigurations =
         , ( "minWidth", ( 0, 5, 35 ) )
         , ( "maxWidth", ( 10, 24, 40 ) )
         , ( "period", ( 0.5, 7, 10 ) )
+        , ( "lux", ( 2, 4, 5 ) )
+        , ( "intensity above", ( 0, 50, 300 ) )
+        , ( "intensity below", ( 0, 50, 300 ) )
         ]
 
 
@@ -60,14 +63,14 @@ view computer model =
             Light.point
                 { position = { x = -45, y = 30, z = 45 }
                 , chromaticity = Scene3d.Light.incandescent
-                , intensity = LuminousFlux.lumens 6000000
+                , intensity = LuminousFlux.lumens 6000
                 }
 
         secondLight =
             Light.point
-                { position = { x = 45, y = -30, z = 45 }
+                { position = { x = -45, y = -30, z = 45 }
                 , chromaticity = Scene3d.Light.fluorescent
-                , intensity = LuminousFlux.lumens 6000000
+                , intensity = LuminousFlux.lumens 6000
                 }
 
         thirdLight =
@@ -75,7 +78,7 @@ view computer model =
                 { azimuth = getFloat "azimuth for third light" computer
                 , elevation = getFloat "elevation for third light" computer
                 , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
-                , intensity = Illuminance.lux 40000
+                , intensity = Illuminance.lux (10 ^ getFloat "lux" computer)
                 }
 
         fourthLight =
@@ -83,8 +86,8 @@ view computer model =
                 { azimuth = getFloat "azimuth for fourth light" computer
                 , elevation = getFloat "elevation for fourth light" computer
                 , chromaticity = Scene3d.Light.fluorescent
-                , intensityAbove = Illuminance.lux 40
-                , intensityBelow = Illuminance.lux 60
+                , intensityAbove = Illuminance.lux (getFloat "intensity above" computer)
+                , intensityBelow = Illuminance.lux (getFloat "intensity below" computer)
                 }
     in
     Scene.custom
@@ -123,17 +126,7 @@ shapes : Computer -> Model -> List Shape
 shapes computer model =
     [ wavingBlocks computer
     , block gray ( 300, 1, 300 ) |> moveY -33
-    , axes
     ]
-
-
-axes : Shape
-axes =
-    group
-        [ line red ( 100, 0, 0 ) -- x axis
-        , line green ( 0, 100, 0 ) -- y axis
-        , line blue ( 0, 0, 100 ) -- z axis
-        ]
 
 
 wavingBlocks : Computer -> Shape
