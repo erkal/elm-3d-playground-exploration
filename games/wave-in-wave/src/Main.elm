@@ -116,7 +116,7 @@ camera computer =
         , eyePoint =
             { x = 10
             , y = wave -20 20 20 computer.time
-            , z = 95
+            , z = 145
             }
         , upDirection = { x = 0, y = 1, z = 0 }
         }
