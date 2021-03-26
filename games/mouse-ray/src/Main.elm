@@ -8,7 +8,7 @@ import Playground3d.Scene as Scene
 
 
 main =
-    game view update initialModel
+    game view update init
 
 
 type alias Model =
@@ -19,8 +19,8 @@ type alias Model =
 -- INIT
 
 
-initialModel : Model
-initialModel =
+init : Computer -> Model
+init computer =
     {}
 
 

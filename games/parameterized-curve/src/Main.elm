@@ -9,7 +9,7 @@ import Playground3d.Scene as Scene
 
 
 main =
-    gameWithConfigurations view update initialConfigurations initialModel
+    gameWithConfigurations view update initialConfigurations init
 
 
 type alias Model =
@@ -35,8 +35,8 @@ initialConfigurations =
         ]
 
 
-initialModel : Model
-initialModel =
+init : Computer -> Model
+init computer =
     {}
 
 

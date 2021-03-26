@@ -28,7 +28,7 @@ main =
         view
         update
         initialConfigurations
-        initialModel
+        init
         viewEditor
         updateFromEditor
 
@@ -69,8 +69,8 @@ initialConfigurations =
         ]
 
 
-initialModel : Model
-initialModel =
+init : Computer -> Model
+init computer =
     { levels = LS.singleton World.empty
     , mouseOveredUV = { u = 0, v = 0 }
     , selectedColorIndex = 250

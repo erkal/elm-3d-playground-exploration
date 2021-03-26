@@ -15,7 +15,7 @@ import Temperature
 
 
 main =
-    gameWithConfigurations view update (configurations []) initialModel
+    gameWithConfigurations view update (configurations []) init
 
 
 type alias Model =
@@ -27,8 +27,8 @@ type alias Model =
 -- INIT
 
 
-initialModel : Model
-initialModel =
+init : Computer -> Model
+init computer =
     { cubes = andreysBrithDayCubes
     }
 

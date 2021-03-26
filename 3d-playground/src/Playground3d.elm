@@ -573,28 +573,28 @@ Notice that in the `update` we use information from the keyboard to update the
 game :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
-    -> gameModel
+    -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
-game viewGameModel updateGameModel initialGameModel =
+game viewGameModel updateGameModel initGameModel =
     gameWithConfigurations
         viewGameModel
         updateGameModel
         Configurations.empty
-        initialGameModel
+        initGameModel
 
 
 gameWithConfigurations :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
-    -> gameModel
+    -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
-gameWithConfigurations viewGameModel updateGameModel initialConfigurations initialGameModel =
+gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
     gameWithConfigurationsAndEditor
         viewGameModel
         updateGameModel
         initialConfigurations
-        initialGameModel
+        initGameModel
         (\_ _ -> div [] [])
         (\_ _ gameModel -> gameModel)
 
@@ -603,17 +603,21 @@ gameWithConfigurationsAndEditor :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
-    -> gameModel
+    -> (Computer -> gameModel)
     -> (Computer -> gameModel -> Html levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
-gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initialGameModel viewEditor updateFromEditor =
+gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
     let
         init flags =
-            ( { computer = initialComputer flags initialConfigurations
-              , gameModel = initialGameModel
+            let
+                initialComputer_ =
+                    initialComputer flags initialConfigurations
+            in
+            ( { computer = initialComputer_
+              , gameModel = initGameModel initialComputer_
               , editorIsOn = True
-              , activeEditorTab = Configurations
+              , activeEditorTab = LevelEditor
               , visibility = E.Visible
               }
             , Task.perform GotViewport Dom.getViewport
