@@ -34,8 +34,8 @@ initialConfigurations =
     configurations
         [ ( "number of blocks", ( 10, 25, 60 ) )
         , ( "frequency", ( 1, 10, 20 ) )
-        , ( "minWidth", ( 0, 35, 35 ) )
-        , ( "maxWidth", ( 10, 37, 40 ) )
+        , ( "minWidth", ( 0, 35, 45 ) )
+        , ( "maxWidth", ( 10, 37, 50 ) )
         , ( "period", ( 0.5, 5, 10 ) )
         , ( "lux", ( 2, 5, 5 ) )
         , ( "intensity above", ( 0, 0, 300 ) )
@@ -148,7 +148,7 @@ wavingBlocks ({ time } as computer) =
                 0.7
 
         dist =
-            60 / toFloat n
+            80 / toFloat n
 
         frequency =
             getFloat "frequency" computer
