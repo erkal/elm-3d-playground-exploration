@@ -650,18 +650,21 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
 
         optionWith editorTab =
             option
-                [ value (editorTabToString editorTab) ]
+                [ value (editorTabToString editorTab)
+                ]
                 [ text (editorTabToString editorTab) ]
 
         editorTabSelection model =
             div
-                [ style "margin" "10px"
+                [ style "margin-left" "0px"
                 , style "float" "left"
                 ]
                 [ select
                     [ onChange (editorTabFromString >> SelectTab)
                     , value (editorTabToString model.activeEditorTab)
-                    , style "font-size" "24px"
+                    , style "width" "200px"
+                    , style "height" "40px"
+                    , style "font-size" "20px"
                     ]
                     (List.map optionWith [ Configurations, LevelEditor ])
                 ]

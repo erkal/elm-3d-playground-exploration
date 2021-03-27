@@ -87,7 +87,7 @@ view configurations =
         floatSlider ( key, ( min, currentValue, max ) ) =
             div
                 [ style "margin-top" "15px"
-                , style "font-size" "20px"
+                , style "font-size" "16px"
                 , style "text-shadow" "white 0px 0px 10px"
                 ]
                 [ div []
