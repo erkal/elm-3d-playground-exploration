@@ -11,6 +11,10 @@ type alias Configurations =
     }
 
 
+
+-- create
+
+
 empty : Configurations
 empty =
     { floats = []
@@ -108,7 +112,7 @@ view configurations =
                     , Html.Attributes.min (String.fromFloat min)
                     , Html.Attributes.max (String.fromFloat max)
                     , onInput (\newValue -> SetFloat key (String.toFloat newValue |> Maybe.withDefault 0))
-                    , step "any"
+                    , step (String.fromFloat ((max - min) / 127))
                     , style "width" "200px"
                     , value (String.fromFloat currentValue)
                     ]

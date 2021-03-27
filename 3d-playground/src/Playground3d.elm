@@ -61,6 +61,7 @@ import Browser.Dom as Dom
 import Browser.Events as E
 import Browser.Navigation as Navigation
 import Color exposing (Color)
+import Configurations.Serialize
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
 import Direction3d exposing (Direction3d)
@@ -81,6 +82,10 @@ import Sphere3d exposing (Sphere3d)
 import Task
 import Time
 import Triangle3d exposing (Triangle3d)
+import Url exposing (Url)
+import Url.Builder
+import Url.Parser exposing ((<?>), top)
+import Url.Parser.Query as Query
 import Vector3d
 
 
@@ -620,6 +625,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
               , editorIsOn = True
               , activeEditorTab = Configurations
               , visibility = E.Visible
+              , key = key
               }
             , Task.perform GotViewport Dom.getViewport
             )
@@ -762,6 +768,7 @@ type alias Model gameModel =
     , editorIsOn : Bool
     , activeEditorTab : EditorTab
     , visibility : E.Visibility
+    , key : Navigation.Key
     }
 
 
@@ -817,15 +824,12 @@ type Msg levelEditorMsg
     | MouseButton Bool
 
 
-
---update :
---    (Computer -> gameModel -> gameModel)
---    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
---    -> Msg levelEditorMsg
---    -> Model gameModel
---    -> ( Model gameModel, Cmd (Msg levelEditorMsg) )
-
-
+update :
+    (Computer -> gameModel -> gameModel)
+    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
+    -> Msg levelEditorMsg
+    -> Model gameModel
+    -> ( Model gameModel, Cmd (Msg levelEditorMsg) )
 update updateGameModel updateFromEditor msg ({ computer } as model) =
     case msg of
         NoOp ->
@@ -865,7 +869,10 @@ update updateGameModel updateFromEditor msg ({ computer } as model) =
             ( { model
                 | computer = { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
               }
-            , Cmd.none
+            , Navigation.replaceUrl model.key
+                (Url.Builder.absolute []
+                    [ Url.Builder.string "configurations" (Configurations.Serialize.encode computer.configurations) ]
+                )
             )
 
         Tick time ->
