@@ -97,11 +97,9 @@ floorCubes computer =
                     ( -pi, pi )
             in
             group
-                [ cylinder
+                [ block
                     (hsl (0.05 * dist) 1 0.75)
-                    --( 0.6, 0.3, 0.6 )
-                    0.4
-                    0.2
+                    ( 0.6, 0.3, 0.6 )
                 ]
                 |> rotateX (0.3 * dist)
                 |> rotateY (0.3 * dist)
