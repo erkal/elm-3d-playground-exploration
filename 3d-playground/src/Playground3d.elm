@@ -631,8 +631,9 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 , style "width" (String.fromFloat model.computer.screen.width ++ "px")
                 , style "height" (String.fromFloat model.computer.screen.height ++ "px")
                 , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
-                , style "font-size" "12px"
                 , style "touch-action" "none"
+                , style "font-size" "16px"
+                , style "text-shadow" "white 0px 0px 10px"
                 ]
                 [ viewLeftBar model
                 , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)

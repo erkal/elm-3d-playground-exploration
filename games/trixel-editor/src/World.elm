@@ -21,8 +21,8 @@ type alias ColorIndex =
 empty : World
 empty =
     { trixels = Dict.Any.empty Face.toComparable
-    , palette = Parula
-    , backgroundColorIndex = 70
+    , palette = Magma
+    , backgroundColorIndex = 150
     }
 
 

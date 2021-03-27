@@ -59,11 +59,9 @@ initialConfigurations =
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, 0, 0 ) )
         , ( "camera z", ( 1, 12, 40 ) )
-        , ( "background distance", ( -4, -1.1, -0.51 ) )
         , ( "trixel scale", ( 0.5, 0.95, 1 ) )
-        , ( "maximum rotation degree", ( 0, 0, 2 * pi ) )
-        , ( "rotation duration", ( 1, 5, 20 ) )
-        , ( "delay", ( 0, 0.1, 2 ) )
+        , ( "maximum rotation degree", ( 0, 0, degrees 45 ) )
+        , ( "rotation period", ( 1, 5, 20 ) )
         , ( "sunlight azimuth", ( 0, degrees 225, degrees 360 ) )
         , ( "sunlight elevation", ( degrees 180, degrees 315, degrees 360 ) )
         ]
@@ -73,7 +71,7 @@ init : Computer -> Model
 init computer =
     { levels = LS.singleton World.empty
     , mouseOveredUV = { u = 0, v = 0 }
-    , selectedColorIndex = 250
+    , selectedColorIndex = 0
     }
 
 
@@ -184,17 +182,17 @@ view computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
+        , backgroundColor =
+            (LS.current model.levels).palette
+                |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
         , sunlightAzimuth = getFloat "sunlight azimuth" computer
         , sunlightElevation = getFloat "sunlight elevation" computer
         }
         [ group
             [ group []
-            , floorBlock computer model
-
-            --, drawVertices
             , drawFaces computer model
 
+            --, drawVertices
             --, axes
             --, drawMouseOveredFace computer model
             ]
@@ -208,17 +206,6 @@ axes =
         , line green ( 0, 100, 0 ) -- y axis
         , line blue ( 0, 0, 100 ) -- z axis
         ]
-
-
-floorBlock : Computer -> Model -> Shape
-floorBlock computer model =
-    let
-        color =
-            (LS.current model.levels).palette
-                |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
-    in
-    block color ( 20, 14, 1 )
-        |> moveZ (getFloat "background distance" computer)
 
 
 drawMouseOveredFace : Computer -> Model -> Shape
@@ -266,7 +253,7 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
             getFloat "maximum rotation degree" computer
 
         duration =
-            getFloat "rotation duration" computer
+            getFloat "rotation period" computer
 
         faceCenter =
             let
