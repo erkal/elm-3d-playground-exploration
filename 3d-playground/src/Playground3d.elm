@@ -623,77 +623,6 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             , Task.perform GotViewport Dom.getViewport
             )
 
-        view model =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
-                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
-                , style "touch-action" "none"
-                , style "font-size" "16px"
-                , style "text-shadow" "white 0px 0px 10px"
-                ]
-                [ viewLeftBar model
-                , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
-                ]
-
-        editorOnOffButton msg symbol =
-            button
-                [ style "font-size" "30px"
-                , style "width" "40px"
-                , style "height" "40px"
-                , style "float" "left"
-                , onClick msg
-                ]
-                [ text symbol ]
-
-        optionWith editorTab =
-            option
-                [ value (editorTabToString editorTab)
-                ]
-                [ text (editorTabToString editorTab) ]
-
-        editorTabSelection model =
-            div
-                [ style "margin-left" "0px"
-                , style "float" "left"
-                ]
-                [ select
-                    [ onChange (editorTabFromString >> SelectTab)
-                    , value (editorTabToString model.activeEditorTab)
-                    , style "width" "200px"
-                    , style "height" "40px"
-                    , style "font-size" "20px"
-                    ]
-                    (List.map optionWith [ Configurations, LevelEditor ])
-                ]
-
-        viewLeftBar model =
-            div
-                [ style "position" "fixed"
-                ]
-                (if model.editorIsOn then
-                    [ editorOnOffButton HideEditor "✕"
-                    , editorTabSelection model
-                    , div [ style "margin-top" "60px" ]
-                        [ viewActiveEditor model
-                        ]
-                    ]
-
-                 else
-                    [ editorOnOffButton ShowEditor "≡" ]
-                )
-
-        viewActiveEditor model =
-            case model.activeEditorTab of
-                Configurations ->
-                    Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
-
-                LevelEditor ->
-                    Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
-
         update msg model =
             ( gameUpdate updateGameModel updateFromEditor msg model
             , Cmd.none
@@ -709,7 +638,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
     in
     Browser.element
         { init = init
-        , view = view
+        , view = view viewGameModel viewEditor
         , update = update
         , subscriptions = subscriptions
         }
@@ -725,6 +654,92 @@ initialComputer flags initialConfigurations =
     , configurations = initialConfigurations
     , devicePixelRatio = flags.devicePixelRatio
     }
+
+
+view :
+    (Computer -> gameModel -> Html Never)
+    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> Model gameModel
+    -> Html (Msg levelEditorMsg)
+view viewGameModel viewEditor model =
+    let
+        editorOnOffButton msg symbol =
+            button
+                [ style "font-size" "30px"
+                , style "width" "40px"
+                , style "height" "40px"
+                , onClick msg
+                ]
+                [ text symbol ]
+
+        optionWith editorTab =
+            option
+                [ value (editorTabToString editorTab)
+                ]
+                [ text (editorTabToString editorTab) ]
+
+        editorTabSelection =
+            div
+                [ style "margin-left" "0px"
+                ]
+                [ select
+                    [ onChange (editorTabFromString >> SelectTab)
+                    , value (editorTabToString model.activeEditorTab)
+                    , style "width" "200px"
+                    , style "height" "40px"
+                    , style "font-size" "20px"
+                    ]
+                    (List.map optionWith [ Configurations, LevelEditor ])
+                ]
+
+        viewGame =
+            div
+                [ style "position" "fixed"
+                , style "top" "0px"
+                , style "left" "0px"
+                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
+                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "font-size" "16px"
+                ]
+                [ Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
+                ]
+
+        viewLeftBar =
+            div
+                [ style "position" "fixed"
+                , style "top" "0px"
+                , style "left" "0px"
+                , style "width" (String.fromFloat 250 ++ "px")
+                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "background-color" "rgba(255,255,255,0.3)"
+                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
+                , style "font-size" "16px"
+                ]
+                (if model.editorIsOn then
+                    [ editorOnOffButton HideEditor "✕"
+                    , editorTabSelection
+                    , viewActiveEditor
+                    ]
+
+                 else
+                    [ editorOnOffButton ShowEditor "≡" ]
+                )
+
+        viewActiveEditor =
+            case model.activeEditorTab of
+                Configurations ->
+                    Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
+
+                LevelEditor ->
+                    Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
+    in
+    div
+        [ style "touch-action" "none"
+        , style "user-select" "none"
+        ]
+        [ viewGame
+        , viewLeftBar
+        ]
 
 
 

@@ -63,8 +63,6 @@ initialConfigurations =
         , ( "minimum rotation degree", ( -(degrees 180), 0, 0 ) )
         , ( "maximum rotation degree", ( 0, 0, degrees 180 ) )
         , ( "rotation period", ( 1, 5, 20 ) )
-        , ( "sunlight azimuth", ( 0, degrees 225, degrees 360 ) )
-        , ( "sunlight elevation", ( degrees 180, degrees 315, degrees 360 ) )
         ]
 
 
@@ -186,8 +184,8 @@ view computer model =
         , backgroundColor =
             (LS.current model.levels).palette
                 |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
-        , sunlightAzimuth = getFloat "sunlight azimuth" computer
-        , sunlightElevation = getFloat "sunlight elevation" computer
+        , sunlightAzimuth = degrees 225
+        , sunlightElevation = degrees 315
         }
         [ group
             [ group []
