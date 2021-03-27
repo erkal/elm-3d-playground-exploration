@@ -11,25 +11,42 @@ type alias Configurations =
     }
 
 
+
+-- create
+
+
 empty : Configurations
 empty =
     { floats = []
     }
 
 
-getFloat : String -> Configurations -> Float
-getFloat key { floats } =
-    floats
-        |> List.filterMap
-            (\( k, ( _, value, _ ) ) ->
-                if k == key then
-                    Just value
 
-                else
-                    Nothing
-            )
+-- QUERY
+
+
+getFloatMinimum : String -> Configurations -> Float
+getFloatMinimum =
+    getFloatHelper (\( minimum, _, _ ) -> minimum)
+
+
+getFloatMaximum : String -> Configurations -> Float
+getFloatMaximum =
+    getFloatHelper (\( _, _, maximum ) -> maximum)
+
+
+getFloat : String -> Configurations -> Float
+getFloat =
+    getFloatHelper (\( _, value, _ ) -> value)
+
+
+getFloatHelper : (( Float, Float, Float ) -> Float) -> String -> Configurations -> Float
+getFloatHelper getter key { floats } =
+    floats
+        |> List.filter (\( k, _ ) -> k == key)
         |> List.head
-        |> Maybe.withDefault 0
+        |> Maybe.map (Tuple.second >> getter)
+        |> Maybe.withDefault 42
 
 
 type Msg
@@ -108,7 +125,7 @@ view configurations =
                     , Html.Attributes.min (String.fromFloat min)
                     , Html.Attributes.max (String.fromFloat max)
                     , onInput (\newValue -> SetFloat key (String.toFloat newValue |> Maybe.withDefault 0))
-                    , step "any"
+                    , step (String.fromFloat ((max - min) / 127))
                     , style "width" "200px"
                     , value (String.fromFloat currentValue)
                     ]
