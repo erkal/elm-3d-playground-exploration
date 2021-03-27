@@ -134,7 +134,7 @@ type alias Computer =
 
 
 configurations =
-    Configurations.Configurations
+    Configurations.init
 
 
 getFloat : String -> Computer -> Float
