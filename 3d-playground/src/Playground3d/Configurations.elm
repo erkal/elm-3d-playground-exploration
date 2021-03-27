@@ -10,8 +10,8 @@ import Round exposing (roundNum)
 
 type alias Configurations =
     { floats : List ( String, ( Float, Float, Float ) )
-    , jsonExportedConfigurations : String
-    , jsonConfigurationsToImport : String
+    , exportedJson : String
+    , jsonToImport : String
     }
 
 
@@ -22,8 +22,8 @@ type alias Configurations =
 init : List ( String, ( Float, Float, Float ) ) -> Configurations
 init floats =
     { floats = floats
-    , jsonExportedConfigurations = ""
-    , jsonConfigurationsToImport = ""
+    , exportedJson = ""
+    , jsonToImport = ""
     }
 
 
@@ -84,17 +84,21 @@ update : Msg -> Configurations -> Configurations
 update msg configurations =
     case msg of
         ClickedImportButton ->
-            configurations.jsonConfigurationsToImport
-                |> decode
-                |> Maybe.withDefault configurations
+            { configurations
+                | floats =
+                    configurations.jsonToImport
+                        |> Json.Decode.decodeString floatsDecoder
+                        |> Result.withDefault []
+            }
 
         EditedTextAreaForImport string ->
-            { configurations | jsonConfigurationsToImport = string }
+            { configurations | jsonToImport = string }
 
         ClickedExportButton ->
             { configurations
-                | jsonExportedConfigurations =
-                    Json.Encode.encode 2 (encode configurations)
+                | exportedJson =
+                    Json.Encode.encode 0
+                        (encodeFloats configurations.floats)
             }
 
         SetFloat key newValue ->
@@ -166,6 +170,7 @@ view configurations =
         ]
 
 
+exporting : Configurations -> Html Msg
 exporting configurations =
     div []
         [ h3 [] [ text "Export Configurations" ]
@@ -174,6 +179,7 @@ exporting configurations =
         ]
 
 
+importing : Configurations -> Html Msg
 importing configurations =
     div []
         [ h3 [] [ text "Import Configurations" ]
@@ -198,21 +204,23 @@ importButton =
         [ text "Import Configurations" ]
 
 
+textAreaForExported : Configurations -> Html Msg
 textAreaForExported configurations =
     div
         []
         [ textarea
             [ readonly True ]
-            [ text configurations.jsonExportedConfigurations ]
+            [ text configurations.exportedJson ]
         ]
 
 
+textAreaForImport : Configurations -> Html Msg
 textAreaForImport configurations =
     div
         []
         [ textarea
             [ Events.onInput EditedTextAreaForImport ]
-            [ text configurations.jsonConfigurationsToImport ]
+            [ text configurations.jsonToImport ]
         ]
 
 
@@ -220,28 +228,11 @@ textAreaForImport configurations =
 -- DECODE
 
 
-decode : String -> Maybe Configurations
-decode string =
-    string
-        |> Json.Decode.decodeString decoder
-        |> Result.toMaybe
-        |> Maybe.map init
-
-
 {-| THIS FUNCTION IS GENERATED
 -}
-decoder : Decoder (List ( String, ( Float, Float, Float ) ))
-decoder =
+floatsDecoder : Decoder (List ( String, ( Float, Float, Float ) ))
+floatsDecoder =
     Json.Decode.list (Json.Decode.map2 Tuple.pair (Json.Decode.index 0 Json.Decode.string) (Json.Decode.index 1 (Json.Decode.map3 (\a b c -> ( a, b, c )) (Json.Decode.index 0 Json.Decode.float) (Json.Decode.index 1 Json.Decode.float) (Json.Decode.index 2 Json.Decode.float))))
-
-
-
--- ENCODE
-
-
-encode : Configurations -> Value
-encode configurations =
-    configurations.floats |> encodeFloats
 
 
 {-| THIS FUNCTION IS GENERATED
