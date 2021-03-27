@@ -59,6 +59,7 @@ import Block3d exposing (Block3d)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
+import Browser.Navigation as Navigation
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
@@ -609,7 +610,7 @@ gameWithConfigurationsAndEditor :
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
 gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
     let
-        init flags =
+        init flags url key =
             let
                 initialComputer_ =
                     initialComputer flags initialConfigurations
@@ -624,20 +625,24 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             )
 
         view model =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
-                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
-                , style "touch-action" "none"
-                , style "font-size" "16px"
-                , style "text-shadow" "white 0px 0px 10px"
+            { title = "elm-3d-playground"
+            , body =
+                [ div
+                    [ style "position" "fixed"
+                    , style "top" "0px"
+                    , style "left" "0px"
+                    , style "width" (String.fromFloat model.computer.screen.width ++ "px")
+                    , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                    , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
+                    , style "touch-action" "none"
+                    , style "font-size" "16px"
+                    , style "text-shadow" "white 0px 0px 10px"
+                    ]
+                    [ viewLeftBar model
+                    , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
+                    ]
                 ]
-                [ viewLeftBar model
-                , Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
-                ]
+            }
 
         editorOnOffButton msg symbol =
             button
@@ -694,11 +699,6 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 LevelEditor ->
                     Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
 
-        update msg model =
-            ( gameUpdate updateGameModel updateFromEditor msg model
-            , Cmd.none
-            )
-
         subscriptions { visibility } =
             case visibility of
                 E.Hidden ->
@@ -707,11 +707,13 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 E.Visible ->
                     gameSubscriptions
     in
-    Browser.element
+    Browser.application
         { init = init
         , view = view
-        , update = update
+        , update = update updateGameModel updateFromEditor
         , subscriptions = subscriptions
+        , onUrlRequest = ClickedLink
+        , onUrlChange = \_ -> NoOp
         }
 
 
@@ -795,6 +797,7 @@ editorTabFromString str =
 
 type Msg levelEditorMsg
     = NoOp
+    | ClickedLink Browser.UrlRequest
     | SelectTab EditorTab
     | HideEditor
     | ShowEditor
@@ -814,33 +817,59 @@ type Msg levelEditorMsg
     | MouseButton Bool
 
 
-gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
-gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
+
+--update :
+--    (Computer -> gameModel -> gameModel)
+--    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
+--    -> Msg levelEditorMsg
+--    -> Model gameModel
+--    -> ( Model gameModel, Cmd (Msg levelEditorMsg) )
+
+
+update updateGameModel updateFromEditor msg ({ computer } as model) =
     case msg of
         NoOp ->
-            model
+            ( model, Cmd.none )
+
+        ClickedLink request ->
+            case request of
+                Browser.Internal _ ->
+                    ( model, Cmd.none )
+
+                Browser.External url ->
+                    ( model, Navigation.load url )
 
         SelectTab editorTab ->
-            { model | activeEditorTab = editorTab }
+            ( { model | activeEditorTab = editorTab }
+            , Cmd.none
+            )
 
         HideEditor ->
-            { model | editorIsOn = False }
+            ( { model | editorIsOn = False }
+            , Cmd.none
+            )
 
         ShowEditor ->
-            { model | editorIsOn = True }
+            ( { model | editorIsOn = True }
+            , Cmd.none
+            )
 
         FromLevelEditor levelEditorMsg ->
-            { model
+            ( { model
                 | gameModel = updateFromEditor model.computer levelEditorMsg model.gameModel
-            }
+              }
+            , Cmd.none
+            )
 
         FromConfigurationEditor configurationsMsg ->
-            { model
+            ( { model
                 | computer = { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
-            }
+              }
+            , Cmd.none
+            )
 
         Tick time ->
-            { model
+            ( { model
                 | gameModel = updateGameModel computer model.gameModel
                 , computer =
                     if computer.mouse.click then
@@ -848,22 +877,30 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
 
                     else
                         { computer | time = Time time }
-            }
+              }
+            , Cmd.none
+            )
 
         GotViewport { viewport } ->
-            { model
+            ( { model
                 | computer = { computer | screen = toScreen viewport.width viewport.height }
-            }
+              }
+            , Cmd.none
+            )
 
         Resized w h ->
-            { model
+            ( { model
                 | computer = { computer | screen = toScreen (toFloat w) (toFloat h) }
-            }
+              }
+            , Cmd.none
+            )
 
         KeyChanged isDown key ->
-            { model
+            ( { model
                 | computer = { computer | keyboard = updateKeyboard isDown key computer.keyboard }
-            }
+              }
+            , Cmd.none
+            )
 
         MouseMove pageX pageY ->
             let
@@ -873,22 +910,28 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
                 y =
                     computer.screen.top - pageY
             in
-            { model
+            ( { model
                 | computer = { computer | mouse = mouseMove x y computer.mouse }
-            }
+              }
+            , Cmd.none
+            )
 
         MouseClick ->
-            { model
+            ( { model
                 | computer = { computer | mouse = mouseClick True computer.mouse }
-            }
+              }
+            , Cmd.none
+            )
 
         MouseButton isDown ->
-            { model
+            ( { model
                 | computer = { computer | mouse = mouseDown isDown computer.mouse }
-            }
+              }
+            , Cmd.none
+            )
 
         TouchStart touchEvents ->
-            { model
+            ( { model
                 | computer =
                     { computer
                         | touches =
@@ -902,10 +945,12 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
                                     )
                                     computer.touches
                     }
-            }
+              }
+            , Cmd.none
+            )
 
         TouchMove touchEvents ->
-            { model
+            ( { model
                 | computer =
                     { computer
                         | touches =
@@ -919,34 +964,42 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
                                     )
                                     computer.touches
                     }
-            }
+              }
+            , Cmd.none
+            )
 
         TouchEnd touchEvents ->
-            { model
+            ( { model
                 | computer =
                     { computer
                         | touches =
                             touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
                     }
-            }
+              }
+            , Cmd.none
+            )
 
         TouchCancel touchEvents ->
-            { model
+            ( { model
                 | computer =
                     { computer
                         | touches =
                             touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
                     }
-            }
+              }
+            , Cmd.none
+            )
 
         VisibilityChanged visibility ->
-            { model
+            ( { model
                 | computer =
                     { computer
                         | keyboard = emptyKeyboard
                         , mouse = Mouse computer.mouse.x computer.mouse.y False False
                     }
-            }
+              }
+            , Cmd.none
+            )
 
 
 
