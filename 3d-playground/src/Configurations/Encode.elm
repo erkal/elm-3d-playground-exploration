@@ -1,10 +1,14 @@
-module Configurations.Encode exposing (encode)
+module Configurations.Encode exposing (PreEncoded, encode)
 
 import Json.Encode exposing (Value)
 import Playground3d.Configurations exposing (Configurations)
 
 
-preEncode : Configurations -> List ( String, Int )
+type alias PreEncoded =
+    List ( String, Int )
+
+
+preEncode : Configurations -> PreEncoded
 preEncode { floats } =
     floats
         |> List.map

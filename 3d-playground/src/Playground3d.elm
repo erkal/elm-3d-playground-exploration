@@ -61,6 +61,7 @@ import Browser.Dom as Dom
 import Browser.Events as E
 import Browser.Navigation as Navigation
 import Color exposing (Color)
+import Configurations.Decode
 import Configurations.Encode
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
@@ -595,14 +596,18 @@ gameWithConfigurations :
     -> Configurations
     -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
-gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
+gameWithConfigurations viewGameModel updateGameModel defaultConfigurations initGameModel =
     gameWithConfigurationsAndEditor
         viewGameModel
         updateGameModel
-        initialConfigurations
+        defaultConfigurations
         initGameModel
         (\_ _ -> div [] [])
         (\_ _ gameModel -> gameModel)
+
+
+type Route
+    = Root (Maybe String)
 
 
 gameWithConfigurationsAndEditor :
@@ -613,12 +618,29 @@ gameWithConfigurationsAndEditor :
     -> (Computer -> gameModel -> Html levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
-gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
+gameWithConfigurationsAndEditor viewGameModel updateGameModel defaultConfigurations initGameModel viewEditor updateFromEditor =
     let
         init flags url key =
             let
+                routeParser : Url.Parser.Parser (Route -> a) a
+                routeParser =
+                    Url.Parser.map Root (top <?> Query.string "configurations")
+
+                fromUrl : Maybe Configurations
+                fromUrl =
+                    case Url.Parser.parse routeParser url of
+                        Just (Root (Just value)) ->
+                            value |> Configurations.Decode.decode defaultConfigurations
+
+                        _ ->
+                            Nothing
+
                 initialComputer_ =
-                    initialComputer flags initialConfigurations
+                    initialComputer flags
+                        (fromUrl
+                            |> Maybe.withDefault
+                                defaultConfigurations
+                        )
             in
             ( { computer = initialComputer_
               , gameModel = initGameModel initialComputer_
