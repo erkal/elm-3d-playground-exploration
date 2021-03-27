@@ -617,7 +617,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             ( { computer = initialComputer_
               , gameModel = initGameModel initialComputer_
               , editorIsOn = True
-              , activeEditorTab = LevelEditor
+              , activeEditorTab = Configurations
               , visibility = E.Visible
               }
             , Task.perform GotViewport Dom.getViewport
