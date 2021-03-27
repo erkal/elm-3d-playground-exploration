@@ -58,7 +58,7 @@ initialConfigurations =
     configurations
         [ ( "camera x", ( -40, 0, 40 ) )
         , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 40, 50 ) )
+        , ( "camera z", ( 1, 20, 50 ) )
         , ( "trixel scale", ( 0.5, 1, 1 ) )
         , ( "maximum rotation degree", ( 0, 0, degrees 45 ) )
         , ( "rotation period", ( 1, 5, 20 ) )
