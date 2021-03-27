@@ -61,7 +61,7 @@ import Browser.Dom as Dom
 import Browser.Events as E
 import Browser.Navigation as Navigation
 import Color exposing (Color)
-import Configurations.Serialize
+import Configurations.Encode
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
 import Direction3d exposing (Direction3d)
@@ -871,7 +871,7 @@ update updateGameModel updateFromEditor msg ({ computer } as model) =
               }
             , Navigation.replaceUrl model.key
                 (Url.Builder.absolute []
-                    [ Url.Builder.string "configurations" (Configurations.Serialize.encode computer.configurations) ]
+                    [ Url.Builder.string "configurations" (Configurations.Encode.encode computer.configurations) ]
                 )
             )
 
