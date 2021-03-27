@@ -19,6 +19,7 @@
             "ianmackenzie/elm-geometry": "3.9.0",
             "ianmackenzie/elm-units": "2.7.0",
             "mgold/elm-nonempty-list": "4.1.0",
+            "myrho/elm-round": "1.0.4",
             "newmana/chroma-elm": "18.0.3",
             "turboMaCk/any-dict": "2.4.0"
         },

@@ -21,7 +21,7 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
     echo - "$directory": \[demo\]\(https://erkal.github.io/elm-3d-playground-exploration/"$directory"\), \[src\]\(https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/"$directory"/src\) >>DEMOS.md
 done
 
-gh-pages -d dist
+# gh-pages -d dist
 
 underlined=$(tput smul)
 normal=$(tput sgr0)
