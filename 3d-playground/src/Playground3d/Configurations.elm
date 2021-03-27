@@ -88,6 +88,7 @@ view configurations =
             div
                 [ style "margin-top" "15px"
                 , style "font-size" "20px"
+                , style "text-shadow" "white 0px 0px 10px"
                 ]
                 [ div []
                     [ label
