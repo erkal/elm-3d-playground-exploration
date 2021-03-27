@@ -60,8 +60,7 @@ initialConfigurations =
         , ( "camera y", ( -40, 0, 0 ) )
         , ( "camera z", ( 1, 20, 50 ) )
         , ( "trixel scale", ( 0.5, 1, 1 ) )
-        , ( "minimum rotation degree", ( -(degrees 180), 0, 0 ) )
-        , ( "maximum rotation degree", ( 0, 0, degrees 180 ) )
+        , ( "maximum rotation degree", ( 0, 0, degrees 45 ) )
         , ( "rotation period", ( 1, 5, 20 ) )
         , ( "sunlight azimuth", ( 0, degrees 225, degrees 360 ) )
         , ( "sunlight elevation", ( degrees 180, degrees 315, degrees 360 ) )
@@ -250,9 +249,6 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
                 |> moveX (cos (degrees 30))
                 |> moveY (1 + sin (degrees 30))
 
-        minRot =
-            getFloat "minimum rotation degree" computer
-
         maxRot =
             getFloat "maximum rotation degree" computer
 
@@ -273,12 +269,12 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
             { x = c.x, y = c.y, z = 0 }
 
         rotationDegree =
-            wave minRot maxRot duration computer.time
+            wave -maxRot maxRot duration computer.time
 
         rotation =
             identity
-                -->> rotateAround ( faceCenter, ( 1, 0, 0 ) ) rotationDegree
-                -->> rotateAround ( faceCenter, ( 0, 1, 0 ) ) rotationDegree
+                >> rotateAround ( faceCenter, ( 0, 1, 0 ) ) rotationDegree
+                >> rotateAround ( faceCenter, ( 1, 0, 0 ) ) rotationDegree
                 >> rotateAround ( faceCenter, ( 0, 0, 1 ) ) rotationDegree
     in
     (case lr of
