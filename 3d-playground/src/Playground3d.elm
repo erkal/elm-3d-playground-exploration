@@ -711,7 +711,6 @@ view viewGameModel viewEditor model =
                 , style "left" "0px"
                 , style "width" (String.fromFloat 250 ++ "px")
                 , style "height" (String.fromFloat model.computer.screen.height ++ "px")
-                , style "background-color" "rgba(255,255,255,0.3)"
                 , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
                 , style "font-size" "16px"
                 ]
