@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (darkBlue, lightGray, orange, red, white)
+import Color exposing (darkBlue, lightGray, orange, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import Dict
 import Ease
@@ -47,17 +47,17 @@ type State
 initialConfigurations =
     configurations
         [ ( "camera x", ( -10, 0, 10 ) )
-        , ( "camera y", ( -10, 0, 10 ) )
-        , ( "camera z", ( 0, 10, 16 ) )
+        , ( "camera y", ( -10, -3, 10 ) )
+        , ( "camera z", ( 0, 8, 16 ) )
         , ( "sunlight azimuth", ( -pi, 2, pi ) )
         , ( "sunlight elevation", ( -pi, -2, 0 ) )
         , ( "cubes side length", ( 0.5, 0.9, 1 ) )
         , ( "duration of rolling animation", ( 0.1, 0.3, 1 ) )
         ]
-        [ ( "color 1", red )
-        , ( "color 2", darkBlue )
-        , ( "board color", white )
-        , ( "background color", white )
+        [ ( "color 1", rgb255 245 65 34 )
+        , ( "color 2", rgb255 1 152 215 )
+        , ( "board color", rgb255 12 53 53 )
+        , ( "background color", rgb255 228 231 222 )
         ]
 
 
