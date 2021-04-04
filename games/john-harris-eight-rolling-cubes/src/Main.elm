@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Color exposing (darkBlue, lightGray, red, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
+import Dict
 import Ease
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
@@ -50,7 +51,7 @@ initialConfigurations =
         , ( "camera z", ( 0, 10, 16 ) )
         , ( "sunlight azimuth", ( -pi, 2, pi ) )
         , ( "sunlight elevation", ( -pi, -2, 0 ) )
-        , ( "cubes side length", ( 0.5, 0.95, 1 ) )
+        , ( "cubes side length", ( 0.5, 0.9, 1 ) )
         , ( "duration of rolling animation", ( 0.1, 0.3, 1 ) )
         ]
 
@@ -70,7 +71,47 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> handleMouseClick computer
+        |> handleTouchUp computer
         |> stopRollingAnimation computer
+
+
+handlePointerInputAt : { a | x : Float, y : Float } -> Computer -> Model -> Model
+handlePointerInputAt { x, y } computer model =
+    let
+        startPosition =
+            ( round x, round y )
+    in
+    case model.world |> World.rollCubeAt startPosition of
+        NoCubeThere ->
+            model
+
+        CannotRoll ->
+            model
+
+        Roll rollDirection newWorld ->
+            model
+                |> startRollAnimation computer startPosition rollDirection newWorld
+
+
+handleTouchUp : Computer -> Model -> Model
+handleTouchUp computer model =
+    case computer.touches |> Dict.values |> List.head of
+        Just xyOfTouch ->
+            case
+                Camera.mouseOverXYAtZ
+                    (getFloat "cubes side length" computer)
+                    (camera computer)
+                    computer.screen
+                    xyOfTouch
+            of
+                Nothing ->
+                    model
+
+                Just xy ->
+                    handlePointerInputAt xy computer model
+
+        Nothing ->
+            model
 
 
 handleMouseClick : Computer -> Model -> Model
@@ -86,21 +127,8 @@ handleMouseClick computer model =
             Nothing ->
                 model
 
-            Just { x, y } ->
-                let
-                    startPosition =
-                        ( round x, round y )
-                in
-                case model.world |> World.rollCubeAt startPosition of
-                    NoCubeThere ->
-                        model
-
-                    CannotRoll ->
-                        model
-
-                    Roll rollDirection newWorld ->
-                        model
-                            |> startRollAnimation computer startPosition rollDirection newWorld
+            Just xy ->
+                handlePointerInputAt xy computer model
 
     else
         model
@@ -125,15 +153,20 @@ stopRollingAnimation computer model =
 
 startRollAnimation : Computer -> ( Int, Int ) -> RollDirection -> World -> Model -> Model
 startRollAnimation computer startPosition rollDirection newWorld model =
-    { model
-        | state =
-            AnimatingRoll
-                { startedAt = computer.time
-                , startPosition = startPosition
-                , rollDirection = rollDirection
-                , newWorld = newWorld
-                }
-    }
+    case model.state of
+        NoAnimation ->
+            { model
+                | state =
+                    AnimatingRoll
+                        { startedAt = computer.time
+                        , startPosition = startPosition
+                        , rollDirection = rollDirection
+                        , newWorld = newWorld
+                        }
+            }
+
+        _ ->
+            model
 
 
 

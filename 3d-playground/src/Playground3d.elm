@@ -616,7 +616,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             in
             ( { computer = initialComputer_
               , gameModel = initGameModel initialComputer_
-              , editorIsOn = True
+              , editorIsOn = False
               , activeEditorTab = Configurations
               , visibility = E.Visible
               }
