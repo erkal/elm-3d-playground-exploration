@@ -384,8 +384,8 @@ updateFromEditor computer editorMsg model =
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        [ style "margin" "20px"
-        , style "height" (String.fromFloat computer.screen.height ++ "px")
+        [ style "margin-left" "20px"
+        , style "height" "100%"
         , style "overflow" "scroll"
         ]
         [ h2 [] [ text "Editing the selected level" ]
