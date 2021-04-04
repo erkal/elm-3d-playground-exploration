@@ -1,9 +1,11 @@
 module Playground3d.Camera exposing
     ( Camera
     , mouseOverXY
+    , mouseOverXYAtZ
     , mouseOverYZ
+    , mouseOverYZAtX
     , mouseOverZX
-    , mouseRay
+    , mouseOverZXAtY
     , orthographic
     , perspective
     )
@@ -19,7 +21,6 @@ import Playground3d exposing (Computer, Mouse, Screen)
 import Playground3d.Geometry exposing (Point, Vector)
 import Point2d
 import Point3d exposing (Point3d)
-import Quantity
 import Rectangle2d
 import Vector3d
 import Viewpoint3d
@@ -65,58 +66,66 @@ orthographic properties =
         }
 
 
-{-| get the intersection point of the mouse-ray with a plane
--}
-mouseRay : Camera -> Computer -> Vector
-mouseRay camera { screen, mouse } =
-    let
-        screenRect =
-            Rectangle2d.withDimensions
-                ( Pixels.float screen.width
-                , Pixels.float screen.height
-                )
-                (Angle.degrees 0)
-                (Point2d.pixels 0 0)
-
-        mousePosition =
-            Point2d.xy
-                (Pixels.float mouse.x)
-                (Pixels.float mouse.y)
-
-        toVector v =
-            ( v |> Vector3d.xComponent |> Quantity.toFloat
-            , v |> Vector3d.yComponent |> Quantity.toFloat
-            , v |> Vector3d.zComponent |> Quantity.toFloat
-            )
-    in
-    mousePosition
-        |> Camera3d.ray camera screenRect
-        |> (Axis3d.direction >> Direction3d.toVector >> Vector3d.normalize >> toVector)
-
-
-{-| get the intersection point of the mouse-ray and a triangle
--}
 mouseOverXY : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverXY camera screen xy =
-    mouseOverPlane camera screen xy Plane3d.xy
+mouseOverXY =
+    mouseOverXYAtZ 0
 
 
-{-| get the intersection point of the mouse-ray and a triangle
--}
+mouseOverXYAtZ : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverXYAtZ z camera screen xy =
+    mouseOverPlane camera
+        screen
+        xy
+        (Plane3d.xy
+            |> Plane3d.translateBy
+                (Vector3d.xyz
+                    (Length.meters 0)
+                    (Length.meters 0)
+                    (Length.meters z)
+                )
+        )
+
+
 mouseOverYZ : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverYZ camera screen xy =
-    mouseOverPlane camera screen xy Plane3d.yz
+mouseOverYZ =
+    mouseOverYZAtX 0
 
 
-{-| get the intersection point of the mouse-ray and a triangle
--}
+mouseOverYZAtX : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverYZAtX x camera screen yz =
+    mouseOverPlane camera
+        screen
+        yz
+        (Plane3d.yz
+            |> Plane3d.translateBy
+                (Vector3d.xyz
+                    (Length.meters x)
+                    (Length.meters 0)
+                    (Length.meters 0)
+                )
+        )
+
+
 mouseOverZX : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverZX camera screen xy =
-    mouseOverPlane camera screen xy Plane3d.zx
+mouseOverZX =
+    mouseOverZXAtY 0
 
 
-{-| get the intersection point of the mouse-ray with a plane
--}
+mouseOverZXAtY : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverZXAtY y camera screen zx =
+    mouseOverPlane camera
+        screen
+        zx
+        (Plane3d.yz
+            |> Plane3d.translateBy
+                (Vector3d.xyz
+                    (Length.meters 0)
+                    (Length.meters y)
+                    (Length.meters 0)
+                )
+        )
+
+
 mouseOverPlane : Camera -> Screen -> { a | x : Float, y : Float } -> Plane3d Meters () -> Maybe Point
 mouseOverPlane camera screen { x, y } plane =
     let
