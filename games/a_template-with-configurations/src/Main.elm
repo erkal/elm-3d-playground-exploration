@@ -26,6 +26,7 @@ initialConfigurations =
         , ( "lightness", ( 0, 0.5, 1 ) )
         , ( "rotation", ( 0, 0, 2 * pi ) )
         ]
+        []
 
 
 init : Computer -> Model

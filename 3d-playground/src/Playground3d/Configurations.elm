@@ -1,7 +1,9 @@
 module Playground3d.Configurations exposing (..)
 
-import Html exposing (Html, br, button, div, h1, h3, hr, input, label, p, span, text, textarea)
-import Html.Attributes exposing (for, id, name, readonly, step, style, type_, value, width)
+import Color exposing (Color, black)
+import Color.Convert exposing (colorToHex, hexToColor)
+import Html exposing (Html, button, div, h3, hr, input, label, p, span, text, textarea)
+import Html.Attributes exposing (for, id, name, readonly, step, style, type_, value)
 import Html.Events as Events exposing (onClick, onInput)
 import Json.Decode exposing (Decoder)
 import Json.Encode exposing (Value)
@@ -10,6 +12,7 @@ import Round exposing (roundNum)
 
 type alias Configurations =
     { floats : List ( String, ( Float, Float, Float ) )
+    , colors : List ( String, Color )
     , exportedJson : String
     , jsonToImport : String
     }
@@ -19,9 +22,13 @@ type alias Configurations =
 -- INIT
 
 
-init : List ( String, ( Float, Float, Float ) ) -> Configurations
-init floats =
+init :
+    List ( String, ( Float, Float, Float ) )
+    -> List ( String, Color )
+    -> Configurations
+init floats colors =
     { floats = floats
+    , colors = colors
     , exportedJson = ""
     , jsonToImport = ""
     }
@@ -29,7 +36,7 @@ init floats =
 
 empty : Configurations
 empty =
-    init []
+    init [] []
 
 
 getFloat : String -> Configurations -> Float
@@ -47,12 +54,28 @@ getFloat key { floats } =
         |> Maybe.withDefault 0
 
 
+getColor : String -> Configurations -> Color
+getColor key { colors } =
+    colors
+        |> List.filterMap
+            (\( k, color ) ->
+                if k == key then
+                    Just color
+
+                else
+                    Nothing
+            )
+        |> List.head
+        |> Maybe.withDefault black
+
+
 
 -- UPDATE
 
 
 type Msg
     = SetFloat String Float
+    | SetColor String Color
     | ClickedImportButton
     | EditedTextAreaForImport String
     | ClickedExportButton
@@ -120,6 +143,20 @@ update msg configurations =
                             )
             }
 
+        SetColor key newValue ->
+            { configurations
+                | colors =
+                    configurations.colors
+                        |> List.map
+                            (\(( k, _ ) as el) ->
+                                if k == key then
+                                    ( k, newValue )
+
+                                else
+                                    el
+                            )
+            }
+
 
 
 -- VIEW
@@ -158,12 +195,35 @@ view configurations =
                     ]
                     []
                 ]
+
+        colorPicker ( key, currentValue ) =
+            div
+                [ style "margin-top" "15px"
+                ]
+                [ div [] [ label [ for key ] [ text key ] ]
+                , input
+                    [ type_ "color"
+                    , id key
+                    , name key
+                    , onInput
+                        (\newValue ->
+                            SetColor key
+                                (newValue
+                                    |> hexToColor
+                                    |> Result.withDefault black
+                                )
+                        )
+                    , value (colorToHex currentValue)
+                    ]
+                    []
+                ]
     in
     div
         [ style "margin" "20px"
         , style "position" "fixed"
         ]
         [ div [] (configurations.floats |> List.map floatSlider)
+        , div [] (configurations.colors |> List.map colorPicker)
         , hr [] []
         , exporting configurations
         , importing configurations

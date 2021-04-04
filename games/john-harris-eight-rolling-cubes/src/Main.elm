@@ -1,12 +1,12 @@
 module Main exposing (main)
 
-import Color exposing (darkBlue, lightGray, red, white)
+import Color exposing (darkBlue, lightGray, orange, red, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import Dict
 import Ease
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, Shape, Time, block, configurations, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, passedSecondsAfter, rotateAround, rotateX, rotateY, rotateZ)
+import Playground3d exposing (Computer, Shape, Time, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, passedSecondsAfter, rotateAround, rotateX, rotateY, rotateZ)
 import Playground3d.Camera as Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene
 import World exposing (RollResult(..), World)
@@ -53,6 +53,11 @@ initialConfigurations =
         , ( "sunlight elevation", ( -pi, -2, 0 ) )
         , ( "cubes side length", ( 0.5, 0.9, 1 ) )
         , ( "duration of rolling animation", ( 0.1, 0.3, 1 ) )
+        ]
+        [ ( "color 1", red )
+        , ( "color 2", darkBlue )
+        , ( "board color", white )
+        , ( "background color", white )
         ]
 
 
@@ -216,7 +221,7 @@ viewShapes computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
+        , backgroundColor = getColor "background color" computer
         , sunlightAzimuth = getFloat "sunlight azimuth" computer
         , sunlightElevation = getFloat "sunlight elevation" computer
         }
@@ -229,7 +234,7 @@ board : Computer -> Shape
 board computer =
     let
         color =
-            lightGray
+            getColor "board color" computer
 
         bottom =
             block color ( 3, 3, 1 ) |> moveZ -0.5
@@ -262,11 +267,17 @@ drawCube computer model (Cube ( x, y ) redFaceDirection) =
         s =
             getFloat "cubes side length" computer
 
+        color1 =
+            getColor "color 1" computer
+
+        color2 =
+            getColor "color 2" computer
+
         redHalf =
-            block red ( s, s, s / 2 ) |> moveZ (s / 4)
+            block color1 ( s, s, s / 2 ) |> moveZ (s / 4)
 
         blackHalf =
-            block darkBlue ( s, s, s / 2 ) |> moveZ -(s / 4)
+            block color2 ( s, s, s / 2 ) |> moveZ -(s / 4)
 
         positionWithRedFaceDirection =
             case redFaceDirection of

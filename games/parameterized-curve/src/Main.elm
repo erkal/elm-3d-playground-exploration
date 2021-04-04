@@ -33,6 +33,7 @@ initialConfigurations =
         , ( "camera y", ( 2, 3, 10 ) )
         , ( "camera z", ( 8, 12, 30 ) )
         ]
+        []
 
 
 init : Computer -> Model

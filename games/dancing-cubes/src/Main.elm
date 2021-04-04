@@ -73,6 +73,7 @@ initialConfigurations =
         , ( "saturation", ( 0, 0.8, 1 ) )
         , ( "lightness", ( 0, 0.7, 1 ) )
         ]
+        []
 
 
 cubes : Computer -> Shape

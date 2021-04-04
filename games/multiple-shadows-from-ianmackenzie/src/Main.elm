@@ -39,6 +39,7 @@ initialConfigurations =
         , ( "azimuth for fourth light", ( -pi, 1, pi ) )
         , ( "elevation for fourth light", ( -pi, -2, pi ) )
         ]
+        []
 
 
 

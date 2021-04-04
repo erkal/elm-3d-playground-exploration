@@ -41,6 +41,7 @@ initialConfigurations =
         , ( "intensity above", ( 0, 0, 300 ) )
         , ( "intensity below", ( 0, 0, 300 ) )
         ]
+        []
 
 
 

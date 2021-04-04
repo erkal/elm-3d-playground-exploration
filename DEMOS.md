@@ -1,7 +1,7 @@
 # Demos
 
-- _template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/_template-with-configurations/src)
-- _template: [demo](https://erkal.github.io/elm-3d-playground-exploration/_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/_template/src)
+- a_template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/a_template-with-configurations/src)
+- a_template: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/a_template/src)
 - camera-control: [demo](https://erkal.github.io/elm-3d-playground-exploration/camera-control), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/camera-control/src)
 - dancing-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/dancing-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/dancing-cubes/src)
 - happy-birthday-andrey: [demo](https://erkal.github.io/elm-3d-playground-exploration/happy-birthday-andrey), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/happy-birthday-andrey/src)

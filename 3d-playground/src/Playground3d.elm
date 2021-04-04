@@ -6,7 +6,7 @@ port module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getFloat, passedSecondsAfter, rotateAround, scale, scaleAround, waveWithDelay
+    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getColor, getFloat, passedSecondsAfter, rotateAround, scale, scaleAround, waveWithDelay
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -140,6 +140,11 @@ configurations =
 getFloat : String -> Computer -> Float
 getFloat key computer =
     computer.configurations |> Configurations.getFloat key
+
+
+getColor : String -> Computer -> Color
+getColor key computer =
+    computer.configurations |> Configurations.getColor key
 
 
 

@@ -15,7 +15,7 @@ import Temperature
 
 
 main =
-    gameWithConfigurations view update (configurations []) init
+    gameWithConfigurations view update (configurations [] []) init
 
 
 type alias Model =

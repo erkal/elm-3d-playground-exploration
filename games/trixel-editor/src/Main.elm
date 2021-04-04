@@ -64,6 +64,7 @@ initialConfigurations =
         , ( "maximum rotation degree", ( 0, 0, degrees 180 ) )
         , ( "rotation period", ( 1, 5, 20 ) )
         ]
+        []
 
 
 init : Computer -> Model
