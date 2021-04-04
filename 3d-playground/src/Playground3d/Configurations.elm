@@ -1,12 +1,12 @@
 module Playground3d.Configurations exposing (..)
 
-import Color exposing (Color, black)
+import Color exposing (Color(..), black, white)
 import Color.Convert exposing (colorToHex, hexToColor)
 import Html exposing (Html, button, div, h3, hr, input, label, p, span, text, textarea)
 import Html.Attributes exposing (for, id, name, readonly, step, style, type_, value)
 import Html.Events as Events exposing (onClick, onInput)
-import Json.Decode exposing (Decoder)
-import Json.Encode exposing (Value)
+import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode exposing (Value)
 import Round exposing (roundNum)
 
 
@@ -19,7 +19,7 @@ type alias Configurations =
 
 
 
--- INIT
+-- CREATE
 
 
 init :
@@ -37,6 +37,126 @@ init floats colors =
 empty : Configurations
 empty =
     init [] []
+
+
+
+-- ENCODE
+
+
+encode : Configurations -> String
+encode =
+    preSerialize >> encodePreserialized >> Encode.encode 0
+
+
+type alias Preserialized =
+    { floats : List ( String, ( Float, Float, Float ) )
+    , colors : List ( String, String )
+    }
+
+
+preSerialize : Configurations -> Preserialized
+preSerialize configurations =
+    { floats = configurations.floats
+    , colors = configurations.colors |> List.map (Tuple.mapSecond colorToHex)
+    }
+
+
+
+-- BELOW IS GENERATED CODE
+
+
+encodePreserialized : Preserialized -> Value
+encodePreserialized a =
+    Encode.object
+        [ ( "floats", Encode.list encodeTuple_String__Float_Float_Float__ a.floats )
+        , ( "colors", Encode.list encodeTuple_String_String_ a.colors )
+        ]
+
+
+encodeTuple_Float_Float_Float_ : ( Float, Float, Float ) -> Value
+encodeTuple_Float_Float_Float_ ( a1, a2, a3 ) =
+    Encode.object
+        [ ( "A1", Encode.float a1 )
+        , ( "A2", Encode.float a2 )
+        , ( "A3", Encode.float a3 )
+        ]
+
+
+encodeTuple_String_String_ : ( String, String ) -> Value
+encodeTuple_String_String_ ( a1, a2 ) =
+    Encode.object
+        [ ( "A1", Encode.string a1 )
+        , ( "A2", Encode.string a2 )
+        ]
+
+
+encodeTuple_String__Float_Float_Float__ : ( String, ( Float, Float, Float ) ) -> Value
+encodeTuple_String__Float_Float_Float__ ( a1, a2 ) =
+    Encode.object
+        [ ( "A1", Encode.string a1 )
+        , ( "A2", encodeTuple_Float_Float_Float_ a2 )
+        ]
+
+
+
+-- DECODE
+
+
+decode : String -> Configurations
+decode =
+    Decode.decodeString decodePreserialized
+        >> Result.map fromPreSerialized
+        >> Result.withDefault empty
+
+
+fromPreSerialized : Preserialized -> Configurations
+fromPreSerialized preserialized =
+    { floats = preserialized.floats
+    , colors = preserialized.colors |> List.map (Tuple.mapSecond (hexToColor >> Result.withDefault white))
+    , exportedJson = ""
+    , jsonToImport = ""
+    }
+
+
+
+-- BELOW IS GENERATED CODE
+
+
+decodePreserialized : Decoder Preserialized
+decodePreserialized =
+    Decode.map2
+        Preserialized
+        (Decode.field "floats" (Decode.list decodeTuple_String__Float_Float_Float__))
+        (Decode.field "colors" (Decode.list decodeTuple_String_String_))
+
+
+decodeTuple_Float_Float_Float_ : Decoder ( Float, Float, Float )
+decodeTuple_Float_Float_Float_ =
+    Decode.map3
+        (\a1 a2 a3 -> ( a1, a2, a3 ))
+        (Decode.field "A1" Decode.float)
+        (Decode.field "A2" Decode.float)
+        (Decode.field "A3" Decode.float)
+
+
+decodeTuple_String_String_ : Decoder ( String, String )
+decodeTuple_String_String_ =
+    Decode.map2
+        (\a1 a2 -> ( a1, a2 ))
+        (Decode.field "A1" Decode.string)
+        (Decode.field "A2" Decode.string)
+
+
+decodeTuple_String__Float_Float_Float__ : Decoder ( String, ( Float, Float, Float ) )
+decodeTuple_String__Float_Float_Float__ =
+    Decode.map2
+        (\a1 a2 -> ( a1, a2 ))
+        (Decode.field "A1" Decode.string)
+        (Decode.field "A2" decodeTuple_Float_Float_Float_)
+
+
+
+-- QUERY
 
 
 getFloat : String -> Configurations -> Float
@@ -107,22 +227,20 @@ update : Msg -> Configurations -> Configurations
 update msg configurations =
     case msg of
         ClickedImportButton ->
-            { configurations
-                | floats =
-                    configurations.jsonToImport
-                        |> Json.Decode.decodeString floatsDecoder
-                        |> Result.withDefault []
+            let
+                importedConfigurations =
+                    decode configurations.jsonToImport
+            in
+            { importedConfigurations
+                | exportedJson = importedConfigurations.exportedJson
+                , jsonToImport = importedConfigurations.jsonToImport
             }
 
         EditedTextAreaForImport string ->
             { configurations | jsonToImport = string }
 
         ClickedExportButton ->
-            { configurations
-                | exportedJson =
-                    Json.Encode.encode 0
-                        (encodeFloats configurations.floats)
-            }
+            { configurations | exportedJson = encode configurations }
 
         SetFloat key newValue ->
             { configurations
@@ -220,7 +338,8 @@ view configurations =
     in
     div
         [ style "margin" "20px"
-        , style "position" "fixed"
+        , style "height" "400px"
+        , style "overflow" "scroll"
         ]
         [ div [] (configurations.floats |> List.map floatSlider)
         , div [] (configurations.colors |> List.map colorPicker)
@@ -282,31 +401,3 @@ textAreaForImport configurations =
             [ Events.onInput EditedTextAreaForImport ]
             [ text configurations.jsonToImport ]
         ]
-
-
-
--- DECODE
-
-
-{-| THIS FUNCTION IS GENERATED
--}
-floatsDecoder : Decoder (List ( String, ( Float, Float, Float ) ))
-floatsDecoder =
-    Json.Decode.list (Json.Decode.map2 Tuple.pair (Json.Decode.index 0 Json.Decode.string) (Json.Decode.index 1 (Json.Decode.map3 (\a b c -> ( a, b, c )) (Json.Decode.index 0 Json.Decode.float) (Json.Decode.index 1 Json.Decode.float) (Json.Decode.index 2 Json.Decode.float))))
-
-
-{-| THIS FUNCTION IS GENERATED
--}
-encodeFloats : List ( String, ( Float, Float, Float ) ) -> Value
-encodeFloats list =
-    Json.Encode.list
-        (\( a, b ) ->
-            Json.Encode.list identity
-                [ Json.Encode.string a
-                , (\( a_, b_, c ) ->
-                    Json.Encode.list identity [ Json.Encode.float a_, Json.Encode.float b_, Json.Encode.float c ]
-                  )
-                    b
-                ]
-        )
-        list
