@@ -8,6 +8,7 @@ module Playground3d.Camera exposing
     , mouseOverZXAtY
     , orthographic
     , perspective
+    , perspectiveWithOrbit
     )
 
 import Angle
@@ -22,6 +23,7 @@ import Playground3d.Geometry exposing (Point, Vector)
 import Point2d
 import Point3d exposing (Point3d)
 import Rectangle2d
+import SketchPlane3d
 import Vector3d
 import Viewpoint3d
 
@@ -43,6 +45,27 @@ perspective { focalPoint, eyePoint, upDirection } =
                 { focalPoint = Point3d.fromMeters focalPoint
                 , eyePoint = Point3d.fromMeters eyePoint
                 , upDirection = Direction3d.from Point3d.origin (Point3d.fromMeters upDirection) |> Maybe.withDefault Direction3d.positiveY
+                }
+        , verticalFieldOfView = Angle.degrees 40
+        }
+
+
+perspectiveWithOrbit :
+    { focalPoint : Point
+    , azimuth : Float
+    , elevation : Float
+    , distance : Float
+    }
+    -> Camera
+perspectiveWithOrbit { focalPoint, azimuth, elevation, distance } =
+    Camera3d.perspective
+        { viewpoint =
+            Viewpoint3d.orbit
+                { focalPoint = Point3d.fromMeters focalPoint
+                , groundPlane = SketchPlane3d.zx
+                , azimuth = Angle.radians azimuth
+                , elevation = Angle.radians elevation
+                , distance = Length.meters distance
                 }
         , verticalFieldOfView = Angle.degrees 40
         }

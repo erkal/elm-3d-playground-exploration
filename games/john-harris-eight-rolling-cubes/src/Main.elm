@@ -7,7 +7,7 @@ import Ease
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
 import Playground3d exposing (Computer, Shape, Time, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, passedSecondsAfter, rotateAround, rotateX, rotateY, rotateZ)
-import Playground3d.Camera as Camera exposing (Camera, perspective)
+import Playground3d.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Playground3d.Scene as Scene
 import World exposing (RollResult(..), World)
 
@@ -46,18 +46,18 @@ type State
 
 initialConfigurations =
     configurations
-        [ ( "camera x", ( -10, 0, 10 ) )
-        , ( "camera y", ( -10, -3, 10 ) )
-        , ( "camera z", ( 0, 8, 16 ) )
+        [ ( "camera distance", ( 3, 10, 20 ) )
+        , ( "camera azimuth", ( -pi, 0, pi ) )
+        , ( "camera elevation", ( -pi / 2, 0, pi / 2 ) )
         , ( "sunlight azimuth", ( -pi, 2, pi ) )
         , ( "sunlight elevation", ( -pi, -2, 0 ) )
         , ( "cubes side length", ( 0.5, 0.9, 1 ) )
         , ( "duration of rolling animation", ( 0.1, 0.3, 1 ) )
         ]
-        [ ( "color 1", rgb255 245 65 34 )
-        , ( "color 2", rgb255 1 152 215 )
-        , ( "board color", rgb255 12 53 53 )
-        , ( "background color", rgb255 228 231 222 )
+        [ ( "color 1", rgb255 244 88 67 )
+        , ( "color 2", rgb255 47 41 43 )
+        , ( "board color", rgb255 223 224 226 )
+        , ( "background color", rgb255 165 166 169 )
         ]
 
 
@@ -204,14 +204,11 @@ header =
 
 camera : Computer -> Camera
 camera computer =
-    perspective
-        { focalPoint = { x = 0, y = 0.4, z = 0 }
-        , eyePoint =
-            { x = getFloat "camera x" computer
-            , y = getFloat "camera y" computer
-            , z = getFloat "camera z" computer
-            }
-        , upDirection = { x = 0, y = 1, z = 0 }
+    perspectiveWithOrbit
+        { focalPoint = { x = 0, y = 0, z = 0 }
+        , azimuth = getFloat "camera azimuth" computer
+        , elevation = getFloat "camera elevation" computer
+        , distance = getFloat "camera distance" computer
         }
 
 
