@@ -720,9 +720,14 @@ view viewGameModel viewEditor model =
                 , style "font-size" "16px"
                 ]
                 (if model.editorIsOn then
-                    [ editorOnOffButton HideEditor "✕"
-                    , editorTabSelection
-                    , viewActiveEditor
+                    [ div
+                        [ style "height" "100px" ]
+                        [ editorOnOffButton HideEditor "✕"
+                        , editorTabSelection
+                        ]
+                    , div
+                        [ style "height" (String.fromFloat (model.computer.screen.height - 100) ++ "px") ]
+                        [ viewActiveEditor ]
                     ]
 
                  else

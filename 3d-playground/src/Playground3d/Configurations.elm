@@ -316,7 +316,7 @@ view configurations =
 
         colorPicker ( key, currentValue ) =
             div
-                [ style "margin-top" "15px"
+                [ style "overflow" "scroll"
                 ]
                 [ div [] [ label [ for key ] [ text key ] ]
                 , input
@@ -337,8 +337,8 @@ view configurations =
                 ]
     in
     div
-        [ style "margin" "20px"
-        , style "height" "400px"
+        [ style "margin-left" "20px"
+        , style "height" "100%"
         , style "overflow" "scroll"
         ]
         [ div [] (configurations.floats |> List.map floatSlider)
