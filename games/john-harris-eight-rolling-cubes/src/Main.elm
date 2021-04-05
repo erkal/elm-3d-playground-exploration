@@ -75,8 +75,8 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
-        |> handleMouseClick computer
-        |> handleTouchUp computer
+        |> handleMouseInput computer
+        |> handleTouchInput computer
         |> stopRollingAnimation computer
 
 
@@ -98,8 +98,8 @@ handlePointerInputAt { x, y } computer model =
                 |> startRollAnimation computer startPosition rollDirection newWorld
 
 
-handleTouchUp : Computer -> Model -> Model
-handleTouchUp computer model =
+handleTouchInput : Computer -> Model -> Model
+handleTouchInput computer model =
     case computer.touches |> Dict.values |> List.head of
         Just xyOfTouch ->
             case
@@ -119,9 +119,9 @@ handleTouchUp computer model =
             model
 
 
-handleMouseClick : Computer -> Model -> Model
-handleMouseClick computer model =
-    if computer.mouse.click then
+handleMouseInput : Computer -> Model -> Model
+handleMouseInput computer model =
+    if computer.mouse.down then
         case
             Camera.mouseOverXYAtZ
                 (getFloat "cubes side length" computer)

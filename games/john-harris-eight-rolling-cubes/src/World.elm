@@ -46,9 +46,8 @@ rollCubeAt positionAtStart world =
 
 
 isOccupied : ( Int, Int ) -> World -> Bool
-isOccupied xy world =
-    world
-        |> List.any (\(Cube position _) -> xy == position)
+isOccupied xy =
+    List.any (\(Cube position _) -> xy == position)
 
 
 isOnBoard : ( Int, Int ) -> Bool
