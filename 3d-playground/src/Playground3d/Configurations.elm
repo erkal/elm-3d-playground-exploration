@@ -316,11 +316,13 @@ view configurations =
 
         colorPicker ( key, currentValue ) =
             div
-                [ style "overflow" "scroll"
+                [ style "margin-top" "15px"
                 ]
                 [ div [] [ label [ for key ] [ text key ] ]
                 , input
                     [ type_ "color"
+                    , style "width" "200px"
+                    , style "height" "30px"
                     , id key
                     , name key
                     , onInput
