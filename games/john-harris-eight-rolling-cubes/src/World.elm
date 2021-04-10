@@ -78,7 +78,7 @@ rollCube ((Cube startPosition _) as cube) world =
         Nothing ->
             CannotRoll
 
-        Just ( (Cube newPos _) as newCube, rollDirection ) ->
+        Just ( newCube, rollDirection ) ->
             Roll rollDirection
                 (world
                     |> List.filter (\(Cube position _) -> position /= startPosition)
