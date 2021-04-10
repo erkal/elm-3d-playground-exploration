@@ -10,7 +10,7 @@ import Illuminance
 import LuminousFlux
 import Path exposing (Path)
 import Playground3d exposing (..)
-import Playground3d.Camera as Camera exposing (Camera, perspectiveWithOrbit)
+import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Geometry exposing (Point, Vector)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene
@@ -63,9 +63,7 @@ type State
 
 initialConfigurations =
     configurations
-        [ ( "excitement factor", ( 0, 0.3, 1 ) )
-        , ( "excitement period", ( 0.1, 0.48, 1 ) )
-        , ( "camera distance", ( 3, 20, 60 ) )
+        [ ( "camera distance", ( 3, 20, 60 ) )
         , ( "camera azimuth", ( -pi, 0, pi ) )
         , ( "camera elevation", ( -pi / 2, -0.15, pi / 2 ) )
         , ( "cubes side length", ( 0.5, 0.95, 1 ) )
@@ -573,20 +571,6 @@ drawCubes computer model =
         (Cube ( x, y ) redFaceDirection) =
             model.world.cube
 
-        period =
-            getFloat "excitement period" computer
-
-        excitement =
-            let
-                e =
-                    getFloat "excitement factor" computer
-            in
-            if ( x, y ) == ( -4, 3 ) then
-                0
-
-            else
-                wave 0 -e period computer.time
-
         s =
             getFloat "cubes side length" computer
 
@@ -595,9 +579,6 @@ drawCubes computer model =
 
         color2 =
             getColor "color 2" computer
-
-        excitedSideLength =
-            s + excitement
 
         redHalf =
             block color1 ( s, s, s / 2 ) |> moveZ (s / 4)
