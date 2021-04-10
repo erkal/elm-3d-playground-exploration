@@ -52,7 +52,7 @@ initialConfigurations =
         , ( "sunlight azimuth", ( -pi, 2, pi ) )
         , ( "sunlight elevation", ( -pi, -2, 0 ) )
         , ( "cubes side length", ( 0.5, 0.9, 1 ) )
-        , ( "duration of rolling animation", ( 0.1, 0.3, 1 ) )
+        , ( "duration of rolling animation", ( 0.1, 0.25, 1 ) )
         ]
         [ ( "color 1", rgb255 244 88 67 )
         , ( "color 2", rgb255 47 41 43 )
@@ -337,7 +337,8 @@ rollingAnimation computer model pos =
                         passedSecondsAfter startedAt computer.time / duration
 
                     easedDurationRatio =
-                        Ease.inOutSine passedDurationRatio
+                        --Ease.inOutSine
+                        passedDurationRatio
 
                     rotationDegree =
                         (easedDurationRatio * degrees 90)
