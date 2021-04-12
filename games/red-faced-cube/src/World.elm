@@ -18,6 +18,11 @@ init { start } =
         ( start, [] )
 
 
+finish : Cell
+finish =
+    ( 3, 3 )
+
+
 
 -- QUERY
 
@@ -42,56 +47,56 @@ redFaceIsOnTop redFaceDirection =
 
 
 type RollResult
-    = CannotRoll RestrictionRule
+    = CannotRoll Rule
     | Roll World
+    | RollAndSolve World
 
 
-type RestrictionRule
-    = TopFaceCannotBeRed
+type Rule
+    = MustVisitEachCellBeforeReachingNorthEastCorner
+    | TopFaceCannotBeRed
     | MustBeInsideBoardBorders
     | CannotCrossPath
-
-
-isSolved : World -> Bool
-isSolved world =
-    let
-        (Cube cell redFaceDirection) =
-            world.cube
-    in
-    (Path.length world.path == 64)
-        && (cell == ( 3, 3 ))
-        && (redFaceDirection == RedFaceDirection Z Positive)
 
 
 rollCubeTo : RollDirection -> World -> RollResult
 rollCubeTo rollDirection world =
     let
-        ((Cube newPos newRedFaceDirection) as newCube) =
+        ((Cube newCell newRedFaceDirection) as newCube) =
             Cube.roll rollDirection world.cube
     in
     case world.path of
         ( last, beforeLast :: rest ) ->
-            if beforeLast == newPos then
+            if beforeLast == newCell then
                 Roll (World newCube ( beforeLast, rest ))
 
-            else if not (isOnBoard newPos) then
+            else if not (isOnBoard newCell) then
                 CannotRoll MustBeInsideBoardBorders
 
-            else if isOnPath newPos world.path then
+            else if isOnPath newCell world.path then
                 CannotRoll CannotCrossPath
 
-            else if
-                redFaceIsOnTop newRedFaceDirection
-                    && not (isSolved (World newCube ( newPos, last :: beforeLast :: rest )))
-            then
-                CannotRoll TopFaceCannotBeRed
-
             else
-                Roll (World newCube ( newPos, last :: beforeLast :: rest ))
+                let
+                    newWorld =
+                        World newCube ( newCell, last :: beforeLast :: rest )
+                in
+                if newCell == finish then
+                    if Path.length newWorld.path == 64 && redFaceIsOnTop newRedFaceDirection then
+                        RollAndSolve newWorld
+
+                    else
+                        CannotRoll MustVisitEachCellBeforeReachingNorthEastCorner
+
+                else if redFaceIsOnTop newRedFaceDirection then
+                    CannotRoll TopFaceCannotBeRed
+
+                else
+                    Roll newWorld
 
         ( last, [] ) ->
-            if not (isOnBoard newPos) then
+            if not (isOnBoard newCell) then
                 CannotRoll MustBeInsideBoardBorders
 
             else
-                Roll (World newCube ( newPos, [ last ] ))
+                Roll (World newCube ( newCell, [ last ] ))

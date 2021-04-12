@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Cell exposing (Cell, RollDirection(..))
-import Color exposing (blue, green, hsl, red, rgb255, white)
+import Color exposing (hsl, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Html exposing (Html, br, div, h2, p, span, text)
@@ -19,7 +19,7 @@ import Scene3d.Light
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
-import World exposing (RestrictionRule(..), RollResult(..), World)
+import World exposing (RollResult(..), Rule(..), World)
 
 
 
@@ -43,18 +43,20 @@ type alias Model =
 
 type State
     = NoAnimation
-    | CongratulationsAnimation { startedAt : Time }
     | AnimatingRoll
         { startedAt : Time
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
+        , willBeSolved : Bool
         , newWorld : World
         }
     | AnimatingMistake
         { startedAt : Time
+        , violatedRule : Rule
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
         }
+    | CongratulationsAnimation { startedAt : Time }
 
 
 
@@ -100,7 +102,6 @@ update computer model =
         |> handleKeyboardInput computer
         |> handleSwipeInput computer
         |> stopAnimation computer
-        |> startCongratulationsAnimation computer
 
 
 updateSwipe : Computer -> Model -> Model
@@ -180,20 +181,33 @@ attemptRollTo rollDirection startCell computer model =
 
         CannotRoll TopFaceCannotBeRed ->
             model
-                |> startMistakeAnimation computer startCell rollDirection
+                |> startMistakeAnimation computer TopFaceCannotBeRed startCell rollDirection
+
+        CannotRoll MustVisitEachCellBeforeReachingNorthEastCorner ->
+            model
+                |> startMistakeAnimation computer MustVisitEachCellBeforeReachingNorthEastCorner startCell rollDirection
 
         Roll newWorld ->
             model
-                |> startRollAnimation computer startCell rollDirection newWorld
+                |> startRollAnimation computer startCell rollDirection False newWorld
+
+        RollAndSolve newWorld ->
+            model
+                |> startRollAnimation computer startCell rollDirection True newWorld
 
 
 stopAnimation : Computer -> Model -> Model
 stopAnimation computer model =
     case model.state of
-        AnimatingRoll { startedAt, newWorld } ->
+        AnimatingRoll { startedAt, newWorld, willBeSolved } ->
             if passedSecondsAfter startedAt computer.time > getFloat "duration of step animation" computer then
                 { model
-                    | state = NoAnimation
+                    | state =
+                        if willBeSolved then
+                            CongratulationsAnimation { startedAt = computer.time }
+
+                        else
+                            NoAnimation
                     , world = newWorld
                 }
 
@@ -211,25 +225,15 @@ stopAnimation computer model =
             model
 
 
-startCongratulationsAnimation : Computer -> Model -> Model
-startCongratulationsAnimation computer model =
-    if World.isSolved model.world then
-        { model
-            | state = CongratulationsAnimation { startedAt = computer.time }
-        }
-
-    else
-        model
-
-
-startMistakeAnimation : Computer -> ( Int, Int ) -> RollDirection -> Model -> Model
-startMistakeAnimation computer startPosition rollDirection model =
+startMistakeAnimation : Computer -> Rule -> ( Int, Int ) -> RollDirection -> Model -> Model
+startMistakeAnimation computer violatedRule startPosition rollDirection model =
     case model.state of
         NoAnimation ->
             { model
                 | state =
                     AnimatingMistake
                         { startedAt = computer.time
+                        , violatedRule = violatedRule
                         , startPosition = startPosition
                         , rollDirection = rollDirection
                         }
@@ -239,8 +243,8 @@ startMistakeAnimation computer startPosition rollDirection model =
             model
 
 
-startRollAnimation : Computer -> ( Int, Int ) -> RollDirection -> World -> Model -> Model
-startRollAnimation computer startPosition rollDirection newWorld model =
+startRollAnimation : Computer -> ( Int, Int ) -> RollDirection -> Bool -> World -> Model -> Model
+startRollAnimation computer startPosition rollDirection willBeSolved newWorld model =
     case model.state of
         NoAnimation ->
             { model
@@ -249,6 +253,7 @@ startRollAnimation computer startPosition rollDirection newWorld model =
                         { startedAt = computer.time
                         , startPosition = startPosition
                         , rollDirection = rollDirection
+                        , willBeSolved = willBeSolved
                         , newWorld = newWorld
                         }
             }
@@ -291,19 +296,32 @@ explanationText ({ time } as computer) model =
             [ text "A puzzle from Martin Gardner's book Mathematical Carnival (1975)" ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ span []
-                [ text
-                    """
-                        Tour the board,
-                            resting once only on every cell and
-                            ending with the cube red side up in the northeast corner.
-                    """
-                ]
+            [ span [] [ text "Tour the board, resting once only" ]
+            , span
+                (case model.state of
+                    AnimatingMistake { startedAt, violatedRule } ->
+                        case violatedRule of
+                            MustVisitEachCellBeforeReachingNorthEastCorner ->
+                                [ style "background-color" "red" ]
+
+                            _ ->
+                                []
+
+                    _ ->
+                        []
+                )
+                [ text " on every cell " ]
+            , span [] [ text "and ending with the cube red side up in the northeast corner." ]
             , br [] []
             , span
                 (case model.state of
-                    AnimatingMistake { startedAt } ->
-                        [ style "background-color" "red" ]
+                    AnimatingMistake { startedAt, violatedRule } ->
+                        case violatedRule of
+                            TopFaceCannotBeRed ->
+                                [ style "background-color" "red" ]
+
+                            _ ->
+                                []
 
                     _ ->
                         []
@@ -426,18 +444,6 @@ viewShapes computer model =
         , drawCubes computer model
         , drawWalls computer model
         , drawPath computer model
-
-        --, axes
-        ]
-
-
-axes : Shape
-axes =
-    group
-        [ line red ( 100, 0, 0 ) -- x axis
-        , line green ( 0, 100, 0 ) -- y axis
-        , line blue ( 0, 0, 100 ) -- z axis
-        , sphere red 0.05
         ]
 
 
