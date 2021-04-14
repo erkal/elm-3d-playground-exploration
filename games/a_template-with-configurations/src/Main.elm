@@ -1,9 +1,9 @@
 module Main exposing (main)
 
-import Color exposing (hsl, white)
+import Color exposing (blue, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, rotateY)
-import Playground3d.Camera exposing (Camera, perspective)
+import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, rotateY, wave)
+import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene
 
 
@@ -21,10 +21,9 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "hue", ( 0, 0.5, 1 ) )
-        , ( "saturation", ( 0, 0.5, 1 ) )
-        , ( "lightness", ( 0, 0.5, 1 ) )
-        , ( "rotation", ( 0, 0, 2 * pi ) )
+        [ ( "camera distance", ( 3, 20, 60 ) )
+        , ( "camera azimuth", ( 0, 0, 2 * pi ) )
+        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
         ]
         []
 
@@ -47,17 +46,22 @@ update computer model =
 -- VIEW
 
 
+camera : Computer -> Camera
+camera computer =
+    perspectiveWithOrbit
+        { focalPoint = { x = 0, y = 0, z = 0 }
+        , azimuth = getFloat "camera azimuth" computer
+        , elevation = getFloat "camera elevation" computer
+        , distance = getFloat "camera distance" computer
+        }
+
+
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera =
-            perspective
-                { focalPoint = { x = 0, y = 0, z = 0 }
-                , eyePoint = { x = 0, y = 4, z = 8 }
-                , upDirection = { x = 0, y = 1, z = 0 }
-                }
+        , camera = camera computer
         , backgroundColor = white
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
@@ -66,13 +70,9 @@ view computer model =
 
 
 myCube : Computer -> Shape
-myCube computer =
-    let
-        color =
-            hsl
-                (getFloat "hue" computer)
-                (getFloat "saturation" computer)
-                (getFloat "lightness" computer)
-    in
-    cube color 4
-        |> rotateY (getFloat "rotation" computer)
+myCube { time } =
+    cube blue 4
+
+
+
+--|> rotateY (wave -pi pi 7 time)
