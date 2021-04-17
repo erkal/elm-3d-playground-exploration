@@ -1,11 +1,11 @@
 module Main exposing (main)
 
-import Color exposing (blue, white)
+import Color exposing (black, blue, hsl, white)
 import Html exposing (Html, br, div, h2, p, span, text)
 import Html.Attributes exposing (style)
 import Palette
 import Piece exposing (Piece)
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateY, rotateZ, scale)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, cylinder, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene
 
@@ -24,7 +24,7 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "camera distance", ( 3, 25, 60 ) )
+        [ ( "camera distance", ( 3, 15, 60 ) )
         , ( "camera azimuth", ( 0, 0.4, 2 * pi ) )
         , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
         , ( "sunlight azimuth", ( 0, 5.5, 2 * pi ) )
@@ -32,8 +32,10 @@ initialConfigurations =
         , ( "saturation", ( 0, 0.6, 1 ) )
         , ( "lightning", ( 0, 0.8, 1 ) )
         , ( "cube scale", ( 0.1, 0.95, 1 ) )
+        , ( "edge width", ( 0.001, 0.1, 0.5 ) )
         ]
-        []
+        [ ( "edge color", black )
+        ]
 
 
 init : Computer -> Model
@@ -114,31 +116,57 @@ viewShapes computer model =
         , sunlightElevation = getFloat "sunlight elevation" computer
         }
         [ drawPieces computer model
-        , drawBigCube computer model
+        , drawBigCube computer
         ]
 
 
-examplePieces : List Piece
-examplePieces =
-    [ Piece 1 ( -3, 4, 0 ) ( 0, 0, 0 )
-    , Piece 2 ( 0, 4, 0 ) ( 0, 0, 0 )
-    , Piece 3 ( 3, 4, 0 ) ( 0, 0, 0 )
-    , Piece 4 ( -2, 0, 0 ) ( 0, 0, 0 )
-    , Piece 5 ( 2, 0, 0 ) ( 0, 0, 0 )
+examplePiecesPositionedLikeInMartinGardnerBook : List Piece
+examplePiecesPositionedLikeInMartinGardnerBook =
+    [ Piece 1 ( -3, 3, 0 ) ( 0, 0, 0 )
+    , Piece 2 ( 0, 3, 0 ) ( 0, 0, 0 )
+    , Piece 3 ( 3, 3, 0 ) ( 0, 0, 0 )
+    , Piece 4 ( -3, -1, 0 ) ( 0, 0, 0 )
+    , Piece 5 ( 3, 0, 0 ) ( 0, 0, 0 )
     , Piece 6 ( -2, -3, 0 ) ( 0, 0, 0 )
     , Piece 7 ( 2, -3, 0 ) ( 0, 0, 0 )
     ]
 
 
-drawBigCube : Computer -> Model -> Shape
-drawBigCube computer model =
-    group []
+drawBigCube : Computer -> Shape
+drawBigCube computer =
+    let
+        edgeWidth =
+            getFloat "edge width" computer
+
+        color =
+            --getColor "edge color" computer
+            hsl
+                (wave 0 1 7 computer.time)
+                (getFloat "saturation" computer)
+                (getFloat "lightning" computer)
+
+        edge =
+            block color ( edgeWidth, 3 + edgeWidth, edgeWidth )
+
+        edgesParallelToYAxis =
+            group
+                [ edge |> moveZ 1.5 |> moveX 1.5
+                , edge |> moveZ 1.5 |> moveX 1.5 |> rotateY (degrees 90)
+                , edge |> moveZ 1.5 |> moveX 1.5 |> rotateY (degrees 180)
+                , edge |> moveZ 1.5 |> moveX 1.5 |> rotateY (degrees 270)
+                ]
+    in
+    group
+        [ edgesParallelToYAxis
+        , edgesParallelToYAxis |> rotateX (degrees 90)
+        , edgesParallelToYAxis |> rotateZ (degrees 90)
+        ]
 
 
 drawPieces : Computer -> Model -> Shape
 drawPieces computer model =
     group
-        (examplePieces
+        (examplePiecesPositionedLikeInMartinGardnerBook
             |> List.map (drawPiece computer)
         )
 
