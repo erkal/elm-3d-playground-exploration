@@ -14,5 +14,6 @@
 - red-faced-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/red-faced-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/red-faced-cube/src)
 - rhombitrihexagonal-tiling: [demo](https://erkal.github.io/elm-3d-playground-exploration/rhombitrihexagonal-tiling), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/rhombitrihexagonal-tiling/src)
 - rotating-blocks: [demo](https://erkal.github.io/elm-3d-playground-exploration/rotating-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/rotating-blocks/src)
+- the-soma-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/the-soma-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/the-soma-cube/src)
 - trixel-editor: [demo](https://erkal.github.io/elm-3d-playground-exploration/trixel-editor), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/trixel-editor/src)
 - wave-in-wave: [demo](https://erkal.github.io/elm-3d-playground-exploration/wave-in-wave), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/wave-in-wave/src)
