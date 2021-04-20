@@ -2,7 +2,8 @@ module World exposing (..)
 
 
 type alias World =
-    { pieces : List Piece }
+    { pieces : List Piece
+    }
 
 
 type alias Piece =

@@ -97,9 +97,10 @@ explanationText ({ time } as computer) model =
         --    [ text "..." ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ span [] [ text "1-7 to chose piece" ]
-            , br [] []
-            , span [] [ text "Arrow keys to rotate" ]
+            [ div [] [ text "Space Key to chose the next piece" ]
+            , div [] [ text "Arrow keys to rotate the cube" ]
+            , div [] [ text "WASDQE to move the cube" ]
+            , div [] [ text "Shift + Arrow Keys to rotate the camera" ]
             ]
         ]
 
