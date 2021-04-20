@@ -1,8 +1,8 @@
 module Main exposing (main)
 
 import Color exposing (black, blue, hsl, white)
-import Html exposing (Html, br, div, h2, p, span, text)
-import Html.Attributes exposing (style)
+import Html exposing (Html, a, br, div, h2, p, span, text)
+import Html.Attributes exposing (href, style)
 import Palette
 import Piece exposing (Piece)
 import Playground3d exposing (Computer, Shape, block, configurations, cube, cylinder, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, wave)
@@ -24,9 +24,9 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "camera distance", ( 3, 15, 60 ) )
-        , ( "camera azimuth", ( 0, 0.4, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
+        [ ( "camera distance", ( 3, 20, 60 ) )
+        , ( "camera azimuth", ( 0, 0.6, 2 * pi ) )
+        , ( "camera elevation", ( -pi / 2, 0.4, pi / 2 ) )
         , ( "sunlight azimuth", ( 0, 5.5, 2 * pi ) )
         , ( "sunlight elevation", ( -pi / 2, -1, pi / 2 ) )
         , ( "saturation", ( 0, 0.6, 1 ) )
@@ -59,7 +59,7 @@ update computer model =
 camera : Computer -> Camera
 camera computer =
     perspectiveWithOrbit
-        { focalPoint = { x = 0, y = 0, z = 0 }
+        { focalPoint = { x = 0.5, y = 1, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
         , distance = getFloat "camera distance" computer
@@ -91,16 +91,13 @@ explanationText ({ time } as computer) model =
             , style "text-align" "center"
             ]
             [ text "The Soma Cube" ]
-        , p
-            [ style "margin" "10px", style "text-align" "center", style "font-weight" "bold" ]
-            [ text "..." ]
+
+        --, p
+        --    [ style "margin" "10px", style "text-align" "center", style "font-weight" "bold" ]
+        --    [ text "..." ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ span [] [ text "1-7 to chose the piece" ]
-            , br [] []
-            , span [] [ text "Arrow keys to rotate" ]
-            , br [] []
-            , span [] [ text "WASD to move" ]
+            [ span [] [ text "TODO: controls (in notion)" ]
             ]
         ]
 
