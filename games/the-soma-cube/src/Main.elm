@@ -97,11 +97,9 @@ explanationText ({ time } as computer) model =
         --    [ text "..." ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ span [] [ text "Press 1-7 to chose the piece" ]
+            [ span [] [ text "1-7 to chose piece" ]
             , br [] []
             , span [] [ text "Arrow keys to rotate" ]
-            , br [] []
-            , span [] [ text "WASD to move" ]
             ]
         ]
 
