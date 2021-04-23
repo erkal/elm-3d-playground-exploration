@@ -136,14 +136,8 @@ maybeSwipeTo threshold startCoordinates currentCoordinates =
     let
         ( s, c ) =
             ( startCoordinates, currentCoordinates )
-
-        distance =
-            dist startCoordinates currentCoordinates
-
-        isBelowThreshold =
-            distance < threshold
     in
-    if isBelowThreshold then
+    if dist s c < threshold then
         Nothing
 
     else if c.x - s.x > abs (c.y - s.y) then
