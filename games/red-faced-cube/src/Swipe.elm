@@ -74,7 +74,7 @@ update computer sT swipe =
 
 
 
--- helpers
+-- HELPERS
 
 
 clearGesture : Swipe -> Swipe
