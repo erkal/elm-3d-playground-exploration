@@ -19,6 +19,7 @@ import Circle2d
 import Polyline2d
 import Random
 import Dict exposing (Dict)
+import String exposing (fromInt)
 
 -- constants
 ncols = 5
@@ -28,6 +29,8 @@ nrows = 7
 ncolors = 10
 
 gridSize = 20
+
+margin = 20
 
 colorNames = ["#0e9fbf",
                 "#0d8ca7",
@@ -220,10 +223,10 @@ isCrossing (x, y) =
 
 nearCrossing : Msg -> (Int, Int)
 nearCrossing msg = 
-    let x_ = (toFloat msg.x)/gridSize
-        y_ = (toFloat msg.y)/gridSize
+    let x_ = (toFloat msg.x - margin)/gridSize
+        y_ = (toFloat msg.y - margin)/gridSize
     in
-        let d = 1.0 -- squared distance
+        let d = 1 -- squared distance
             a = List.range 0 ((nrows+1)*2)
                 |> List.concatMap(\i -> (List.range 0 ((ncols+1)*2)
                 |> List.map(\j -> (i, j))))
@@ -419,13 +422,14 @@ view model =
     Html.div [Html.Attributes.style "color" "#042931",
                 Html.Attributes.style "width" "300px",
                 Html.Attributes.style "font-size" "14px",
-                Html.Attributes.style "font-family" "Helvetica"
+                Html.Attributes.style "font-family" "Helvetica",
+                Html.Attributes.style "margin" ((String.fromInt margin) ++ "px")
             ]
     [  
         (drawKnot model),
-         Html.p [] [ Html.text "Can you generate three interwined knots by using not more than three bypasses – such that any crossing is between two different knots?" ],
+         Html.p [] [ Html.text "Can you generate three intertwined knots by using not more than three bypasses – such that any crossing is between two different knots?" ],
          Html.p [] [ Html.text "Can you generate one single knot with no crossings at all?" ],
-         Html.p [] [ Html.text "Can you generate two interwined knots with one single gap?" ],
+         Html.p [] [ Html.text "Can you generate two intertwined knots with one single gap?" ],
          Html.p [] [ Html.text "Can you generate one single knot such that all interior points are gaps?" ]
     ]
 
