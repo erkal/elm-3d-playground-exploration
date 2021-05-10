@@ -4,7 +4,9 @@
   "main": "index.js",
   "author": "erkal",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "yarn": "^1.22.10"
+  },
   "scripts": {
     "deploy": "bash scripts/deploy.sh",
     "dev": "bash scripts/dev.sh",
