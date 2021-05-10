@@ -1,13 +1,13 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, hsl, white)
-import Html exposing (Html, a, br, div, h2, p, span, text)
-import Html.Attributes exposing (href, style)
+import Color exposing (Color, black, hsl, white)
+import Html exposing (Html, br, div, h2, p, span, text)
+import Html.Attributes exposing (style)
 import Palette
-import Piece exposing (Piece)
-import Playground3d exposing (Computer, Shape, block, configurations, cube, cylinder, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, wave)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene
+import World exposing (Piece, World)
 
 
 main =
@@ -15,7 +15,7 @@ main =
 
 
 type alias Model =
-    {}
+    { world : World }
 
 
 
@@ -40,7 +40,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    {}
+    { world = World.initialWorld }
 
 
 
@@ -97,7 +97,10 @@ explanationText ({ time } as computer) model =
         --    [ text "..." ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ span [] [ text "TODO: controls (in notion)" ]
+            [ div [] [ text "Space Key to chose the next piece" ]
+            , div [] [ text "Arrow keys to rotate the cube" ]
+            , div [] [ text "WASDQE to move the cube" ]
+            , div [] [ text "Shift + Arrow Keys to rotate the camera" ]
             ]
         ]
 
@@ -115,18 +118,6 @@ viewShapes computer model =
         [ drawPieces computer model
         , drawBigCube computer
         ]
-
-
-examplePiecesPositionedLikeInMartinGardnerBook : List Piece
-examplePiecesPositionedLikeInMartinGardnerBook =
-    [ Piece 1 ( -3, 3, 0 ) ( 0, 0, 0 )
-    , Piece 2 ( 0, 3, 0 ) ( 0, 0, 0 )
-    , Piece 3 ( 3, 3, 0 ) ( 0, 0, 0 )
-    , Piece 4 ( -3, -1, 0 ) ( 0, 0, 0 )
-    , Piece 5 ( 3, 0, 0 ) ( 0, 0, 0 )
-    , Piece 6 ( -2, -3, 0 ) ( 0, 0, 0 )
-    , Piece 7 ( 2, -3, 0 ) ( 0, 0, 0 )
-    ]
 
 
 drawBigCube : Computer -> Shape
@@ -162,22 +153,18 @@ drawBigCube computer =
 
 drawPieces : Computer -> Model -> Shape
 drawPieces computer model =
-    group
-        (examplePiecesPositionedLikeInMartinGardnerBook
-            |> List.map (drawPiece computer)
-        )
-
-
-drawPiece : Computer -> Piece -> Shape
-drawPiece computer piece =
     let
-        drawCube ( x, y, z ) =
-            cube (Palette.get piece.pieceType (Palette.palette1 computer)) 1
-                |> scale (getFloat "cube scale" computer)
-                |> moveX (toFloat x)
-                |> moveY (toFloat y)
-                |> moveZ (toFloat z)
+        drawPieceWithColor pieceIndex =
+            drawPiece computer
+                (Palette.get pieceIndex (Palette.palette1 computer))
+    in
+    group
+        (model.world.pieces |> List.indexedMap drawPieceWithColor)
 
+
+drawPiece : Computer -> Color -> Piece -> Shape
+drawPiece computer color piece =
+    let
         ( posX, posY, posZ ) =
             piece.position
 
@@ -185,12 +172,19 @@ drawPiece computer piece =
             piece.rotation_in_90
     in
     group
-        (Piece.cubesInLocalCoordinates piece
-            |> List.map drawCube
-        )
-        |> rotateY (toFloat rotY * degrees 90)
+        (piece.cubesInLocalCoordinates |> List.map (drawCube computer color))
+        |> rotateX (toFloat rotX * degrees 90)
         |> rotateY (toFloat rotY * degrees 90)
         |> rotateZ (toFloat rotZ * degrees 90)
         |> moveX (toFloat posX)
         |> moveY (toFloat posY)
         |> moveZ (toFloat posZ)
+
+
+drawCube : Computer -> Color -> ( Int, Int, Int ) -> Shape
+drawCube computer color ( x, y, z ) =
+    cube color 1
+        |> scale (getFloat "cube scale" computer)
+        |> moveX (toFloat x)
+        |> moveY (toFloat y)
+        |> moveZ (toFloat z)

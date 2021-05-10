@@ -14,11 +14,11 @@ import Playground3d exposing (Computer)
 
 type Swipe
     = Idle
-    | SwipingStartedAt Point
+    | SwipingStartedAt PixelCoordinates
     | Swiped SwipeDirection
 
 
-type alias Point =
+type alias PixelCoordinates =
     { x : Float
     , y : Float
     }
@@ -74,7 +74,7 @@ update computer sT swipe =
 
 
 
--- helpers
+-- HELPERS
 
 
 clearGesture : Swipe -> Swipe
@@ -126,24 +126,18 @@ finishSwiping computer swipe =
         swipe
 
 
-dist : Point -> Point -> Float
+dist : PixelCoordinates -> PixelCoordinates -> Float
 dist p q =
     sqrt ((p.x - q.x) ^ 2 + (p.y - q.y) ^ 2)
 
 
-maybeSwipeTo : Float -> Point -> Point -> Maybe SwipeDirection
-maybeSwipeTo threshold startCoordinates currentCoordinates =
+maybeSwipeTo : Float -> PixelCoordinates -> PixelCoordinates -> Maybe SwipeDirection
+maybeSwipeTo threshold start current =
     let
         ( s, c ) =
-            ( startCoordinates, currentCoordinates )
-
-        distance =
-            dist startCoordinates currentCoordinates
-
-        isBelowThreshold =
-            distance < threshold
+            ( start, current )
     in
-    if isBelowThreshold then
+    if dist s c < threshold then
         Nothing
 
     else if c.x - s.x > abs (c.y - s.y) then
