@@ -428,11 +428,33 @@ view model =
             ]
     [  
         (drawKnot model),
-         Html.p [] [ Html.text "Can you generate three intertwined knots by using not more than three bypasses (gaps) – such that any crossing is between two different knots?" ],
+        (statistics model),
+         Html.p [] [ Html.text "Can you generate at least three intertwined knots by using not more than three bypasses (gaps) – such that any crossing is between two different knots?" ],
          Html.p [] [ Html.text "Can you generate one single knot with no crossings at all?" ],
          Html.p [] [ Html.text "Can you generate two intertwined knots with using one single gap?" ],
-         Html.p [] [ Html.text "Can you generate one single knot such that all interior points are gaps?" ]
+         Html.p [] [ Html.text "Can you generate one single knot such that all interior points are gaps?" ],
+         Html.p [] [ Html.text "(Hard): What is the smallest number of gaps you have to insert to produce a link such that on every join – no matter if crossing or gap –, two different knots are meeting?" ]
     ]
+
+statistics : Model -> Html Msg
+statistics model =
+    let nGaps = List.length (List.filter (\s -> (s == 0 || s == 1))  (Dict.values model.states))
+        nKnots_ = List.maximum (List.map (\e -> e.color) model.edges)
+    in
+        let nKnots = case nKnots_ of
+                        Nothing -> 0
+                        Just n -> n
+        in
+            let gaps = if nGaps > 0
+                            then (fromInt nGaps ++ " gaps")
+                        else "no gap"
+                knots = if nKnots > 0
+                            then (fromInt nKnots ++ " knots")
+                        else "no knot"
+            in
+                Html.p [Html.Attributes.style "color" "#008097"] [ Html.text ("You have drawn: " ++ gaps ++ " and " ++ knots) ]
+            
+
 
 drawKnot : Model -> Html Msg
 drawKnot model =
