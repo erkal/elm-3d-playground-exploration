@@ -22,7 +22,7 @@ import Dict exposing (Dict)
 import String exposing (fromInt)
 
 -- constants
-ncols = 5
+ncols = 9
 
 nrows = 7
 
@@ -32,13 +32,14 @@ gridSize = 20
 
 margin = 20
 
-colorNames = ["#0e9fbf",
-                "#0d8ca7",
-                "#0b7890",
-                "#096478",
-                "#075060",
-                "#053c49",
-                "#042931"]
+colorNames = ["#008097",
+              "#59b8d0",
+              "#fa9137",
+              "#8b4119",
+              "#42833f",
+              "#96b0b7",
+              "#d09e7a"
+            ]
 
 lineStyleBlack = [
     Attributes.stroke "black",
@@ -427,9 +428,9 @@ view model =
             ]
     [  
         (drawKnot model),
-         Html.p [] [ Html.text "Can you generate three intertwined knots by using not more than three bypasses – such that any crossing is between two different knots?" ],
+         Html.p [] [ Html.text "Can you generate three intertwined knots by using not more than three bypasses (gaps) – such that any crossing is between two different knots?" ],
          Html.p [] [ Html.text "Can you generate one single knot with no crossings at all?" ],
-         Html.p [] [ Html.text "Can you generate two intertwined knots with one single gap?" ],
+         Html.p [] [ Html.text "Can you generate two intertwined knots with using one single gap?" ],
          Html.p [] [ Html.text "Can you generate one single knot such that all interior points are gaps?" ]
     ]
 
@@ -441,23 +442,26 @@ drawKnot model =
     in
         let crossing = List.filter isCrossing a
         in
-            Svg.svg
-            [
-                width "400",
-                height "300",
-                viewBox "0 0 400 300"
-            ]
-            (   -- draw bottom layer
-                (List.filter (\e -> if e.layer == True
-                                        then True else False)
-                    model.edges |> List.map drawEdge)
-                -- draw top layer
-                ++ (List.filter (\e -> if e.layer == False
-                                        then True else False)
-                    model.edges |> List.map drawEdge)
-                -- crossing dots on top
-                ++ (List.map drawDot crossing)
-            )
+            let svgSizex = 2*(ncols+1)*gridSize
+                svgSizey = 2*(nrows+1)*gridSize
+            in
+                Svg.svg
+                [
+                    width (fromInt svgSizey),
+                    height (fromInt svgSizex),
+                    viewBox ("0 0 " ++ (fromInt svgSizey) ++ " " ++ (fromInt svgSizex))
+                ]
+                (   -- draw bottom layer
+                    (List.filter (\e -> if e.layer == True
+                                            then True else False)
+                        model.edges |> List.map drawEdge)
+                    -- draw top layer
+                    ++ (List.filter (\e -> if e.layer == False
+                                            then True else False)
+                        model.edges |> List.map drawEdge)
+                    -- crossing dots on top
+                    ++ (List.map drawDot crossing)
+                )
 
 drawDot : (Int, Int) -> Svg msg
 drawDot (x, y) = 
