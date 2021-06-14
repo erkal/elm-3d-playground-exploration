@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, white, yellow)
+import Color exposing (black, blue, darkGray, rgb, white, yellow)
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, rotateY, rotateZ, scale, wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
@@ -64,7 +64,7 @@ view computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = black
+        , backgroundColor = rgb 0.2 0.2 0.2
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
