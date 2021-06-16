@@ -75,11 +75,10 @@ orthographic :
     { focalPoint : Point
     , azimuth : Float
     , elevation : Float
-    , distance : Float
     , viewportHeight : Float
     }
     -> Camera
-orthographic { focalPoint, azimuth, elevation, distance, viewportHeight } =
+orthographic { focalPoint, azimuth, elevation, viewportHeight } =
     Camera3d.orthographic
         { viewpoint =
             Viewpoint3d.orbit
@@ -87,7 +86,7 @@ orthographic { focalPoint, azimuth, elevation, distance, viewportHeight } =
                 , groundPlane = SketchPlane3d.zx
                 , azimuth = Angle.radians azimuth
                 , elevation = Angle.radians elevation
-                , distance = Length.meters distance
+                , distance = Length.meters 1000
                 }
         , viewportHeight = Length.meters viewportHeight
         }

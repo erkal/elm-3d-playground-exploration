@@ -1,9 +1,9 @@
 module Main exposing (main)
 
-import Color exposing (blue, darkGray, gray, hsl, red, rgb255, white, yellow)
+import Color exposing (black, rgb255, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getColor, getFloat, group, moveY, rotateY, scale, spin, wave)
-import Playground3d.Camera exposing (Camera, orthographic, perspectiveWithOrbit)
+import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveY, rotateY, scale, wave)
+import Playground3d.Camera exposing (Camera, orthographic)
 import Playground3d.Scene as Scene
 
 
@@ -21,12 +21,13 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "camera distance", ( 3, 10, 60 ) )
-        , ( "camera azimuth", ( 0, 0, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
-        , ( "viewport height", ( 3, 5, 30 ) )
+        [ ( "camera azimuth", ( 0, 0, 2 * pi ) )
+        , ( "camera elevation", ( -pi / 2, pi / 2, pi / 2 ) )
+        , ( "viewport height", ( 3, 10, 30 ) )
+        , ( "number of squares", ( 5, 20, 50 ) )
+        , ( "period", ( 3, 40, 60 ) )
         ]
-        [ ( "background color", rgb255 100 67 107 ) ]
+        [ ( "background color", rgb255 220 220 220 ) ]
 
 
 init : Computer -> Model
@@ -53,7 +54,6 @@ camera computer =
         { focalPoint = { x = 0, y = 0, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
-        , distance = getFloat "camera distance" computer
         , viewportHeight = getFloat "viewport height" computer
         }
 
@@ -65,10 +65,10 @@ view computer _ =
         , screen = computer.screen
         , camera = camera computer
         , backgroundColor = getColor "background color" computer
-        , sunlightAzimuth = -(degrees 135)
-        , sunlightElevation = -(degrees 40)
+        , sunlightAzimuth = degrees 90
+        , sunlightElevation = -(degrees 180)
         }
-        [ cubeStack computer 10
+        [ cubeStack computer (floor (getFloat "number of squares" computer))
             |> moveY -2
         ]
 
@@ -80,14 +80,24 @@ cubeStack computer i =
 
     else
         let
+            period =
+                getFloat "period" computer
+
             angle =
-                wave 0 (pi / 2) 14 computer.time
+                wave 0 (pi / 2) period computer.time
 
             scaling =
                 1 / sqrt 2 / cos (abs (pi / 4 - angle))
+
+            color =
+                if modBy 2 i == 0 then
+                    black
+
+                else
+                    white
         in
         group
-            [ block (hsl (toFloat i / 10) 0.5 0.8) ( 5, 1, 5 )
+            [ block color ( 5, 1 / scaling, 5 )
             , cubeStack computer (i - 1)
                 |> scale scaling
                 |> rotateY angle
