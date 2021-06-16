@@ -1,8 +1,8 @@
 module Main exposing (main)
 
-import Color exposing (black, rgb255, white)
+import Color exposing (black, rgb, rgb255, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveY, rotateY, scale, wave)
+import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, rotateY, scale, spin, wave)
 import Playground3d.Camera exposing (Camera, orthographic)
 import Playground3d.Scene as Scene
 
@@ -21,13 +21,9 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "camera azimuth", ( 0, 0, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, pi / 2, pi / 2 ) )
-        , ( "viewport height", ( 3, 10, 30 ) )
-        , ( "number of squares", ( 5, 20, 50 ) )
-        , ( "period", ( 3, 40, 60 ) )
+        [ ( "camera elevation", ( 1.4, 1.57, 1.57 ) )
         ]
-        [ ( "background color", rgb255 220 220 220 ) ]
+        []
 
 
 init : Computer -> Model
@@ -51,10 +47,10 @@ update _ model =
 camera : Computer -> Camera
 camera computer =
     orthographic
-        { focalPoint = { x = 0, y = 0, z = 0 }
-        , azimuth = getFloat "camera azimuth" computer
+        { focalPoint = { x = 0, y = 2, z = 0 }
+        , azimuth = 0
         , elevation = getFloat "camera elevation" computer
-        , viewportHeight = getFloat "viewport height" computer
+        , viewportHeight = 2
         }
 
 
@@ -64,42 +60,43 @@ view computer _ =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = getColor "background color" computer
+        , backgroundColor = white
         , sunlightAzimuth = degrees 90
         , sunlightElevation = -(degrees 180)
         }
-        [ cubeStack computer (floor (getFloat "number of squares" computer))
-            |> moveY -2
+        [ twentyBlocks computer
         ]
 
 
-cubeStack : Computer -> Int -> Shape
-cubeStack computer i =
+twentyBlocks : Computer -> Shape
+twentyBlocks computer =
+    helper computer 20
+
+
+helper : Computer -> Int -> Shape
+helper computer i =
+    let
+        angle =
+            degrees (spin 8 computer.time) / 4
+
+        scaling =
+            0.707 / cos (pi / 4 - angle)
+
+        color =
+            if modBy 2 i == 0 then
+                rgb255 17 147 216
+
+            else
+                white
+    in
     if i == 0 then
         group []
 
     else
-        let
-            period =
-                getFloat "period" computer
-
-            angle =
-                wave 0 (pi / 2) period computer.time
-
-            scaling =
-                1 / sqrt 2 / cos (abs (pi / 4 - angle))
-
-            color =
-                if modBy 2 i == 0 then
-                    black
-
-                else
-                    white
-        in
         group
-            [ block color ( 5, 1 / scaling, 5 )
-            , cubeStack computer (i - 1)
+            [ cube color 1
+            , helper computer (i - 1)
                 |> scale scaling
                 |> rotateY angle
-                |> moveY 1
+                |> moveY 0.3
             ]
