@@ -73,19 +73,23 @@ perspectiveWithOrbit { focalPoint, azimuth, elevation, distance } =
 
 orthographic :
     { focalPoint : Point
-    , eyePoint : Point
+    , azimuth : Float
+    , elevation : Float
+    , distance : Float
     , viewportHeight : Float
     }
     -> Camera
-orthographic properties =
+orthographic { focalPoint, azimuth, elevation, distance, viewportHeight } =
     Camera3d.orthographic
         { viewpoint =
-            Viewpoint3d.lookAt
-                { focalPoint = Point3d.fromMeters properties.focalPoint
-                , eyePoint = Point3d.fromMeters properties.eyePoint
-                , upDirection = Direction3d.positiveZ
+            Viewpoint3d.orbit
+                { focalPoint = Point3d.fromMeters focalPoint
+                , groundPlane = SketchPlane3d.zx
+                , azimuth = Angle.radians azimuth
+                , elevation = Angle.radians elevation
+                , distance = Length.meters distance
                 }
-        , viewportHeight = Length.meters properties.viewportHeight
+        , viewportHeight = Length.meters viewportHeight
         }
 
 
