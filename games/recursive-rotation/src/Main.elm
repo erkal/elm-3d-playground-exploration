@@ -21,7 +21,7 @@ type alias Model =
 
 initialConfigurations =
     configurations
-        [ ( "camera elevation", ( 1.4, 1.57, 1.57 ) )
+        [ ( "camera height", ( 1.4, 1.57, 1.57 ) )
         ]
         []
 
@@ -48,8 +48,8 @@ camera : Computer -> Camera
 camera computer =
     orthographic
         { focalPoint = { x = 0, y = 2, z = 0 }
-        , azimuth = 0
-        , elevation = getFloat "camera elevation" computer
+        , azimuth = getFloat "camera height" computer
+        , elevation = getFloat "camera height" computer
         , viewportHeight = 2
         }
 
