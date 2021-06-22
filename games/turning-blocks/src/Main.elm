@@ -1,10 +1,10 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, darkGray, gray, green, hsl, hsla, lightBlue, red, white, yellow)
+import Color exposing (gray, hsl)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scale, scaleAround, wave, waveWithDelay)
+import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scale, scaleAround, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene
@@ -32,12 +32,7 @@ init computer =
 
 initialConfigurations =
     configurations
-        [ ( "number of blocks", ( 10, 25, 60 ) )
-        , ( "frequency", ( 1, 10, 20 ) )
-        , ( "minWidth", ( 0, 35, 45 ) )
-        , ( "a", ( 0, 1, 3 ) )
-        , ( "maxWidth", ( 10, 37, 50 ) )
-        , ( "period", ( 0.5, 5, 10 ) )
+        [ ( "a", ( 0, 1, 3 ) )
         , ( "lux", ( 2, 5, 5 ) )
         , ( "intensity above", ( 0, 60, 300 ) )
         , ( "intensity below", ( 0, 290, 300 ) )
@@ -132,8 +127,11 @@ shapes computer model =
 
 yellowBlocks computer =
     let
+        delay i =
+            0.1 * toFloat i
+
         wavy i =
-            waveWithDelay (0.1 * toFloat i) 0 1 4 computer.time
+            wave 0 1 4 (computer.time + delay i)
 
         oneBlock i =
             block (hsl (wavy i) 0.6 0.8) ( 1, 3, 1 )

@@ -6,7 +6,7 @@ import Dict
 import Ease
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, Shape, Time, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, passedSecondsAfter, rotateAround, rotateX, rotateY, rotateZ)
+import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getColor, getFloat, group, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ)
 import Playground3d.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Playground3d.Scene as Scene
 import World exposing (RollResult(..), World)
@@ -33,7 +33,7 @@ type alias Model =
 type State
     = NoAnimation
     | AnimatingRoll
-        { startedAt : Time
+        { startedAt : Float
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
         , newWorld : World
@@ -146,7 +146,7 @@ stopRollingAnimation computer model =
             model
 
         AnimatingRoll { startedAt, newWorld } ->
-            if passedSecondsAfter startedAt computer.time > getFloat "duration of rolling animation" computer then
+            if computer.time - startedAt > getFloat "duration of rolling animation" computer then
                 { model
                     | state = NoAnimation
                     , world = newWorld
@@ -334,7 +334,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of rolling animation" computer
 
                     passedDurationRatio =
-                        passedSecondsAfter startedAt computer.time / duration
+                        (computer.time - startedAt) / duration
 
                     easedDurationRatio =
                         --Ease.inOutSine

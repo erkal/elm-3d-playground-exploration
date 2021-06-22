@@ -2,11 +2,11 @@ port module Playground3d exposing
     ( game
     , Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ
-    , Time, spin, wave, zigzag
+    , spin, wave, zigzag
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , Number
     , toEntities
-    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getColor, getFloat, passedSecondsAfter, rotateAround, scale, scaleAround, waveWithDelay
+    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getColor, getFloat, rotateAround, scale, scaleAround
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -34,7 +34,7 @@ port module Playground3d exposing
 
 # Time
 
-@docs Time, spin, wave, zigzag
+@docs spin, wave, zigzag
 
 
 # Computer
@@ -63,7 +63,7 @@ import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Dict exposing (Dict)
 import Direction3d exposing (Direction3d)
-import Html exposing (Html, button, div, h1, option, select, text)
+import Html exposing (Html, button, div, option, select, text)
 import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
@@ -78,7 +78,6 @@ import Scene3d.Material as Material exposing (Material)
 import Set exposing (Set)
 import Sphere3d exposing (Sphere3d)
 import Task
-import Time
 import Triangle3d exposing (Triangle3d)
 import Vector3d
 
@@ -116,7 +115,7 @@ about your computer:
   - [`Mouse`](#Mouse) - Where is the mouse right now?
   - [`Keyboard`](#Keyboard) - Are the arrow keys down?
   - [`Screen`](#Screen) - How wide is the screen?
-  - [`Time`](#Time) - What time is it right now?
+  - [`Time`](#Time) - What time is it right now in seconds, starting from 0?
 
 So you can use expressions like `computer.mouse.x` and `computer.keyboard.enter`
 in games where you want some mouse or keyboard interaction.
@@ -127,7 +126,7 @@ type alias Computer =
     , touches : Dict Int { x : Float, y : Float }
     , keyboard : Keyboard
     , screen : Screen
-    , time : Time
+    , time : Float
     , configurations : Configurations
     , devicePixelRatio : Float
     }
@@ -413,13 +412,8 @@ Helpful when making an [`animation`](#animation) with functions like
 [`spin`](#spin), [`wave`](#wave), and [`zigzag`](#zigzag).
 
 -}
-type Time
-    = Time Time.Posix
-
-
-passedSecondsAfter : Time -> Time -> Float
-passedSecondsAfter (Time start) (Time current) =
-    0.001 * toFloat (Time.posixToMillis current - Time.posixToMillis start)
+type alias Time =
+    Float
 
 
 {-| Create an angle that cycles from 0 to 360 degrees over time.
@@ -467,11 +461,6 @@ wave lo hi period time =
     lo + (hi - lo) * (1 + cos (turns (toFrac period time))) / 2
 
 
-waveWithDelay : Float -> Number -> Number -> Number -> Time -> Number
-waveWithDelay delay lo hi period time =
-    lo + (hi - lo) * (1 + cos (turns (toFracWithDelay delay period time))) / 2
-
-
 {-| Zig zag between two numbers.
 
 Here is an [`animation`](#animation) with a rectangle that tips back and forth:
@@ -495,21 +484,10 @@ zigzag lo hi period time =
     lo + (hi - lo) * abs (2 * toFrac period time - 1)
 
 
-toFracWithDelay : Float -> Float -> Time -> Float
-toFracWithDelay delay period (Time posix) =
-    let
-        ms =
-            Time.posixToMillis posix + round (delay * 1000)
-
-        p =
-            period * 1000
-    in
-    toFloat (modBy (round p) ms) / p
-
-
 toFrac : Float -> Time -> Float
 toFrac period time =
-    toFracWithDelay 0 period time
+    (time - toFloat (floor (time / period)) * period)
+        / period
 
 
 
@@ -655,7 +633,7 @@ initialComputer flags initialConfigurations =
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
-    , time = Time (Time.millisToPosix 0)
+    , time = 0
     , configurations = initialConfigurations
     , devicePixelRatio = flags.devicePixelRatio
     }
@@ -761,7 +739,7 @@ gameSubscriptions =
         [ E.onResize Resized
         , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
         , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-        , E.onAnimationFrame Tick
+        , E.onAnimationFrameDelta ((*) 0.001 >> Tick)
         , E.onVisibilityChange VisibilityChanged
         , E.onClick (D.succeed MouseClick)
         , E.onMouseDown (D.succeed (MouseButton True))
@@ -825,7 +803,7 @@ type Msg levelEditorMsg
     | FromLevelEditor levelEditorMsg
     | FromConfigurationEditor Configurations.Msg
     | KeyChanged Bool String
-    | Tick Time.Posix
+    | Tick Float
     | GotViewport Dom.Viewport
     | Resized Int Int
     | VisibilityChanged E.Visibility
@@ -863,15 +841,20 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
                 | computer = { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
             }
 
-        Tick time ->
+        Tick deltaTimeInSeconds ->
             { model
                 | gameModel = updateGameModel computer model.gameModel
                 , computer =
                     if computer.mouse.click then
-                        { computer | time = Time time, mouse = mouseClick False computer.mouse }
+                        { computer
+                            | time = computer.time + deltaTimeInSeconds
+                            , mouse = mouseClick False computer.mouse
+                        }
 
                     else
-                        { computer | time = Time time }
+                        { computer
+                            | time = computer.time + deltaTimeInSeconds
+                        }
             }
 
         GotViewport { viewport } ->

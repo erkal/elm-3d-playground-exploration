@@ -24,7 +24,7 @@ initialConfigurations =
         [ ( "camera distance", ( 3, 50, 60 ) )
         , ( "camera azimuth", ( 0, 0, 2 * pi ) )
         , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
-        , ( "delay", ( 0, 0.15, 1 ) )
+        , ( "delay per index", ( 0, 0.15, 1 ) )
         , ( "number of spheres", ( 10, 50, 100 ) )
         , ( "saturation", ( 0, 0.5, 1 ) )
         , ( "lighting", ( 0, 0.7, 1 ) )
@@ -80,8 +80,8 @@ view computer _ =
 makeCube : Computer -> Int -> Shape
 makeCube computer i =
     let
-        delay =
-            getFloat "delay" computer
+        timeWithDelay =
+            computer.time + toFloat i * getFloat "delay per index" computer
 
         n =
             floor (getFloat "number of spheres" computer)
@@ -96,12 +96,12 @@ makeCube computer i =
             getFloat "saturation" computer
 
         hue =
-            Playground3d.waveWithDelay (delay * toFloat i) 0 1 7 computer.time
+            Playground3d.wave 0 1 7 timeWithDelay
     in
     sphere (hsl hue saturation lighting) size
-        |> scale (Playground3d.waveWithDelay (delay * toFloat i) 1 4 4 computer.time)
-        |> moveX (Playground3d.waveWithDelay (delay * toFloat i) 3 4 1 computer.time)
-        |> rotateY (Playground3d.waveWithDelay (delay * toFloat i) 0 10 20 computer.time)
+        |> scale (Playground3d.wave 1 4 4 timeWithDelay)
+        |> moveX (Playground3d.wave 3 4 1 timeWithDelay)
+        |> rotateY (Playground3d.wave 0 10 20 timeWithDelay)
         |> moveY (size * 1.1 * toFloat i)
 
 

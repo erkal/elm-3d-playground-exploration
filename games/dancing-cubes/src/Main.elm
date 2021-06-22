@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (hsl, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateY, waveWithDelay)
+import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateY, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene
 
@@ -95,6 +95,9 @@ cubes computer =
             let
                 ratio =
                     toFloat i / toFloat n
+
+                delay =
+                    numberOfWaves * cycleDuration * ratio
             in
             cube
                 (hsl
@@ -105,12 +108,11 @@ cubes computer =
                 (getFloat "cube size" computer)
                 |> moveZ (getFloat "radius" computer)
                 |> moveY
-                    (waveWithDelay
-                        (numberOfWaves * cycleDuration * ratio)
+                    (wave
                         -waveHeight
                         waveHeight
                         cycleDuration
-                        computer.time
+                        (computer.time + delay)
                     )
                 |> rotateY (degrees 360 * ratio)
     in

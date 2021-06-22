@@ -13,7 +13,7 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scaleAround, triangle, wave, waveWithDelay)
+import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scaleAround, triangle, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene
