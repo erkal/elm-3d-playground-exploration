@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, green, hsl, red, white)
+import Color exposing (black, blue, gray, green, hsl, red, white)
 import Html exposing (Html)
 import Playground3d exposing (Computer, Shape, block, game, group, line, moveX, moveY, moveZ, rotateAround, scaleAround, sphere, wave)
 import Playground3d.Camera exposing (Camera, perspective)
@@ -58,7 +58,7 @@ view computer model =
 shapes : Computer -> Model -> List Shape
 shapes computer model =
     [ axes
-    , coloredCube computer
+    , wavingCube computer
     ]
 
 
@@ -71,10 +71,7 @@ axes =
         ]
 
 
-coloredCube : Computer -> Shape
-coloredCube computer =
-    let
-        color =
-            hsl (wave 0 1 10 computer.time) 0.8 0.8
-    in
-    block color ( 1, 1, 1 )
+wavingCube : Computer -> Shape
+wavingCube computer =
+    block gray ( 1, 1, 1 )
+        |> moveY (wave 0 1 1 computer.time)

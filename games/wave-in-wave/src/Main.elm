@@ -1,10 +1,10 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, darkGray, gray, green, hsl, lightBlue, red, white)
+import Color exposing (darkGray, gray, hsl)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateY, scaleAround, wave, waveWithDelay)
+import Playground3d exposing (Computer, Shape, block, configurations, gameWithConfigurations, getFloat, group, moveY, rotateY, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene
@@ -136,17 +136,11 @@ wavingBlocks ({ time } as computer) =
         n =
             floor (getFloat "number of blocks" computer)
 
+        delayForColor i =
+            0.004 * period * toFloat i
+
         color i =
-            hsl
-                (waveWithDelay
-                    (0.004 * period * toFloat i)
-                    0
-                    1
-                    3
-                    time
-                )
-                0.65
-                0.7
+            hsl (wave 0 1 3 (time + delayForColor i)) 0.65 0.7
 
         dist =
             80 / toFloat n
@@ -164,13 +158,11 @@ wavingBlocks ({ time } as computer) =
         period =
             getFloat "period" computer
 
+        delayForXzWaving i =
+            frequency * toFloat i / toFloat n
+
         xzWaving i =
-            waveWithDelay
-                (frequency * toFloat i / toFloat n)
-                minWidth
-                maxWidth
-                period
-                time
+            wave minWidth maxWidth period (time + delayForXzWaving i)
 
         ithBlock i =
             block (color i)

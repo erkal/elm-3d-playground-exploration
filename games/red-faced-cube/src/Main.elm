@@ -44,19 +44,19 @@ type alias Model =
 type State
     = NoAnimation
     | AnimatingRoll
-        { startedAt : Time
+        { startedAt : Float
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
         , willBeSolved : Bool
         , newWorld : World
         }
     | AnimatingMistake
-        { startedAt : Time
+        { startedAt : Float
         , violatedRule : Rule
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
         }
-    | CongratulationsAnimation { startedAt : Time }
+    | CongratulationsAnimation { startedAt : Float }
 
 
 
@@ -200,7 +200,7 @@ stopAnimation : Computer -> Model -> Model
 stopAnimation computer model =
     case model.state of
         AnimatingRoll { startedAt, newWorld, willBeSolved } ->
-            if passedSecondsAfter startedAt computer.time > getFloat "duration of step animation" computer then
+            if computer.time - startedAt > getFloat "duration of step animation" computer then
                 { model
                     | state =
                         if willBeSolved then
@@ -215,7 +215,7 @@ stopAnimation computer model =
                 model
 
         AnimatingMistake { startedAt } ->
-            if passedSecondsAfter startedAt computer.time > getFloat "duration of mistake animation" computer then
+            if computer.time - startedAt > getFloat "duration of mistake animation" computer then
                 { model | state = NoAnimation }
 
             else
@@ -368,7 +368,7 @@ viewShapes computer model =
                             getFloat "duration of step animation" computer
 
                         passedDurationRatio =
-                            passedSecondsAfter startedAt computer.time / duration
+                            (computer.time - startedAt) / duration
 
                         ( cameraShiftX, cameraShiftY ) =
                             case rollDirection of
@@ -541,7 +541,7 @@ drawPath computer model =
         color i =
             case model.state of
                 CongratulationsAnimation { startedAt } ->
-                    hsl (waveWithDelay (0.03 * toFloat i) 0 1 6 computer.time)
+                    hsl (wave 0 1 6 (computer.time + 0.03 * toFloat i))
                         1
                         0.8
 
@@ -552,7 +552,7 @@ drawPath computer model =
             case model.state of
                 CongratulationsAnimation { startedAt } ->
                     scale 0.9
-                        >> moveZ (waveWithDelay (0.3 * toFloat i) 0.1 0.7 6 computer.time)
+                        >> moveZ (wave 0.1 0.7 6 (computer.time + 0.3 * toFloat i))
 
                 _ ->
                     identity
@@ -634,7 +634,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of step animation" computer
 
                     passedDurationRatio =
-                        passedSecondsAfter startedAt computer.time / duration
+                        (computer.time - startedAt) / duration
 
                     easedDurationRatio =
                         Ease.inQuad
@@ -670,7 +670,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of mistake animation" computer
 
                     passedDurationRatio =
-                        passedSecondsAfter startedAt computer.time / duration
+                        (computer.time - startedAt) / duration
 
                     easedDurationRatio =
                         sin
