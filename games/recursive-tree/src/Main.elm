@@ -54,53 +54,18 @@ camera =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    let
-        firstLight =
-            Light.point
-                { position = { x = -4, y = 4, z = -4 }
-                , chromaticity = Scene3d.Light.incandescent
-                , intensity = LuminousFlux.lumens 10000
+    Scene.sunny
+        { devicePixelRatio = computer.devicePixelRatio
+        , screen = computer.screen
+        , camera =
+            perspective
+                { focalPoint = { x = 0, y = 4, z = 0 }
+                , eyePoint = { x = 0, y = 15, z = 18 }
+                , upDirection = { x = 0, y = 1, z = 0 }
                 }
-
-        secondLight =
-            Light.point
-                { position = { x = 4, y = 4, z = 4 }
-                , chromaticity = Scene3d.Light.fluorescent
-                , intensity = LuminousFlux.lumens 10000
-                }
-
-        thirdLight =
-            Light.directional
-                { azimuth = degrees 0
-                , elevation = degrees 180
-                , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
-                , intensity = Illuminance.lux 300
-                }
-
-        fourthLight =
-            Light.soft
-                { azimuth = degrees 0
-                , elevation = degrees 180
-                , chromaticity = Scene3d.Light.fluorescent
-                , intensityAbove = Illuminance.lux 60
-                , intensityBelow = Illuminance.lux 60
-                }
-    in
-    Scene.custom
-        { screen = computer.screen
-        , camera = camera
-        , lights =
-            Scene3d.fourLights
-                firstLight
-                secondLight
-                thirdLight
-                fourthLight
-        , clipDepth = 0.1
-        , exposure = Scene3d.exposureValue 6
-        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
-        , whiteBalance = Scene3d.Light.fluorescent
-        , antialiasing = Scene3d.multisampling
         , backgroundColor = lightBlue
+        , sunlightAzimuth = -(degrees 135)
+        , sunlightElevation = -(degrees 45)
         }
         (shapes computer model)
 
