@@ -1,11 +1,11 @@
 port module Playground3d exposing
-    ( game
+    ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
+    , configurations, getColor, getFloat
     , Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , spin, wave, zigzag
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     , toEntities
-    , configurations, gameWithConfigurations, gameWithConfigurationsAndEditor, getColor, getFloat
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -13,7 +13,12 @@ port module Playground3d exposing
 
 # Playground
 
-@docs game
+@docs game, gameWithConfigurations, gameWithConfigurationsAndEditor
+
+
+# Configurations
+
+@docs configurations, getColor, getFloat
 
 
 # Shapes
