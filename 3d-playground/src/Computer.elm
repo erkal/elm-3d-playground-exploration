@@ -47,6 +47,7 @@ type Msg
     | TouchMove (List TouchEvent)
     | TouchEnd (List TouchEvent)
     | TouchCancel (List TouchEvent)
+    | FromConfigurationsEditor Configurations.Msg
 
 
 type alias TouchEvent =
@@ -88,6 +89,12 @@ update msg computer =
 
         Resized w h ->
             { computer | screen = toScreen (toFloat w) (toFloat h) }
+
+        VisibilityChanged visibility ->
+            { computer
+                | keyboard = emptyKeyboard
+                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+            }
 
         KeyChanged isDown key ->
             { computer | keyboard = updateKeyboard isDown key computer.keyboard }
@@ -141,10 +148,10 @@ update msg computer =
                     touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
             }
 
-        VisibilityChanged visibility ->
+        FromConfigurationsEditor configurationsMsg ->
             { computer
-                | keyboard = emptyKeyboard
-                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+                | configurations =
+                    computer.configurations |> Configurations.update configurationsMsg
             }
 
 

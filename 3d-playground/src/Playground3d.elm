@@ -76,6 +76,7 @@ import Scene3d
 import Scene3d.Material as Material exposing (Material)
 import Sphere3d exposing (Sphere3d)
 import Task
+import Ticker exposing (Ticker)
 import Triangle3d exposing (Triangle3d)
 import Vector3d
 
@@ -332,11 +333,10 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
     let
         init flags =
             let
-                initialComputer_ =
+                initialComputer =
                     Computer.init flags initialConfigurations
             in
-            ( { computer = initialComputer_
-              , gameModel = initGameModel initialComputer_
+            ( { ticker = Ticker.init initialComputer initGameModel
               , editorIsOn = False
               , activeEditorTab = Configurations
               , visibility = E.Visible
@@ -371,8 +371,14 @@ view :
     -> (Computer -> gameModel -> Html levelEditorMsg)
     -> Model gameModel
     -> Html (Msg levelEditorMsg)
-view viewGameModel viewEditor model =
+view viewGameModel viewLevelEditor model =
     let
+        computer =
+            Ticker.currentComputer model.ticker
+
+        gameModel =
+            Ticker.currentGameModel model.ticker
+
         editorOnOffButton msg symbol =
             button
                 [ style "font-size" "30px"
@@ -407,20 +413,20 @@ view viewGameModel viewEditor model =
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
-                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "width" (String.fromFloat computer.screen.width ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
                 , style "font-size" "16px"
                 ]
-                [ Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
+                [ Html.map (always NoOp) (viewGameModel computer gameModel)
                 ]
 
-        viewLeftBar =
+        viewEditor =
             div
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
                 , style "width" (String.fromFloat 250 ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
                 , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
                 , style "font-size" "16px"
                 ]
@@ -431,7 +437,7 @@ view viewGameModel viewEditor model =
                         , editorTabSelection
                         ]
                     , div
-                        [ style "height" (String.fromFloat (model.computer.screen.height - 100) ++ "px") ]
+                        [ style "height" (String.fromFloat (computer.screen.height - 100) ++ "px") ]
                         [ viewActiveEditor ]
                     ]
 
@@ -442,17 +448,30 @@ view viewGameModel viewEditor model =
         viewActiveEditor =
             case model.activeEditorTab of
                 Configurations ->
-                    Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
+                    Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
 
                 LevelEditor ->
-                    Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
+                    Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+
+        viewRecordPlayer =
+            div
+                [ style "position" "fixed"
+                , style "top" "40px"
+                , style "left" "330px"
+                , style "width" "400px"
+                , style "height" "60px"
+                , style "font-size" "40px"
+                , style "background-color" "yellow"
+                ]
+                [ text ("Recording size: " ++ String.fromInt (Ticker.totalSize model.ticker)) ]
     in
     div
         [ style "touch-action" "none"
         , style "user-select" "none"
         ]
         [ viewGame
-        , viewLeftBar
+        , viewEditor
+        , viewRecordPlayer
         ]
 
 
@@ -485,8 +504,7 @@ gameSubscriptions =
 
 
 type alias Model gameModel =
-    { computer : Computer
-    , gameModel : gameModel
+    { ticker : Ticker gameModel
     , editorIsOn : Bool
     , activeEditorTab : EditorTab
     , visibility : E.Visibility
@@ -529,12 +547,11 @@ type Msg levelEditorMsg
     | HideEditor
     | ShowEditor
     | FromLevelEditor levelEditorMsg
-    | FromConfigurationEditor Configurations.Msg
     | ToComputer Computer.Msg
 
 
 gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
-gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
+gameUpdate updateGameModel updateFromEditor msg model =
     case msg of
         NoOp ->
             model
@@ -549,37 +566,10 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
             { model | editorIsOn = True }
 
         FromLevelEditor levelEditorMsg ->
-            { model
-                | gameModel =
-                    model.gameModel |> updateFromEditor model.computer levelEditorMsg
-            }
-
-        FromConfigurationEditor configurationsMsg ->
-            { model
-                | computer =
-                    { computer
-                        | configurations =
-                            computer.configurations |> Configurations.update configurationsMsg
-                    }
-            }
+            { model | ticker = model.ticker |> Ticker.updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg }
 
         ToComputer computerMsg ->
-            let
-                newGameModel =
-                    case computerMsg of
-                        Tick _ ->
-                            model.gameModel |> updateGameModel computer
-
-                        _ ->
-                            model.gameModel
-
-                newComputer =
-                    model.computer |> Computer.update computerMsg
-            in
-            { model
-                | gameModel = newGameModel
-                , computer = newComputer
-            }
+            { model | ticker = model.ticker |> Ticker.handleComputerMsg updateGameModel computerMsg }
 
 
 
