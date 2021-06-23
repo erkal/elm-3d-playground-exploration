@@ -15,6 +15,8 @@ in games where you want some mouse or keyboard interaction.
 
 -- COMPUTER
 
+import Browser.Dom as Dom
+import Browser.Events as E
 import Color exposing (Color)
 import Dict exposing (Dict)
 import Playground3d.Configurations as Configurations exposing (Configurations)
@@ -30,6 +32,120 @@ type alias Computer =
     , configurations : Configurations
     , devicePixelRatio : Float
     }
+
+
+type Msg
+    = KeyChanged Bool String
+    | Tick Float
+    | GotViewport Dom.Viewport
+    | Resized Int Int
+    | VisibilityChanged E.Visibility
+    | MouseMove Float Float
+    | MouseClick
+    | MouseButton Bool
+    | TouchStart (List TouchEvent)
+    | TouchMove (List TouchEvent)
+    | TouchEnd (List TouchEvent)
+    | TouchCancel (List TouchEvent)
+
+
+type alias TouchEvent =
+    { identifier : Int
+    , pageX : Float
+    , pageY : Float
+    }
+
+
+init : { devicePixelRatio : Float } -> Configurations -> Computer
+init { devicePixelRatio } initialConfigurations =
+    { mouse = Mouse 0 0 False False
+    , touches = Dict.empty
+    , keyboard = emptyKeyboard
+    , screen = toScreen 600 600
+    , time = 0
+    , configurations = initialConfigurations
+    , devicePixelRatio = devicePixelRatio
+    }
+
+
+update : Msg -> Computer -> Computer
+update msg computer =
+    case msg of
+        Tick deltaTimeInSeconds ->
+            if computer.mouse.click then
+                { computer
+                    | time = computer.time + deltaTimeInSeconds
+                    , mouse = mouseClick False computer.mouse
+                }
+
+            else
+                { computer
+                    | time = computer.time + deltaTimeInSeconds
+                }
+
+        GotViewport { viewport } ->
+            { computer | screen = toScreen viewport.width viewport.height }
+
+        Resized w h ->
+            { computer | screen = toScreen (toFloat w) (toFloat h) }
+
+        KeyChanged isDown key ->
+            { computer | keyboard = updateKeyboard isDown key computer.keyboard }
+
+        MouseMove pageX pageY ->
+            { computer | mouse = mouseMove (computer.screen.left + pageX) (computer.screen.top - pageY) computer.mouse }
+
+        MouseClick ->
+            { computer | mouse = mouseClick True computer.mouse }
+
+        MouseButton isDown ->
+            { computer | mouse = mouseDown isDown computer.mouse }
+
+        TouchStart touchEvents ->
+            { computer
+                | touches =
+                    touchEvents
+                        |> List.foldl
+                            (\{ identifier, pageX, pageY } ->
+                                Dict.insert identifier
+                                    { x = computer.screen.left + pageX
+                                    , y = computer.screen.top - pageY
+                                    }
+                            )
+                            computer.touches
+            }
+
+        TouchMove touchEvents ->
+            { computer
+                | touches =
+                    touchEvents
+                        |> List.foldl
+                            (\{ identifier, pageX, pageY } ->
+                                Dict.insert identifier
+                                    { x = computer.screen.left + pageX
+                                    , y = computer.screen.top - pageY
+                                    }
+                            )
+                            computer.touches
+            }
+
+        TouchEnd touchEvents ->
+            { computer
+                | touches =
+                    touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+            }
+
+        TouchCancel touchEvents ->
+            { computer
+                | touches =
+                    touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+            }
+
+        VisibilityChanged visibility ->
+            { computer
+                | keyboard = emptyKeyboard
+                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+            }
 
 
 

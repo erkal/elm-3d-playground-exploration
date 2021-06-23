@@ -54,9 +54,8 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
 import Color exposing (Color)
-import Computer exposing (Computer, emptyKeyboard, mouseClick, mouseDown, mouseMove, toScreen, updateKeyboard)
+import Computer exposing (Computer, Msg(..), TouchEvent, init)
 import Cylinder3d exposing (Cylinder3d)
-import Dict exposing (Dict)
 import Direction3d exposing (Direction3d)
 import Html exposing (Html, button, div, option, select, text)
 import Html.Attributes exposing (style, value)
@@ -90,13 +89,6 @@ port touchEnd : (List TouchEvent -> msg) -> Sub msg
 
 
 port touchCancel : (List TouchEvent -> msg) -> Sub msg
-
-
-type alias TouchEvent =
-    { identifier : Int
-    , pageX : Float
-    , pageY : Float
-    }
 
 
 
@@ -336,7 +328,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             let
                 initialComputer_ =
-                    initialComputer flags initialConfigurations
+                    Computer.init flags initialConfigurations
             in
             ( { computer = initialComputer_
               , gameModel = initGameModel initialComputer_
@@ -344,7 +336,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
               , activeEditorTab = Configurations
               , visibility = E.Visible
               }
-            , Task.perform GotViewport Dom.getViewport
+            , Task.perform (GotViewport >> ToComputer) Dom.getViewport
             )
 
         update msg model =
@@ -356,6 +348,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             case visibility of
                 E.Hidden ->
                     E.onVisibilityChange VisibilityChanged
+                        |> Sub.map ToComputer
 
                 E.Visible ->
                     gameSubscriptions
@@ -366,18 +359,6 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         , update = update
         , subscriptions = subscriptions
         }
-
-
-initialComputer : Flags -> Configurations -> Computer
-initialComputer flags initialConfigurations =
-    { mouse = Computer.Mouse 0 0 False False
-    , touches = Dict.empty
-    , keyboard = emptyKeyboard
-    , screen = toScreen 600 600
-    , time = 0
-    , configurations = initialConfigurations
-    , devicePixelRatio = flags.devicePixelRatio
-    }
 
 
 view :
@@ -476,21 +457,22 @@ view viewGameModel viewEditor model =
 
 gameSubscriptions : Sub (Msg levelEditorMsg)
 gameSubscriptions =
-    Sub.batch
-        [ E.onResize Resized
-        , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
-        , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-        , E.onAnimationFrameDelta ((*) 0.001 >> Tick)
-        , E.onVisibilityChange VisibilityChanged
-        , E.onClick (D.succeed MouseClick)
-        , E.onMouseDown (D.succeed (MouseButton True))
-        , E.onMouseUp (D.succeed (MouseButton False))
-        , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
-        , touchStart TouchStart
-        , touchMove TouchMove
-        , touchEnd TouchEnd
-        , touchCancel TouchCancel
-        ]
+    Sub.batch <|
+        List.map (Sub.map ToComputer)
+            [ E.onResize Resized
+            , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
+            , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
+            , E.onAnimationFrameDelta ((*) 0.001 >> Tick)
+            , E.onVisibilityChange VisibilityChanged
+            , E.onClick (D.succeed MouseClick)
+            , E.onMouseDown (D.succeed (MouseButton True))
+            , E.onMouseUp (D.succeed (MouseButton False))
+            , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
+            , touchStart TouchStart
+            , touchMove TouchMove
+            , touchEnd TouchEnd
+            , touchCancel TouchCancel
+            ]
 
 
 
@@ -543,18 +525,7 @@ type Msg levelEditorMsg
     | ShowEditor
     | FromLevelEditor levelEditorMsg
     | FromConfigurationEditor Configurations.Msg
-    | KeyChanged Bool String
-    | Tick Float
-    | GotViewport Dom.Viewport
-    | Resized Int Int
-    | VisibilityChanged E.Visibility
-    | MouseMove Float Float
-    | TouchStart (List TouchEvent)
-    | TouchMove (List TouchEvent)
-    | TouchEnd (List TouchEvent)
-    | TouchCancel (List TouchEvent)
-    | MouseClick
-    | MouseButton Bool
+    | ToComputer Computer.Msg
 
 
 gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
@@ -574,126 +545,35 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
 
         FromLevelEditor levelEditorMsg ->
             { model
-                | gameModel = updateFromEditor model.computer levelEditorMsg model.gameModel
+                | gameModel =
+                    model.gameModel |> updateFromEditor model.computer levelEditorMsg
             }
 
         FromConfigurationEditor configurationsMsg ->
             { model
-                | computer = { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
+                | computer =
+                    { computer
+                        | configurations =
+                            computer.configurations |> Configurations.update configurationsMsg
+                    }
             }
 
-        Tick deltaTimeInSeconds ->
-            { model
-                | gameModel = updateGameModel computer model.gameModel
-                , computer =
-                    if computer.mouse.click then
-                        { computer
-                            | time = computer.time + deltaTimeInSeconds
-                            , mouse = mouseClick False computer.mouse
-                        }
-
-                    else
-                        { computer
-                            | time = computer.time + deltaTimeInSeconds
-                        }
-            }
-
-        GotViewport { viewport } ->
-            { model
-                | computer = { computer | screen = toScreen viewport.width viewport.height }
-            }
-
-        Resized w h ->
-            { model
-                | computer = { computer | screen = toScreen (toFloat w) (toFloat h) }
-            }
-
-        KeyChanged isDown key ->
-            { model
-                | computer = { computer | keyboard = updateKeyboard isDown key computer.keyboard }
-            }
-
-        MouseMove pageX pageY ->
+        ToComputer computerMsg ->
             let
-                x =
-                    computer.screen.left + pageX
+                newGameModel =
+                    case computerMsg of
+                        Tick _ ->
+                            model.gameModel |> updateGameModel computer
 
-                y =
-                    computer.screen.top - pageY
+                        _ ->
+                            model.gameModel
+
+                newComputer =
+                    model.computer |> Computer.update computerMsg
             in
             { model
-                | computer = { computer | mouse = mouseMove x y computer.mouse }
-            }
-
-        MouseClick ->
-            { model
-                | computer = { computer | mouse = mouseClick True computer.mouse }
-            }
-
-        MouseButton isDown ->
-            { model
-                | computer = { computer | mouse = mouseDown isDown computer.mouse }
-            }
-
-        TouchStart touchEvents ->
-            { model
-                | computer =
-                    { computer
-                        | touches =
-                            touchEvents
-                                |> List.foldl
-                                    (\{ identifier, pageX, pageY } ->
-                                        Dict.insert identifier
-                                            { x = computer.screen.left + pageX
-                                            , y = computer.screen.top - pageY
-                                            }
-                                    )
-                                    computer.touches
-                    }
-            }
-
-        TouchMove touchEvents ->
-            { model
-                | computer =
-                    { computer
-                        | touches =
-                            touchEvents
-                                |> List.foldl
-                                    (\{ identifier, pageX, pageY } ->
-                                        Dict.insert identifier
-                                            { x = computer.screen.left + pageX
-                                            , y = computer.screen.top - pageY
-                                            }
-                                    )
-                                    computer.touches
-                    }
-            }
-
-        TouchEnd touchEvents ->
-            { model
-                | computer =
-                    { computer
-                        | touches =
-                            touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
-                    }
-            }
-
-        TouchCancel touchEvents ->
-            { model
-                | computer =
-                    { computer
-                        | touches =
-                            touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
-                    }
-            }
-
-        VisibilityChanged visibility ->
-            { model
-                | computer =
-                    { computer
-                        | keyboard = emptyKeyboard
-                        , mouse = Computer.Mouse computer.mouse.x computer.mouse.y False False
-                    }
+                | gameModel = newGameModel
+                , computer = newComputer
             }
 
 
