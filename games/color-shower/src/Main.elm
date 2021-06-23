@@ -19,20 +19,6 @@ type alias Model =
 -- INIT
 
 
-initialConfigurations =
-    configurations
-        [ ( "camera distance", ( 3, 50, 60 ) )
-        , ( "camera azimuth", ( 0, 0, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
-        , ( "delay per index", ( 0, 0.15, 1 ) )
-        , ( "number of spheres", ( 10, 50, 100 ) )
-        , ( "saturation", ( 0, 0.5, 1 ) )
-        , ( "lighting", ( 0, 0.7, 1 ) )
-        ]
-        [ ( "background color", hsl 0.85 0.32 0.45 )
-        ]
-
-
 init : Computer -> Model
 init _ =
     {}
@@ -61,6 +47,20 @@ camera computer =
         }
 
 
+initialConfigurations =
+    configurations
+        [ ( "camera distance", ( 3, 50, 60 ) )
+        , ( "camera azimuth", ( 0, 0, 2 * pi ) )
+        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
+        , ( "delay per index", ( 0, 0.15, 1 ) )
+        , ( "number of spheres", ( 10, 50, 100 ) )
+        , ( "saturation", ( 0, 0.5, 1 ) )
+        , ( "lighting", ( 0, 0.7, 1 ) )
+        ]
+        [ ( "background color", hsl 0.85 0.32 0.45 )
+        ]
+
+
 view : Computer -> Model -> Html Never
 view computer _ =
     Scene.sunny
@@ -71,14 +71,26 @@ view computer _ =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ cubes computer
-        , cubes computer |> rotateY (degrees 120)
-        , cubes computer |> rotateY (degrees 240)
+        [ spheresInAColumn computer
+        , spheresInAColumn computer |> rotateY (degrees 120)
+        , spheresInAColumn computer |> rotateY (degrees 240)
         ]
 
 
-makeCube : Computer -> Int -> Shape
-makeCube computer i =
+spheresInAColumn : Computer -> Shape
+spheresInAColumn computer =
+    let
+        n =
+            floor (getFloat "number of spheres" computer)
+    in
+    group
+        (List.range -(n // 2) (n // 2)
+            |> List.map (sphereWithIndex computer)
+        )
+
+
+sphereWithIndex : Computer -> Int -> Shape
+sphereWithIndex computer i =
     let
         timeWithDelay =
             computer.time + toFloat i * getFloat "delay per index" computer
@@ -103,15 +115,3 @@ makeCube computer i =
         |> moveX (Playground3d.wave 3 4 1 timeWithDelay)
         |> rotateY (Playground3d.wave 0 10 20 timeWithDelay)
         |> moveY (size * 1.1 * toFloat i)
-
-
-cubes : Computer -> Shape
-cubes computer =
-    let
-        n =
-            floor (getFloat "number of spheres" computer)
-    in
-    group
-        (List.range -(n // 2) (n // 2)
-            |> List.map (makeCube computer)
-        )
