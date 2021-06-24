@@ -7,6 +7,7 @@ module Ticker exposing
     , init
     , startReplaying
     , startRunning
+    , tick
     , totalSize
     , updateCurrentGameModelFromEditor
     )
@@ -50,47 +51,41 @@ init initialComputer initGameModel =
 updateCurrentGameModelFromEditor : (Computer -> levelEditorMsg -> gameModel -> gameModel) -> levelEditorMsg -> Ticker gameModel -> Ticker gameModel
 updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg (Ticker state ({ current } as pastCurrentFuture)) =
     Ticker state
-        { pastCurrentFuture
-            | current = current |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg)
-        }
+        { pastCurrentFuture | current = current |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg) }
 
 
-handleComputerMsg : (Computer -> gameModel -> gameModel) -> Computer.Msg -> Ticker gameModel -> Ticker gameModel
-handleComputerMsg upDateGameModel computerMsg (Ticker state pastCurrentFuture) =
-    case computerMsg of
-        Tick _ ->
-            if state == GameIsRunning then
-                let
-                    ( lastComputer, lastGameModel ) =
-                        pastCurrentFuture.current
+handleComputerMsg : Computer.Msg -> Ticker gameModel -> Ticker gameModel
+handleComputerMsg computerMsg (Ticker state pastCurrentFuture) =
+    Ticker state
+        { pastCurrentFuture | current = pastCurrentFuture.current |> Tuple.mapFirst (Computer.update computerMsg) }
 
-                    newComputer =
-                        lastComputer |> Computer.update computerMsg
 
-                    newGameModel =
-                        upDateGameModel newComputer lastGameModel
-                in
-                Ticker state
-                    { pastCurrentFuture
-                        | past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
-                        , current = ( newComputer, newGameModel )
-                        , future = []
-                    }
+tick : (Computer -> gameModel -> gameModel) -> Float -> Ticker gameModel -> Ticker gameModel
+tick upDateGameModel deltaTimeInSeconds (Ticker state pastCurrentFuture) =
+    if state == GameIsRunning then
+        let
+            ( lastComputer, lastGameModel ) =
+                pastCurrentFuture.current
 
-            else
-                Ticker state pastCurrentFuture
+            newComputer =
+                lastComputer |> Computer.tick deltaTimeInSeconds
 
-        _ ->
-            Ticker state
-                { pastCurrentFuture
-                    | current =
-                        pastCurrentFuture.current
-                            |> Tuple.mapFirst (Computer.update computerMsg)
-                }
+            newGameModel =
+                lastGameModel |> upDateGameModel newComputer
+        in
+        Ticker state
+            { pastCurrentFuture
+                | past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
+                , current = ( newComputer, newGameModel )
+                , future = []
+            }
+
+    else
+        Ticker state pastCurrentFuture
 
 
 
--- UPDATES ON INTERACTION WITH RECORD PLAYER
+-- UPDATES FOR USER INTERACTION WITH RECORD-PLAYER
 
 
 startRunning : Ticker gameModel -> Ticker gameModel

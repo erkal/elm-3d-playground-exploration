@@ -482,21 +482,21 @@ view viewGameModel viewLevelEditor model =
 gameSubscriptions : Sub (Msg levelEditorMsg)
 gameSubscriptions =
     Sub.batch <|
-        List.map (Sub.map ToComputer)
-            [ E.onResize Resized
-            , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
-            , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-            , E.onAnimationFrameDelta ((*) 0.001 >> Tick)
-            , E.onVisibilityChange VisibilityChanged
-            , E.onClick (D.succeed MouseClick)
-            , E.onMouseDown (D.succeed (MouseButton True))
-            , E.onMouseUp (D.succeed (MouseButton False))
-            , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
-            , touchStart TouchStart
-            , touchMove TouchMove
-            , touchEnd TouchEnd
-            , touchCancel TouchCancel
-            ]
+        E.onAnimationFrameDelta ((*) 0.001 >> Tick)
+            :: List.map (Sub.map ToComputer)
+                [ E.onResize Resized
+                , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
+                , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
+                , E.onVisibilityChange VisibilityChanged
+                , E.onClick (D.succeed MouseClick)
+                , E.onMouseDown (D.succeed (MouseButton True))
+                , E.onMouseUp (D.succeed (MouseButton False))
+                , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
+                , touchStart TouchStart
+                , touchMove TouchMove
+                , touchEnd TouchEnd
+                , touchCancel TouchCancel
+                ]
 
 
 
@@ -547,6 +547,7 @@ type Msg levelEditorMsg
     | HideEditor
     | ShowEditor
     | FromLevelEditor levelEditorMsg
+    | Tick Float
     | ToComputer Computer.Msg
 
 
@@ -569,7 +570,10 @@ gameUpdate updateGameModel updateFromEditor msg model =
             { model | ticker = model.ticker |> Ticker.updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg }
 
         ToComputer computerMsg ->
-            { model | ticker = model.ticker |> Ticker.handleComputerMsg updateGameModel computerMsg }
+            { model | ticker = model.ticker |> Ticker.handleComputerMsg computerMsg }
+
+        Tick deltaTimeInSeconds ->
+            { model | ticker = model.ticker |> Ticker.tick updateGameModel deltaTimeInSeconds }
 
 
 

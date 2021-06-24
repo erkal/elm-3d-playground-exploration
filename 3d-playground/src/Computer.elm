@@ -36,7 +36,6 @@ type alias Computer =
 
 type Msg
     = KeyChanged Bool String
-    | Tick Float
     | GotViewport Dom.Viewport
     | Resized Int Int
     | VisibilityChanged E.Visibility
@@ -69,21 +68,23 @@ init { devicePixelRatio } initialConfigurations =
     }
 
 
+tick : Float -> Computer -> Computer
+tick deltaTimeInSeconds computer =
+    if computer.mouse.click then
+        { computer
+            | time = computer.time + deltaTimeInSeconds
+            , mouse = mouseClick False computer.mouse
+        }
+
+    else
+        { computer
+            | time = computer.time + deltaTimeInSeconds
+        }
+
+
 update : Msg -> Computer -> Computer
 update msg computer =
     case msg of
-        Tick deltaTimeInSeconds ->
-            if computer.mouse.click then
-                { computer
-                    | time = computer.time + deltaTimeInSeconds
-                    , mouse = mouseClick False computer.mouse
-                }
-
-            else
-                { computer
-                    | time = computer.time + deltaTimeInSeconds
-                }
-
         GotViewport { viewport } ->
             { computer | screen = toScreen viewport.width viewport.height }
 
