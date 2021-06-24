@@ -29,6 +29,32 @@ type State
     | Paused
 
 
+
+-- INIT
+
+
+init : Computer -> (Computer -> gameModel) -> Ticker gameModel
+init initialComputer initGameModel =
+    Ticker
+        GameIsRunning
+        { past = []
+        , current = ( initialComputer, initGameModel initialComputer )
+        , future = []
+        }
+
+
+
+-- UPDATE
+
+
+updateCurrentGameModelFromEditor : (Computer -> levelEditorMsg -> gameModel -> gameModel) -> levelEditorMsg -> Ticker gameModel -> Ticker gameModel
+updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg (Ticker state ({ current } as pastCurrentFuture)) =
+    Ticker state
+        { pastCurrentFuture
+            | current = current |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg)
+        }
+
+
 handleComputerMsg : (Computer -> gameModel -> gameModel) -> Computer.Msg -> Ticker gameModel -> Ticker gameModel
 handleComputerMsg upDateGameModel computerMsg (Ticker state pastCurrentFuture) =
     case computerMsg of
@@ -64,17 +90,22 @@ handleComputerMsg upDateGameModel computerMsg (Ticker state pastCurrentFuture) =
 
 
 
--- INIT
+-- UPDATES ON INTERACTION WITH RECORD PLAYER
 
 
-init : Computer -> (Computer -> gameModel) -> Ticker gameModel
-init initialComputer initGameModel =
-    Ticker
-        GameIsRunning
-        { past = []
-        , current = ( initialComputer, initGameModel initialComputer )
-        , future = []
-        }
+startRunning : Ticker gameModel -> Ticker gameModel
+startRunning ticker =
+    Debug.todo ""
+
+
+startReplaying : Ticker gameModel -> Ticker gameModel
+startReplaying ticker =
+    Debug.todo ""
+
+
+goToAndPauseAt : Int -> Ticker gameModel -> Ticker gameModel
+goToAndPauseAt index ticker =
+    Debug.todo ""
 
 
 
@@ -94,30 +125,3 @@ currentGameModel (Ticker _ { current }) =
 totalSize : Ticker gameModel -> Int
 totalSize (Ticker _ { past, current, future }) =
     List.length past + 1 + List.length future
-
-
-
--- UPDATE
-
-
-updateCurrentGameModelFromEditor : (Computer -> levelEditorMsg -> gameModel -> gameModel) -> levelEditorMsg -> Ticker gameModel -> Ticker gameModel
-updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg (Ticker state ({ current } as pastCurrentFuture)) =
-    Ticker state
-        { pastCurrentFuture
-            | current = current |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg)
-        }
-
-
-startRunning : Ticker gameModel -> Ticker gameModel
-startRunning ticker =
-    Debug.todo ""
-
-
-startReplaying : Ticker gameModel -> Ticker gameModel
-startReplaying ticker =
-    Debug.todo ""
-
-
-goToAndPauseAt : Int -> Ticker gameModel -> Ticker gameModel
-goToAndPauseAt index ticker =
-    Debug.todo ""
