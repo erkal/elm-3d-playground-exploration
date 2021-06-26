@@ -77,8 +77,21 @@ updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
 
 
 tick : (Computer -> gameModel -> gameModel) -> Float -> Tape gameModel -> Tape gameModel
-tick upDateGameModel deltaTimeInSeconds (Tape state pastCurrentFuture) =
+tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape) =
     case state of
+        Paused ->
+            tape
+
+        Playing { tapeClock } ->
+            Tape (Playing { tapeClock = tapeClock + deltaTimeInSeconds }) pastCurrentFuture
+                |> (if tapeClock + deltaTimeInSeconds > (currentComputer tape).time then
+                        goToNext
+                            >> Maybe.withDefault (Tape Paused pastCurrentFuture)
+
+                    else
+                        identity
+                   )
+
         Recording ->
             let
                 ( lastComputer, lastGameModel ) =
@@ -90,15 +103,12 @@ tick upDateGameModel deltaTimeInSeconds (Tape state pastCurrentFuture) =
                 newGameModel =
                     lastGameModel |> upDateGameModel newComputer
             in
-            Tape state
-                { pastCurrentFuture
-                    | past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
-                    , current = ( newComputer, newGameModel )
-                    , future = []
+            Tape
+                state
+                { past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
+                , current = ( newComputer, newGameModel )
+                , future = []
                 }
-
-        _ ->
-            Tape state pastCurrentFuture
 
 
 
@@ -110,6 +120,7 @@ type Msg
     | PressedFastBackwardButton
     | PressedGoToPreviousButton
     | PressedPauseButton
+    | PressedRecordButton
     | PressedPlayButton
     | PressedGoToNextButton
     | PressedFastForwardButton
@@ -129,6 +140,11 @@ update msg tape =
 
         PressedPauseButton ->
             tape
+                |> pause
+
+        PressedRecordButton ->
+            tape
+                |> startRecording
 
         PressedPlayButton ->
             tape
@@ -146,6 +162,16 @@ update msg tape =
         SliderMovedTo tickIndex ->
             tape
                 |> goTo tickIndex
+
+
+pause : Tape gameModel -> Tape gameModel
+pause (Tape _ pastCurrentFuture) =
+    Tape Paused pastCurrentFuture
+
+
+startRecording : Tape gameModel -> Tape gameModel
+startRecording (Tape _ pastCurrentFuture) =
+    Tape Recording pastCurrentFuture
 
 
 startPlaying : Tape gameModel -> Tape gameModel
@@ -184,11 +210,11 @@ goToLast ((Tape _ { past, current, future }) as tape) =
 
 
 goToNext : Tape gameModel -> Maybe (Tape gameModel)
-goToNext (Tape _ { past, current, future }) =
+goToNext (Tape state { past, current, future }) =
     case future of
         next :: rest ->
             Just
-                (Tape Paused
+                (Tape state
                     { past = past ++ [ current ]
                     , current = next
                     , future = rest
@@ -256,8 +282,8 @@ view : Tape gameModel -> Html Msg
 view tape =
     div
         [ style "position" "absolute"
-        , style "width" (String.fromFloat (currentComputer tape).screen.width)
-        , style "height" (String.fromFloat (currentComputer tape).screen.height)
+        , style "left" "360px"
+        , style "width" "360px"
         ]
         [ tapeButtons tape
         , slider tape
@@ -273,11 +299,14 @@ tapeButtons (Tape state { past, current, future }) =
             Paused ->
                 tapeButton PressedPlayButton "Play"
 
-            Playing _ ->
+            _ ->
                 tapeButton PressedPauseButton "Pause"
-
+        , case state of
             Recording ->
-                tapeButton PressedPauseButton "REC"
+                tapeButton PressedPauseButton "sREC"
+
+            _ ->
+                tapeButton PressedRecordButton "REC"
         , tapeButton PressedGoToNextButton "SF"
         , tapeButton PressedFastForwardButton "FF"
         ]
