@@ -75,8 +75,8 @@ import Point3d exposing (Point3d)
 import Scene3d
 import Scene3d.Material as Material exposing (Material)
 import Sphere3d exposing (Sphere3d)
+import Tape exposing (Tape)
 import Task
-import Ticker exposing (Ticker)
 import Triangle3d exposing (Triangle3d)
 import Vector3d
 
@@ -336,7 +336,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 initialComputer =
                     Computer.init flags initialConfigurations
             in
-            ( { ticker = Ticker.init initialComputer initGameModel
+            ( { tape = Tape.init initialComputer initGameModel
               , editorIsOn = False
               , activeEditorTab = Configurations
               , visibility = E.Visible
@@ -374,10 +374,10 @@ view :
 view viewGameModel viewLevelEditor model =
     let
         computer =
-            Ticker.currentComputer model.ticker
+            Tape.currentComputer model.tape
 
         gameModel =
-            Ticker.currentGameModel model.ticker
+            Tape.currentGameModel model.tape
 
         editorOnOffButton msg symbol =
             button
@@ -453,17 +453,8 @@ view viewGameModel viewLevelEditor model =
                 LevelEditor ->
                     Html.map FromLevelEditor (viewLevelEditor computer gameModel)
 
-        viewRecordPlayer =
-            div
-                [ style "position" "fixed"
-                , style "top" "40px"
-                , style "left" "330px"
-                , style "width" "400px"
-                , style "height" "60px"
-                , style "font-size" "40px"
-                , style "background-color" "yellow"
-                ]
-                [ text ("Recording size: " ++ String.fromInt (Ticker.totalSize model.ticker)) ]
+        viewTape =
+            Html.map FromTape (Tape.view model.tape)
     in
     div
         [ style "touch-action" "none"
@@ -471,7 +462,7 @@ view viewGameModel viewLevelEditor model =
         ]
         [ viewGame
         , viewEditor
-        , viewRecordPlayer
+        , viewTape
         ]
 
 
@@ -504,7 +495,7 @@ gameSubscriptions =
 
 
 type alias Model gameModel =
-    { ticker : Ticker gameModel
+    { tape : Tape gameModel
     , editorIsOn : Bool
     , activeEditorTab : EditorTab
     , visibility : E.Visibility
@@ -547,6 +538,7 @@ type Msg levelEditorMsg
     | HideEditor
     | ShowEditor
     | FromLevelEditor levelEditorMsg
+    | FromTape Tape.Msg
     | Tick Float
     | ToComputer Computer.Msg
 
@@ -567,13 +559,16 @@ gameUpdate updateGameModel updateFromEditor msg model =
             { model | editorIsOn = True }
 
         FromLevelEditor levelEditorMsg ->
-            { model | ticker = model.ticker |> Ticker.updateCurrentGameModelFromEditor updateFromEditor levelEditorMsg }
+            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
+
+        FromTape tapeMsg ->
+            { model | tape = model.tape |> Tape.update tapeMsg }
 
         ToComputer computerMsg ->
-            { model | ticker = model.ticker |> Ticker.handleComputerMsg computerMsg }
+            { model | tape = model.tape |> Tape.updateCurrentComputer computerMsg }
 
         Tick deltaTimeInSeconds ->
-            { model | ticker = model.ticker |> Ticker.tick updateGameModel deltaTimeInSeconds }
+            { model | tape = model.tape |> Tape.tick updateGameModel deltaTimeInSeconds }
 
 
 
