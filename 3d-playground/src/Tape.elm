@@ -64,16 +64,28 @@ currentGameModel (Tape _ { current }) =
 -- UPDATE
 
 
-updateCurrentGameModelWithEditorMsg : (Computer -> levelEditorMsg -> gameModel -> gameModel) -> levelEditorMsg -> Tape gameModel -> Tape gameModel
+updateCurrentGameModelWithEditorMsg :
+    (Computer -> levelEditorMsg -> gameModel -> gameModel)
+    -> levelEditorMsg
+    -> Tape gameModel
+    -> Tape gameModel
 updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg (Tape state ({ current } as pastCurrentFuture)) =
     Tape state
-        { pastCurrentFuture | current = current |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg) }
+        { pastCurrentFuture
+            | current =
+                current
+                    |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg)
+        }
 
 
 updateCurrentComputer : Computer.Msg -> Tape gameModel -> Tape gameModel
 updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
     Tape state
-        { pastCurrentFuture | current = pastCurrentFuture.current |> Tuple.mapFirst (Computer.update computerMsg) }
+        { pastCurrentFuture
+            | current =
+                pastCurrentFuture.current
+                    |> Tuple.mapFirst (Computer.update computerMsg)
+        }
 
 
 tick : (Computer -> gameModel -> gameModel) -> Float -> Tape gameModel -> Tape gameModel
