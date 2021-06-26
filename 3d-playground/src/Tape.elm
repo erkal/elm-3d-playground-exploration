@@ -5,7 +5,6 @@ module Tape exposing
     , currentGameModel
     , init
     , tick
-    , totalSize
     , update
     , updateCurrentComputer
     , updateCurrentGameModelWithEditorMsg
@@ -125,7 +124,8 @@ update msg tape =
 
         PressedGoToPreviousButton ->
             tape
-                |> (goToPrevious >> Maybe.withDefault tape)
+                |> goToPrevious
+                |> Maybe.withDefault tape
 
         PressedPauseButton ->
             tape
@@ -136,7 +136,8 @@ update msg tape =
 
         PressedGoToNextButton ->
             tape
-                |> (goToNext >> Maybe.withDefault tape)
+                |> goToNext
+                |> Maybe.withDefault tape
 
         PressedFastForwardButton ->
             tape
@@ -254,20 +255,9 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
 view : Tape gameModel -> Html Msg
 view tape =
     div
-        [ style "width" (String.fromFloat (currentComputer tape).screen.width)
-        , style "height" (String.fromFloat (currentComputer tape).screen.height)
-        ]
-        [ viewTapeGUI tape
-        ]
-
-
-viewTapeGUI : Tape gameModel -> Html Msg
-viewTapeGUI tape =
-    div
         [ style "position" "absolute"
-        , style "width" "100%"
-        , style "height" "60px"
-        , style "background-color" "gray"
+        , style "width" (String.fromFloat (currentComputer tape).screen.width)
+        , style "height" (String.fromFloat (currentComputer tape).screen.height)
         ]
         [ tapeButtons tape
         , slider tape
@@ -277,18 +267,19 @@ viewTapeGUI tape =
 tapeButtons : Tape gameModel -> Html Msg
 tapeButtons (Tape state { past, current, future }) =
     div []
-        [ tapeButton PressedFastBackwardButton "fastBackwardOutlined"
-        , tapeButton PressedGoToPreviousButton "stepBackwardOutlined"
+        [ tapeButton PressedFastBackwardButton "FB"
+        , tapeButton PressedGoToPreviousButton "SB"
         , case state of
             Paused ->
-                tapeButton PressedPlayButton "caretRightOutlined"
+                tapeButton PressedPlayButton "Play"
 
             Playing _ ->
-                tapeButton PressedPauseButton "pauseOutlined"
+                tapeButton PressedPauseButton "Pause"
 
             Recording ->
-                tapeButton PressedPauseButton "Recording"
-        , tapeButton PressedFastForwardButton "fastForwardOutlined"
+                tapeButton PressedPauseButton "REC"
+        , tapeButton PressedGoToNextButton "SF"
+        , tapeButton PressedFastForwardButton "FF"
         ]
 
 
