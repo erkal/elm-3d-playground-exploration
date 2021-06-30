@@ -448,13 +448,13 @@ view viewGameModel viewLevelEditor model =
         viewActiveEditor =
             case model.activeEditorTab of
                 Configurations ->
-                    Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
+                    div []
+                        [ Html.map FromTape (Tape.view model.tape)
+                        , Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
+                        ]
 
                 LevelEditor ->
                     Html.map FromLevelEditor (viewLevelEditor computer gameModel)
-
-        viewTape =
-            Html.map FromTape (Tape.view model.tape)
     in
     div
         [ style "touch-action" "none"
@@ -462,7 +462,6 @@ view viewGameModel viewLevelEditor model =
         ]
         [ viewGame
         , viewEditor
-        , viewTape
         ]
 
 

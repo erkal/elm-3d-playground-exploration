@@ -86,7 +86,9 @@ update : Msg -> Computer -> Computer
 update msg computer =
     case msg of
         GotViewport { viewport } ->
-            { computer | screen = toScreen viewport.width viewport.height }
+            { computer
+                | screen = toScreen viewport.width viewport.height
+            }
 
         Resized w h ->
             { computer | screen = toScreen (toFloat w) (toFloat h) }

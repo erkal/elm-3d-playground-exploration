@@ -293,34 +293,35 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
 view : Tape gameModel -> Html Msg
 view tape =
     div
-        [ style "position" "absolute"
-        , style "left" "360px"
-        , style "width" "360px"
+        [ style "width" "100%"
         ]
         [ tapeButtons tape
-        , slider tape
+        , div []
+            [ sliderScale tape
+            , slider tape
+            ]
         ]
 
 
 tapeButtons : Tape gameModel -> Html Msg
 tapeButtons (Tape state { past, current, future }) =
     div []
-        [ tapeButton PressedFastBackwardButton "FB"
-        , tapeButton PressedGoToPreviousButton "SB"
+        [ tapeButton PressedFastBackwardButton "⏮️"
+        , tapeButton PressedGoToPreviousButton "◀️"
         , case state of
             Paused ->
-                tapeButton PressedPlayButton "Play"
+                tapeButton PressedPlayButton "▶️"
 
             _ ->
-                tapeButton PressedPauseButton "Pause"
+                tapeButton PressedPauseButton "⏸️"
         , case state of
             Recording ->
-                tapeButton PressedPauseButton "sREC"
+                tapeButton PressedPauseButton "⏹"
 
             _ ->
-                tapeButton PressedRecordButton "REC"
-        , tapeButton PressedGoToNextButton "SF"
-        , tapeButton PressedFastForwardButton "FF"
+                tapeButton PressedRecordButton "⏺️"
+        , tapeButton PressedGoToNextButton "⏯️"
+        , tapeButton PressedFastForwardButton "⏭️"
         ]
 
 
@@ -338,13 +339,60 @@ slider tape =
         []
 
 
+sliderScale : Tape gameModel -> Html Msg
+sliderScale (Tape _ { past, current, future }) =
+    let
+        start =
+            past
+                |> List.head
+                |> Maybe.withDefault current
+                |> Tuple.first
+                |> .time
+
+        end =
+            future
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault current
+                |> Tuple.first
+                |> .time
+
+        totalDuration =
+            end - start
+
+        boxDuration =
+            1
+
+        n =
+            floor (totalDuration / boxDuration)
+
+        box i =
+            div
+                [ style "position" "absolute"
+                , style "background-color" "yellow"
+                , style "width" "1px"
+                , style "height" "20px"
+                , style "left" (String.fromFloat (toFloat i * 100 * boxDuration / totalDuration) ++ "%")
+                ]
+                []
+    in
+    div
+        [ style "position" "absolute"
+        , style "width" "100%"
+        , style "height" "20px"
+        ]
+        (List.range 0 n |> List.map box)
+
+
 tapeButton : Msg -> String -> Html Msg
 tapeButton msg icon_ =
     button
         [ style "display" "inline-block"
-        , style "width" "40px"
-        , style "height" "40px"
-        , style "margin" "10px"
+        , style "width" "30px"
+        , style "height" "30px"
+        , style "margin" "2px"
+        , style "padding" "0px"
+        , style "top" "0px"
         , style "font-size" "20px"
         , onClick msg
         ]
