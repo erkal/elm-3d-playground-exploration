@@ -13,7 +13,7 @@ import Playground3d exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Geometry exposing (Point, Vector)
 import Playground3d.Light as Light
-import Playground3d.Scene as Scene
+import Playground3d.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Swipe exposing (Swipe)

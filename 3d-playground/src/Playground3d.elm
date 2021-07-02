@@ -1,11 +1,8 @@
 port module Playground3d exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
     , configurations, getColor, getFloat
-    , Shape, block, cube, cylinder, group, line, sphere, triangle
-    , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , spin, wave, zigzag
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
-    , toEntities
     )
 
 {-| NOTE: Most of the following code is copied from evancz/elm-playground
@@ -19,16 +16,6 @@ port module Playground3d exposing
 # Configurations
 
 @docs configurations, getColor, getFloat
-
-
-# Shapes
-
-@docs Shape, block, cube, cylinder, group, line, sphere, triangle
-
-
-# Move Shapes
-
-@docs move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
 
 
 # Groups
@@ -45,40 +32,20 @@ port module Playground3d exposing
 
 @docs Computer, Mouse, Screen, Keyboard, toX, toY, toXY
 
-
-### Rendering
-
-@docs toEntities
-
 -}
 
-import Angle exposing (Angle)
-import Axis3d exposing (Axis3d)
-import Block3d exposing (Block3d)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
-import Color exposing (Color)
 import Computer exposing (Computer, Msg(..), TouchEvent, init)
-import Cylinder3d exposing (Cylinder3d)
-import Direction3d exposing (Direction3d)
 import Html exposing (Html, button, div, option, select, text)
 import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as D
-import Length exposing (Length, Meters)
-import LineSegment3d exposing (LineSegment3d)
 import Playground3d.Configurations as Configurations exposing (Configurations)
-import Playground3d.Geometry exposing (Point)
-import Point3d exposing (Point3d)
-import Scene3d
-import Scene3d.Material as Material exposing (Material)
-import Sphere3d exposing (Sphere3d)
 import Tape exposing (Tape)
 import Task
-import Triangle3d exposing (Triangle3d)
-import Vector3d
 
 
 
@@ -366,105 +333,6 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         }
 
 
-view :
-    (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> Html levelEditorMsg)
-    -> Model gameModel
-    -> Html (Msg levelEditorMsg)
-view viewGameModel viewLevelEditor model =
-    let
-        computer =
-            Tape.currentComputer model.tape
-
-        gameModel =
-            Tape.currentGameModel model.tape
-
-        editorOnOffButton msg symbol =
-            button
-                [ style "font-size" "30px"
-                , style "width" "40px"
-                , style "height" "40px"
-                , onClick msg
-                ]
-                [ text symbol ]
-
-        optionWith editorTab =
-            option
-                [ value (editorTabToString editorTab)
-                ]
-                [ text (editorTabToString editorTab) ]
-
-        editorTabSelection =
-            div
-                [ style "margin-left" "0px"
-                ]
-                [ select
-                    [ onChange (editorTabFromString >> SelectTab)
-                    , value (editorTabToString model.activeEditorTab)
-                    , style "width" "200px"
-                    , style "height" "40px"
-                    , style "font-size" "20px"
-                    ]
-                    (List.map optionWith [ Configurations, LevelEditor ])
-                ]
-
-        viewGame =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat computer.screen.width ++ "px")
-                , style "height" (String.fromFloat computer.screen.height ++ "px")
-                , style "font-size" "16px"
-                ]
-                [ Html.map (always NoOp) (viewGameModel computer gameModel)
-                ]
-
-        viewEditor =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat 250 ++ "px")
-                , style "height" (String.fromFloat computer.screen.height ++ "px")
-                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
-                , style "font-size" "16px"
-                ]
-                (if model.editorIsOn then
-                    [ div
-                        [ style "height" "100px" ]
-                        [ editorOnOffButton HideEditor "✕"
-                        , editorTabSelection
-                        ]
-                    , div
-                        [ style "height" (String.fromFloat (computer.screen.height - 100) ++ "px") ]
-                        [ viewActiveEditor ]
-                    ]
-
-                 else
-                    [ editorOnOffButton ShowEditor "≡" ]
-                )
-
-        viewActiveEditor =
-            case model.activeEditorTab of
-                Configurations ->
-                    div []
-                        [ Html.map FromTape (Tape.view model.tape)
-                        , Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
-                        ]
-
-                LevelEditor ->
-                    Html.map FromLevelEditor (viewLevelEditor computer gameModel)
-    in
-    div
-        [ style "touch-action" "none"
-        , style "user-select" "none"
-        ]
-        [ viewGame
-        , viewEditor
-        ]
-
-
 
 -- SUBSCRIPTIONS
 
@@ -571,265 +439,103 @@ gameUpdate updateGameModel updateFromEditor msg model =
 
 
 
--- SHAPES
-
-
-{-| Shapes help you make a `picture`, `animation`, or `game`.
-
-Read on to see examples of [`circle`](#circle), [`rectangle`](#rectangle),
-[`words`](#words), [`image`](#image), and many more!
-
--}
-type Shape
-    = Block Color (Block3d Meters ())
-    | Triangle Color (Triangle3d Meters ())
-    | Cylinder Color (Cylinder3d Meters ())
-    | Sphere Color (Sphere3d Meters ())
-    | Line Color (LineSegment3d Meters ())
-    | Group (List Shape)
-
-
-material color =
-    Material.matte color
-
-
-type alias Vector =
-    ( Float, Float, Float )
-
-
-block : Color -> Vector -> Shape
-block color ( xDim, yDim, zDim ) =
-    let
-        ( hXDim, hYDim, hZDim ) =
-            ( xDim / 2
-            , yDim / 2
-            , zDim / 2
-            )
-    in
-    Block color
-        (Block3d.from
-            (Point3d.meters -hXDim -hYDim -hZDim)
-            (Point3d.meters hXDim hYDim hZDim)
-        )
-
-
-triangle : Color -> ( Point, Point, Point ) -> Shape
-triangle color ( p, q, r ) =
-    Triangle color
-        (Triangle3d.from
-            (Point3d.meters p.x p.y p.z)
-            (Point3d.meters q.x q.y q.z)
-            (Point3d.meters r.x r.y r.z)
-        )
-
-
-cube : Color -> Float -> Shape
-cube color width =
-    let
-        hw =
-            width / 2
-    in
-    Block color
-        (Block3d.from
-            (Point3d.meters -hw -hw -hw)
-            (Point3d.meters hw hw hw)
-        )
-
-
-cylinder : Color -> Float -> Float -> Shape
-cylinder color radius length =
-    Cylinder color
-        (Cylinder3d.centeredOn Point3d.origin
-            Direction3d.positiveY
-            { radius = Length.meters radius
-            , length = Length.meters length
-            }
-        )
-
-
-sphere : Color -> Float -> Shape
-sphere color radius =
-    Sphere color
-        (Sphere3d.withRadius (Length.meters radius) Point3d.origin)
-
-
-line : Color -> Vector -> Shape
-line color vector =
-    Line color
-        (LineSegment3d.fromPointAndVector Point3d.origin
-            (Vector3d.fromTuple Length.meters vector)
-        )
-
-
-group : List Shape -> Shape
-group drawables =
-    Group drawables
-
-
-
--- MODIFY
-
-
-rotate : Axis3d Meters () -> Angle -> Shape -> Shape
-rotate axis angle shape =
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.rotateAround axis angle)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.rotateAround axis angle)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.rotateAround axis angle)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.rotateAround axis angle)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.rotateAround axis angle)
-
-        Group drawables ->
-            Group
-                (List.map (rotate axis angle) drawables)
-
-
-rotateAround : ( Point, Vector ) -> Float -> Shape -> Shape
-rotateAround ( axisOrigin, ( dx, dy, dz ) ) angle =
-    rotate
-        (Axis3d.through (Point3d.fromMeters axisOrigin)
-            (Direction3d.unsafe { x = dx, y = dy, z = dz })
-        )
-        (Angle.radians angle)
-
-
-rotateX : Float -> Shape -> Shape
-rotateX angle shape =
-    rotate Axis3d.x (Angle.radians angle) shape
-
-
-rotateY : Float -> Shape -> Shape
-rotateY angle shape =
-    rotate Axis3d.y (Angle.radians angle) shape
-
-
-rotateZ : Float -> Shape -> Shape
-rotateZ angle shape =
-    rotate Axis3d.z (Angle.radians angle) shape
-
-
-scaleAround : Point -> Float -> Shape -> Shape
-scaleAround { x, y, z } factor =
-    move ( -x, -y, -z ) >> scale factor >> move ( x, y, z )
-
-
-scale : Float -> Shape -> Shape
-scale factor shape =
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.scaleAbout Point3d.origin factor)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.scaleAbout Point3d.origin factor)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.scaleAbout Point3d.origin factor)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.scaleAbout Point3d.origin factor)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.scaleAbout Point3d.origin factor)
-
-        Group drawables ->
-            Group
-                (List.map (scale factor) drawables)
-
-
-move : Vector -> Shape -> Shape
-move ( x, y, z ) shape =
-    let
-        translation =
-            Vector3d.meters x y z
-    in
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.translateBy translation)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.translateBy translation)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.translateBy translation)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.translateBy translation)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.translateBy translation)
-
-        Group drawables ->
-            Group
-                (List.map (move ( x, y, z )) drawables)
-
-
-moveX : Float -> Shape -> Shape
-moveX x =
-    move ( x, 0, 0 )
-
-
-moveY : Float -> Shape -> Shape
-moveY y =
-    move ( 0, y, 0 )
-
-
-moveZ : Float -> Shape -> Shape
-moveZ z =
-    move ( 0, 0, z )
-
-
-
 -- VIEW
 
 
-toEntities : List Shape -> List (Scene3d.Entity ())
-toEntities drawables =
-    drawables
-        |> List.concatMap drawableToEntities
+view :
+    (Computer -> gameModel -> Html Never)
+    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> Model gameModel
+    -> Html (Msg levelEditorMsg)
+view viewGameModel viewLevelEditor model =
+    let
+        computer =
+            Tape.currentComputer model.tape
 
+        gameModel =
+            Tape.currentGameModel model.tape
 
-drawableToEntities : Shape -> List (Scene3d.Entity ())
-drawableToEntities shape =
-    case shape of
-        Block color block3d ->
-            [ Scene3d.blockWithShadow (material color) block3d ]
+        editorOnOffButton msg symbol =
+            button
+                [ style "font-size" "30px"
+                , style "width" "40px"
+                , style "height" "40px"
+                , onClick msg
+                ]
+                [ text symbol ]
 
-        Triangle color triangle3d ->
-            [ Scene3d.facetWithShadow (material color) triangle3d ]
+        optionWith editorTab =
+            option
+                [ value (editorTabToString editorTab)
+                ]
+                [ text (editorTabToString editorTab) ]
 
-        Sphere color sphere3d ->
-            [ Scene3d.sphereWithShadow (material color) sphere3d ]
+        editorTabSelection =
+            div
+                [ style "margin-left" "0px"
+                ]
+                [ select
+                    [ onChange (editorTabFromString >> SelectTab)
+                    , value (editorTabToString model.activeEditorTab)
+                    , style "width" "200px"
+                    , style "height" "40px"
+                    , style "font-size" "20px"
+                    ]
+                    (List.map optionWith [ Configurations, LevelEditor ])
+                ]
 
-        Cylinder color cylinder3d ->
-            [ Scene3d.cylinderWithShadow (material color) cylinder3d ]
+        viewGame =
+            div
+                [ style "position" "fixed"
+                , style "top" "0px"
+                , style "left" "0px"
+                , style "width" (String.fromFloat computer.screen.width ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
+                , style "font-size" "16px"
+                ]
+                [ Html.map (always NoOp) (viewGameModel computer gameModel)
+                ]
 
-        Line color lineSegment3d ->
-            [ Scene3d.lineSegment (Material.color color) lineSegment3d ]
+        viewEditor =
+            div
+                [ style "position" "fixed"
+                , style "top" "0px"
+                , style "left" "0px"
+                , style "width" (String.fromFloat 250 ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
+                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
+                , style "font-size" "16px"
+                ]
+                (if model.editorIsOn then
+                    [ div
+                        [ style "height" "100px" ]
+                        [ editorOnOffButton HideEditor "✕"
+                        , editorTabSelection
+                        ]
+                    , div
+                        [ style "height" (String.fromFloat (computer.screen.height - 100) ++ "px") ]
+                        [ viewActiveEditor ]
+                    ]
 
-        Group drawables ->
-            drawables
-                |> List.concatMap drawableToEntities
+                 else
+                    [ editorOnOffButton ShowEditor "≡" ]
+                )
+
+        viewActiveEditor =
+            case model.activeEditorTab of
+                Configurations ->
+                    div []
+                        [ Html.map FromTape (Tape.view model.tape)
+                        , Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
+                        ]
+
+                LevelEditor ->
+                    Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+    in
+    div
+        [ style "touch-action" "none"
+        , style "user-select" "none"
+        ]
+        [ viewGame
+        , viewEditor
+        ]

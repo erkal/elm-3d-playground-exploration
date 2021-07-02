@@ -1,13 +1,13 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, brown, darkGreen, gray, green, hsl, lightBlue, lightGray, lightGreen, lightPurple, lightRed, orange, purple, red, white, yellow)
+import Color exposing (blue, brown, gray, green, hsl, lightBlue, lightGreen, lightPurple, orange, red, white)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, Shape, block, configurations, cube, cylinder, game, gameWithConfigurations, getFloat, group, line, move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, sphere, spin, triangle, wave)
+import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, spin, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
-import Playground3d.Scene as Scene
+import Playground3d.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Temperature

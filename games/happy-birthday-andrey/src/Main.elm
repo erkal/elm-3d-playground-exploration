@@ -4,10 +4,10 @@ import Color exposing (Color, black, yellow)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurations, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, wave)
+import Playground3d exposing (Computer, configurations, gameWithConfigurations, wave)
 import Playground3d.Camera as Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
-import Playground3d.Scene as Scene
+import Playground3d.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Set exposing (Set)

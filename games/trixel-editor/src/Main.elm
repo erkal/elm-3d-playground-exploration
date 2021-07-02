@@ -13,10 +13,10 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, Shape, configurations, cube, gameWithConfigurationsAndEditor, getFloat, group, line, moveX, moveY, moveZ, rotateAround, rotateX, rotateY, rotateZ, scaleAround, triangle, wave)
+import Playground3d exposing (Computer, configurations, gameWithConfigurationsAndEditor, getFloat, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
-import Playground3d.Scene as Scene
+import Playground3d.Scene as Scene exposing (..)
 import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
 import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)

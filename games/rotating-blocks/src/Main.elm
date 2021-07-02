@@ -1,10 +1,10 @@
 module Main exposing (main)
 
-import Color exposing (blue, green, hsl, lightBlue, red, rgb, yellow)
+import Color exposing (blue, green, hsl, lightBlue, red, rgb)
 import Html exposing (Html)
-import Playground3d exposing (Computer, Shape, block, cylinder, game, group, line, moveX, moveY, rotateY, sphere, spin, wave)
-import Playground3d.Camera as Camera exposing (Camera, perspective)
-import Playground3d.Scene as Scene
+import Playground3d exposing (Computer, game, spin, wave)
+import Playground3d.Camera exposing (Camera, perspective)
+import Playground3d.Scene as Scene exposing (..)
 
 
 main =

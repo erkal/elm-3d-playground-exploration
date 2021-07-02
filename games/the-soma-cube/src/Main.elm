@@ -1,12 +1,12 @@
 module Main exposing (main)
 
 import Color exposing (Color, black, hsl, white)
-import Html exposing (Html, br, div, h2, p, span, text)
+import Html exposing (Html, div, h2, p, text)
 import Html.Attributes exposing (style)
 import Palette
-import Playground3d exposing (Computer, Shape, block, configurations, cube, gameWithConfigurations, getFloat, group, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, scale, wave)
+import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground3d.Scene as Scene
+import Playground3d.Scene as Scene exposing (..)
 import World exposing (Piece, World)
 
 
