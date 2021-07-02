@@ -109,15 +109,9 @@ getFloat =
 
 
 
--- TIME
+-- ANIMATIONS
 
 
-{-| The current time.
-
-Helpful when making an [`animation`](#animation) with functions like
-[`spin`](#spin), [`wave`](#wave), and [`zigzag`](#zigzag).
-
--}
 type alias Time =
     Float
 
@@ -204,61 +198,10 @@ type alias Flags =
     { devicePixelRatio : Float }
 
 
-{-| Create a game!
 
-Once you get comfortable with [`animation`](#animation), you can try making a
-game with the keyboard and mouse. Here is an example of a green square that
-just moves to the right:
+--
 
-    import Playground3d exposing (..)
 
-    main =
-        game view update 0
-
-    view computer offset =
-        [ square green 40
-            |> moveRight offset
-        ]
-
-    update computer offset =
-        offset + 0.03
-
-This shows the three important parts of a game:
-
-1.  `gameModel` - makes it possible to store information. So with our green square,
-    we save the `offset` in gameModel. It starts out at `0`.
-2.  `view` - lets us say which shapes to put on screen. So here we move our
-    square right by the `offset` saved in gameModel.
-3.  `update` - lets us update the gameModel. We are incrementing the `offset` by
-    a tiny amount on each frame.
-
-The `update` function is called about 60 times per second, so our little
-changes to `offset` start to add up pretty quickly!
-
-This game is not very fun though! Making a `game` also gives you access to the
-[`Computer`](#Computer), so you can use information about the [`Mouse`](#Mouse)
-and [`Keyboard`](#Keyboard) to make it interactive! So here is a red square that
-moves based on the arrow keys:
-
-    import Playground3d exposing (..)
-
-    main =
-        game view update ( 0, 0 )
-
-    view computer ( x, y ) =
-        [ square red 40
-            |> move x y
-        ]
-
-    update computer ( x, y ) =
-        ( x + toX computer.keyboard
-        , y + toY computer.keyboard
-        )
-
-Notice that in the `update` we use information from the keyboard to update the
-`x` and `y` values. These building blocks let you make pretty fancy games!
-
--}
 game :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
@@ -355,10 +298,6 @@ gameSubscriptions =
                 , touchEnd TouchEnd
                 , touchCancel TouchCancel
                 ]
-
-
-
--- GAME HELPERS
 
 
 type alias Model gameModel =
