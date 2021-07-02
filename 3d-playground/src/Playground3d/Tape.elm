@@ -1,4 +1,4 @@
-module Tape exposing
+module Playground3d.Tape exposing
     ( Msg
     , Tape
     , currentComputer

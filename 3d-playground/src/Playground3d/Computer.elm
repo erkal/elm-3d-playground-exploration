@@ -1,4 +1,4 @@
-module Computer exposing (..)
+module Playground3d.Computer exposing (..)
 
 {-| When writing a [`game`](#game), you can look up all sorts of information
 about your computer:
