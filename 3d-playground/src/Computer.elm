@@ -36,7 +36,6 @@ type alias Computer =
 
 type Msg
     = KeyChanged Bool String
-    | Tick Float
     | GotViewport Dom.Viewport
     | Resized Int Int
     | VisibilityChanged E.Visibility
@@ -47,6 +46,7 @@ type Msg
     | TouchMove (List TouchEvent)
     | TouchEnd (List TouchEvent)
     | TouchCancel (List TouchEvent)
+    | FromConfigurationsEditor Configurations.Msg
 
 
 type alias TouchEvent =
@@ -68,26 +68,36 @@ init { devicePixelRatio } initialConfigurations =
     }
 
 
+tick : Float -> Computer -> Computer
+tick deltaTimeInSeconds computer =
+    if computer.mouse.click then
+        { computer
+            | time = computer.time + deltaTimeInSeconds
+            , mouse = mouseClick False computer.mouse
+        }
+
+    else
+        { computer
+            | time = computer.time + deltaTimeInSeconds
+        }
+
+
 update : Msg -> Computer -> Computer
 update msg computer =
     case msg of
-        Tick deltaTimeInSeconds ->
-            if computer.mouse.click then
-                { computer
-                    | time = computer.time + deltaTimeInSeconds
-                    , mouse = mouseClick False computer.mouse
-                }
-
-            else
-                { computer
-                    | time = computer.time + deltaTimeInSeconds
-                }
-
         GotViewport { viewport } ->
-            { computer | screen = toScreen viewport.width viewport.height }
+            { computer
+                | screen = toScreen viewport.width viewport.height
+            }
 
         Resized w h ->
             { computer | screen = toScreen (toFloat w) (toFloat h) }
+
+        VisibilityChanged visibility ->
+            { computer
+                | keyboard = emptyKeyboard
+                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+            }
 
         KeyChanged isDown key ->
             { computer | keyboard = updateKeyboard isDown key computer.keyboard }
@@ -141,10 +151,10 @@ update msg computer =
                     touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
             }
 
-        VisibilityChanged visibility ->
+        FromConfigurationsEditor configurationsMsg ->
             { computer
-                | keyboard = emptyKeyboard
-                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+                | configurations =
+                    computer.configurations |> Configurations.update configurationsMsg
             }
 
 

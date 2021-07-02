@@ -75,6 +75,7 @@ import Point3d exposing (Point3d)
 import Scene3d
 import Scene3d.Material as Material exposing (Material)
 import Sphere3d exposing (Sphere3d)
+import Tape exposing (Tape)
 import Task
 import Triangle3d exposing (Triangle3d)
 import Vector3d
@@ -332,11 +333,10 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
     let
         init flags =
             let
-                initialComputer_ =
+                initialComputer =
                     Computer.init flags initialConfigurations
             in
-            ( { computer = initialComputer_
-              , gameModel = initGameModel initialComputer_
+            ( { tape = Tape.init initialComputer initGameModel
               , editorIsOn = False
               , activeEditorTab = Configurations
               , visibility = E.Visible
@@ -371,8 +371,14 @@ view :
     -> (Computer -> gameModel -> Html levelEditorMsg)
     -> Model gameModel
     -> Html (Msg levelEditorMsg)
-view viewGameModel viewEditor model =
+view viewGameModel viewLevelEditor model =
     let
+        computer =
+            Tape.currentComputer model.tape
+
+        gameModel =
+            Tape.currentGameModel model.tape
+
         editorOnOffButton msg symbol =
             button
                 [ style "font-size" "30px"
@@ -407,20 +413,20 @@ view viewGameModel viewEditor model =
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
-                , style "width" (String.fromFloat model.computer.screen.width ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "width" (String.fromFloat computer.screen.width ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
                 , style "font-size" "16px"
                 ]
-                [ Html.map (always NoOp) (viewGameModel model.computer model.gameModel)
+                [ Html.map (always NoOp) (viewGameModel computer gameModel)
                 ]
 
-        viewLeftBar =
+        viewEditor =
             div
                 [ style "position" "fixed"
                 , style "top" "0px"
                 , style "left" "0px"
                 , style "width" (String.fromFloat 250 ++ "px")
-                , style "height" (String.fromFloat model.computer.screen.height ++ "px")
+                , style "height" (String.fromFloat computer.screen.height ++ "px")
                 , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
                 , style "font-size" "16px"
                 ]
@@ -431,7 +437,7 @@ view viewGameModel viewEditor model =
                         , editorTabSelection
                         ]
                     , div
-                        [ style "height" (String.fromFloat (model.computer.screen.height - 100) ++ "px") ]
+                        [ style "height" (String.fromFloat (computer.screen.height - 100) ++ "px") ]
                         [ viewActiveEditor ]
                     ]
 
@@ -442,17 +448,20 @@ view viewGameModel viewEditor model =
         viewActiveEditor =
             case model.activeEditorTab of
                 Configurations ->
-                    Html.map FromConfigurationEditor (Configurations.view model.computer.configurations)
+                    div []
+                        [ Html.map FromTape (Tape.view model.tape)
+                        , Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
+                        ]
 
                 LevelEditor ->
-                    Html.map FromLevelEditor (viewEditor model.computer model.gameModel)
+                    Html.map FromLevelEditor (viewLevelEditor computer gameModel)
     in
     div
         [ style "touch-action" "none"
         , style "user-select" "none"
         ]
         [ viewGame
-        , viewLeftBar
+        , viewEditor
         ]
 
 
@@ -463,21 +472,21 @@ view viewGameModel viewEditor model =
 gameSubscriptions : Sub (Msg levelEditorMsg)
 gameSubscriptions =
     Sub.batch <|
-        List.map (Sub.map ToComputer)
-            [ E.onResize Resized
-            , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
-            , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-            , E.onAnimationFrameDelta ((*) 0.001 >> Tick)
-            , E.onVisibilityChange VisibilityChanged
-            , E.onClick (D.succeed MouseClick)
-            , E.onMouseDown (D.succeed (MouseButton True))
-            , E.onMouseUp (D.succeed (MouseButton False))
-            , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
-            , touchStart TouchStart
-            , touchMove TouchMove
-            , touchEnd TouchEnd
-            , touchCancel TouchCancel
-            ]
+        E.onAnimationFrameDelta ((*) 0.001 >> Tick)
+            :: List.map (Sub.map ToComputer)
+                [ E.onResize Resized
+                , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
+                , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
+                , E.onVisibilityChange VisibilityChanged
+                , E.onClick (D.succeed MouseClick)
+                , E.onMouseDown (D.succeed (MouseButton True))
+                , E.onMouseUp (D.succeed (MouseButton False))
+                , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
+                , touchStart TouchStart
+                , touchMove TouchMove
+                , touchEnd TouchEnd
+                , touchCancel TouchCancel
+                ]
 
 
 
@@ -485,8 +494,7 @@ gameSubscriptions =
 
 
 type alias Model gameModel =
-    { computer : Computer
-    , gameModel : gameModel
+    { tape : Tape gameModel
     , editorIsOn : Bool
     , activeEditorTab : EditorTab
     , visibility : E.Visibility
@@ -529,12 +537,13 @@ type Msg levelEditorMsg
     | HideEditor
     | ShowEditor
     | FromLevelEditor levelEditorMsg
-    | FromConfigurationEditor Configurations.Msg
+    | FromTape Tape.Msg
+    | Tick Float
     | ToComputer Computer.Msg
 
 
 gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
-gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
+gameUpdate updateGameModel updateFromEditor msg model =
     case msg of
         NoOp ->
             model
@@ -549,37 +558,16 @@ gameUpdate updateGameModel updateFromEditor msg ({ computer } as model) =
             { model | editorIsOn = True }
 
         FromLevelEditor levelEditorMsg ->
-            { model
-                | gameModel =
-                    model.gameModel |> updateFromEditor model.computer levelEditorMsg
-            }
+            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
 
-        FromConfigurationEditor configurationsMsg ->
-            { model
-                | computer =
-                    { computer
-                        | configurations =
-                            computer.configurations |> Configurations.update configurationsMsg
-                    }
-            }
+        FromTape tapeMsg ->
+            { model | tape = model.tape |> Tape.update tapeMsg }
 
         ToComputer computerMsg ->
-            let
-                newGameModel =
-                    case computerMsg of
-                        Tick _ ->
-                            model.gameModel |> updateGameModel computer
+            { model | tape = model.tape |> Tape.updateCurrentComputer computerMsg }
 
-                        _ ->
-                            model.gameModel
-
-                newComputer =
-                    model.computer |> Computer.update computerMsg
-            in
-            { model
-                | gameModel = newGameModel
-                , computer = newComputer
-            }
+        Tick deltaTimeInSeconds ->
+            { model | tape = model.tape |> Tape.tick updateGameModel deltaTimeInSeconds }
 
 
 
