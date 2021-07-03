@@ -1,7 +1,7 @@
 #! /bin/bash
 declare -a dirs i=1
 
-cd games || exit
+cd examples || exit
 for d in */; do
   dirs[i++]="${d%/}"
 done
@@ -19,4 +19,4 @@ read -r i
 directory=${dirs[$i]}
 rm -rf dev-temp/"$directory"
 mkdir -p dev-temp/"$directory"
-parcel games/"$directory"/index.html --dist-dir dev-temp/"$directory"
+parcel examples/"$directory"/index.html --dist-dir dev-temp/"$directory"
