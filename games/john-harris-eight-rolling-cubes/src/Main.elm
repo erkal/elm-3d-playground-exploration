@@ -5,7 +5,7 @@ import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..
 import Dict
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getColor, getFloat)
+import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
 import World exposing (RollResult(..), World)
@@ -44,20 +44,18 @@ type State
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera distance", ( 3, 10, 20 ) )
-        , ( "camera azimuth", ( -pi, 0, pi ) )
-        , ( "camera elevation", ( -pi / 2, 0, pi / 2 ) )
-        , ( "sunlight azimuth", ( -pi, 2, pi ) )
-        , ( "sunlight elevation", ( -pi, -2, 0 ) )
-        , ( "cubes side length", ( 0.5, 0.9, 1 ) )
-        , ( "duration of rolling animation", ( 0.1, 0.25, 1 ) )
-        ]
-        [ ( "color 1", rgb255 244 88 67 )
-        , ( "color 2", rgb255 47 41 43 )
-        , ( "board color", rgb255 223 224 226 )
-        , ( "background color", rgb255 165 166 169 )
-        ]
+    [ floatConfig "camera distance" ( 3, 20 ) 10
+    , floatConfig "camera azimuth" ( -pi, pi ) 0
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
+    , floatConfig "sunlight azimuth" ( -pi, pi ) 2
+    , floatConfig "sunlight elevation" ( -pi, 0 ) -2
+    , floatConfig "cubes side length" ( 0.5, 1 ) 0.9
+    , floatConfig "duration of rolling animation" ( 0.1, 1 ) 0.25
+    , colorConfig "color 1" (rgb255 244 88 67)
+    , colorConfig "color 2" (rgb255 47 41 43)
+    , colorConfig "board color" (rgb255 223 224 226)
+    , colorConfig "background color" (rgb255 165 166 169)
+    ]
 
 
 init : Computer -> Model

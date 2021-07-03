@@ -2,7 +2,8 @@ module Main exposing (main)
 
 import Color exposing (hsl, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, wave)
+import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene exposing (..)
 
@@ -60,20 +61,18 @@ view computer model =
 
 
 initialConfigurations =
-    configurations
-        [ ( "radius", ( 0, 1, 6 ) )
-        , ( "number of cubes", ( 1, 19, 100 ) )
-        , ( "cube size", ( 0.1, 1, 4 ) )
-        , ( "cycle duration", ( 1, 5, 10 ) )
-        , ( "wave height", ( 0.5, 1.5, 6 ) )
-        , ( "number of waves", ( 1, 2, 20 ) )
-        , ( "camera x", ( 0, 8, 16 ) )
-        , ( "camera y", ( 0, 0, 10 ) )
-        , ( "camera z", ( 0, 6, 16 ) )
-        , ( "saturation", ( 0, 0.8, 1 ) )
-        , ( "lightness", ( 0, 0.7, 1 ) )
-        ]
-        []
+    [ floatConfig "radius" ( 0, 6 ) 1
+    , floatConfig "number of cubes" ( 1, 100 ) 19
+    , floatConfig "cube size" ( 0.1, 4 ) 1
+    , floatConfig "cycle duration" ( 1, 10 ) 5
+    , floatConfig "wave height" ( 0.5, 6 ) 1.5
+    , floatConfig "number of waves" ( 1, 20 ) 2
+    , floatConfig "camera x" ( 0, 16 ) 8
+    , floatConfig "camera y" ( 0, 10 ) 0
+    , floatConfig "camera z" ( 0, 16 ) 6
+    , floatConfig "saturation" ( 0, 1 ) 0.8
+    , floatConfig "lightness" ( 0, 1 ) 0.7
+    ]
 
 
 cubes : Computer -> Shape

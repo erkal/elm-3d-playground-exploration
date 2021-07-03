@@ -4,7 +4,8 @@ import Color exposing (blue, brown, gray, green, hsl, lightBlue, lightGreen, lig
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, spin, wave)
+import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d.Animation exposing (spin, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene exposing (..)
@@ -31,15 +32,13 @@ init computer =
 
 
 initialConfigurations =
-    configurations
-        [ ( "number of tree blocks", ( 1, 16, 20 ) )
-        , ( "turning speed of the tree", ( 0.1, 1, 4 ) )
-        , ( "azimuth for third light", ( -pi, 1, pi ) )
-        , ( "elevation for third light", ( -pi, -2, pi ) )
-        , ( "azimuth for fourth light", ( -pi, 1, pi ) )
-        , ( "elevation for fourth light", ( -pi, -2, pi ) )
-        ]
-        []
+    [ floatConfig "number of tree blocks" ( 1, 20 ) 16
+    , floatConfig "turning speed of the tree" ( 0.1, 4 ) 1
+    , floatConfig "azimuth for third light" ( -pi, pi ) 1
+    , floatConfig "elevation for third light" ( -pi, pi ) -2
+    , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
+    , floatConfig "elevation for fourth light" ( -pi, pi ) -2
+    ]
 
 
 

@@ -4,7 +4,8 @@ import Color exposing (Color, black, hsl, white)
 import Html exposing (Html, div, h2, p, text)
 import Html.Attributes exposing (style)
 import Palette
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, wave)
+import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
 import World exposing (Piece, World)
@@ -23,19 +24,17 @@ type alias Model =
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera distance", ( 3, 20, 60 ) )
-        , ( "camera azimuth", ( 0, 0.6, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, 0.4, pi / 2 ) )
-        , ( "sunlight azimuth", ( 0, 5.5, 2 * pi ) )
-        , ( "sunlight elevation", ( -pi / 2, -1, pi / 2 ) )
-        , ( "saturation", ( 0, 0.6, 1 ) )
-        , ( "lightning", ( 0, 0.8, 1 ) )
-        , ( "cube scale", ( 0.1, 0.95, 1 ) )
-        , ( "edge width", ( 0.001, 0.1, 0.5 ) )
-        ]
-        [ ( "edge color", black )
-        ]
+    [ floatConfig "camera distance" ( 3, 60 ) 20
+    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0.6
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.4
+    , floatConfig "sunlight azimuth" ( 0, 2 * pi ) 5.5
+    , floatConfig "sunlight elevation" ( -pi / 2, pi / 2 ) -1
+    , floatConfig "saturation" ( 0, 1 ) 0.6
+    , floatConfig "lightning" ( 0, 1 ) 0.8
+    , floatConfig "cube scale" ( 0.1, 1 ) 0.95
+    , floatConfig "edge width" ( 0.001, 0.5 ) 0.1
+    , colorConfig "edge color" black
+    ]
 
 
 init : Computer -> Model

@@ -13,7 +13,8 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, configurations, gameWithConfigurationsAndEditor, getFloat, wave)
+import Playground3d exposing (Computer, floatConfig, gameWithConfigurationsAndEditor, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Geometry exposing (Point)
 import Playground3d.Scene as Scene exposing (..)
@@ -55,16 +56,14 @@ currentPalette =
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera x", ( -40, 0, 40 ) )
-        , ( "camera y", ( -40, 0, 0 ) )
-        , ( "camera z", ( 1, 20, 50 ) )
-        , ( "trixel scale", ( 0.5, 1, 1 ) )
-        , ( "minimum rotation degree", ( -(degrees 180), 0, 0 ) )
-        , ( "maximum rotation degree", ( 0, 0, degrees 180 ) )
-        , ( "rotation period", ( 1, 5, 20 ) )
-        ]
-        []
+    [ floatConfig "camera x" ( -40, 40 ) 0
+    , floatConfig "camera y" ( -40, 0 ) 0
+    , floatConfig "camera z" ( 1, 50 ) 20
+    , floatConfig "trixel scale" ( 0.5, 1 ) 1
+    , floatConfig "minimum rotation degree" ( -(degrees 180), 0 ) 0
+    , floatConfig "maximum rotation degree" ( 0, degrees 180 ) 0
+    , floatConfig "rotation period" ( 1, 20 ) 5
+    ]
 
 
 init : Computer -> Model

@@ -1,8 +1,9 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, hsl, white)
+import Color exposing (hsl, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getFloat, wave)
+import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene exposing (..)
 
@@ -20,12 +21,10 @@ type alias Model =
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera x", ( -40, 0, 40 ) )
-        , ( "camera y", ( -40, 0, 40 ) )
-        , ( "camera z", ( -40, 16, 40 ) )
-        ]
-        []
+    [ floatConfig "camera x" ( -40, 40 ) 0
+    , floatConfig "camera y" ( -40, 40 ) 0
+    , floatConfig "camera z" ( -40, 40 ) 16
+    ]
 
 
 init : Computer -> Model

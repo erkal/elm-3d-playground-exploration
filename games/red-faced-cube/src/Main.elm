@@ -10,6 +10,7 @@ import Illuminance
 import LuminousFlux
 import Path exposing (Path)
 import Playground3d exposing (..)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Geometry exposing (Point, Vector)
 import Playground3d.Light as Light
@@ -64,23 +65,23 @@ type State
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera distance", ( 3, 20, 60 ) )
-        , ( "camera azimuth", ( -pi, 0, pi ) )
-        , ( "camera elevation", ( -pi / 2, -0.15, pi / 2 ) )
-        , ( "cubes side length", ( 0.5, 0.95, 1 ) )
-        , ( "duration of step animation", ( 0.1, 0.23, 1 ) )
-        , ( "duration of mistake animation", ( 0.1, 0.5, 1 ) )
-        , ( "height of following lights", ( 0.1, 5, 8 ) )
-        , ( "lumens of following lights", ( 40000, 100000, 120000 ) )
-        ]
-        [ ( "background color", rgb255 223 224 226 )
-        , ( "color 1", rgb255 244 88 67 )
-        , ( "color 2", rgb255 255 200 40 )
-        , ( "path color", rgb255 244 88 67 )
-        , ( "board color", rgb255 165 166 169 )
-        , ( "wall color", rgb255 38 48 64 )
-        ]
+    [ floatConfig "camera distance" ( 3, 60 ) 20
+    , floatConfig "camera azimuth" ( -pi, pi ) 0
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.15
+    , floatConfig "cubes side length" ( 0.5, 1 ) 0.95
+    , floatConfig "duration of step animation" ( 0.1, 1 ) 0.23
+    , floatConfig "duration of mistake animation" ( 0.1, 1 ) 0.5
+    , floatConfig "height of following lights" ( 0.1, 8 ) 5
+    , floatConfig "lumens of following lights" ( 40000, 120000 ) 100000
+
+    --
+    , colorConfig "background color" (rgb255 223 224 226)
+    , colorConfig "color 1" (rgb255 244 88 67)
+    , colorConfig "color 2" (rgb255 255 200 40)
+    , colorConfig "path color" (rgb255 244 88 67)
+    , colorConfig "board color" (rgb255 165 166 169)
+    , colorConfig "wall color" (rgb255 38 48 64)
+    ]
 
 
 init : Computer -> Model

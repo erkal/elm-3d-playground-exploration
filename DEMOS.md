@@ -8,7 +8,6 @@
 - happy-birthday-andrey: [demo](https://erkal.github.io/elm-3d-playground-exploration/happy-birthday-andrey), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/happy-birthday-andrey/src)
 - john-harris-eight-rolling-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/john-harris-eight-rolling-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/john-harris-eight-rolling-cubes/src)
 - multiple-shadows-from-ianmackenzie: [demo](https://erkal.github.io/elm-3d-playground-exploration/multiple-shadows-from-ianmackenzie), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/multiple-shadows-from-ianmackenzie/src)
-- parameterized-curve: [demo](https://erkal.github.io/elm-3d-playground-exploration/parameterized-curve), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/parameterized-curve/src)
 - recursive-rotation: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-rotation), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/recursive-rotation/src)
 - recursive-tree: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-tree), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/recursive-tree/src)
 - red-faced-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/red-faced-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/red-faced-cube/src)

@@ -2,7 +2,8 @@ module Main exposing (main)
 
 import Color exposing (hsl)
 import Html exposing (Html)
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, getColor, getFloat)
+import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
 
@@ -48,17 +49,15 @@ camera computer =
 
 
 initialConfigurations =
-    configurations
-        [ ( "camera distance", ( 3, 50, 60 ) )
-        , ( "camera azimuth", ( 0, 0, 2 * pi ) )
-        , ( "camera elevation", ( -pi / 2, 0.5, pi / 2 ) )
-        , ( "delay per index", ( 0, 0.15, 1 ) )
-        , ( "number of spheres", ( 10, 50, 100 ) )
-        , ( "saturation", ( 0, 0.5, 1 ) )
-        , ( "lighting", ( 0, 0.7, 1 ) )
-        ]
-        [ ( "background color", hsl 0.85 0.32 0.45 )
-        ]
+    [ floatConfig "camera distance" ( 3, 60 ) 50
+    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
+    , floatConfig "delay per index" ( 0, 1 ) 0.15
+    , floatConfig "number of spheres" ( 10, 100 ) 50
+    , floatConfig "saturation" ( 0, 1 ) 0.5
+    , floatConfig "lighting" ( 0, 1 ) 0.7
+    , colorConfig "background color" (hsl 0.85 0.32 0.45)
+    ]
 
 
 view : Computer -> Model -> Html Never
@@ -108,10 +107,10 @@ sphereWithIndex computer i =
             getFloat "saturation" computer
 
         hue =
-            Playground3d.wave 0 1 7 timeWithDelay
+            wave 0 1 7 timeWithDelay
     in
     sphere (hsl hue saturation lighting) size
-        |> scale (Playground3d.wave 1 4 4 timeWithDelay)
-        |> moveX (Playground3d.wave 3 4 1 timeWithDelay)
-        |> rotateY (Playground3d.wave 0 10 20 timeWithDelay)
+        |> scale (wave 1 4 4 timeWithDelay)
+        |> moveX (wave 3 4 1 timeWithDelay)
+        |> rotateY (wave 0 10 20 timeWithDelay)
         |> moveY (size * 1.1 * toFloat i)

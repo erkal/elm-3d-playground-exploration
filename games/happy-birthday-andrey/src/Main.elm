@@ -4,7 +4,8 @@ import Color exposing (Color, black, yellow)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, configurations, gameWithConfigurations, wave)
+import Playground3d exposing (Computer, gameWithConfigurations)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera as Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
 import Playground3d.Scene as Scene exposing (..)
@@ -15,7 +16,7 @@ import Temperature
 
 
 main =
-    gameWithConfigurations view update (configurations [] []) init
+    gameWithConfigurations view update [] init
 
 
 type alias Model =
