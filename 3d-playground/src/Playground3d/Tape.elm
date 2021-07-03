@@ -134,27 +134,14 @@ tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
 
 type Msg
     = SliderMovedTo Int
-    | PressedFastBackwardButton
-    | PressedGoToPreviousButton
     | PressedPauseButton
     | PressedRecordButton
     | PressedPlayButton
-    | PressedGoToNextButton
-    | PressedFastForwardButton
 
 
 update : Msg -> Tape gameModel -> Tape gameModel
 update msg tape =
     case msg of
-        PressedFastBackwardButton ->
-            tape
-                |> goToFirst
-
-        PressedGoToPreviousButton ->
-            tape
-                |> goToPrevious
-                |> Maybe.withDefault tape
-
         PressedPauseButton ->
             tape
                 |> pause
@@ -166,15 +153,6 @@ update msg tape =
         PressedPlayButton ->
             tape
                 |> startPlaying
-
-        PressedGoToNextButton ->
-            tape
-                |> goToNext
-                |> Maybe.withDefault tape
-
-        PressedFastForwardButton ->
-            tape
-                |> goToLast
 
         SliderMovedTo tickIndex ->
             tape
@@ -198,34 +176,6 @@ startPlaying ((Tape _ pastCurrentFuture) as tape) =
         pastCurrentFuture
 
 
-goToFirst : Tape gameModel -> Tape gameModel
-goToFirst ((Tape _ { past, current, future }) as tape) =
-    case past of
-        first :: rest ->
-            Tape Paused
-                { past = []
-                , current = first
-                , future = rest ++ [ current ] ++ future
-                }
-
-        [] ->
-            tape
-
-
-goToLast : Tape gameModel -> Tape gameModel
-goToLast ((Tape _ { past, current, future }) as tape) =
-    case List.reverse future of
-        last :: restReversed ->
-            Tape Paused
-                { past = past ++ [ current ] ++ List.reverse restReversed
-                , current = last
-                , future = []
-                }
-
-        [] ->
-            tape
-
-
 goToNext : Tape gameModel -> Maybe (Tape gameModel)
 goToNext (Tape state { past, current, future }) =
     case future of
@@ -235,22 +185,6 @@ goToNext (Tape state { past, current, future }) =
                     { past = past ++ [ current ]
                     , current = next
                     , future = rest
-                    }
-                )
-
-        [] ->
-            Nothing
-
-
-goToPrevious : Tape gameModel -> Maybe (Tape gameModel)
-goToPrevious (Tape _ { past, current, future }) =
-    case List.reverse past of
-        previous :: restReversed ->
-            Just
-                (Tape Paused
-                    { past = List.reverse restReversed
-                    , current = previous
-                    , future = current :: future
                     }
                 )
 
@@ -310,9 +244,7 @@ view tape =
 tapeButtons : Tape gameModel -> Element Msg
 tapeButtons (Tape state { past, current, future }) =
     row []
-        [ tapeButton PressedFastBackwardButton "⏮️"
-        , tapeButton PressedGoToPreviousButton "◀️"
-        , case state of
+        [ case state of
             Paused ->
                 tapeButton PressedPlayButton "▶️"
 
@@ -324,8 +256,6 @@ tapeButtons (Tape state { past, current, future }) =
 
             _ ->
                 tapeButton PressedRecordButton "⏺️"
-        , tapeButton PressedGoToNextButton "⏯️"
-        , tapeButton PressedFastForwardButton "⏭️"
         ]
 
 
@@ -388,16 +318,16 @@ timeSeparators (Tape _ { past, current, future }) =
         totalDuration =
             end - start
 
-        intervall =
+        interval =
             1
 
         n =
-            floor (totalDuration / intervall)
+            floor (totalDuration / interval)
 
         separator i =
             let
                 x =
-                    toFloat i * intervall / totalDuration
+                    toFloat i * interval / totalDuration
             in
             line
                 [ SA.x1 (String.fromFloat x)
