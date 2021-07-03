@@ -11,10 +11,15 @@ module Playground3d.Tape exposing
     , view
     )
 
-import Html exposing (Html, button, div, input, text)
-import Html.Attributes as HA exposing (style, type_)
-import Html.Events exposing (onClick, onInput)
+import Element exposing (..)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Input as Input
+import Html.Attributes as HA
+import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer)
+import Svg exposing (Svg, line, path, svg)
+import Svg.Attributes as SA
 
 
 type Tape gameModel
@@ -290,22 +295,21 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
 -- VIEW
 
 
-view : Tape gameModel -> Html Msg
+view : Tape gameModel -> Element Msg
 view tape =
-    div
-        [ style "width" "100%"
+    row
+        [ width fill
+        , padding 14
+        , spacing 14
         ]
         [ tapeButtons tape
-        , div []
-            [ sliderScale tape
-            , slider tape
-            ]
+        , slider tape
         ]
 
 
-tapeButtons : Tape gameModel -> Html Msg
+tapeButtons : Tape gameModel -> Element Msg
 tapeButtons (Tape state { past, current, future }) =
-    div []
+    row []
         [ tapeButton PressedFastBackwardButton "⏮️"
         , tapeButton PressedGoToPreviousButton "◀️"
         , case state of
@@ -325,22 +329,46 @@ tapeButtons (Tape state { past, current, future }) =
         ]
 
 
-slider : Tape gameModel -> Html Msg
+slider : Tape gameModel -> Element Msg
 slider tape =
-    input
-        [ style "position" "absolute"
-        , type_ "range"
-        , style "width" "100%"
-        , HA.min "0"
-        , HA.max (String.fromInt (totalSize tape - 1))
-        , HA.value (String.fromInt (lengthOfPast tape))
-        , onInput (String.toInt >> Maybe.withDefault 0 >> SliderMovedTo)
+    el
+        [ width fill
+        , centerY
         ]
-        []
+    <|
+        Input.slider
+            [ spacing 8
+            , behindContent
+                (el
+                    [ width fill
+                    , height (px 28)
+                    , centerY
+                    , Background.color Colors.inputBackground
+                    , Border.rounded 4
+                    ]
+                    (timeSeparators tape)
+                )
+            ]
+            { onChange = round >> SliderMovedTo
+            , label = Input.labelHidden ""
+            , min = 0
+            , max = toFloat (totalSize tape) - 1
+            , step = Just 1
+            , value = toFloat (lengthOfPast tape)
+            , thumb =
+                Input.thumb
+                    [ width (px 28)
+                    , height (px 28)
+                    , Border.rounded 4
+                    , Border.width 0
+                    , Border.color Colors.sliderThumb
+                    , Background.color Colors.icon
+                    ]
+            }
 
 
-sliderScale : Tape gameModel -> Html Msg
-sliderScale (Tape _ { past, current, future }) =
+timeSeparators : Tape gameModel -> Element Msg
+timeSeparators (Tape _ { past, current, future }) =
     let
         start =
             past
@@ -360,44 +388,38 @@ sliderScale (Tape _ { past, current, future }) =
         totalDuration =
             end - start
 
-        boxDuration =
+        intervall =
             1
 
         n =
-            floor (totalDuration / boxDuration)
+            floor (totalDuration / intervall)
 
-        box i =
-            div
-                [ style "position" "absolute"
-                , style "background-color" "yellow"
-                , style "width" "1px"
-                , style "height" "20px"
-                , style "left" (String.fromFloat (toFloat i * 100 * boxDuration / totalDuration) ++ "%")
+        separator i =
+            let
+                x =
+                    toFloat i * intervall / totalDuration
+            in
+            line
+                [ SA.x1 (String.fromFloat x)
+                , SA.x2 (String.fromFloat x)
+                , SA.y1 "0"
+                , SA.y2 "0.005"
+                , SA.strokeWidth "0.001"
+                , SA.stroke "gray"
                 ]
                 []
     in
-    div
-        [ style "position" "absolute"
-        , style "width" "100%"
-        , style "height" "20px"
-        ]
-        (List.range 0 n |> List.map box)
+    el [ width fill, height fill ] <|
+        html <|
+            Svg.svg
+                [ SA.viewBox "0 0 1 1"
+                ]
+                (List.range 1 n |> List.map separator)
 
 
-tapeButton : Msg -> String -> Html Msg
+tapeButton : Msg -> String -> Element Msg
 tapeButton msg icon_ =
-    button
-        [ style "display" "inline-block"
-        , style "width" "30px"
-        , style "height" "30px"
-        , style "margin" "2px"
-        , style "padding" "0px"
-        , style "top" "0px"
-        , style "font-size" "20px"
-        , onClick msg
-        ]
-        [ text icon_
-        ]
+    Input.button [] { onPress = Just msg, label = text icon_ }
 
 
 totalSize : Tape gameModel -> Int

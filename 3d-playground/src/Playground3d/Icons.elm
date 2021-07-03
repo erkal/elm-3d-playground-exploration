@@ -9,7 +9,7 @@ module Playground3d.Icons exposing
 
 import Element exposing (Color)
 import Playground3d.Colors as Colors
-import Svg as S exposing (Svg)
+import Svg exposing (Svg, path, svg)
 import Svg.Attributes as SA
 
 
@@ -35,12 +35,12 @@ draw34px =
 
 draw : Float -> String -> Svg msg
 draw size d =
-    S.svg
+    svg
         [ SA.viewBox "0 0 100 100"
         , SA.width (String.fromFloat size)
         , SA.height (String.fromFloat size)
         ]
-        [ S.path
+        [ path
             [ SA.d d
             , SA.fill (Colors.toString Colors.icon)
             ]
@@ -50,12 +50,12 @@ draw size d =
 
 draw40pxWithColor : Color -> String -> Svg msg
 draw40pxWithColor color d =
-    S.svg
+    svg
         [ SA.viewBox "0 0 100 100"
         , SA.width (String.fromFloat 40)
         , SA.height (String.fromFloat 40)
         ]
-        [ S.path
+        [ path
             [ SA.d d
             , SA.fill (Colors.toString color)
             ]

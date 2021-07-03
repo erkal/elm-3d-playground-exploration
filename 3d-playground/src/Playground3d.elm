@@ -345,8 +345,7 @@ viewGUI model =
             ]
             [ leftStripe model.activeMode
             , leftBar model.activeMode (currentComputer model.tape).configurations
-
-            --, topBar model.tape
+            , topBar model.tape
             ]
 
 
@@ -437,5 +436,12 @@ leftBar activeMode configurations =
 
 topBar : Tape gameModel -> Element (Msg levelEditorMsg)
 topBar tape =
-    html
-        (Html.map TapeMsg (Tape.view tape))
+    el
+        [ alignTop
+        , width fill
+        , height (px layoutParams.topBarHeight)
+        , scrollbarX
+        , Background.color Colors.menuBackground
+        , htmlAttribute (HA.style "pointer-events" "auto")
+        ]
+        (Element.map TapeMsg (Tape.view tape))
