@@ -46,7 +46,6 @@ import Html.Attributes as HA
 import Json.Decode as D
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
-import Playground3d.ConfigurationEditor as ConfigurationEditor exposing (..)
 import Playground3d.Configurations as Configurations exposing (Configurations)
 import Playground3d.Icons as Icons
 import Playground3d.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
@@ -169,9 +168,9 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 initialComputer =
                     Computer.init flags initialConfigurations
             in
-            ( { tape = Tape.init initialComputer initGameModel
+            ( { activeMode = Edit
+              , tape = Tape.init initialComputer initGameModel
               , distractionFree = False
-              , configurationEditor = ConfigurationEditor.init
               , visibility = E.Visible
               }
             , Task.perform (GotViewport >> ToComputer) Dom.getViewport
@@ -224,11 +223,16 @@ gameSubscriptions =
 
 
 type alias Model gameModel =
-    { tape : Tape gameModel
+    { activeMode : Mode
+    , tape : Tape gameModel
     , distractionFree : Bool
-    , configurationEditor : ConfigurationEditor
     , visibility : E.Visibility
     }
+
+
+type Mode
+    = Edit
+    | ImportExport
 
 
 type Msg levelEditorMsg
@@ -236,7 +240,7 @@ type Msg levelEditorMsg
     | ClickOnDistractionFreeButton
     | ToComputer Computer.Msg
     | Tick Float
-    | ConfigurationEditorMsg ConfigurationEditor.Msg
+    | SelectMode Mode
     | LevelEditorMsg levelEditorMsg
     | TapeMsg Tape.Msg
 
@@ -261,8 +265,8 @@ gameUpdate updateGameModel updateFromEditor msg model =
         Tick deltaTimeInSeconds ->
             { model | tape = model.tape |> Tape.tick updateGameModel deltaTimeInSeconds }
 
-        ConfigurationEditorMsg configurationEditorMsg ->
-            { model | configurationEditor = model.configurationEditor |> ConfigurationEditor.update configurationEditorMsg }
+        SelectMode mode ->
+            { model | activeMode = mode }
 
         LevelEditorMsg levelEditorMsg ->
             { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
@@ -278,7 +282,6 @@ gameUpdate updateGameModel updateFromEditor msg model =
 layoutParams =
     { leftStripeWidth = 54
     , leftBarWidth = 260
-    , rightBarWidth = 260
     , topBarHeight = 54
     }
 
@@ -295,8 +298,32 @@ view viewGameModel viewLevelEditor model =
 
         gameModel =
             currentGameModel model.tape
+    in
+    layoutWith
+        { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
+        [ width (px (ceiling computer.screen.width))
+        , height (px (ceiling computer.screen.height))
+        , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
+        , htmlAttribute (HA.style "pointer-events" "none")
+        , htmlAttribute (HA.style "touch-action" "none")
+        , htmlAttribute (HA.style "user-select" "none")
 
-        yingYangInDistractionFree : Element (Msg levelEditorMsg)
+        --
+        , inFront (html (Html.map LevelEditorMsg (viewLevelEditor computer gameModel)))
+        , inFront (viewGUI model)
+        ]
+        (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+
+
+
+--    [ Html.map TapeMsg (Tape.view model.tape)
+--    , Html.map ConfigurationEditorMsg (ConfigurationEditor.view computer model.configurationEditor)
+--    ]
+
+
+viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
+viewGUI model =
+    let
         yingYangInDistractionFree =
             el
                 [ width (px layoutParams.leftStripeWidth)
@@ -309,32 +336,19 @@ view viewGameModel viewLevelEditor model =
                 ]
                 (html (Icons.draw40pxWithColor Colors.lightGray Icons.icons.yinAndYang))
     in
-    layoutWith
-        { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
-        [ width (px (ceiling computer.screen.width))
-        , height (px (ceiling computer.screen.height))
-        , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
-        , htmlAttribute (HA.style "pointer-events" "none")
-        , htmlAttribute (HA.style "touch-action" "none")
-        , htmlAttribute (HA.style "user-select" "none")
-        , inFront
-            (if model.distractionFree then
-                yingYangInDistractionFree
+    if model.distractionFree then
+        yingYangInDistractionFree
 
-             else
-                row
-                    [ width fill
-                    , height fill
-                    ]
-                    [ leftStripe model
+    else
+        row
+            [ width fill
+            , height fill
+            ]
+            [ leftStripe model
 
-                    --, leftBar m
-                    --, midCol
-                    --, rightBar m
-                    ]
-            )
-        ]
-        (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+            --, leftBar model
+            --, midCol model
+            ]
 
 
 leftStripe : Model gameModel -> Element (Msg levelEditorMsg)
@@ -355,7 +369,7 @@ leftStripe model =
         modeButton title activeMode iconPath =
             let
                 color =
-                    if activeMode == model.configurationEditor.activeMode then
+                    if activeMode == model.activeMode then
                         Colors.white
 
                     else
@@ -363,7 +377,7 @@ leftStripe model =
             in
             el
                 [ htmlAttribute (HA.title title)
-                , onClick (ConfigurationEditorMsg (SelectMode activeMode))
+                , onClick (SelectMode activeMode)
                 , pointer
                 , padding 7
                 ]
