@@ -1,7 +1,8 @@
 port module Playground3d exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
-    , configurations, getColor, getFloat
+    , getColor, getFloat
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
+    , colorConfig, floatConfig
     )
 
 {-|
@@ -40,13 +41,13 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
-import Element.Font as Font
 import Html exposing (Html, div)
 import Html.Attributes as HA
 import Json.Decode as D
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
-import Playground3d.Configurations as Configurations exposing (Configurations)
+import Playground3d.Configurations as Configurations exposing (Config(..), Configurations)
+import Playground3d.ConfigurationsGUI as ConfigurationsGUI
 import Playground3d.Icons as Icons
 import Playground3d.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
 import Task
@@ -100,8 +101,12 @@ toXY =
     Computer.toXY
 
 
-configurations =
-    Computer.configurations
+floatConfig =
+    Configurations.Float
+
+
+colorConfig =
+    Configurations.Color
 
 
 getColor =
@@ -133,7 +138,7 @@ game viewGameModel updateGameModel initGameModel =
     gameWithConfigurations
         viewGameModel
         updateGameModel
-        Configurations.empty
+        []
         initGameModel
 
 
@@ -315,12 +320,6 @@ view viewGameModel viewLevelEditor model =
         (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
 
 
-
---    [ Html.map TapeMsg (Tape.view model.tape)
---    , Html.map ConfigurationEditorMsg (ConfigurationEditor.view computer model.configurationEditor)
---    ]
-
-
 viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
 viewGUI model =
     let
@@ -344,15 +343,15 @@ viewGUI model =
             [ width fill
             , height fill
             ]
-            [ leftStripe model
+            [ leftStripe model.activeMode
+            , leftBar model.activeMode (currentComputer model.tape).configurations
 
-            --, leftBar model
-            --, midCol model
+            --, topBar model.tape
             ]
 
 
-leftStripe : Model gameModel -> Element (Msg levelEditorMsg)
-leftStripe model =
+leftStripe : Mode -> Element (Msg levelEditorMsg)
+leftStripe activeMode =
     let
         distractionFreeButton =
             el
@@ -366,10 +365,10 @@ leftStripe model =
                 ]
                 (html (Icons.draw40pxWithColor Colors.leftStripeIconSelected Icons.icons.yinAndYang))
 
-        modeButton title activeMode iconPath =
+        modeButton title mode iconPath =
             let
                 color =
-                    if activeMode == model.activeMode then
+                    if mode == activeMode then
                         Colors.white
 
                     else
@@ -377,7 +376,7 @@ leftStripe model =
             in
             el
                 [ htmlAttribute (HA.title title)
-                , onClick (SelectMode activeMode)
+                , onClick (SelectMode mode)
                 , pointer
                 , padding 7
                 ]
@@ -413,3 +412,30 @@ leftStripe model =
         , radioButtonsForMode
         , githubButton
         ]
+
+
+leftBar : Mode -> Configurations -> Element (Msg levelEditorMsg)
+leftBar activeMode configurations =
+    el
+        [ Background.color Colors.menuBackground
+        , Border.widthEach { bottom = 0, left = 0, right = 1, top = 0 }
+        , Border.color Colors.menuBorder
+        , width (px layoutParams.leftBarWidth)
+        , height fill
+        , scrollbarY
+        , htmlAttribute (HA.style "pointer-events" "auto")
+        ]
+        (case activeMode of
+            Edit ->
+                Element.map (FromConfigurationsEditor >> ToComputer)
+                    (ConfigurationsGUI.view configurations)
+
+            ImportExport ->
+                none
+        )
+
+
+topBar : Tape gameModel -> Element (Msg levelEditorMsg)
+topBar tape =
+    html
+        (Html.map TapeMsg (Tape.view tape))

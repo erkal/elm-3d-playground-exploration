@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (blue, gray, green, red, rgb255, white)
+import Color exposing (blue, gray, green, red, rgb255)
 import Html exposing (Html)
 import Playground3d exposing (Computer, game)
 import Playground3d.Animation exposing (..)

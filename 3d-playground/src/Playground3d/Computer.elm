@@ -225,10 +225,6 @@ type alias Mouse =
 -- CONFIGURATIONS
 
 
-configurations =
-    Configurations.init
-
-
 getFloat : String -> Computer -> Float
 getFloat key computer =
     computer.configurations |> Configurations.getFloat key
