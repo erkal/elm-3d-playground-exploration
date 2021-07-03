@@ -27,7 +27,6 @@ import Angle exposing (Angle)
 import Axis3d exposing (Axis3d)
 import Block3d exposing (Block3d)
 import Color exposing (Color)
-import Computer
 import Cylinder3d exposing (Cylinder3d)
 import Direction3d exposing (Direction3d)
 import Html exposing (Html)
@@ -36,6 +35,7 @@ import LineSegment3d exposing (LineSegment3d)
 import ModifiedFromScene3d.Scenes
 import Pixels
 import Playground3d.Camera exposing (Camera)
+import Playground3d.Computer as Computer
 import Playground3d.Geometry exposing (Point)
 import Point3d exposing (Point3d)
 import Scene3d exposing (Antialiasing, Exposure, Lights, ToneMapping)

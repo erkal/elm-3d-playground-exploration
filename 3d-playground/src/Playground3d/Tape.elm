@@ -11,10 +11,10 @@ module Playground3d.Tape exposing
     , view
     )
 
-import Computer exposing (Computer)
 import Html exposing (Html, button, div, input, text)
 import Html.Attributes as HA exposing (style, type_)
 import Html.Events exposing (onClick, onInput)
+import Playground3d.Computer as Computer exposing (Computer)
 
 
 type Tape gameModel

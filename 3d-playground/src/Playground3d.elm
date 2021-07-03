@@ -4,7 +4,7 @@ port module Playground3d exposing
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
     )
 
-{-| NOTE: Most of the following code is copied from evancz/elm-playground
+{-|
 
 
 # Playground
@@ -36,19 +36,25 @@ port module Playground3d exposing
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
-import Html exposing (Html, button, div, option, select, text)
-import Html.Attributes exposing (style, value)
-import Html.Events exposing (onClick)
-import Html.Events.Extra exposing (onChange)
+import Element exposing (..)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Events exposing (onClick)
+import Element.Font as Font
+import Html exposing (Html, div)
+import Html.Attributes as HA
 import Json.Decode as D
+import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
+import Playground3d.ConfigurationEditor as ConfigurationEditor exposing (..)
 import Playground3d.Configurations as Configurations exposing (Configurations)
-import Playground3d.Tape as Tape exposing (Tape)
+import Playground3d.Icons as Icons
+import Playground3d.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
 import Task
 
 
 
--- PORTS FOR TOUCH EVENTS
+-- PORTS
 
 
 port touchStart : (List TouchEvent -> msg) -> Sub msg
@@ -64,7 +70,7 @@ port touchCancel : (List TouchEvent -> msg) -> Sub msg
 
 
 
--- EXPORTS
+-- FOR EXPOSING
 
 
 type alias Computer =
@@ -164,8 +170,8 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                     Computer.init flags initialConfigurations
             in
             ( { tape = Tape.init initialComputer initGameModel
-              , editorIsOn = False
-              , activeEditorTab = Configurations
+              , distractionFree = False
+              , configurationEditor = ConfigurationEditor.init
               , visibility = E.Visible
               }
             , Task.perform (GotViewport >> ToComputer) Dom.getViewport
@@ -219,83 +225,62 @@ gameSubscriptions =
 
 type alias Model gameModel =
     { tape : Tape gameModel
-    , editorIsOn : Bool
-    , activeEditorTab : EditorTab
+    , distractionFree : Bool
+    , configurationEditor : ConfigurationEditor
     , visibility : E.Visibility
     }
 
 
-type EditorTab
-    = Configurations
-    | LevelEditor
-
-
-editorTabToString : EditorTab -> String
-editorTabToString editorTab =
-    case editorTab of
-        Configurations ->
-            "Configurations"
-
-        LevelEditor ->
-            "Level Editor"
-
-
-editorTabFromString : String -> EditorTab
-editorTabFromString str =
-    [ Configurations, LevelEditor ]
-        |> List.filterMap
-            (\editorTab ->
-                if editorTabToString editorTab == str then
-                    Just editorTab
-
-                else
-                    Nothing
-            )
-        |> List.head
-        |> Maybe.withDefault Configurations
-
-
 type Msg levelEditorMsg
     = NoOp
-    | SelectTab EditorTab
-    | HideEditor
-    | ShowEditor
-    | FromLevelEditor levelEditorMsg
-    | FromTape Tape.Msg
-    | Tick Float
+    | ClickOnDistractionFreeButton
     | ToComputer Computer.Msg
+    | Tick Float
+    | ConfigurationEditorMsg ConfigurationEditor.Msg
+    | LevelEditorMsg levelEditorMsg
+    | TapeMsg Tape.Msg
 
 
-gameUpdate : (Computer -> gameModel -> gameModel) -> (Computer -> levelEditorMsg -> gameModel -> gameModel) -> Msg levelEditorMsg -> Model gameModel -> Model gameModel
+gameUpdate :
+    (Computer -> gameModel -> gameModel)
+    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
+    -> Msg levelEditorMsg
+    -> Model gameModel
+    -> Model gameModel
 gameUpdate updateGameModel updateFromEditor msg model =
     case msg of
         NoOp ->
             model
 
-        SelectTab editorTab ->
-            { model | activeEditorTab = editorTab }
-
-        HideEditor ->
-            { model | editorIsOn = False }
-
-        ShowEditor ->
-            { model | editorIsOn = True }
-
-        FromLevelEditor levelEditorMsg ->
-            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
-
-        FromTape tapeMsg ->
-            { model | tape = model.tape |> Tape.update tapeMsg }
-
         ToComputer computerMsg ->
             { model | tape = model.tape |> Tape.updateCurrentComputer computerMsg }
+
+        ClickOnDistractionFreeButton ->
+            { model | distractionFree = not model.distractionFree }
 
         Tick deltaTimeInSeconds ->
             { model | tape = model.tape |> Tape.tick updateGameModel deltaTimeInSeconds }
 
+        ConfigurationEditorMsg configurationEditorMsg ->
+            { model | configurationEditor = model.configurationEditor |> ConfigurationEditor.update configurationEditorMsg }
+
+        LevelEditorMsg levelEditorMsg ->
+            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
+
+        TapeMsg tapeMsg ->
+            { model | tape = model.tape |> Tape.update tapeMsg }
+
 
 
 -- VIEW
+
+
+layoutParams =
+    { leftStripeWidth = 54
+    , leftBarWidth = 260
+    , rightBarWidth = 260
+    , topBarHeight = 54
+    }
 
 
 view :
@@ -306,94 +291,111 @@ view :
 view viewGameModel viewLevelEditor model =
     let
         computer =
-            Tape.currentComputer model.tape
+            currentComputer model.tape
 
         gameModel =
-            Tape.currentGameModel model.tape
+            currentGameModel model.tape
 
-        editorOnOffButton msg symbol =
-            button
-                [ style "font-size" "30px"
-                , style "width" "40px"
-                , style "height" "40px"
-                , onClick msg
+        yingYangInDistractionFree : Element (Msg levelEditorMsg)
+        yingYangInDistractionFree =
+            el
+                [ width (px layoutParams.leftStripeWidth)
+                , alignTop
+                , padding 7
+                , onClick ClickOnDistractionFreeButton
+                , pointer
+                , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
+                , htmlAttribute (HA.style "pointer-events" "auto")
                 ]
-                [ text symbol ]
-
-        optionWith editorTab =
-            option
-                [ value (editorTabToString editorTab)
-                ]
-                [ text (editorTabToString editorTab) ]
-
-        editorTabSelection =
-            div
-                [ style "margin-left" "0px"
-                ]
-                [ select
-                    [ onChange (editorTabFromString >> SelectTab)
-                    , value (editorTabToString model.activeEditorTab)
-                    , style "width" "200px"
-                    , style "height" "40px"
-                    , style "font-size" "20px"
-                    ]
-                    (List.map optionWith [ Configurations, LevelEditor ])
-                ]
-
-        viewGame =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat computer.screen.width ++ "px")
-                , style "height" (String.fromFloat computer.screen.height ++ "px")
-                , style "font-size" "16px"
-                ]
-                [ Html.map (always NoOp) (viewGameModel computer gameModel)
-                ]
-
-        viewEditorOld =
-            div
-                [ style "position" "fixed"
-                , style "top" "0px"
-                , style "left" "0px"
-                , style "width" (String.fromFloat 250 ++ "px")
-                , style "height" (String.fromFloat computer.screen.height ++ "px")
-                , style "font-family" """-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"""
-                , style "font-size" "16px"
-                ]
-                (if model.editorIsOn then
-                    [ div
-                        [ style "height" "100px" ]
-                        [ editorOnOffButton HideEditor "✕"
-                        , editorTabSelection
-                        ]
-                    , div
-                        [ style "height" (String.fromFloat (computer.screen.height - 100) ++ "px") ]
-                        [ viewActiveEditor ]
-                    ]
-
-                 else
-                    [ editorOnOffButton ShowEditor "≡" ]
-                )
-
-        viewActiveEditor =
-            case model.activeEditorTab of
-                Configurations ->
-                    div []
-                        [ Html.map FromTape (Tape.view model.tape)
-                        , Html.map (FromConfigurationsEditor >> ToComputer) (Configurations.view computer.configurations)
-                        ]
-
-                LevelEditor ->
-                    Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+                (html (Icons.draw40pxWithColor Colors.lightGray Icons.icons.yinAndYang))
     in
-    div
-        [ style "touch-action" "none"
-        , style "user-select" "none"
-        ]
-        [ viewGame
+    layoutWith
+        { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
+        [ width (px (ceiling computer.screen.width))
+        , height (px (ceiling computer.screen.height))
+        , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
+        , htmlAttribute (HA.style "pointer-events" "none")
+        , htmlAttribute (HA.style "touch-action" "none")
+        , htmlAttribute (HA.style "user-select" "none")
+        , inFront
+            (if model.distractionFree then
+                yingYangInDistractionFree
 
-        --, viewEditorOld
-        --, viewEditor
+             else
+                row
+                    [ width fill
+                    , height fill
+                    ]
+                    [ leftStripe model
+
+                    --, leftBar m
+                    --, midCol
+                    --, rightBar m
+                    ]
+            )
+        ]
+        (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+
+
+leftStripe : Model gameModel -> Element (Msg levelEditorMsg)
+leftStripe model =
+    let
+        distractionFreeButton =
+            el
+                [ width (px layoutParams.leftStripeWidth |> minimum layoutParams.leftStripeWidth)
+                , padding 7
+                , onClick ClickOnDistractionFreeButton
+                , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
+                , Border.color Colors.menuBorder
+                , pointer
+                , htmlAttribute (HA.title "Activate Distraction Free Mode (A)")
+                ]
+                (html (Icons.draw40pxWithColor Colors.leftStripeIconSelected Icons.icons.yinAndYang))
+
+        modeButton title activeMode iconPath =
+            let
+                color =
+                    if activeMode == model.configurationEditor.activeMode then
+                        Colors.white
+
+                    else
+                        Colors.leftStripeIconSelected
+            in
+            el
+                [ htmlAttribute (HA.title title)
+                , onClick (ConfigurationEditorMsg (SelectMode activeMode))
+                , pointer
+                , padding 7
+                ]
+                (html (Icons.draw40pxWithColor color iconPath))
+
+        radioButtonsForMode =
+            column
+                [ alignTop
+                ]
+                [ modeButton "Edit" Edit Icons.icons.folder
+                , modeButton "Import/Export" ImportExport Icons.icons.listOfThree
+                ]
+
+        githubButton =
+            newTabLink
+                [ htmlAttribute (HA.title "Source Code")
+                , alignBottom
+                , pointer
+                , padding 7
+                ]
+                { url = "https://github.com/erkal/elm-3d-playground-exploration"
+                , label = html (Icons.draw40pxWithColor Colors.yellow Icons.icons.githubCat)
+                }
+    in
+    column
+        [ Background.color Colors.black
+        , width (px layoutParams.leftStripeWidth)
+        , height fill
+        , scrollbarY
+        , htmlAttribute (HA.style "pointer-events" "auto")
+        ]
+        [ distractionFreeButton
+        , radioButtonsForMode
+        , githubButton
         ]

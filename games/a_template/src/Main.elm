@@ -1,8 +1,9 @@
 module Main exposing (main)
 
-import Color exposing (blue, gray, green, red, white)
+import Color exposing (blue, gray, green, red, rgb255, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, game, wave)
+import Playground3d exposing (Computer, game)
+import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene exposing (..)
 
@@ -48,7 +49,7 @@ view computer model =
                 , eyePoint = { x = 0, y = 4, z = 8 }
                 , upDirection = { x = 0, y = 1, z = 0 }
                 }
-        , backgroundColor = white
+        , backgroundColor = rgb255 46 46 46
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
@@ -74,4 +75,7 @@ axes =
 wavingCube : Computer -> Shape
 wavingCube computer =
     block gray ( 1, 1, 1 )
-        |> moveY (wave 0 1 1 computer.time)
+        |> scale (wave 1 2 14 computer.time)
+        |> rotateX (wave 1 10 30 computer.time)
+        |> rotateY (wave 1 10 30 computer.time)
+        |> rotateZ (wave 1 10 30 computer.time)
