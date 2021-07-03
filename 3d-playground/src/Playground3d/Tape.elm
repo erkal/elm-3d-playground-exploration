@@ -15,6 +15,7 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
+import Html
 import Html.Attributes as HA
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer)
@@ -275,6 +276,7 @@ slider tape =
                     , centerY
                     , Background.color Colors.inputBackground
                     , Border.rounded 4
+                    , clipY
                     ]
                     (timeSeparators tape)
                 )
@@ -333,13 +335,13 @@ timeSeparators (Tape _ { past, current, future }) =
                 [ SA.x1 (String.fromFloat x)
                 , SA.x2 (String.fromFloat x)
                 , SA.y1 "0"
-                , SA.y2 "0.005"
-                , SA.strokeWidth "0.001"
+                , SA.y2 "0.01"
+                , SA.strokeWidth "0.002"
                 , SA.stroke "gray"
                 ]
                 []
     in
-    el [ width fill, height fill ] <|
+    el [ width fill ] <|
         html <|
             Svg.svg
                 [ SA.viewBox "0 0 1 1"

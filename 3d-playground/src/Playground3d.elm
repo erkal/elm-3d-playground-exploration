@@ -421,7 +421,6 @@ leftBar activeMode configurations =
         , Border.color Colors.menuBorder
         , width (px layoutParams.leftBarWidth)
         , height fill
-        , scrollbarY
         , htmlAttribute (HA.style "pointer-events" "auto")
         ]
         (case activeMode of
