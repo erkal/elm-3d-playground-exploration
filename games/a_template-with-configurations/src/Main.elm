@@ -1,8 +1,8 @@
 module Main exposing (main)
 
-import Color exposing (blue, gray, rgb255, white)
+import Color exposing (hsl, rgb255)
 import Html exposing (Html)
-import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
@@ -24,6 +24,8 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 8 ) 4
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
+    , colorConfig "cube color" (hsl 0 0.36 0.5)
+    , floatConfig "period" ( 0.1, 5 ) 1
     ]
 
 
@@ -73,5 +75,5 @@ view computer model =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block gray ( 1, 1, 1 )
-        |> scale (wave 1 1.1 1 computer.time)
+    block (getColor "cube color" computer) ( 1, 1, 1 )
+        |> scale (wave 1 1.1 (getFloat "period" computer) computer.time)
