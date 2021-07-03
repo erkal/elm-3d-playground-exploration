@@ -21,9 +21,9 @@ type alias Model =
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 20 ) 60
-    , floatConfig "camera azimuth" ( 0, 0 ) (2 * pi)
-    , floatConfig "camera elevation" ( -pi / 2, 0.5 ) (pi / 2)
+    [ floatConfig "camera distance" ( 3, 8 ) 4
+    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
     ]
 
 
@@ -65,13 +65,13 @@ view computer model =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ wavingCube computer ]
+        [ wavingCube computer
+        , wavingCube computer |> moveX -2
+        , wavingCube computer |> moveX 2
+        ]
 
 
 wavingCube : Computer -> Shape
 wavingCube computer =
     block gray ( 1, 1, 1 )
-        |> scale (wave 1 2 14 computer.time)
-        |> rotateX (wave 1 10 30 computer.time)
-        |> rotateY (wave 1 10 30 computer.time)
-        |> rotateZ (wave 1 10 30 computer.time)
+        |> scale (wave 1 1.1 1 computer.time)

@@ -6,7 +6,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Playground3d.Colors as Colors
-import Playground3d.Configurations exposing (Configurations, Msg)
+import Playground3d.Configurations exposing (..)
 
 
 
@@ -71,7 +71,34 @@ import Playground3d.Configurations exposing (Configurations, Msg)
 
 view : Configurations -> Element Msg
 view configurations =
-    text "CONF"
+    column
+        [ width fill
+        , paddingXY 0 4
+        , spacing 4
+        , Font.color Colors.lightText
+        , Font.size 10
+        , Font.regular
+        ]
+        (List.map viewConfig configurations)
+
+
+viewConfig : Config -> Element Msg
+viewConfig config =
+    case config of
+        Float key ( min, max ) value ->
+            sliderInput
+                { labelText = key
+                , labelWidth = 100
+                , totalWidth = 240
+                , value = value
+                , min = min
+                , max = max
+                , step = 0.05
+                , onChange = SetFloat key
+                }
+
+        Color string color ->
+            none
 
 
 labelAttr : Int -> List (Attribute msg)
