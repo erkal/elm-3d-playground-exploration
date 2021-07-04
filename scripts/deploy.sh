@@ -1,7 +1,7 @@
 #! /bin/bash
 declare -a dirs i=1
 
-cd games || exit
+cd examples || exit
 for d in */; do
     dirs[i++]="${d%/}"
 done
@@ -17,8 +17,8 @@ echo '' >>DEMOS.md
 for ((i = 1; i <= ${#dirs[@]}; i++)); do
     directory=${dirs[$i]}
     mkdir -p dist/"$directory"
-    parcel build games/"$directory"/index.html --dist-dir dist/"$directory" --public-url ./
-    echo - "$directory": \[demo\]\(https://erkal.github.io/elm-3d-playground-exploration/"$directory"\), \[src\]\(https://github.com/erkal/elm-3d-playground-exploration/tree/main/games/"$directory"/src\) >>DEMOS.md
+    parcel build examples/"$directory"/index.html --dist-dir dist/"$directory" --public-url ./
+    echo - "$directory": \[demo\]\(https://erkal.github.io/elm-3d-playground-exploration/"$directory"\), \[src\]\(https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/"$directory"/src\) >>DEMOS.md
 done
 
 gh-pages -d dist

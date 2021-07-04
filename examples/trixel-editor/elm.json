@@ -1,7 +1,8 @@
 {
     "type": "application",
     "source-directories": [
-        "src"
+        "src",
+        "../../3d-playground/src"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
@@ -19,8 +20,11 @@
             "ianmackenzie/elm-geometry": "3.9.0",
             "ianmackenzie/elm-units": "2.7.0",
             "mdgriffith/elm-ui": "1.1.8",
+            "mgold/elm-nonempty-list": "4.1.0",
             "myrho/elm-round": "1.0.4",
-            "noahzgordon/elm-color-extra": "1.0.2"
+            "newmana/chroma-elm": "18.0.3",
+            "noahzgordon/elm-color-extra": "1.0.2",
+            "turboMaCk/any-dict": "2.4.0"
         },
         "indirect": {
             "elm/random": "1.0.0",
@@ -35,7 +39,8 @@
             "ianmackenzie/elm-geometry-linear-algebra-interop": "2.0.2",
             "ianmackenzie/elm-interval": "2.0.0",
             "ianmackenzie/elm-triangular-mesh": "1.1.0",
-            "ianmackenzie/elm-units-interval": "2.3.0"
+            "ianmackenzie/elm-units-interval": "2.3.0",
+            "rtfeldman/elm-hex": "1.0.0"
         }
     },
     "test-dependencies": {

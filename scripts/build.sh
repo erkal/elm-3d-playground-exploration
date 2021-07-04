@@ -1,7 +1,7 @@
 #! /bin/bash
 declare -a dirs i=1
 
-cd games || exit
+cd examples || exit
 for d in */; do
   dirs[i++]="${d%/}"
 done
@@ -19,5 +19,5 @@ read -r i
 directory=${dirs[$i]}
 rm -rf dist/"$directory"
 mkdir -p dist/"$directory"
-parcel build games/"$directory"/index.html --dist-dir dist/"$directory" --public-url ./
+parcel build examples/"$directory"/index.html --dist-dir dist/"$directory" --public-url ./
 http-server dist/"$directory"
