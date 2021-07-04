@@ -406,7 +406,7 @@ leftStripe activeMode =
                     , pointer
                     , padding 7
                     ]
-                    { url = "https://twitter.com/AzizErkalSelman/media"
+                    { url = "https://twitter.com/AzizErkalSelman"
                     , label = html (Icons.draw 40 Colors.twitterBlue Icons.icons.twitter)
                     }
                 , newTabLink
