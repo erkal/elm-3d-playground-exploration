@@ -33,6 +33,14 @@ yellow =
     rgb255 255 255 2
 
 
+twitterBlue =
+    rgb255 31 161 242
+
+
+githubCatColor =
+    rgb255 232 78 50
+
+
 orange =
     rgb255 242 142 1
 

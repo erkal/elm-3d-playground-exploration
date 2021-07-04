@@ -270,7 +270,7 @@ tapeButtons (Tape state { past, current, future }) =
                     tapeButtonWithIcon Icons.icons.record PressedPauseButton Colors.red
 
                 Paused ->
-                    tapeButtonWithIcon Icons.icons.record PressedRecordButton Colors.gray
+                    tapeButtonWithIcon Icons.icons.record PressedRecordButton Colors.lightGray
 
                 Playing _ ->
                     none
@@ -297,10 +297,10 @@ tapeButtons (Tape state { past, current, future }) =
                         none
 
                     else
-                        tapeButtonWithIcon Icons.icons.play PressedPlayButton Colors.gray
+                        tapeButtonWithIcon Icons.icons.play PressedPlayButton Colors.lightGray
 
                 _ ->
-                    tapeButtonWithIcon Icons.icons.pause PressedPauseButton Colors.gray
+                    tapeButtonWithIcon Icons.icons.pause PressedPauseButton Colors.lightGray
         ]
 
 

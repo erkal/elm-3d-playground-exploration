@@ -329,12 +329,12 @@ viewGUI model =
             el
                 [ width (px layoutParams.leftStripeWidth)
                 , alignTop
-                , padding 7
+                , padding 4
                 , onClick ClickOnDistractionFreeButton
                 , pointer
                 , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw 40 Colors.lightGray Icons.icons.yinAndYang))
+                (html (Icons.draw 46 Colors.lightGray Icons.icons.yinAndYang))
     in
     if model.distractionFree then
         yingYangInDistractionFree
@@ -356,14 +356,14 @@ leftStripe activeMode =
         distractionFreeButton =
             el
                 [ width (px layoutParams.leftStripeWidth |> minimum layoutParams.leftStripeWidth)
-                , padding 7
+                , padding 4
                 , onClick ClickOnDistractionFreeButton
                 , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
                 , Border.color Colors.menuBorder
                 , pointer
                 , htmlAttribute (HA.title "Activate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw 40 Colors.leftStripeIconSelected Icons.icons.yinAndYang))
+                (html (Icons.draw 46 Colors.leftStripeIconSelected Icons.icons.yinAndYang))
 
         modeButton title mode iconPath =
             let
@@ -391,15 +391,26 @@ leftStripe activeMode =
                 ]
 
         githubButton =
-            newTabLink
-                [ htmlAttribute (HA.title "Source Code")
-                , alignBottom
-                , pointer
-                , padding 7
+            column []
+                [ newTabLink
+                    [ htmlAttribute (HA.title "Twitter")
+                    , alignBottom
+                    , pointer
+                    , padding 7
+                    ]
+                    { url = "https://twitter.com/AzizErkalSelman/media"
+                    , label = html (Icons.draw 40 Colors.twitterBlue Icons.icons.twitter)
+                    }
+                , newTabLink
+                    [ htmlAttribute (HA.title "Source Code")
+                    , alignBottom
+                    , pointer
+                    , padding 7
+                    ]
+                    { url = "https://github.com/erkal/elm-3d-playground-exploration"
+                    , label = html (Icons.draw 40 Colors.githubCatColor Icons.icons.githubCat)
+                    }
                 ]
-                { url = "https://github.com/erkal/elm-3d-playground-exploration"
-                , label = html (Icons.draw 40 Colors.yellow Icons.icons.githubCat)
-                }
     in
     column
         [ Background.color Colors.black
