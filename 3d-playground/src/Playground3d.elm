@@ -268,7 +268,7 @@ gameUpdate updateGameModel updateFromEditor msg model =
                 | distractionFree =
                     case computerMsg of
                         GotViewport { scene } ->
-                            (scene.width |> Debug.log "") <= 600
+                            scene.width <= 600
 
                         _ ->
                             model.distractionFree
