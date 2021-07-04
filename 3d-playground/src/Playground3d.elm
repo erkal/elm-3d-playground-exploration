@@ -175,9 +175,9 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 initialComputer =
                     Computer.init flags initialConfigurations
             in
-            ( { activeMode = Edit
+            ( { activeMode = ConfigurationsMode
               , tape = Tape.init initialComputer initGameModel
-              , distractionFree = False
+              , distractionFree = True
               , visibility = E.Visible
               }
             , Task.perform (GotViewport >> ToComputer) Dom.getViewport
@@ -238,8 +238,8 @@ type alias Model gameModel =
 
 
 type Mode
-    = Edit
-    | ImportExport
+    = ConfigurationsMode
+    | Thanks
 
 
 type Msg levelEditorMsg
@@ -264,7 +264,16 @@ gameUpdate updateGameModel updateFromEditor msg model =
             model
 
         ToComputer computerMsg ->
-            { model | tape = model.tape |> Tape.updateCurrentComputer computerMsg }
+            { model
+                | distractionFree =
+                    case computerMsg of
+                        GotViewport { scene } ->
+                            (scene.width |> Debug.log "") <= 600
+
+                        _ ->
+                            model.distractionFree
+                , tape = model.tape |> Tape.updateCurrentComputer computerMsg
+            }
 
         ClickOnDistractionFreeButton ->
             { model | distractionFree = not model.distractionFree }
@@ -384,8 +393,9 @@ leftStripe activeMode =
             column
                 [ alignTop
                 ]
-                [ modeButton "Sliders" Edit Icons.icons.sliders
-                , modeButton "Thanks" ImportExport Icons.icons.heart
+                [ modeButton "Configurations" ConfigurationsMode Icons.icons.sliders
+
+                --, modeButton "Thanks" Thanks Icons.icons.heart
                 ]
 
         githubButton =
@@ -432,7 +442,7 @@ leftBar activeMode tape =
         , height fill
         ]
         [ case activeMode of
-            Edit ->
+            ConfigurationsMode ->
                 column
                     [ width fill
                     , height fill
@@ -443,7 +453,7 @@ leftBar activeMode tape =
                     , viewConfigurations tape
                     ]
 
-            ImportExport ->
+            Thanks ->
                 none
         ]
 
@@ -474,14 +484,15 @@ viewConfigurations tape =
             , width fill
             ]
             [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Configurations")
-            , Input.button [ alignRight ]
-                { onPress = Nothing
-                , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
-                }
-            , Input.button [ alignRight ]
-                { onPress = Nothing
-                , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
-                }
+
+            --, Input.button [ alignRight ]
+            --    { onPress = Nothing
+            --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
+            --    }
+            --, Input.button [ alignRight ]
+            --    { onPress = Nothing
+            --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
+            --    }
             ]
         , Element.map (FromConfigurationsEditor >> ToComputer)
             (ConfigurationsGUI.view (currentComputer tape).configurations)
