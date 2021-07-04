@@ -332,7 +332,7 @@ viewGUI model =
                 , pointer
                 , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw40pxWithColor Colors.lightGray Icons.icons.yinAndYang))
+                (html (Icons.draw 40 Colors.lightGray Icons.icons.yinAndYang))
     in
     if model.distractionFree then
         yingYangInDistractionFree
@@ -361,7 +361,7 @@ leftStripe activeMode =
                 , pointer
                 , htmlAttribute (HA.title "Activate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw40pxWithColor Colors.leftStripeIconSelected Icons.icons.yinAndYang))
+                (html (Icons.draw 40 Colors.leftStripeIconSelected Icons.icons.yinAndYang))
 
         modeButton title mode iconPath =
             let
@@ -378,14 +378,14 @@ leftStripe activeMode =
                 , pointer
                 , padding 7
                 ]
-                (html (Icons.draw40pxWithColor color iconPath))
+                (html (Icons.draw 40 color iconPath))
 
         radioButtonsForMode =
             column
                 [ alignTop
                 ]
-                [ modeButton "Edit" Edit Icons.icons.folder
-                , modeButton "Import/Export" ImportExport Icons.icons.listOfThree
+                [ modeButton "Sliders" Edit Icons.icons.sliders
+                , modeButton "Thanks" ImportExport Icons.icons.heart
                 ]
 
         githubButton =
@@ -396,7 +396,7 @@ leftStripe activeMode =
                 , padding 7
                 ]
                 { url = "https://github.com/erkal/elm-3d-playground-exploration"
-                , label = html (Icons.draw40pxWithColor Colors.yellow Icons.icons.githubCat)
+                , label = html (Icons.draw 40 Colors.yellow Icons.icons.githubCat)
                 }
     in
     column

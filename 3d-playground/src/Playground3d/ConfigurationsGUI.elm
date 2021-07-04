@@ -18,8 +18,8 @@ view : Configurations -> Element Msg
 view configurations =
     column
         [ width fill
-        , padding 22
-        , spacing 10
+        , paddingXY 12 22
+        , spacing 12
         , Font.color Colors.lightText
         , Font.size 12
         , Font.regular

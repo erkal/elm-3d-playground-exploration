@@ -14,10 +14,12 @@ module Playground3d.Tape exposing
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer)
+import Playground3d.Icons as Icons
 import Round
 import Svg exposing (Svg, line)
 import Svg.Attributes as SA
@@ -260,19 +262,45 @@ clock tape =
 
 tapeButtons : Tape gameModel -> Element Msg
 tapeButtons (Tape state { past, current, future }) =
-    row []
-        [ case state of
-            Paused ->
-                tapeButton PressedPlayButton "▶️"
+    row
+        []
+        [ el [ width (px 28) ] <|
+            case state of
+                Recording ->
+                    tapeButtonWithIcon Icons.icons.record PressedPauseButton Colors.red
 
-            _ ->
-                tapeButton PressedPauseButton "⏸️"
-        , case state of
-            Recording ->
-                tapeButton PressedPauseButton "⏹"
+                Paused ->
+                    tapeButtonWithIcon Icons.icons.record PressedRecordButton Colors.gray
 
-            _ ->
-                tapeButton PressedRecordButton "⏺️"
+                Playing _ ->
+                    none
+        , el [ width (px 28) ] <|
+            case state of
+                Recording ->
+                    Input.button []
+                        { onPress = Just PressedPauseButton
+                        , label =
+                            el
+                                [ padding 3
+                                , Font.color Colors.red
+                                , Font.size 10
+                                , Font.bold
+                                , Border.color Colors.red
+                                , Border.width 1
+                                , Border.rounded 4
+                                ]
+                                (text "REC")
+                        }
+
+                Paused ->
+                    if List.isEmpty future then
+                        none
+
+                    else
+                        tapeButtonWithIcon Icons.icons.play PressedPlayButton Colors.gray
+
+                _ ->
+                    tapeButtonWithIcon Icons.icons.pause PressedPauseButton Colors.gray
         ]
 
 
@@ -363,7 +391,7 @@ timeSeparators ((Tape _ { past, current, future }) as tape) =
             Svg.rect
                 [ SA.width (String.fromFloat (toFloat value / toFloat max))
                 , SA.height "0.2"
-                , SA.fill "red"
+                , SA.fill "rgb(255, 60, 0)"
                 ]
                 []
     in
@@ -377,9 +405,12 @@ timeSeparators ((Tape _ { past, current, future }) as tape) =
                 )
 
 
-tapeButton : Msg -> String -> Element Msg
-tapeButton msg icon_ =
-    Input.button [] { onPress = Just msg, label = text icon_ }
+tapeButtonWithIcon : String -> msg -> Color -> Element msg
+tapeButtonWithIcon iconD msg color =
+    Input.button []
+        { onPress = Just msg
+        , label = html (Icons.draw 20 color iconD)
+        }
 
 
 totalSize : Tape gameModel -> Int
