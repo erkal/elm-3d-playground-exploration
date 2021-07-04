@@ -18,10 +18,10 @@ view : Configurations -> Element Msg
 view configurations =
     column
         [ width fill
-        , padding 30
-        , spacing 30
+        , padding 22
+        , spacing 10
         , Font.color Colors.lightText
-        , Font.size 14
+        , Font.size 12
         , Font.regular
         ]
         (List.map viewConfig configurations)
@@ -78,11 +78,11 @@ sliderInput :
 sliderInput { labelText, value, min, max, step, onChange } =
     el [ width fill ] <|
         Input.slider
-            [ spacing 8
+            [ spacing 2
             , behindContent
                 (el
                     [ width fill
-                    , height (px 20)
+                    , height (px 16)
                     , centerY
                     , Background.color Colors.inputBackground
                     , Border.rounded 4
@@ -95,7 +95,12 @@ sliderInput { labelText, value, min, max, step, onChange } =
                 Input.labelAbove []
                     (row [ width fill ]
                         [ el [ Font.alignLeft ] (text labelText)
-                        , el [ width fill, Font.alignRight ] (text (String.fromFloat value))
+                        , el
+                            [ width fill
+                            , Font.alignRight
+                            , Font.family [ Font.monospace ]
+                            ]
+                            (text (String.fromFloat value))
                         ]
                     )
             , min = min
@@ -104,8 +109,8 @@ sliderInput { labelText, value, min, max, step, onChange } =
             , value = value
             , thumb =
                 Input.thumb
-                    [ width (px 16)
-                    , height (px 16)
+                    [ width (px 12)
+                    , height (px 12)
                     , Border.rounded 4
                     , Border.width 0
                     , Border.color Colors.sliderThumb

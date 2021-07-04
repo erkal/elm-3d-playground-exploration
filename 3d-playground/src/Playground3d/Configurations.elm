@@ -1,7 +1,7 @@
 module Playground3d.Configurations exposing (..)
 
 import Color exposing (Color)
-import Round exposing (roundNum)
+import Round
 
 
 type alias Configurations =
@@ -85,7 +85,7 @@ roundFloatValue min max value =
             else
                 0
     in
-    roundNum n value
+    Round.roundNum n value
 
 
 update : Msg -> Configurations -> Configurations

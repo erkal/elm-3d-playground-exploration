@@ -14,12 +14,12 @@ module Playground3d.Tape exposing
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Font as Font
 import Element.Input as Input
-import Html
-import Html.Attributes as HA
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer)
-import Svg exposing (Svg, line, path, svg)
+import Round
+import Svg exposing (Svg, line)
 import Svg.Attributes as SA
 
 
@@ -234,12 +234,28 @@ view : Tape gameModel -> Element Msg
 view tape =
     row
         [ width fill
-        , padding 14
+        , paddingXY 14 0
         , spacing 14
+        , centerY
         ]
         [ tapeButtons tape
         , slider tape
+        , clock tape
         ]
+
+
+clock : Tape gameModel -> Element Msg
+clock tape =
+    el
+        [ width (px 64)
+        , Font.size 16
+        , Font.alignRight
+        , Font.color Colors.lightText
+        , Font.family [ Font.monospace ]
+        ]
+        (text
+            ((currentComputer tape).time |> Round.round 3)
+        )
 
 
 tapeButtons : Tape gameModel -> Element Msg
@@ -268,14 +284,12 @@ slider tape =
         ]
     <|
         Input.slider
-            [ spacing 8
-            , behindContent
+            [ behindContent
                 (el
                     [ width fill
-                    , height (px 28)
+                    , height (px 4)
                     , centerY
                     , Background.color Colors.inputBackground
-                    , Border.rounded 4
                     , clipY
                     ]
                     (timeSeparators tape)
@@ -289,18 +303,16 @@ slider tape =
             , value = toFloat (lengthOfPast tape)
             , thumb =
                 Input.thumb
-                    [ width (px 28)
-                    , height (px 28)
-                    , Border.rounded 4
-                    , Border.width 0
-                    , Border.color Colors.sliderThumb
-                    , Background.color Colors.icon
+                    [ width (px 12)
+                    , height (px 12)
+                    , Border.rounded 6
+                    , Background.color Colors.red
                     ]
             }
 
 
 timeSeparators : Tape gameModel -> Element Msg
-timeSeparators (Tape _ { past, current, future }) =
+timeSeparators ((Tape _ { past, current, future }) as tape) =
     let
         start =
             past
@@ -335,9 +347,23 @@ timeSeparators (Tape _ { past, current, future }) =
                 [ SA.x1 (String.fromFloat x)
                 , SA.x2 (String.fromFloat x)
                 , SA.y1 "0"
-                , SA.y2 "0.01"
-                , SA.strokeWidth "0.002"
-                , SA.stroke "gray"
+                , SA.y2 "0.02"
+                , SA.strokeWidth "0.001"
+                , SA.stroke "darkGray"
+                ]
+                []
+
+        value =
+            lengthOfPast tape
+
+        max =
+            totalSize tape - 1
+
+        redRectangle =
+            Svg.rect
+                [ SA.width (String.fromFloat (toFloat value / toFloat max))
+                , SA.height "0.2"
+                , SA.fill "red"
                 ]
                 []
     in
@@ -346,7 +372,9 @@ timeSeparators (Tape _ { past, current, future }) =
             Svg.svg
                 [ SA.viewBox "0 0 1 1"
                 ]
-                (List.range 1 n |> List.map separator)
+                (redRectangle
+                    :: (List.range 1 n |> List.map separator)
+                )
 
 
 tapeButton : Msg -> String -> Element Msg

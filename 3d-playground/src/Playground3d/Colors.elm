@@ -38,7 +38,7 @@ orange =
 
 
 red =
-    rgb255 255 2 2
+    rgb255 255 0 0
 
 
 mainBackground =

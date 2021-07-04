@@ -287,7 +287,7 @@ gameUpdate updateGameModel updateFromEditor msg model =
 layoutParams =
     { leftStripeWidth = 54
     , leftBarWidth = 260
-    , topBarHeight = 54
+    , topBarHeight = 36
     }
 
 
@@ -331,7 +331,6 @@ viewGUI model =
                 , onClick ClickOnDistractionFreeButton
                 , pointer
                 , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
-                , htmlAttribute (HA.style "pointer-events" "auto")
                 ]
                 (html (Icons.draw40pxWithColor Colors.lightGray Icons.icons.yinAndYang))
     in
@@ -405,7 +404,6 @@ leftStripe activeMode =
         , width (px layoutParams.leftStripeWidth)
         , height fill
         , scrollbarY
-        , htmlAttribute (HA.style "pointer-events" "auto")
         ]
         [ distractionFreeButton
         , radioButtonsForMode
@@ -421,7 +419,6 @@ leftBar activeMode configurations =
         , Border.color Colors.menuBorder
         , width (px layoutParams.leftBarWidth)
         , height fill
-        , htmlAttribute (HA.style "pointer-events" "auto")
         ]
         (case activeMode of
             Edit ->
@@ -441,6 +438,5 @@ topBar tape =
         , height (px layoutParams.topBarHeight)
         , scrollbarX
         , Background.color Colors.menuBackground
-        , htmlAttribute (HA.style "pointer-events" "auto")
         ]
         (Element.map TapeMsg (Tape.view tape))
