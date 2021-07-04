@@ -41,6 +41,8 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
+import Element.Font as Font
+import Element.Input as Input
 import Html exposing (Html, div)
 import Html.Attributes as HA
 import Json.Decode as D
@@ -413,21 +415,46 @@ leftStripe activeMode =
 
 leftBar : Mode -> Configurations -> Element (Msg levelEditorMsg)
 leftBar activeMode configurations =
-    el
+    column
         [ Background.color Colors.menuBackground
         , Border.widthEach { bottom = 0, left = 0, right = 1, top = 0 }
         , Border.color Colors.menuBorder
         , width (px layoutParams.leftBarWidth)
         , height fill
         ]
-        (case activeMode of
+        [ case activeMode of
             Edit ->
-                Element.map (FromConfigurationsEditor >> ToComputer)
-                    (ConfigurationsGUI.view configurations)
+                column
+                    [ width fill
+                    , height fill
+                    ]
+                    [ row
+                        [ padding 14
+                        , spacing 14
+                        , width fill
+                        ]
+                        [ el
+                            [ Font.size 16
+                            , Font.bold
+                            , Font.color Colors.lightText
+                            ]
+                            (text "Configurations")
+                        , Input.button [ alignRight ]
+                            { onPress = Nothing
+                            , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
+                            }
+                        , Input.button [ alignRight ]
+                            { onPress = Nothing
+                            , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
+                            }
+                        ]
+                    , Element.map (FromConfigurationsEditor >> ToComputer)
+                        (ConfigurationsGUI.view configurations)
+                    ]
 
             ImportExport ->
                 none
-        )
+        ]
 
 
 topBar : Tape gameModel -> Element (Msg levelEditorMsg)

@@ -18,11 +18,13 @@ view : Configurations -> Element Msg
 view configurations =
     column
         [ width fill
-        , paddingXY 12 22
+        , height fill
+        , padding 12
         , spacing 12
         , Font.color Colors.lightText
         , Font.size 12
         , Font.regular
+        , scrollbarY
         ]
         (List.map viewConfig configurations)
 
