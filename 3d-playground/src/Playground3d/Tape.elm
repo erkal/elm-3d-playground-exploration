@@ -234,23 +234,25 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
 
 view : Tape gameModel -> Element Msg
 view tape =
-    row
-        [ width fill
-        , paddingXY 14 0
-        , spacing 14
-        , centerY
-        ]
-        [ tapeButtons tape
-        , slider tape
-        , clock tape
+    column [ width fill ]
+        [ slider tape
+        , row
+            [ width fill
+            , spacing 14
+            , paddingXY 0 6
+            , centerY
+            ]
+            [ tapeButtons tape
+            , clock tape
+            ]
         ]
 
 
 clock : Tape gameModel -> Element Msg
 clock tape =
     el
-        [ width (px 64)
-        , Font.size 16
+        [ Font.size 16
+        , alignRight
         , Font.alignRight
         , Font.color Colors.lightText
         , Font.family [ Font.monospace ]
@@ -264,33 +266,20 @@ tapeButtons : Tape gameModel -> Element Msg
 tapeButtons (Tape state { past, current, future }) =
     row
         []
-        [ el [ width (px 28) ] <|
+        [ el [ width (px 40) ] <|
             case state of
                 Recording ->
-                    tapeButtonWithIcon Icons.icons.record PressedPauseButton Colors.red
+                    recButton PressedPauseButton Colors.red
 
                 Paused ->
-                    tapeButtonWithIcon Icons.icons.record PressedRecordButton Colors.lightGray
+                    recButton PressedRecordButton Colors.lightGray
 
                 Playing _ ->
                     none
         , el [ width (px 28) ] <|
             case state of
                 Recording ->
-                    Input.button []
-                        { onPress = Just PressedPauseButton
-                        , label =
-                            el
-                                [ padding 3
-                                , Font.color Colors.red
-                                , Font.size 10
-                                , Font.bold
-                                , Border.color Colors.red
-                                , Border.width 1
-                                , Border.rounded 4
-                                ]
-                                (text "REC")
-                        }
+                    none
 
                 Paused ->
                     if List.isEmpty future then
@@ -302,6 +291,26 @@ tapeButtons (Tape state { past, current, future }) =
                 _ ->
                     tapeButtonWithIcon Icons.icons.pause PressedPauseButton Colors.lightGray
         ]
+
+
+recButton : Msg -> Color -> Element Msg
+recButton msg color =
+    Input.button []
+        { onPress = Just msg
+        , label =
+            el
+                [ width (px 36)
+                , padding 3
+                , Font.color color
+                , Font.center
+                , Font.size 12
+                , Font.bold
+                , Border.color color
+                , Border.width 1
+                , Border.rounded 4
+                ]
+                (text "REC")
+        }
 
 
 slider : Tape gameModel -> Element Msg
@@ -376,8 +385,8 @@ timeSeparators ((Tape _ { past, current, future }) as tape) =
                 , SA.x2 (String.fromFloat x)
                 , SA.y1 "0"
                 , SA.y2 "0.02"
-                , SA.strokeWidth "0.001"
-                , SA.stroke "darkGray"
+                , SA.strokeWidth "0.01"
+                , SA.stroke "white"
                 ]
                 []
 

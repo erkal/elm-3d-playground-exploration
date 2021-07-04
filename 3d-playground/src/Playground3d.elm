@@ -289,7 +289,6 @@ gameUpdate updateGameModel updateFromEditor msg model =
 layoutParams =
     { leftStripeWidth = 54
     , leftBarWidth = 260
-    , topBarHeight = 36
     }
 
 
@@ -345,8 +344,7 @@ viewGUI model =
             , height fill
             ]
             [ leftStripe model.activeMode
-            , leftBar model.activeMode (currentComputer model.tape).configurations
-            , topBar model.tape
+            , leftBar model.activeMode model.tape
             ]
 
 
@@ -413,10 +411,10 @@ leftStripe activeMode =
                 ]
     in
     column
-        [ Background.color Colors.black
-        , width (px layoutParams.leftStripeWidth)
+        [ width (px layoutParams.leftStripeWidth)
         , height fill
         , scrollbarY
+        , Background.color Colors.black
         ]
         [ distractionFreeButton
         , radioButtonsForMode
@@ -424,8 +422,8 @@ leftStripe activeMode =
         ]
 
 
-leftBar : Mode -> Configurations -> Element (Msg levelEditorMsg)
-leftBar activeMode configurations =
+leftBar : Mode -> Tape gameModel -> Element (Msg levelEditorMsg)
+leftBar activeMode tape =
     column
         [ Background.color Colors.menuBackground
         , Border.widthEach { bottom = 0, left = 0, right = 1, top = 0 }
@@ -438,29 +436,11 @@ leftBar activeMode configurations =
                 column
                     [ width fill
                     , height fill
+                    , padding 14
+                    , spacing 14
                     ]
-                    [ row
-                        [ padding 14
-                        , spacing 14
-                        , width fill
-                        ]
-                        [ el
-                            [ Font.size 16
-                            , Font.bold
-                            , Font.color Colors.lightText
-                            ]
-                            (text "Configurations")
-                        , Input.button [ alignRight ]
-                            { onPress = Nothing
-                            , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
-                            }
-                        , Input.button [ alignRight ]
-                            { onPress = Nothing
-                            , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
-                            }
-                        ]
-                    , Element.map (FromConfigurationsEditor >> ToComputer)
-                        (ConfigurationsGUI.view configurations)
+                    [ viewTape tape
+                    , viewConfigurations tape
                     ]
 
             ImportExport ->
@@ -468,13 +448,41 @@ leftBar activeMode configurations =
         ]
 
 
-topBar : Tape gameModel -> Element (Msg levelEditorMsg)
-topBar tape =
-    el
-        [ alignTop
-        , width fill
-        , height (px layoutParams.topBarHeight)
-        , scrollbarX
+viewTape : Tape gameModel -> Element (Msg levelEditorMsg)
+viewTape tape =
+    column
+        [ width fill
+        , spacing 14
+        , paddingEach { bottom = 20, left = 0, right = 0, top = 0 }
+        , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
+        , Border.color Colors.menuBorder
         , Background.color Colors.menuBackground
         ]
-        (Element.map TapeMsg (Tape.view tape))
+        [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Time Travel")
+        , Element.map TapeMsg (Tape.view tape)
+        ]
+
+
+viewConfigurations : Tape gameModel -> Element (Msg levelEditorMsg)
+viewConfigurations tape =
+    column
+        [ width fill
+        , height fill
+        ]
+        [ row
+            [ spacing 14
+            , width fill
+            ]
+            [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Configurations")
+            , Input.button [ alignRight ]
+                { onPress = Nothing
+                , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
+                }
+            , Input.button [ alignRight ]
+                { onPress = Nothing
+                , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
+                }
+            ]
+        , Element.map (FromConfigurationsEditor >> ToComputer)
+            (ConfigurationsGUI.view (currentComputer tape).configurations)
+        ]
