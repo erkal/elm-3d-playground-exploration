@@ -342,7 +342,7 @@ viewGUI model =
                 , pointer
                 , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw 46 Colors.lightGray Icons.icons.yinAndYang))
+                (html (Icons.draw 46 Colors.black Icons.icons.yinAndYang))
     in
     if model.distractionFree then
         yingYangInDistractionFree
@@ -370,7 +370,7 @@ leftStripe activeMode =
                 , pointer
                 , htmlAttribute (HA.title "Activate Distraction Free Mode (A)")
                 ]
-                (html (Icons.draw 46 Colors.leftStripeIconSelected Icons.icons.yinAndYang))
+                (html (Icons.draw 46 Colors.white Icons.icons.yinAndYang))
 
         modeButton title mode iconPath =
             let
