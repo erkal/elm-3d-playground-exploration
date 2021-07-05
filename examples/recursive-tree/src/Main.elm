@@ -2,14 +2,14 @@ module Main exposing (main)
 
 import Color exposing (blue, gray, hsl, lightBlue)
 import Html exposing (Html)
-import Playground3d exposing (Computer, game)
+import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
 import Playground3d.Animation exposing (spin, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene exposing (..)
 
 
 main =
-    game view update init
+    gameWithConfigurations view update initialConfigurations init
 
 
 type alias Model =
@@ -18,6 +18,12 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    [ floatConfig "s" ( 1, 2 ) 1.5
+    , floatConfig "t" ( 1, 2 ) 1.5
+    ]
 
 
 init : Computer -> Model
@@ -69,7 +75,7 @@ shapes : Computer -> Model -> List Shape
 shapes computer model =
     [ group
         [ floor
-        , recursiveTree computer 2 2 (1 + 0.001 * computer.mouse.x) (1 + 0.001 * computer.mouse.y) 5
+        , recursiveTree computer 2 2 (getFloat "s" computer) (getFloat "t" computer) 5
         ]
         |> rotateY (spin 1000 computer.time)
     ]
@@ -118,6 +124,7 @@ recursiveTree computer w h s t n =
 
             else
                 [ recursiveTree computer w h s t (n - 1)
+                    |> scale 0.86
                     |> rotateY (wave -2 2 8 computer.time)
                     |> moveX (w / 2)
                     |> moveY (h / 2)
@@ -126,7 +133,8 @@ recursiveTree computer w h s t n =
                     |> moveX -(w / 2)
                     |> moveY (h / 2)
                 , recursiveTree computer w h s t (n - 1)
-                    |> rotateY (wave 2 -2 8 computer.time)
+                    |> scale 0.86
+                    |> rotateY (wave 2 -2 8 (pi + computer.time))
                     |> moveX -(w / 2)
                     |> moveY (h / 2)
                     |> rotateZ -(atan2 t (w - s))
