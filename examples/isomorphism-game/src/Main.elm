@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Color exposing (hsl, rgb, rgb255)
+import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Animation exposing (..)
@@ -13,7 +14,8 @@ main =
 
 
 type alias Model =
-    {}
+    { graph : Graph
+    }
 
 
 
@@ -32,7 +34,8 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    {}
+    { graph = Graph.exampleGraph
+    }
 
 
 
@@ -68,21 +71,28 @@ view computer model =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ floor computer
-        , vertex computer
-        , vertex computer |> moveX 3 |> moveZ 2
-        , vertex computer |> moveX -2 |> moveZ -1
-        , vertex computer |> moveX -4 |> moveZ 1
+        [ drawFloor computer
+        , drawVertices computer model
         ]
 
 
-floor : Computer -> Shape
-floor computer =
+drawFloor : Computer -> Shape
+drawFloor computer =
     block (getColor "floor" computer) ( 10, 1, 10 )
         |> moveY -0.5
 
 
-vertex : Computer -> Shape
-vertex computer =
+drawVertices : Computer -> Model -> Shape
+drawVertices computer model =
+    group
+        (Graph.allVertices model.graph
+            |> List.map (drawVertex computer)
+        )
+
+
+drawVertex : Computer -> ( VertexId, VertexData ) -> Shape
+drawVertex computer ( _, { position } ) =
     cylinder (getColor "cube" computer) 0.5 0.4
         |> scale (wave 1 1.1 1 computer.time)
+        |> moveX position.x
+        |> moveZ position.y
