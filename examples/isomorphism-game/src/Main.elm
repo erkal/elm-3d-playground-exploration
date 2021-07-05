@@ -74,7 +74,7 @@ view computer model =
         }
         [ drawFloor computer
         , drawVertices computer model
-        , drawEdge computer ( Point 0 0, Point 1 1 )
+        , drawEdges computer model
         , axes
         ]
 
@@ -86,6 +86,15 @@ axes =
         , line green ( 0, 100, 0 ) -- y axis
         , line blue ( 0, 0, 100 ) -- z axis
         ]
+
+
+drawEdges : Computer -> Model -> Shape
+drawEdges computer model =
+    group
+        (model.graph
+            |> Graph.allEdges
+            |> List.map (drawEdge computer)
+        )
 
 
 drawEdge : Computer -> ( Point, Point ) -> Shape
