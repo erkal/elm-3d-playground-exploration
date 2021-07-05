@@ -478,6 +478,7 @@ viewConfigurations tape =
     column
         [ width fill
         , height fill
+        , spacing 14
         ]
         [ row
             [ spacing 14

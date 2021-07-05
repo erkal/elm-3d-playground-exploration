@@ -19,7 +19,6 @@ view configurations =
     column
         [ width fill
         , height fill
-        , padding 12
         , spacing 12
         , Font.color Colors.lightText
         , Font.size 12
