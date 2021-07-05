@@ -68,6 +68,15 @@ init { devicePixelRatio } initialConfigurations =
     }
 
 
+resetInput : Computer -> Computer
+resetInput computer =
+    { computer
+        | mouse = Mouse 0 0 False False
+        , touches = Dict.empty
+        , keyboard = emptyKeyboard
+    }
+
+
 tick : Float -> Computer -> Computer
 tick deltaTimeInSeconds computer =
     if computer.mouse.click then

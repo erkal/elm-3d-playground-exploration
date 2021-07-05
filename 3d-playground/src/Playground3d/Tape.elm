@@ -35,9 +35,14 @@ type Tape gameModel
 
 
 type State
-    = Recording
+    = Recording RecordStepType
     | Paused
     | Playing { tapeClock : Float }
+
+
+type RecordStepType
+    = WithResetComputer
+    | Usual
 
 
 
@@ -47,7 +52,7 @@ type State
 init : Computer -> (Computer -> gameModel) -> Tape gameModel
 init initialComputer initGameModel =
     Tape
-        Recording
+        (Recording Usual)
         { past = []
         , current = ( initialComputer, initGameModel initialComputer )
         , future = []
@@ -112,19 +117,27 @@ tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
                         identity
                    )
 
-        Recording ->
+        Recording recordStepType ->
             let
                 ( lastComputer, lastGameModel ) =
                     pastCurrentFuture.current
 
                 newComputer =
-                    lastComputer |> Computer.tick deltaTimeInSeconds
+                    lastComputer
+                        |> Computer.tick deltaTimeInSeconds
+                        |> (case recordStepType of
+                                WithResetComputer ->
+                                    Computer.resetInput
+
+                                Usual ->
+                                    identity
+                           )
 
                 newGameModel =
                     lastGameModel |> upDateGameModel newComputer
             in
             Tape
-                state
+                (Recording Usual)
                 { past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
                 , current = ( newComputer, newGameModel )
                 , future = []
@@ -169,7 +182,7 @@ pause (Tape _ pastCurrentFuture) =
 
 startRecording : Tape gameModel -> Tape gameModel
 startRecording (Tape _ pastCurrentFuture) =
-    Tape Recording pastCurrentFuture
+    Tape (Recording WithResetComputer) pastCurrentFuture
 
 
 startPlaying : Tape gameModel -> Tape gameModel
@@ -251,7 +264,7 @@ view tape =
 clock : Tape gameModel -> Element Msg
 clock tape =
     el
-        [ Font.size 16
+        [ Font.size 14
         , alignRight
         , Font.alignRight
         , Font.color Colors.lightText
@@ -268,7 +281,7 @@ tapeButtons (Tape state { past, current, future }) =
         []
         [ el [ width (px 40) ] <|
             case state of
-                Recording ->
+                Recording _ ->
                     recButton PressedPauseButton Colors.red
 
                 Paused ->
@@ -278,7 +291,7 @@ tapeButtons (Tape state { past, current, future }) =
                     none
         , el [ width (px 28) ] <|
             case state of
-                Recording ->
+                Recording _ ->
                     none
 
                 Paused ->

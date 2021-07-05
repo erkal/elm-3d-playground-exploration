@@ -383,8 +383,11 @@ updateFromEditor computer editorMsg model =
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        [ style "margin-left" "20px"
-        , style "height" "100%"
+        [ style "height" "100%"
+        , style "width" "260px"
+        , style "margin-top" "40px"
+        , style "margin-left" "20px"
+        , style "font-size" "12px"
         , style "overflow" "scroll"
         ]
         [ h2 [] [ text "Editing the selected level" ]

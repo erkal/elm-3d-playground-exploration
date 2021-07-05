@@ -4,7 +4,7 @@ import Cell exposing (Cell, RollDirection(..))
 import Color exposing (hsl, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
-import Html exposing (Html, br, div, h2, p, span, text)
+import Html exposing (Html, br, div, h2, li, ol, p, span, text, ul)
 import Html.Attributes exposing (style)
 import Illuminance
 import LuminousFlux
@@ -271,11 +271,7 @@ view : Computer -> Model -> Html Never
 view computer model =
     div
         []
-        [ div
-            [ style "position" "absolute"
-            , style "width" "100%"
-            ]
-            [ explanationText computer model ]
+        [ explanationText computer model
         , viewShapes computer model
         ]
 
@@ -283,22 +279,20 @@ view computer model =
 explanationText : Computer -> Model -> Html Never
 explanationText ({ time } as computer) model =
     div
-        [ style "min-width" "320px"
-        , style "max-width" "500px"
-        , style "margin" "0 auto"
+        [ style "position" "fixed"
+        , style "width" "100%"
+        , style "text-align" "center"
+        , style "font-size" "14px"
         ]
         [ h2
-            [ style "margin" "10px"
-            , style "text-align" "center"
-            ]
+            []
             [ text "The Red-Faced Cube" ]
         , p
-            [ style "margin" "10px", style "text-align" "center", style "font-weight" "bold" ]
+            [ style "font-weight" "bold" ]
             [ text "A puzzle from Martin Gardner's book Mathematical Carnival (1975)" ]
         , p
-            [ style "margin" "10px 20px 10px 20px" ]
-            [ span [] [ text "Tour the board, resting once only" ]
-            , span
+            []
+            [ span
                 (case model.state of
                     AnimatingMistake { startedAt, violatedRule } ->
                         case violatedRule of
@@ -311,8 +305,9 @@ explanationText ({ time } as computer) model =
                     _ ->
                         []
                 )
-                [ text " on every cell " ]
-            , span [] [ text "and ending with the cube red side up in the northeast corner." ]
+                [ text " Visit each cell exactly once." ]
+            , br [] []
+            , span [] [ text "End with the cube red side up in the top-right corner." ]
             , br [] []
             , span
                 (case model.state of
@@ -327,19 +322,12 @@ explanationText ({ time } as computer) model =
                     _ ->
                         []
                 )
-                [ text
-                    """
-                        At no time during the tour, however,
-                            is the cube allowed to rest with the red side up.
-                    """
+                [ text "At no time during the tour, however,"
+                , br [] []
+                , text "is the cube allowed to rest with the red side up."
                 ]
             , br [] []
-            , span []
-                [ text
-                    """
-                        You can roll the cube via swiping or pressing arrow keys.
-                    """
-                ]
+            , span [] [ text "You can roll the cube via swiping or pressing arrow keys." ]
             ]
         ]
 
