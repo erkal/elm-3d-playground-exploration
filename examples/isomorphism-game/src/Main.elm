@@ -5,6 +5,7 @@ import Graph exposing (Graph, Point, VertexData, VertexId)
 import Html exposing (Html, button, div, h2, hr, p, span, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground3d.Animation exposing (..)
@@ -22,7 +23,7 @@ main =
 
 
 type alias Model =
-    { levels : Levels Graph
+    { levels : Levels Level
     , pointer : Point
     , editorState : EditorState
     }
@@ -52,7 +53,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton Graph.exampleGraph
+    { levels = LS.singleton Level.exampleLevel
     , pointer = Point 0 0
     , editorState = Idle
     }
@@ -62,10 +63,10 @@ init computer =
 -- UPDATE
 
 
-mapCurrentLevel : (Graph -> Graph) -> Model -> Model
-mapCurrentLevel up model =
+mapCurrentBaseGraph : (Graph -> Graph) -> Model -> Model
+mapCurrentBaseGraph up model =
     { model
-        | levels = LS.mapCurrent up model.levels
+        | levels = LS.mapCurrent (Level.mapBaseGraph up) model.levels
     }
 
 
@@ -81,10 +82,11 @@ distance p q =
     sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
 
 
-vertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
-vertexAtPointer computer model =
+baseVertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
+baseVertexAtPointer computer model =
     model.levels
         |> LS.current
+        |> .baseGraph
         |> Graph.allVertices
         |> List.filter
             (\( _, { position } ) ->
@@ -107,7 +109,7 @@ handlePointerInput computer model =
 startDraggingEdge : Computer -> Model -> Model
 startDraggingEdge computer model =
     if computer.keyboard.shift && computer.mouse.down then
-        case ( model.editorState, vertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtPointer computer model ) of
             ( Idle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingEdge { sourceId = vertexId } }
 
@@ -121,10 +123,10 @@ startDraggingEdge computer model =
 insertEdge : Computer -> Model -> Model
 insertEdge computer model =
     if not computer.mouse.down then
-        case ( model.editorState, vertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtPointer computer model ) of
             ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
                 model
-                    |> mapCurrentLevel (Graph.insertEdge sourceId targetId)
+                    |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
 
             _ ->
                 model
@@ -138,12 +140,12 @@ insertVertex computer model =
     case
         ( model.editorState
         , computer.mouse.down
-        , vertexAtPointer computer model
+        , baseVertexAtPointer computer model
         )
     of
         ( Idle, True, Nothing ) ->
             model
-                |> mapCurrentLevel (Graph.insertVertex model.pointer)
+                |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
 
         _ ->
             model
@@ -152,7 +154,7 @@ insertVertex computer model =
 startDraggingVertex : Computer -> Model -> Model
 startDraggingVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.editorState, vertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtPointer computer model ) of
             ( Idle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingVertex { vertexId = vertexId } }
 
@@ -167,7 +169,7 @@ dragVertex : Computer -> Model -> Model
 dragVertex computer model =
     case model.editorState of
         DraggingVertex { vertexId } ->
-            model |> mapCurrentLevel (Graph.moveVertex vertexId model.pointer)
+            model |> mapCurrentBaseGraph (Graph.moveVertex vertexId model.pointer)
 
         _ ->
             model
@@ -225,13 +227,18 @@ view computer model =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ drawFloor computer
-        , drawVertices computer model
-        , drawEdges computer model
+        [ drawBaseGraph computer model
+        , drawDraggedEdge computer model
+        , drawFloor computer
         , axes
         , drawPointer computer model
-        , drawDraggedEdge computer model
         ]
+
+
+drawFloor : Computer -> Shape
+drawFloor computer =
+    block (getColor "floor" computer) ( 8, 8, 1 )
+        |> moveZ -0.5
 
 
 axes : Shape
@@ -247,8 +254,8 @@ drawDraggedEdge : Computer -> Model -> Shape
 drawDraggedEdge computer model =
     case model.editorState of
         DraggingEdge { sourceId } ->
-            drawEdge computer
-                ( Graph.getPosition sourceId (LS.current model.levels)
+            drawBaseEdge computer
+                ( Graph.getPosition sourceId (LS.current model.levels).baseGraph
                 , model.pointer
                 )
 
@@ -264,18 +271,44 @@ drawPointer computer model =
         |> moveY model.pointer.y
 
 
-drawEdges : Computer -> Model -> Shape
-drawEdges computer model =
+drawBaseGraph : Computer -> Model -> Shape
+drawBaseGraph computer model =
     group
-        (model.levels
-            |> LS.current
-            |> Graph.allEdges
-            |> List.map (drawEdge computer)
+        [ drawVerticesOfBaseGraph computer model
+        , drawEdgesOfBaseGraph computer model
+        ]
+
+
+drawVerticesOfBaseGraph : Computer -> Model -> Shape
+drawVerticesOfBaseGraph computer model =
+    group
+        (Graph.allVertices (LS.current model.levels).baseGraph
+            |> List.map (drawBaseVertex computer)
         )
 
 
-drawEdge : Computer -> ( Point, Point ) -> Shape
-drawEdge computer ( start_, end ) =
+drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
+drawBaseVertex computer ( _, { position } ) =
+    sphere (getColor "vertex" computer) (getFloat "vertex radius" computer)
+        |> rotateX (degrees 90)
+        |> scale (wave 1 1.1 1 computer.time)
+        |> moveX position.x
+        |> moveY position.y
+
+
+drawEdgesOfBaseGraph : Computer -> Model -> Shape
+drawEdgesOfBaseGraph computer model =
+    group
+        (model.levels
+            |> LS.current
+            |> .baseGraph
+            |> Graph.allEdges
+            |> List.map (drawBaseEdge computer)
+        )
+
+
+drawBaseEdge : Computer -> ( Point, Point ) -> Shape
+drawBaseEdge computer ( start_, end ) =
     let
         ( length, rotation ) =
             toPolar ( end.x - start_.x, end.y - start_.y )
@@ -285,29 +318,6 @@ drawEdge computer ( start_, end ) =
         |> rotateZ rotation
         |> moveX start_.x
         |> moveY start_.y
-
-
-drawFloor : Computer -> Shape
-drawFloor computer =
-    block (getColor "floor" computer) ( 8, 8, 1 )
-        |> moveZ -0.5
-
-
-drawVertices : Computer -> Model -> Shape
-drawVertices computer model =
-    group
-        (Graph.allVertices (LS.current model.levels)
-            |> List.map (drawVertex computer)
-        )
-
-
-drawVertex : Computer -> ( VertexId, VertexData ) -> Shape
-drawVertex computer ( _, { position } ) =
-    sphere (getColor "vertex" computer) (getFloat "vertex radius" computer)
-        |> rotateX (degrees 90)
-        |> scale (wave 1 1.1 1 computer.time)
-        |> moveX position.x
-        |> moveY position.y
 
 
 
@@ -342,7 +352,7 @@ updateFromEditor computer editorMsg model =
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add Graph.empty }
+            { model | levels = model.levels |> LS.add Level.empty }
 
         PressedRemoveLevelButton ->
             { model | levels = model.levels |> LS.removeCurrent }
