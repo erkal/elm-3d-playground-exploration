@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (blue, green, hsl, red, rgb, rgb255)
+import Color exposing (blue, green, hsl, orange, red, rgb, rgb255)
 import Graph exposing (Graph, Point, VertexData, VertexId)
 import Html exposing (Html)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
@@ -15,6 +15,7 @@ main =
 
 type alias Model =
     { graph : Graph
+    , pointer : Point
     }
 
 
@@ -36,6 +37,7 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { graph = Graph.exampleGraph
+    , pointer = Point 0 0
     }
 
 
@@ -46,6 +48,18 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
+        |> updatePointerPosition computer
+
+
+updatePointerPosition : Computer -> Model -> Model
+updatePointerPosition computer model =
+    { model
+        | pointer =
+            computer.mouse
+                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                |> Maybe.map (\{ x, y } -> { x = x, y = y })
+                |> Maybe.withDefault model.pointer
+    }
 
 
 
@@ -76,6 +90,7 @@ view computer model =
         , drawVertices computer model
         , drawEdges computer model
         , axes
+        , drawPointer computer model
         ]
 
 
@@ -86,6 +101,14 @@ axes =
         , line green ( 0, 100, 0 ) -- y axis
         , line blue ( 0, 0, 100 ) -- z axis
         ]
+
+
+drawPointer : Computer -> Model -> Shape
+drawPointer computer model =
+    cylinder orange 0.3 1
+        |> rotateX (degrees 90)
+        |> moveX model.pointer.x
+        |> moveY model.pointer.y
 
 
 drawEdges : Computer -> Model -> Shape
