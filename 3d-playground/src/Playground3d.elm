@@ -42,7 +42,6 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Element.Input as Input
 import Html exposing (Html, div)
 import Html.Attributes as HA
 import Json.Decode as D
@@ -218,7 +217,6 @@ gameSubscriptions =
                 , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
                 , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
                 , E.onVisibilityChange VisibilityChanged
-                , E.onClick (D.succeed MouseClick)
                 , E.onMouseDown (D.succeed (MouseButton True))
                 , E.onMouseUp (D.succeed (MouseButton False))
                 , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
