@@ -16,7 +16,13 @@ main =
 type alias Model =
     { graph : Graph
     , pointer : Point
+    , editorState : EditorState
     }
+
+
+type EditorState
+    = Idle
+    | MovingVertex { vertexId : VertexId }
 
 
 
@@ -24,7 +30,7 @@ type alias Model =
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 40 ) 20
+    [ floatConfig "camera distance" ( 3, 40 ) 30
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
     , floatConfig "vertex radius" ( 0.2, 0.5 ) 0.3
@@ -39,6 +45,7 @@ init : Computer -> Model
 init computer =
     { graph = Graph.exampleGraph
     , pointer = Point 0 0
+    , editorState = Idle
     }
 
 
@@ -71,11 +78,32 @@ vertexAtPointer computer model =
 
 handlePointerInput : Computer -> Model -> Model
 handlePointerInput computer model =
-    if computer.mouse.down && vertexAtPointer computer model == Nothing then
-        { model | graph = model.graph |> Graph.insertVertex model.pointer }
+    case model.editorState of
+        Idle ->
+            case
+                ( computer.mouse.down
+                , vertexAtPointer computer model
+                )
+            of
+                ( True, Nothing ) ->
+                    { model | graph = model.graph |> Graph.insertVertex model.pointer }
 
-    else
-        model
+                ( True, Just ( vertexId, _ ) ) ->
+                    { model | editorState = MovingVertex { vertexId = vertexId } }
+
+                _ ->
+                    model
+
+        MovingVertex { vertexId } ->
+            { model
+                | graph = model.graph |> Graph.moveVertex vertexId model.pointer
+                , editorState =
+                    if not computer.mouse.down then
+                        Idle
+
+                    else
+                        model.editorState
+            }
 
 
 updatePointerPosition : Computer -> Model -> Model
@@ -96,7 +124,7 @@ updatePointerPosition computer model =
 camera : Computer -> Camera
 camera computer =
     perspectiveWithOrbit
-        { focalPoint = { x = 0, y = 0, z = 0 }
+        { focalPoint = { x = -2, y = 0, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
         , distance = getFloat "camera distance" computer

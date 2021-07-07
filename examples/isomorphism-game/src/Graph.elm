@@ -29,6 +29,18 @@ empty =
     Graph Dict.empty
 
 
+moveVertex : VertexId -> Point -> Graph -> Graph
+moveVertex vertexId newPosition (Graph graph) =
+    let
+        updatePosition vertexData =
+            { vertexData | position = newPosition }
+    in
+    Graph
+        (graph
+            |> Dict.update vertexId (Maybe.map updatePosition)
+        )
+
+
 insertVertex : Point -> Graph -> Graph
 insertVertex position (Graph graph) =
     let
