@@ -152,7 +152,7 @@ handleInputForEditor computer model =
 
 startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
-    if computer.keyboard.shift && computer.mouse.down then
+    if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
         case ( model.editorState, baseVertexAtPointer computer model ) of
             ( Idle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingEdge { sourceId = vertexId } }
@@ -172,6 +172,11 @@ insertBaseEdge computer model =
                 model
                     |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
 
+            ( DraggingEdge { sourceId }, Nothing ) ->
+                model
+                    |> mapCurrentBaseGraph
+                        (Graph.insertEdgeAndVertex sourceId model.pointer)
+
             _ ->
                 model
 
@@ -181,18 +186,17 @@ insertBaseEdge computer model =
 
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
-    case
-        ( model.editorState
-        , computer.mouse.down
-        , baseVertexAtPointer computer model
-        )
-    of
-        ( Idle, True, Nothing ) ->
-            model
-                |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
+    if computer.mouse.down && computer.keyboard.space then
+        case ( model.editorState, baseVertexAtPointer computer model ) of
+            ( Idle, Nothing ) ->
+                model
+                    |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
 
-        _ ->
-            model
+            _ ->
+                model
+
+    else
+        model
 
 
 startDraggingPlayerVertex : Computer -> Model -> Model
@@ -511,7 +515,7 @@ editorContent computer model =
             , height fill
             , spacing 20
             ]
-            [ explanations computer model
+            [ explanationsForEditor computer model
             , viewLevelSelection computer model
             , viewDebugger computer model
             ]
@@ -536,11 +540,11 @@ editorOnOffButton computer model =
         }
 
 
-explanations : Computer -> Model -> Element EditorMsg
-explanations computer model =
+explanationsForEditor : Computer -> Model -> Element EditorMsg
+explanationsForEditor computer model =
     textColumn []
         [ header "Editing the selected level"
-        , paragraph [] [ text "- Press mouse to add vertex" ]
+        , paragraph [] [ text "- Hold shift + space & Press mouse to add vertex" ]
         , paragraph [] [ text "- To move vertices drag them with mouse" ]
         , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
         ]

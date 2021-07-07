@@ -74,6 +74,35 @@ insertEdge source target (Graph graph) =
         )
 
 
+insertEdgeAndVertex : VertexId -> Point -> Graph -> Graph
+insertEdgeAndVertex source targetPosition (Graph graph) =
+    let
+        targetId =
+            List.maximum (Dict.keys graph)
+                |> Maybe.withDefault -1
+                |> (+) 1
+
+        targetVertex =
+            { position = targetPosition
+            , outNeighbours = Set.empty
+            }
+    in
+    Graph
+        (graph
+            |> Dict.insert targetId targetVertex
+            |> Dict.update source
+                (Maybe.map
+                    (\vertexData ->
+                        { vertexData
+                            | outNeighbours =
+                                vertexData.outNeighbours
+                                    |> Set.insert targetId
+                        }
+                    )
+                )
+        )
+
+
 exampleGraph : Graph
 exampleGraph =
     empty

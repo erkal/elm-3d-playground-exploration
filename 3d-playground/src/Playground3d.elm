@@ -42,7 +42,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Html exposing (Html, div)
+import Html exposing (Html)
 import Html.Attributes as HA
 import Json.Decode as D
 import Playground3d.Colors as Colors
