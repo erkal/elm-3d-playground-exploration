@@ -37,7 +37,7 @@ type alias Model =
 
 type GameState
     = Idle
-    | DraggingPlayerVertex { vertexId : VertexId }
+    | DraggingPlayerVertex { vertexId : VertexId, targetId : Maybe VertexId }
 
 
 type EditorState
@@ -107,17 +107,62 @@ update computer model =
            )
 
 
-playerVertexAtPointerReach : Computer -> Model -> Maybe ( VertexId, VertexData )
-playerVertexAtPointerReach computer model =
+distance : Point -> Point -> Float
+distance p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
+firstTwoPlayerVerticesAtPointerReach : Computer -> Model -> Maybe ( VertexId, Maybe VertexId )
+firstTwoPlayerVerticesAtPointerReach computer model =
     model.levels
         |> LS.current
         |> .playerGraph
         |> Graph.allVertices
-        |> List.filter
-            (\( _, { position } ) ->
-                distance position model.pointer < getFloat "pointer reach radius" computer
+        |> List.filterMap
+            (\( vertexId, { position } ) ->
+                let
+                    dist =
+                        distance position model.pointer
+                in
+                if dist < getFloat "pointer reach radius" computer then
+                    Just ( vertexId, dist )
+
+                else
+                    Nothing
             )
-        |> List.head
+        |> List.sortBy Tuple.second
+        |> List.map Tuple.first
+        |> (\l ->
+                case l of
+                    first :: second :: _ ->
+                        Just ( first, Just second )
+
+                    [ only ] ->
+                        Just ( only, Nothing )
+
+                    [] ->
+                        Nothing
+           )
+
+
+firstPlayerVertexAtPointerReach : Computer -> Model -> Maybe VertexId
+firstPlayerVertexAtPointerReach computer model =
+    case firstTwoPlayerVerticesAtPointerReach computer model of
+        Just ( first, _ ) ->
+            Just first
+
+        _ ->
+            Nothing
+
+
+secondPlayerVertexAtPointerReach : Computer -> Model -> Maybe VertexId
+secondPlayerVertexAtPointerReach computer model =
+    case firstTwoPlayerVerticesAtPointerReach computer model of
+        Just ( first, Just second ) ->
+            Just second
+
+        _ ->
+            Nothing
 
 
 baseVertexAtReach : Computer -> Model -> Maybe ( VertexId, VertexData )
@@ -138,6 +183,7 @@ handlePlayerInput computer model =
     model
         |> startDraggingPlayerVertex computer
         |> dragPlayerVertex computer
+        |> updateDraggingTarget computer
         |> endDragging computer
 
 
@@ -204,9 +250,9 @@ insertVertex computer model =
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.editorState, playerVertexAtPointerReach computer model ) of
-            ( EditorIdle, Just ( vertexId, _ ) ) ->
-                { model | gameState = DraggingPlayerVertex { vertexId = vertexId } }
+        case ( model.gameState, firstPlayerVertexAtPointerReach computer model ) of
+            ( Idle, Just vertexId ) ->
+                { model | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing } }
 
             _ ->
                 model
@@ -238,6 +284,22 @@ dragBaseVertex computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
             model |> mapCurrentBaseGraph (Graph.moveVertex vertexId model.pointer)
+
+        _ ->
+            model
+
+
+updateDraggingTarget : Computer -> Model -> Model
+updateDraggingTarget computer model =
+    case model.gameState of
+        DraggingPlayerVertex { vertexId } ->
+            { model
+                | gameState =
+                    DraggingPlayerVertex
+                        { vertexId = vertexId
+                        , targetId = secondPlayerVertexAtPointerReach computer model
+                        }
+            }
 
         _ ->
             model
@@ -359,17 +421,31 @@ drawVerticesOfPlayerGraph : Computer -> Model -> Shape
 drawVerticesOfPlayerGraph computer model =
     group
         (Graph.allVertices (LS.current model.levels).playerGraph
-            |> List.map (drawPlayerVertex computer)
+            |> List.map (drawPlayerVertex computer model.gameState)
         )
 
 
-drawPlayerVertex : Computer -> ( VertexId, VertexData ) -> Shape
-drawPlayerVertex computer ( _, { position } ) =
+drawPlayerVertex : Computer -> GameState -> ( VertexId, VertexData ) -> Shape
+drawPlayerVertex computer gameState ( vertexId, { position } ) =
     sphere (getColor "player vertex" computer) (getFloat "player vertex radius" computer)
-        |> rotateX (degrees 90)
+        |> highlightForExchange computer gameState vertexId
         |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
+
+
+highlightForExchange : Computer -> GameState -> VertexId -> (Shape -> Shape)
+highlightForExchange computer gameState vertexId =
+    case gameState of
+        DraggingPlayerVertex { targetId } ->
+            if targetId == Just vertexId then
+                moveZ 1
+
+            else
+                identity
+
+        _ ->
+            identity
 
 
 drawEdgesOfPlayerGraph : Computer -> Model -> Shape
