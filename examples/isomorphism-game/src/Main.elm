@@ -56,7 +56,7 @@ initialConfigurations =
     , colorConfig "player vertex" (rgb255 212 99 144)
     , colorConfig "player edge" (rgb255 212 99 144)
     , floatConfig "player edge width" ( 0.05, 0.3 ) 0.15
-    , colorConfig "floor" (rgb255 35 118 139)
+    , colorConfig "game background" (rgb255 35 118 139)
     , floatConfig "period" ( 0.1, 5 ) 1
     ]
 
@@ -283,23 +283,21 @@ view computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = rgb255 46 46 46
+        , backgroundColor =
+            if model.editorIsOn then
+                rgb255 46 46 46
+
+            else
+                getColor "game background" computer
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
         [ drawBaseGraph computer model
         , drawPlayerGraph computer model
         , drawDraggedEdge computer model
-        , drawFloor computer
         , axes
         , drawPointer computer model
         ]
-
-
-drawFloor : Computer -> Shape
-drawFloor computer =
-    block (getColor "floor" computer) ( 8, 8, 1 )
-        |> moveZ -0.5
 
 
 axes : Shape
@@ -326,7 +324,8 @@ drawDraggedEdge computer model =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder orange 0.1 2
+    cylinder orange 0.1 1
+        |> moveY 0.5
         |> rotateX (degrees 90)
         |> moveX model.pointer.x
         |> moveY model.pointer.y
@@ -502,13 +501,29 @@ viewEditor computer model =
             , Font.size 13
             ]
             [ editorOnOffButton computer model
-            , explanations computer model
-            , viewLevelSelection computer model
-            , viewDebugger computer model
+            , editorContent computer model
             ]
         )
 
 
+editorContent : Computer -> Model -> Element EditorMsg
+editorContent computer model =
+    if model.editorIsOn then
+        column
+            [ width fill
+            , height fill
+            , spacing 20
+            ]
+            [ explanations computer model
+            , viewLevelSelection computer model
+            , viewDebugger computer model
+            ]
+
+    else
+        none
+
+
+header : String -> Element EditorMsg
 header str =
     el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
         (text str)
