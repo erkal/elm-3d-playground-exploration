@@ -1,15 +1,13 @@
 module Main exposing (main)
 
 import Color exposing (blue, green, orange, red, rgb255)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerY, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
-import Element.Font as Font exposing (center)
-import Element.Input exposing (button)
+import Element.Font as Font
+import Element.Input as Input exposing (button, checkbox)
 import Graph exposing (Graph, Point, VertexData, VertexId)
-import Html exposing (Html, div, h2, hr, p, span)
-import Html.Attributes exposing (style)
-import Html.Events exposing (onClick)
+import Html exposing (Html)
 import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
@@ -29,7 +27,8 @@ main =
 
 
 type alias Model =
-    { levels : Levels Level
+    { editorIsOn : Bool
+    , levels : Levels Level
     , pointer : Point
     , editorState : EditorState
     }
@@ -37,7 +36,8 @@ type alias Model =
 
 type EditorState
     = Idle
-    | DraggingVertex { vertexId : VertexId }
+    | DraggingBaseVertex { vertexId : VertexId }
+    | DraggingPlayerVertex { vertexId : VertexId }
     | DraggingEdge { sourceId : VertexId }
 
 
@@ -63,7 +63,8 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton Level.exampleLevel
+    { editorIsOn = True
+    , levels = LS.singleton Level.exampleLevel
     , pointer = Point 0 0
     , editorState = Idle
     }
@@ -80,16 +81,41 @@ mapCurrentBaseGraph up model =
     }
 
 
+mapCurrentPlayerGraph : (Graph -> Graph) -> Model -> Model
+mapCurrentPlayerGraph up model =
+    { model
+        | levels = LS.mapCurrent (Level.mapPlayerGraph up) model.levels
+    }
+
+
 update : Computer -> Model -> Model
 update computer model =
     model
         |> updatePointerPosition computer
-        |> handlePointerInput computer
+        |> (if model.editorIsOn then
+                handleInputForEditor computer
+
+            else
+                handlePlayerInput computer
+           )
 
 
 distance : Point -> Point -> Float
 distance p q =
     sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
+playerVertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
+playerVertexAtPointer computer model =
+    model.levels
+        |> LS.current
+        |> .playerGraph
+        |> Graph.allVertices
+        |> List.filter
+            (\( _, { position } ) ->
+                distance position model.pointer < getFloat "base vertex radius" computer
+            )
+        |> List.head
 
 
 baseVertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
@@ -105,19 +131,27 @@ baseVertexAtPointer computer model =
         |> List.head
 
 
-handlePointerInput : Computer -> Model -> Model
-handlePointerInput computer model =
+handlePlayerInput : Computer -> Model -> Model
+handlePlayerInput computer model =
     model
-        |> insertVertex computer
-        |> startDraggingVertex computer
-        |> dragVertex computer
-        |> startDraggingEdge computer
-        |> insertEdge computer
+        |> startDraggingPlayerVertex computer
+        |> dragPlayerVertex computer
         |> endDragging computer
 
 
-startDraggingEdge : Computer -> Model -> Model
-startDraggingEdge computer model =
+handleInputForEditor : Computer -> Model -> Model
+handleInputForEditor computer model =
+    model
+        |> insertVertex computer
+        |> startDraggingBaseVertex computer
+        |> dragBaseVertex computer
+        |> startDraggingBaseEdge computer
+        |> insertBaseEdge computer
+        |> endDragging computer
+
+
+startDraggingBaseEdge : Computer -> Model -> Model
+startDraggingBaseEdge computer model =
     if computer.keyboard.shift && computer.mouse.down then
         case ( model.editorState, baseVertexAtPointer computer model ) of
             ( Idle, Just ( vertexId, _ ) ) ->
@@ -130,8 +164,8 @@ startDraggingEdge computer model =
         model
 
 
-insertEdge : Computer -> Model -> Model
-insertEdge computer model =
+insertBaseEdge : Computer -> Model -> Model
+insertBaseEdge computer model =
     if not computer.mouse.down then
         case ( model.editorState, baseVertexAtPointer computer model ) of
             ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
@@ -161,12 +195,12 @@ insertVertex computer model =
             model
 
 
-startDraggingVertex : Computer -> Model -> Model
-startDraggingVertex computer model =
+startDraggingPlayerVertex : Computer -> Model -> Model
+startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.editorState, baseVertexAtPointer computer model ) of
+        case ( model.editorState, playerVertexAtPointer computer model ) of
             ( Idle, Just ( vertexId, _ ) ) ->
-                { model | editorState = DraggingVertex { vertexId = vertexId } }
+                { model | editorState = DraggingPlayerVertex { vertexId = vertexId } }
 
             _ ->
                 model
@@ -175,11 +209,35 @@ startDraggingVertex computer model =
         model
 
 
-dragVertex : Computer -> Model -> Model
-dragVertex computer model =
+startDraggingBaseVertex : Computer -> Model -> Model
+startDraggingBaseVertex computer model =
+    if computer.mouse.down && not computer.keyboard.shift then
+        case ( model.editorState, baseVertexAtPointer computer model ) of
+            ( Idle, Just ( vertexId, _ ) ) ->
+                { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
+
+            _ ->
+                model
+
+    else
+        model
+
+
+dragBaseVertex : Computer -> Model -> Model
+dragBaseVertex computer model =
     case model.editorState of
-        DraggingVertex { vertexId } ->
+        DraggingBaseVertex { vertexId } ->
             model |> mapCurrentBaseGraph (Graph.moveVertex vertexId model.pointer)
+
+        _ ->
+            model
+
+
+dragPlayerVertex : Computer -> Model -> Model
+dragPlayerVertex computer model =
+    case model.editorState of
+        DraggingPlayerVertex { vertexId } ->
+            model |> mapCurrentPlayerGraph (Graph.moveVertex vertexId model.pointer)
 
         _ ->
             model
@@ -188,15 +246,7 @@ dragVertex computer model =
 endDragging : Computer -> Model -> Model
 endDragging computer model =
     if not computer.mouse.down then
-        case model.editorState of
-            DraggingVertex _ ->
-                { model | editorState = Idle }
-
-            DraggingEdge _ ->
-                { model | editorState = Idle }
-
-            _ ->
-                model
+        { model | editorState = Idle }
 
     else
         model
@@ -297,7 +347,7 @@ drawPlayerGraph computer model =
 drawVerticesOfPlayerGraph : Computer -> Model -> Shape
 drawVerticesOfPlayerGraph computer model =
     group
-        (Graph.allVertices (LS.current model.levels).baseGraph
+        (Graph.allVertices (LS.current model.levels).playerGraph
             |> List.map (drawPlayerVertex computer)
         )
 
@@ -316,7 +366,7 @@ drawEdgesOfPlayerGraph computer model =
     group
         (model.levels
             |> LS.current
-            |> .baseGraph
+            |> .playerGraph
             |> Graph.allEdges
             |> List.map (drawPlayerEdge computer)
         )
@@ -397,7 +447,8 @@ drawBaseEdge computer ( start_, end ) =
 
 
 type EditorMsg
-    = PressedPreviousLevelButton
+    = ClickedEditorOnOffButton Bool
+    | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
     | PressedRemoveLevelButton
@@ -407,6 +458,9 @@ type EditorMsg
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
+        ClickedEditorOnOffButton bool ->
+            { model | editorIsOn = bool }
+
         PressedPreviousLevelButton ->
             { model
                 | levels =
@@ -447,7 +501,8 @@ viewEditor computer model =
             , Font.color Colors.lightText
             , Font.size 13
             ]
-            [ explanations computer model
+            [ editorOnOffButton computer model
+            , explanations computer model
             , viewLevelSelection computer model
             , viewDebugger computer model
             ]
@@ -457,6 +512,16 @@ viewEditor computer model =
 header str =
     el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
         (text str)
+
+
+editorOnOffButton : Computer -> Model -> Element EditorMsg
+editorOnOffButton computer model =
+    checkbox []
+        { onChange = ClickedEditorOnOffButton
+        , icon = Input.defaultCheckbox
+        , checked = model.editorIsOn
+        , label = Input.labelLeft [] (text "Editor")
+        }
 
 
 explanations : Computer -> Model -> Element EditorMsg

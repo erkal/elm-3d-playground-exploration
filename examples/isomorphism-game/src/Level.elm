@@ -26,3 +26,8 @@ empty =
 mapBaseGraph : (Graph -> Graph) -> Level -> Level
 mapBaseGraph up level =
     { level | baseGraph = up level.baseGraph }
+
+
+mapPlayerGraph : (Graph -> Graph) -> Level -> Level
+mapPlayerGraph up level =
+    { level | playerGraph = up level.playerGraph }
