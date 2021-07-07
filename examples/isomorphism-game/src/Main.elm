@@ -1,8 +1,13 @@
 module Main exposing (main)
 
-import Color exposing (blue, green, hsl, orange, red, rgb, rgb255)
+import Color exposing (blue, green, orange, red, rgb255)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerY, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font exposing (center)
+import Element.Input exposing (button)
 import Graph exposing (Graph, Point, VertexData, VertexId)
-import Html exposing (Html, button, div, h2, hr, p, span, text)
+import Html exposing (Html, div, h2, hr, p, span)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Level exposing (Level)
@@ -10,6 +15,7 @@ import LevelSelector as LS exposing (Levels)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
+import Playground3d.Colors as Colors
 import Playground3d.Scene as Scene exposing (..)
 
 
@@ -429,48 +435,79 @@ updateFromEditor computer editorMsg model =
 
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    div
-        [ style "position" "absolute"
-        , style "height" "100%"
-        , style "width" "400px"
-        , style "right" "0px"
-        , style "margin" "40px"
-        , style "font-size" "16px"
-        , style "color" "white"
-        , style "overflow" "scroll"
-        ]
-        [ viewDebugger computer model
-        , h2 [] [ text "Editing the selected level" ]
-        , div [] [ text "Press mouse to add vertex" ]
-        , div [] [ text "To move vertices drag them with mouse" ]
-        , div [] [ text "Hold shift and drag with mouse to draw an edge" ]
-        , viewLevelSelection computer model
+    layout
+        [ padding 10 ]
+        (column
+            [ alignTop
+            , alignRight
+            , padding 20
+            , spacing 20
+            , width (px 600)
+            , height fill
+            , Font.color Colors.lightText
+            , Font.size 13
+            ]
+            [ explanations computer model
+            , viewLevelSelection computer model
+            , viewDebugger computer model
+            ]
+        )
+
+
+header str =
+    el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
+        (text str)
+
+
+explanations : Computer -> Model -> Element EditorMsg
+explanations computer model =
+    textColumn []
+        [ header "Editing the selected level"
+        , paragraph [] [ text "- Press mouse to add vertex" ]
+        , paragraph [] [ text "- To move vertices drag them with mouse" ]
+        , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
         ]
 
 
-viewDebugger : Computer -> Model -> Html EditorMsg
+viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
-    text
-        (Debug.toString model.editorState)
+    textColumn [ alignBottom ]
+        [ header "Debugger"
+        , text <|
+            "Editor state: "
+                ++ Debug.toString model.editorState
+        ]
 
 
-viewLevelSelection : Computer -> Model -> Html EditorMsg
+viewLevelSelection : Computer -> Model -> Element EditorMsg
 viewLevelSelection computer model =
-    div []
-        [ h2 [] [ text "Level Selection" ]
-        , p []
-            [ button [ onClick PressedPreviousLevelButton ] [ text "<" ]
-            , span [ style "margin" "10px" ]
-                [ text <|
+    column []
+        [ header "Level Selection"
+        , row [ spacing 10 ]
+            [ makeButton "<" PressedPreviousLevelButton
+            , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+                text <|
                     String.concat
                         [ String.fromInt (LS.currentIndex model.levels)
                         , " / "
                         , String.fromInt (LS.size model.levels)
                         ]
-                ]
-            , button [ onClick PressedNextLevelButton ] [ text ">" ]
+            , makeButton ">" PressedNextLevelButton
+            , makeButton "Add level" PressedAddLevelButton
+            , makeButton "Remove current level" PressedRemoveLevelButton
+            , makeButton "Move level one up" PressedMoveLevelOneUoButton
             ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedAddLevelButton ] [ text "Add level" ] ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedRemoveLevelButton ] [ text "Remove current level" ] ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedMoveLevelOneUoButton ] [ text "Move level one up" ] ]
         ]
+
+
+makeButton : String -> EditorMsg -> Element EditorMsg
+makeButton buttonText editorMsg =
+    button
+        [ Font.color Colors.black
+        , paddingXY 10 6
+        , Background.color Colors.lightGray
+        , Border.rounded 8
+        ]
+        { onPress = Just editorMsg
+        , label = text buttonText
+        }
