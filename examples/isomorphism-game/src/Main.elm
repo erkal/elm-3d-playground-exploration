@@ -2,7 +2,8 @@ module Main exposing (main)
 
 import Color exposing (blue, green, hsl, orange, red, rgb, rgb255)
 import Graph exposing (Graph, Point, VertexData, VertexId)
-import Html exposing (Html)
+import Html exposing (Html, div, text)
+import Html.Attributes exposing (style)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
@@ -22,7 +23,8 @@ type alias Model =
 
 type EditorState
     = Idle
-    | MovingVertex { vertexId : VertexId }
+    | DraggingVertex { vertexId : VertexId }
+    | DraggingEdge { sourceId : VertexId }
 
 
 
@@ -82,44 +84,39 @@ handlePointerInput computer model =
         |> insertVertex computer
         |> startDraggingVertex computer
         |> dragVertex computer
-        |> endDraggingVertex computer
+        |> startDraggingEdge computer
+        |> insertEdge computer
+        |> endDragging computer
 
 
-endDraggingVertex : Computer -> Model -> Model
-endDraggingVertex computer model =
-    case ( model.editorState, computer.mouse.down ) of
-        ( MovingVertex { vertexId }, False ) ->
-            { model | editorState = Idle }
+startDraggingEdge : Computer -> Model -> Model
+startDraggingEdge computer model =
+    if computer.keyboard.shift && computer.mouse.down then
+        case ( model.editorState, vertexAtPointer computer model ) of
+            ( Idle, Just ( vertexId, _ ) ) ->
+                { model | editorState = DraggingEdge { sourceId = vertexId } }
 
-        _ ->
-            model
+            _ ->
+                model
 
-
-dragVertex : Computer -> Model -> Model
-dragVertex computer model =
-    case model.editorState of
-        MovingVertex { vertexId } ->
-            { model
-                | graph = model.graph |> Graph.moveVertex vertexId model.pointer
-            }
-
-        _ ->
-            model
+    else
+        model
 
 
-startDraggingVertex : Computer -> Model -> Model
-startDraggingVertex computer model =
-    case
-        ( model.editorState
-        , computer.mouse.down
-        , vertexAtPointer computer model
-        )
-    of
-        ( Idle, True, Just ( vertexId, _ ) ) ->
-            { model | editorState = MovingVertex { vertexId = vertexId } }
+insertEdge : Computer -> Model -> Model
+insertEdge computer model =
+    if not computer.mouse.down then
+        case ( model.editorState, vertexAtPointer computer model ) of
+            ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
+                { model
+                    | graph = model.graph |> Graph.insertEdge sourceId targetId
+                }
 
-        _ ->
-            model
+            _ ->
+                model
+
+    else
+        model
 
 
 insertVertex : Computer -> Model -> Model
@@ -137,34 +134,47 @@ insertVertex computer model =
             model
 
 
-handlePointerInput____Old : Computer -> Model -> Model
-handlePointerInput____Old computer model =
+startDraggingVertex : Computer -> Model -> Model
+startDraggingVertex computer model =
+    if computer.mouse.down && not computer.keyboard.shift then
+        case ( model.editorState, vertexAtPointer computer model ) of
+            ( Idle, Just ( vertexId, _ ) ) ->
+                { model | editorState = DraggingVertex { vertexId = vertexId } }
+
+            _ ->
+                model
+
+    else
+        model
+
+
+dragVertex : Computer -> Model -> Model
+dragVertex computer model =
     case model.editorState of
-        Idle ->
-            case
-                ( computer.mouse.down
-                , vertexAtPointer computer model
-                )
-            of
-                ( True, Nothing ) ->
-                    { model | graph = model.graph |> Graph.insertVertex model.pointer }
-
-                ( True, Just ( vertexId, _ ) ) ->
-                    { model | editorState = MovingVertex { vertexId = vertexId } }
-
-                _ ->
-                    model
-
-        MovingVertex { vertexId } ->
+        DraggingVertex { vertexId } ->
             { model
                 | graph = model.graph |> Graph.moveVertex vertexId model.pointer
-                , editorState =
-                    if not computer.mouse.down then
-                        Idle
-
-                    else
-                        model.editorState
             }
+
+        _ ->
+            model
+
+
+endDragging : Computer -> Model -> Model
+endDragging computer model =
+    if not computer.mouse.down then
+        case model.editorState of
+            DraggingVertex _ ->
+                { model | editorState = Idle }
+
+            DraggingEdge _ ->
+                { model | editorState = Idle }
+
+            _ ->
+                model
+
+    else
+        model
 
 
 updatePointerPosition : Computer -> Model -> Model
@@ -194,6 +204,25 @@ camera computer =
 
 view : Computer -> Model -> Html Never
 view computer model =
+    div []
+        [ div [ style "position" "absolute" ] [ viewGame computer model ]
+        , div [ style "position" "absolute" ] [ viewDebugger computer model ]
+        ]
+
+
+viewDebugger : Computer -> Model -> Html Never
+viewDebugger computer model =
+    div
+        [ style "margin-left" "400px"
+        , style "margin-top" "40px"
+        , style "color" "white"
+        ]
+        [ text <| Debug.toString model.editorState
+        ]
+
+
+viewGame : Computer -> Model -> Html Never
+viewGame computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
@@ -207,6 +236,7 @@ view computer model =
         , drawEdges computer model
         , axes
         , drawPointer computer model
+        , drawDraggedEdge computer model
         ]
 
 
@@ -217,6 +247,19 @@ axes =
         , line green ( 0, 100, 0 ) -- y axis
         , line blue ( 0, 0, 100 ) -- z axis
         ]
+
+
+drawDraggedEdge : Computer -> Model -> Shape
+drawDraggedEdge computer model =
+    case model.editorState of
+        DraggingEdge { sourceId } ->
+            drawEdge computer
+                ( Graph.getPosition sourceId model.graph
+                , model.pointer
+                )
+
+        _ ->
+            group []
 
 
 drawPointer : Computer -> Model -> Shape
