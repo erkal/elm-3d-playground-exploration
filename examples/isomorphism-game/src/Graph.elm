@@ -80,11 +80,14 @@ exampleGraph =
         |> insertVertex (Point 0 0)
         |> insertVertex (Point -3 2)
         |> insertVertex (Point 2 -3)
-        |> insertVertex (Point 4 1)
-        |> insertVertex (Point 4 4)
+        |> insertVertex (Point 3 1)
+        |> insertVertex (Point 3 3)
+        |> insertVertex (Point -3 -3)
         |> insertEdge 0 2
         |> insertEdge 1 3
+        |> insertEdge 3 4
         |> insertEdge 2 3
+        |> insertEdge 5 3
 
 
 allVertices : Graph -> List ( VertexId, VertexData )

@@ -30,7 +30,7 @@ type EditorState
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 40 ) 30
+    [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
     , floatConfig "vertex radius" ( 0.2, 0.5 ) 0.3
@@ -78,6 +78,67 @@ vertexAtPointer computer model =
 
 handlePointerInput : Computer -> Model -> Model
 handlePointerInput computer model =
+    model
+        |> insertVertex computer
+        |> startDraggingVertex computer
+        |> dragVertex computer
+        |> endDraggingVertex computer
+
+
+endDraggingVertex : Computer -> Model -> Model
+endDraggingVertex computer model =
+    case ( model.editorState, computer.mouse.down ) of
+        ( MovingVertex { vertexId }, False ) ->
+            { model | editorState = Idle }
+
+        _ ->
+            model
+
+
+dragVertex : Computer -> Model -> Model
+dragVertex computer model =
+    case model.editorState of
+        MovingVertex { vertexId } ->
+            { model
+                | graph = model.graph |> Graph.moveVertex vertexId model.pointer
+            }
+
+        _ ->
+            model
+
+
+startDraggingVertex : Computer -> Model -> Model
+startDraggingVertex computer model =
+    case
+        ( model.editorState
+        , computer.mouse.down
+        , vertexAtPointer computer model
+        )
+    of
+        ( Idle, True, Just ( vertexId, _ ) ) ->
+            { model | editorState = MovingVertex { vertexId = vertexId } }
+
+        _ ->
+            model
+
+
+insertVertex : Computer -> Model -> Model
+insertVertex computer model =
+    case
+        ( model.editorState
+        , computer.mouse.down
+        , vertexAtPointer computer model
+        )
+    of
+        ( Idle, True, Nothing ) ->
+            { model | graph = model.graph |> Graph.insertVertex model.pointer }
+
+        _ ->
+            model
+
+
+handlePointerInput____Old : Computer -> Model -> Model
+handlePointerInput____Old computer model =
     case model.editorState of
         Idle ->
             case
@@ -160,7 +221,7 @@ axes =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder orange 0.3 1
+    cylinder orange 0.1 2
         |> rotateX (degrees 90)
         |> moveX model.pointer.x
         |> moveY model.pointer.y
@@ -190,7 +251,7 @@ drawEdge computer ( start_, end ) =
 
 drawFloor : Computer -> Shape
 drawFloor computer =
-    block (getColor "floor" computer) ( 10, 10, 1 )
+    block (getColor "floor" computer) ( 8, 8, 1 )
         |> moveZ -0.5
 
 
@@ -204,7 +265,7 @@ drawVertices computer model =
 
 drawVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawVertex computer ( _, { position } ) =
-    cylinder (getColor "vertex" computer) (getFloat "vertex radius" computer) 0.4
+    sphere (getColor "vertex" computer) (getFloat "vertex radius" computer)
         |> rotateX (degrees 90)
         |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
