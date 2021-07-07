@@ -6,7 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Graph exposing (Graph, Point, VertexData, VertexId, distance)
+import Graph exposing (Graph, Point, VertexData, VertexId)
 import Html exposing (Html)
 import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
@@ -43,7 +43,7 @@ type GameState
 type EditorState
     = EditorIdle
     | DraggingBaseVertex { vertexId : VertexId }
-    | DraggingEdge { sourceId : VertexId }
+    | DraggingBaseEdge { sourceId : VertexId }
 
 
 
@@ -107,17 +107,12 @@ update computer model =
            )
 
 
-distance : Point -> Point -> Float
-distance p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
-
-
 firstTwoPlayerVerticesAtPointerReach : Computer -> Model -> Maybe ( VertexId, Maybe VertexId )
 firstTwoPlayerVerticesAtPointerReach computer model =
     model.levels
         |> LS.current
         |> .playerGraph
-        |> Graph.allVertices
+        |> Graph.vertices
         |> List.filterMap
             (\( vertexId, { position } ) ->
                 let
@@ -170,7 +165,7 @@ baseVertexAtReach computer model =
     model.levels
         |> LS.current
         |> .baseGraph
-        |> Graph.allVertices
+        |> Graph.vertices
         |> List.filter
             (\( _, { position } ) ->
                 distance position model.pointer < getFloat "base vertex radius" computer
@@ -203,7 +198,7 @@ startDraggingBaseEdge computer model =
     if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
         case ( model.editorState, baseVertexAtReach computer model ) of
             ( EditorIdle, Just ( vertexId, _ ) ) ->
-                { model | editorState = DraggingEdge { sourceId = vertexId } }
+                { model | editorState = DraggingBaseEdge { sourceId = vertexId } }
 
             _ ->
                 model
@@ -216,11 +211,11 @@ insertBaseEdge : Computer -> Model -> Model
 insertBaseEdge computer model =
     if not computer.mouse.down then
         case ( model.editorState, baseVertexAtReach computer model ) of
-            ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
+            ( DraggingBaseEdge { sourceId }, Just ( targetId, _ ) ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
 
-            ( DraggingEdge { sourceId }, Nothing ) ->
+            ( DraggingBaseEdge { sourceId }, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph
                         (Graph.insertEdgeAndVertex sourceId model.pointer)
@@ -261,12 +256,36 @@ startDraggingPlayerVertex computer model =
         model
 
 
+
+-- QUERY
+
+
+closestBaseVertexToPointer : Model -> Maybe { distance : Float, vertexId : VertexId, vertexData : VertexData }
+closestBaseVertexToPointer model =
+    (LS.current model.levels).baseGraph
+        |> Graph.vertices
+        |> List.map
+            (\( vertexId, vertexData ) ->
+                { distance = distance model.pointer vertexData.position
+                , vertexId = vertexId
+                , vertexData = vertexData
+                }
+            )
+        |> List.sortBy .distance
+        |> List.head
+
+
+distance : Point -> Point -> Float
+distance p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
 startDraggingBaseVertex : Computer -> Model -> Model
 startDraggingBaseVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case
             ( model.editorState
-            , Graph.closestVertex model.pointer (LS.current model.levels).baseGraph
+            , closestBaseVertexToPointer model
             )
         of
             ( EditorIdle, Just { vertexId } ) ->
@@ -369,7 +388,7 @@ view computer model =
         }
         [ drawBaseGraph computer model
         , drawPlayerGraph computer model
-        , drawDraggedEdge computer model
+        , drawDraggedBaseEdge computer model
         , axes
         , drawPointer computer model
         ]
@@ -384,14 +403,25 @@ axes =
         ]
 
 
-drawDraggedEdge : Computer -> Model -> Shape
-drawDraggedEdge computer model =
+drawDraggedBaseEdge : Computer -> Model -> Shape
+drawDraggedBaseEdge computer model =
     case model.editorState of
-        DraggingEdge { sourceId } ->
-            drawBaseEdge computer
-                ( Graph.getPosition sourceId (LS.current model.levels).baseGraph
-                , model.pointer
-                )
+        DraggingBaseEdge { sourceId } ->
+            let
+                sourcePosition =
+                    Graph.getPosition sourceId (LS.current model.levels).baseGraph
+
+                ( length, rotation ) =
+                    toPolar
+                        ( model.pointer.x - sourcePosition.x
+                        , model.pointer.y - sourcePosition.y
+                        )
+            in
+            block (getColor "base edge" computer) ( length, 0.3, 0.3 )
+                |> moveX (length / 2)
+                |> rotateZ rotation
+                |> moveX sourcePosition.x
+                |> moveY sourcePosition.y
 
         _ ->
             group []
@@ -420,7 +450,7 @@ drawPlayerGraph computer model =
 drawVerticesOfPlayerGraph : Computer -> Model -> Shape
 drawVerticesOfPlayerGraph computer model =
     group
-        (Graph.allVertices (LS.current model.levels).playerGraph
+        (Graph.vertices (LS.current model.levels).playerGraph
             |> List.map (drawPlayerVertex computer model.gameState)
         )
 
@@ -454,16 +484,27 @@ drawEdgesOfPlayerGraph computer model =
         (model.levels
             |> LS.current
             |> .playerGraph
-            |> Graph.allEdges
+            |> Graph.edges
             |> List.map (drawPlayerEdge computer)
         )
 
 
-drawPlayerEdge : Computer -> ( Point, Point ) -> Shape
-drawPlayerEdge computer ( start_, end ) =
+drawPlayerEdge :
+    Computer
+    ->
+        { sourcePosition : Point
+        , targetPosition : Point
+        , sourceId : VertexId
+        , targetId : VertexId
+        }
+    -> Shape
+drawPlayerEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
     let
         ( length, rotation ) =
-            toPolar ( end.x - start_.x, end.y - start_.y )
+            toPolar
+                ( targetPosition.x - sourcePosition.x
+                , targetPosition.y - sourcePosition.y
+                )
 
         width =
             getFloat "player edge width" computer
@@ -473,8 +514,8 @@ drawPlayerEdge computer ( start_, end ) =
         ( length, wave width (1.1 * width) 1 computer.time, 0.4 )
         |> moveX (length / 2)
         |> rotateZ rotation
-        |> moveX start_.x
-        |> moveY start_.y
+        |> moveX sourcePosition.x
+        |> moveY sourcePosition.y
 
 
 
@@ -492,7 +533,7 @@ drawBaseGraph computer model =
 drawVerticesOfBaseGraph : Computer -> Model -> Shape
 drawVerticesOfBaseGraph computer model =
     group
-        (Graph.allVertices (LS.current model.levels).baseGraph
+        (Graph.vertices (LS.current model.levels).baseGraph
             |> List.map (drawBaseVertex computer)
         )
 
@@ -511,22 +552,33 @@ drawEdgesOfBaseGraph computer model =
         (model.levels
             |> LS.current
             |> .baseGraph
-            |> Graph.allEdges
+            |> Graph.edges
             |> List.map (drawBaseEdge computer)
         )
 
 
-drawBaseEdge : Computer -> ( Point, Point ) -> Shape
-drawBaseEdge computer ( start_, end ) =
+drawBaseEdge :
+    Computer
+    ->
+        { sourcePosition : Point
+        , targetPosition : Point
+        , sourceId : VertexId
+        , targetId : VertexId
+        }
+    -> Shape
+drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
     let
         ( length, rotation ) =
-            toPolar ( end.x - start_.x, end.y - start_.y )
+            toPolar
+                ( targetPosition.x - sourcePosition.x
+                , targetPosition.y - sourcePosition.y
+                )
     in
     block (getColor "base edge" computer) ( length, 0.3, 0.3 )
         |> moveX (length / 2)
         |> rotateZ rotation
-        |> moveX start_.x
-        |> moveY start_.y
+        |> moveX sourcePosition.x
+        |> moveY sourcePosition.y
 
 
 

@@ -29,36 +29,65 @@ empty =
     Graph Dict.empty
 
 
+exampleGraph : Graph
+exampleGraph =
+    empty
+        |> insertVertex (Point 0 0)
+        |> insertVertex (Point -3 2)
+        |> insertVertex (Point 2 -3)
+        |> insertVertex (Point 3 1)
+        |> insertVertex (Point 3 3)
+        |> insertVertex (Point -3 -3)
+        |> insertEdge 0 2
+        |> insertEdge 1 3
+        |> insertEdge 3 4
+        |> insertEdge 2 3
+        |> insertEdge 5 3
+
+
 
 -- QUERY
 
 
-closestVertex :
-    Point
-    -> Graph
-    ->
-        Maybe
-            { distance : Float
-            , vertexId : VertexId
-            , vertexData : VertexData
-            }
-closestVertex p (Graph graph) =
+vertices : Graph -> List ( VertexId, VertexData )
+vertices (Graph graph) =
     graph
-        |> Dict.map
-            (\vertexId vertexData ->
-                { distance = distance vertexData.position p
-                , vertexId = vertexId
-                , vertexData = vertexData
-                }
+        |> Dict.toList
+
+
+getPosition : VertexId -> Graph -> Point
+getPosition vertexId (Graph graph) =
+    graph
+        |> Dict.get vertexId
+        |> Maybe.map .position
+        |> Maybe.withDefault (Point -10 -10)
+
+
+edges :
+    Graph
+    ->
+        List
+            { sourcePosition : Point
+            , targetPosition : Point
+            , sourceId : VertexId
+            , targetId : VertexId
+            }
+edges (Graph graph) =
+    graph
+        |> Dict.toList
+        |> List.concatMap
+            (\( sourceId, { outNeighbours } ) ->
+                outNeighbours
+                    |> Set.toList
+                    |> List.map
+                        (\targetId ->
+                            { sourcePosition = getPosition sourceId (Graph graph)
+                            , targetPosition = getPosition targetId (Graph graph)
+                            , sourceId = sourceId
+                            , targetId = targetId
+                            }
+                        )
             )
-        |> Dict.values
-        |> List.sortBy .distance
-        |> List.head
-
-
-distance : Point -> Point -> Float
-distance p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
 
 
 
@@ -137,50 +166,3 @@ insertEdgeAndVertex source targetPosition (Graph graph) =
                     )
                 )
         )
-
-
-exampleGraph : Graph
-exampleGraph =
-    empty
-        |> insertVertex (Point 0 0)
-        |> insertVertex (Point -3 2)
-        |> insertVertex (Point 2 -3)
-        |> insertVertex (Point 3 1)
-        |> insertVertex (Point 3 3)
-        |> insertVertex (Point -3 -3)
-        |> insertEdge 0 2
-        |> insertEdge 1 3
-        |> insertEdge 3 4
-        |> insertEdge 2 3
-        |> insertEdge 5 3
-
-
-allVertices : Graph -> List ( VertexId, VertexData )
-allVertices (Graph graph) =
-    graph
-        |> Dict.toList
-
-
-getPosition : VertexId -> Graph -> Point
-getPosition vertexId (Graph graph) =
-    graph
-        |> Dict.get vertexId
-        |> Maybe.map .position
-        |> Maybe.withDefault (Point -10 -10)
-
-
-allEdges : Graph -> List ( Point, Point )
-allEdges (Graph graph) =
-    graph
-        |> Dict.toList
-        |> List.concatMap
-            (\( sourceId, { outNeighbours } ) ->
-                outNeighbours
-                    |> Set.toList
-                    |> List.map
-                        (\targetId ->
-                            ( getPosition sourceId (Graph graph)
-                            , getPosition targetId (Graph graph)
-                            )
-                        )
-            )
