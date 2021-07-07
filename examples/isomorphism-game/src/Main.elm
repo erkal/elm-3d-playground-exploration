@@ -2,20 +2,27 @@ module Main exposing (main)
 
 import Color exposing (blue, green, hsl, orange, red, rgb, rgb255)
 import Graph exposing (Graph, Point, VertexData, VertexId)
-import Html exposing (Html, div, text)
+import Html exposing (Html, button, div, h2, hr, p, span, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Html.Events exposing (onClick)
+import LevelSelector as LS exposing (Levels)
+import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    gameWithConfigurationsAndEditor view
+        update
+        initialConfigurations
+        init
+        viewEditor
+        updateFromEditor
 
 
 type alias Model =
-    { graph : Graph
+    { levels : Levels Graph
     , pointer : Point
     , editorState : EditorState
     }
@@ -45,7 +52,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { graph = Graph.exampleGraph
+    { levels = LS.singleton Graph.exampleGraph
     , pointer = Point 0 0
     , editorState = Idle
     }
@@ -53,6 +60,13 @@ init computer =
 
 
 -- UPDATE
+
+
+mapCurrentLevel : (Graph -> Graph) -> Model -> Model
+mapCurrentLevel up model =
+    { model
+        | levels = LS.mapCurrent up model.levels
+    }
 
 
 update : Computer -> Model -> Model
@@ -69,7 +83,8 @@ distance p q =
 
 vertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
 vertexAtPointer computer model =
-    model.graph
+    model.levels
+        |> LS.current
         |> Graph.allVertices
         |> List.filter
             (\( _, { position } ) ->
@@ -108,9 +123,8 @@ insertEdge computer model =
     if not computer.mouse.down then
         case ( model.editorState, vertexAtPointer computer model ) of
             ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
-                { model
-                    | graph = model.graph |> Graph.insertEdge sourceId targetId
-                }
+                model
+                    |> mapCurrentLevel (Graph.insertEdge sourceId targetId)
 
             _ ->
                 model
@@ -128,7 +142,8 @@ insertVertex computer model =
         )
     of
         ( Idle, True, Nothing ) ->
-            { model | graph = model.graph |> Graph.insertVertex model.pointer }
+            model
+                |> mapCurrentLevel (Graph.insertVertex model.pointer)
 
         _ ->
             model
@@ -152,9 +167,7 @@ dragVertex : Computer -> Model -> Model
 dragVertex computer model =
     case model.editorState of
         DraggingVertex { vertexId } ->
-            { model
-                | graph = model.graph |> Graph.moveVertex vertexId model.pointer
-            }
+            model |> mapCurrentLevel (Graph.moveVertex vertexId model.pointer)
 
         _ ->
             model
@@ -204,25 +217,6 @@ camera computer =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    div []
-        [ div [ style "position" "absolute" ] [ viewGame computer model ]
-        , div [ style "position" "absolute" ] [ viewDebugger computer model ]
-        ]
-
-
-viewDebugger : Computer -> Model -> Html Never
-viewDebugger computer model =
-    div
-        [ style "margin-left" "400px"
-        , style "margin-top" "40px"
-        , style "color" "white"
-        ]
-        [ text <| Debug.toString model.editorState
-        ]
-
-
-viewGame : Computer -> Model -> Html Never
-viewGame computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
@@ -254,7 +248,7 @@ drawDraggedEdge computer model =
     case model.editorState of
         DraggingEdge { sourceId } ->
             drawEdge computer
-                ( Graph.getPosition sourceId model.graph
+                ( Graph.getPosition sourceId (LS.current model.levels)
                 , model.pointer
                 )
 
@@ -273,7 +267,8 @@ drawPointer computer model =
 drawEdges : Computer -> Model -> Shape
 drawEdges computer model =
     group
-        (model.graph
+        (model.levels
+            |> LS.current
             |> Graph.allEdges
             |> List.map (drawEdge computer)
         )
@@ -301,7 +296,7 @@ drawFloor computer =
 drawVertices : Computer -> Model -> Shape
 drawVertices computer model =
     group
-        (Graph.allVertices model.graph
+        (Graph.allVertices (LS.current model.levels)
             |> List.map (drawVertex computer)
         )
 
@@ -313,3 +308,93 @@ drawVertex computer ( _, { position } ) =
         |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
+
+
+
+-- EDITOR
+
+
+type EditorMsg
+    = PressedPreviousLevelButton
+    | PressedNextLevelButton
+    | PressedAddLevelButton
+    | PressedRemoveLevelButton
+    | PressedMoveLevelOneUoButton
+
+
+updateFromEditor : Computer -> EditorMsg -> Model -> Model
+updateFromEditor computer editorMsg model =
+    case editorMsg of
+        PressedPreviousLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToPrevious
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedNextLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToNext
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedAddLevelButton ->
+            { model | levels = model.levels |> LS.add Graph.empty }
+
+        PressedRemoveLevelButton ->
+            { model | levels = model.levels |> LS.removeCurrent }
+
+        PressedMoveLevelOneUoButton ->
+            { model | levels = model.levels |> LS.moveLevelOneUp }
+
+
+viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor computer model =
+    div
+        [ style "position" "absolute"
+        , style "height" "100%"
+        , style "width" "400px"
+        , style "right" "0px"
+        , style "margin" "40px"
+        , style "font-size" "16px"
+        , style "color" "white"
+        , style "overflow" "scroll"
+        ]
+        [ viewDebugger computer model
+        , h2 [] [ text "Editing the selected level" ]
+        , div [] [ text "Press mouse to add vertex" ]
+        , div [] [ text "To move vertices drag them with mouse" ]
+        , div [] [ text "Hold shift and drag with mouse to draw an edge" ]
+        , viewLevelSelection computer model
+        ]
+
+
+viewDebugger : Computer -> Model -> Html EditorMsg
+viewDebugger computer model =
+    text
+        (Debug.toString model.editorState)
+
+
+viewLevelSelection : Computer -> Model -> Html EditorMsg
+viewLevelSelection computer model =
+    div []
+        [ h2 [] [ text "Level Selection" ]
+        , p []
+            [ button [ onClick PressedPreviousLevelButton ] [ text "<" ]
+            , span [ style "margin" "10px" ]
+                [ text <|
+                    String.concat
+                        [ String.fromInt (LS.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LS.size model.levels)
+                        ]
+                ]
+            , button [ onClick PressedNextLevelButton ] [ text ">" ]
+            ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedAddLevelButton ] [ text "Add level" ] ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedRemoveLevelButton ] [ text "Remove current level" ] ]
+        , div [ style "margin-top" "10px" ] [ button [ onClick PressedMoveLevelOneUoButton ] [ text "Move level one up" ] ]
+        ]
