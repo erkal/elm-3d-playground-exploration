@@ -124,7 +124,7 @@ tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
 
                 newComputer =
                     lastComputer
-                        |> Computer.tick deltaTimeInSeconds
+                        |> Computer.tickTime deltaTimeInSeconds
                         |> (case recordStepType of
                                 WithResetComputer ->
                                     Computer.resetInput

@@ -40,7 +40,6 @@ type Msg
     | Resized Int Int
     | VisibilityChanged E.Visibility
     | MouseMove Float Float
-    | MouseClick
     | MouseButton Bool
     | TouchStart (List TouchEvent)
     | TouchMove (List TouchEvent)
@@ -58,7 +57,7 @@ type alias TouchEvent =
 
 init : { devicePixelRatio : Float } -> Configurations -> Computer
 init { devicePixelRatio } initialConfigurations =
-    { mouse = Mouse 0 0 False False
+    { mouse = Mouse 0 0 False
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
@@ -71,24 +70,17 @@ init { devicePixelRatio } initialConfigurations =
 resetInput : Computer -> Computer
 resetInput computer =
     { computer
-        | mouse = Mouse 0 0 False False
+        | mouse = Mouse 0 0 False
         , touches = Dict.empty
         , keyboard = emptyKeyboard
     }
 
 
-tick : Float -> Computer -> Computer
-tick deltaTimeInSeconds computer =
-    if computer.mouse.click then
-        { computer
-            | time = computer.time + deltaTimeInSeconds
-            , mouse = mouseClick False computer.mouse
-        }
-
-    else
-        { computer
-            | time = computer.time + deltaTimeInSeconds
-        }
+tickTime : Float -> Computer -> Computer
+tickTime deltaTimeInSeconds computer =
+    { computer
+        | time = computer.time + deltaTimeInSeconds
+    }
 
 
 update : Msg -> Computer -> Computer
@@ -105,7 +97,7 @@ update msg computer =
         VisibilityChanged visibility ->
             { computer
                 | keyboard = emptyKeyboard
-                , mouse = Mouse computer.mouse.x computer.mouse.y False False
+                , mouse = Mouse computer.mouse.x computer.mouse.y False
             }
 
         KeyChanged isDown key ->
@@ -113,9 +105,6 @@ update msg computer =
 
         MouseMove pageX pageY ->
             { computer | mouse = mouseMove (computer.screen.left + pageX) (computer.screen.top - pageY) computer.mouse }
-
-        MouseClick ->
-            { computer | mouse = mouseClick True computer.mouse }
 
         MouseButton isDown ->
             { computer | mouse = mouseDown isDown computer.mouse }
@@ -226,7 +215,6 @@ type alias Mouse =
     { x : Float
     , y : Float
     , down : Bool
-    , click : Bool
     }
 
 
@@ -261,11 +249,6 @@ toScreen width height =
 
 
 -- MOUSE HELPERS
-
-
-mouseClick : Bool -> Mouse -> Mouse
-mouseClick bool mouse =
-    { mouse | click = bool }
 
 
 mouseDown : Bool -> Mouse -> Mouse
