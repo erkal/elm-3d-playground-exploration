@@ -30,14 +30,19 @@ type alias Model =
     { editorIsOn : Bool
     , levels : Levels Level
     , pointer : Point
+    , gameState : GameState
     , editorState : EditorState
     }
 
 
-type EditorState
+type GameState
     = Idle
-    | DraggingBaseVertex { vertexId : VertexId }
     | DraggingPlayerVertex { vertexId : VertexId }
+
+
+type EditorState
+    = EditorIdle
+    | DraggingBaseVertex { vertexId : VertexId }
     | DraggingEdge { sourceId : VertexId }
 
 
@@ -63,10 +68,11 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { editorIsOn = True
+    { editorIsOn = False
     , levels = LS.singleton Level.exampleLevel
     , pointer = Point 0 0
-    , editorState = Idle
+    , gameState = Idle
+    , editorState = EditorIdle
     }
 
 
@@ -154,7 +160,7 @@ startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
     if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
         case ( model.editorState, baseVertexAtPointer computer model ) of
-            ( Idle, Just ( vertexId, _ ) ) ->
+            ( EditorIdle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingEdge { sourceId = vertexId } }
 
             _ ->
@@ -188,7 +194,7 @@ insertVertex : Computer -> Model -> Model
 insertVertex computer model =
     if computer.mouse.down && computer.keyboard.space then
         case ( model.editorState, baseVertexAtPointer computer model ) of
-            ( Idle, Nothing ) ->
+            ( EditorIdle, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
 
@@ -203,8 +209,8 @@ startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.editorState, playerVertexAtPointer computer model ) of
-            ( Idle, Just ( vertexId, _ ) ) ->
-                { model | editorState = DraggingPlayerVertex { vertexId = vertexId } }
+            ( EditorIdle, Just ( vertexId, _ ) ) ->
+                { model | gameState = DraggingPlayerVertex { vertexId = vertexId } }
 
             _ ->
                 model
@@ -217,7 +223,7 @@ startDraggingBaseVertex : Computer -> Model -> Model
 startDraggingBaseVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.editorState, baseVertexAtPointer computer model ) of
-            ( Idle, Just ( vertexId, _ ) ) ->
+            ( EditorIdle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
 
             _ ->
@@ -239,7 +245,7 @@ dragBaseVertex computer model =
 
 dragPlayerVertex : Computer -> Model -> Model
 dragPlayerVertex computer model =
-    case model.editorState of
+    case model.gameState of
         DraggingPlayerVertex { vertexId } ->
             model |> mapCurrentPlayerGraph (Graph.moveVertex vertexId model.pointer)
 
@@ -250,7 +256,10 @@ dragPlayerVertex computer model =
 endDragging : Computer -> Model -> Model
 endDragging computer model =
     if not computer.mouse.down then
-        { model | editorState = Idle }
+        { model
+            | gameState = Idle
+            , editorState = EditorIdle
+        }
 
     else
         model
