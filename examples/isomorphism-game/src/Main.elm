@@ -27,6 +27,7 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
+    , floatConfig "vertex radius" ( 0.2, 0.5 ) 0.3
     , colorConfig "vertex" (rgb255 59 232 203)
     , colorConfig "edge" (rgb255 59 232 203)
     , colorConfig "floor" (rgb255 35 118 139)
@@ -49,6 +50,32 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> updatePointerPosition computer
+        |> handlePointerInput computer
+
+
+distance : Point -> Point -> Float
+distance p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
+vertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
+vertexAtPointer computer model =
+    model.graph
+        |> Graph.allVertices
+        |> List.filter
+            (\( _, { position } ) ->
+                distance position model.pointer < getFloat "vertex radius" computer
+            )
+        |> List.head
+
+
+handlePointerInput : Computer -> Model -> Model
+handlePointerInput computer model =
+    if computer.mouse.down && vertexAtPointer computer model == Nothing then
+        { model | graph = model.graph |> Graph.insertVertex model.pointer }
+
+    else
+        model
 
 
 updatePointerPosition : Computer -> Model -> Model
@@ -149,7 +176,7 @@ drawVertices computer model =
 
 drawVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawVertex computer ( _, { position } ) =
-    cylinder (getColor "vertex" computer) 0.5 0.4
+    cylinder (getColor "vertex" computer) (getFloat "vertex radius" computer) 0.4
         |> rotateX (degrees 90)
         |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
