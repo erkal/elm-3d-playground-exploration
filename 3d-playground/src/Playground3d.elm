@@ -347,7 +347,7 @@ viewGUI model =
 
     else
         row
-            [ width fill
+            [ width (px (layoutParams.leftStripeWidth + layoutParams.leftBarWidth))
             , height fill
             ]
             [ leftStripe model.activeMode
@@ -360,7 +360,7 @@ leftStripe activeMode =
     let
         distractionFreeButton =
             el
-                [ width (px layoutParams.leftStripeWidth |> minimum layoutParams.leftStripeWidth)
+                [ width (px layoutParams.leftStripeWidth)
                 , padding 4
                 , onClick ClickOnDistractionFreeButton
                 , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
