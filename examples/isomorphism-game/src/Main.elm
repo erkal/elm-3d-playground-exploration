@@ -43,9 +43,13 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
-    , floatConfig "vertex radius" ( 0.2, 0.5 ) 0.3
-    , colorConfig "vertex" (rgb255 59 232 203)
-    , colorConfig "edge" (rgb255 59 232 203)
+    , floatConfig "base vertex radius" ( 0.2, 0.5 ) 0.4
+    , colorConfig "base vertex" (rgb255 59 232 203)
+    , colorConfig "base edge" (rgb255 59 232 203)
+    , floatConfig "player vertex radius" ( 0.1, 0.4 ) 0.3
+    , colorConfig "player vertex" (rgb255 212 99 144)
+    , colorConfig "player edge" (rgb255 212 99 144)
+    , floatConfig "player edge width" ( 0.05, 0.3 ) 0.15
     , colorConfig "floor" (rgb255 35 118 139)
     , floatConfig "period" ( 0.1, 5 ) 1
     ]
@@ -90,7 +94,7 @@ baseVertexAtPointer computer model =
         |> Graph.allVertices
         |> List.filter
             (\( _, { position } ) ->
-                distance position model.pointer < getFloat "vertex radius" computer
+                distance position model.pointer < getFloat "base vertex radius" computer
             )
         |> List.head
 
@@ -228,6 +232,7 @@ view computer model =
         , sunlightElevation = -(degrees 45)
         }
         [ drawBaseGraph computer model
+        , drawPlayerGraph computer model
         , drawDraggedEdge computer model
         , drawFloor computer
         , axes
@@ -271,6 +276,68 @@ drawPointer computer model =
         |> moveY model.pointer.y
 
 
+
+-- DRAWING PLAYER GRAPH
+
+
+drawPlayerGraph : Computer -> Model -> Shape
+drawPlayerGraph computer model =
+    group
+        [ drawVerticesOfPlayerGraph computer model
+        , drawEdgesOfPlayerGraph computer model
+        ]
+
+
+drawVerticesOfPlayerGraph : Computer -> Model -> Shape
+drawVerticesOfPlayerGraph computer model =
+    group
+        (Graph.allVertices (LS.current model.levels).baseGraph
+            |> List.map (drawPlayerVertex computer)
+        )
+
+
+drawPlayerVertex : Computer -> ( VertexId, VertexData ) -> Shape
+drawPlayerVertex computer ( _, { position } ) =
+    sphere (getColor "player vertex" computer) (getFloat "player vertex radius" computer)
+        |> rotateX (degrees 90)
+        |> scale (wave 1 1.1 1 computer.time)
+        |> moveX position.x
+        |> moveY position.y
+
+
+drawEdgesOfPlayerGraph : Computer -> Model -> Shape
+drawEdgesOfPlayerGraph computer model =
+    group
+        (model.levels
+            |> LS.current
+            |> .baseGraph
+            |> Graph.allEdges
+            |> List.map (drawPlayerEdge computer)
+        )
+
+
+drawPlayerEdge : Computer -> ( Point, Point ) -> Shape
+drawPlayerEdge computer ( start_, end ) =
+    let
+        ( length, rotation ) =
+            toPolar ( end.x - start_.x, end.y - start_.y )
+
+        width =
+            getFloat "player edge width" computer
+    in
+    block
+        (getColor "player edge" computer)
+        ( length, wave width (1.1 * width) 1 computer.time, 0.4 )
+        |> moveX (length / 2)
+        |> rotateZ rotation
+        |> moveX start_.x
+        |> moveY start_.y
+
+
+
+-- DRAWING BASE GRAPH
+
+
 drawBaseGraph : Computer -> Model -> Shape
 drawBaseGraph computer model =
     group
@@ -289,9 +356,8 @@ drawVerticesOfBaseGraph computer model =
 
 drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
-    sphere (getColor "vertex" computer) (getFloat "vertex radius" computer)
+    cylinder (getColor "base vertex" computer) (getFloat "base vertex radius" computer) 0.3
         |> rotateX (degrees 90)
-        |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
 
@@ -313,7 +379,7 @@ drawBaseEdge computer ( start_, end ) =
         ( length, rotation ) =
             toPolar ( end.x - start_.x, end.y - start_.y )
     in
-    block (getColor "edge" computer) ( length, 0.3, 0.3 )
+    block (getColor "base edge" computer) ( length, 0.3, 0.3 )
         |> moveX (length / 2)
         |> rotateZ rotation
         |> moveX start_.x
