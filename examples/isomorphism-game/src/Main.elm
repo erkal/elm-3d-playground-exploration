@@ -486,24 +486,21 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Element EditorMsg
 viewEditor computer model =
-    layout
-        [ padding 10 ]
-        (column
-            [ alignTop
-            , alignRight
-            , padding 20
-            , spacing 20
-            , width (px 600)
-            , height fill
-            , Font.color Colors.lightText
-            , Font.size 13
-            ]
-            [ editorOnOffButton computer model
-            , editorContent computer model
-            ]
-        )
+    column
+        [ alignTop
+        , alignRight
+        , padding 20
+        , spacing 20
+        , width (px 600)
+        , height fill
+        , Font.color Colors.lightText
+        , Font.size 13
+        ]
+        [ editorOnOffButton computer model
+        , editorContent computer model
+        ]
 
 
 editorContent : Computer -> Model -> Element EditorMsg
