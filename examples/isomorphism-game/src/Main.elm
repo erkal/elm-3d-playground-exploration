@@ -6,7 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Graph exposing (Graph, Point, VertexData, VertexId)
+import Graph exposing (Graph, Point, VertexData, VertexId, distance)
 import Html exposing (Html)
 import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
@@ -54,6 +54,7 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
+    , floatConfig "pointer reach radius" ( 0.5, 2 ) 1
     , floatConfig "base vertex radius" ( 0.2, 0.5 ) 0.4
     , colorConfig "base vertex" (rgb255 59 232 203)
     , colorConfig "base edge" (rgb255 59 232 203)
@@ -106,26 +107,21 @@ update computer model =
            )
 
 
-distance : Point -> Point -> Float
-distance p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
-
-
-playerVertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
-playerVertexAtPointer computer model =
+playerVertexAtPointerReach : Computer -> Model -> Maybe ( VertexId, VertexData )
+playerVertexAtPointerReach computer model =
     model.levels
         |> LS.current
         |> .playerGraph
         |> Graph.allVertices
         |> List.filter
             (\( _, { position } ) ->
-                distance position model.pointer < getFloat "base vertex radius" computer
+                distance position model.pointer < getFloat "pointer reach radius" computer
             )
         |> List.head
 
 
-baseVertexAtPointer : Computer -> Model -> Maybe ( VertexId, VertexData )
-baseVertexAtPointer computer model =
+baseVertexAtReach : Computer -> Model -> Maybe ( VertexId, VertexData )
+baseVertexAtReach computer model =
     model.levels
         |> LS.current
         |> .baseGraph
@@ -159,7 +155,7 @@ handleInputForEditor computer model =
 startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
     if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
-        case ( model.editorState, baseVertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtReach computer model ) of
             ( EditorIdle, Just ( vertexId, _ ) ) ->
                 { model | editorState = DraggingEdge { sourceId = vertexId } }
 
@@ -173,7 +169,7 @@ startDraggingBaseEdge computer model =
 insertBaseEdge : Computer -> Model -> Model
 insertBaseEdge computer model =
     if not computer.mouse.down then
-        case ( model.editorState, baseVertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtReach computer model ) of
             ( DraggingEdge { sourceId }, Just ( targetId, _ ) ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
@@ -193,7 +189,7 @@ insertBaseEdge computer model =
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
     if computer.mouse.down && computer.keyboard.space then
-        case ( model.editorState, baseVertexAtPointer computer model ) of
+        case ( model.editorState, baseVertexAtReach computer model ) of
             ( EditorIdle, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
@@ -208,7 +204,7 @@ insertVertex computer model =
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.editorState, playerVertexAtPointer computer model ) of
+        case ( model.editorState, playerVertexAtPointerReach computer model ) of
             ( EditorIdle, Just ( vertexId, _ ) ) ->
                 { model | gameState = DraggingPlayerVertex { vertexId = vertexId } }
 
@@ -222,8 +218,12 @@ startDraggingPlayerVertex computer model =
 startDraggingBaseVertex : Computer -> Model -> Model
 startDraggingBaseVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.editorState, baseVertexAtPointer computer model ) of
-            ( EditorIdle, Just ( vertexId, _ ) ) ->
+        case
+            ( model.editorState
+            , Graph.closestVertex model.pointer (LS.current model.levels).baseGraph
+            )
+        of
+            ( EditorIdle, Just { vertexId } ) ->
                 { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
 
             _ ->
@@ -337,8 +337,7 @@ drawDraggedEdge computer model =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder orange 0.1 1
-        |> moveY 0.5
+    cylinder orange (getFloat "pointer reach radius" computer) 0.05
         |> rotateX (degrees 90)
         |> moveX model.pointer.x
         |> moveY model.pointer.y

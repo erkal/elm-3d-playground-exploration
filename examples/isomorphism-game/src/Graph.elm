@@ -29,6 +29,42 @@ empty =
     Graph Dict.empty
 
 
+
+-- QUERY
+
+
+closestVertex :
+    Point
+    -> Graph
+    ->
+        Maybe
+            { distance : Float
+            , vertexId : VertexId
+            , vertexData : VertexData
+            }
+closestVertex p (Graph graph) =
+    graph
+        |> Dict.map
+            (\vertexId vertexData ->
+                { distance = distance vertexData.position p
+                , vertexId = vertexId
+                , vertexData = vertexData
+                }
+            )
+        |> Dict.values
+        |> List.sortBy .distance
+        |> List.head
+
+
+distance : Point -> Point -> Float
+distance p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
+
+-- EDIT
+
+
 moveVertex : VertexId -> Point -> Graph -> Graph
 moveVertex vertexId newPosition (Graph graph) =
     let
