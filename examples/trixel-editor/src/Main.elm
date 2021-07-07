@@ -7,6 +7,7 @@ import Color exposing (Color, black, blue, green, red, white)
 import ColorPalette exposing (Palette(..))
 import Dict
 import Dict.Any as AnyDict exposing (AnyDict)
+import Element exposing (Element, html)
 import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
 import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
@@ -380,30 +381,32 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Element EditorMsg
 viewEditor computer model =
-    div
-        [ style "height" "100%"
-        , style "width" "260px"
-        , style "margin-top" "40px"
-        , style "margin-left" "20px"
-        , style "font-size" "12px"
-        , style "overflow" "scroll"
-        ]
-        [ h2 [] [ text "Editing the selected level" ]
-        , div [] [ text "Press mouse to add trixel" ]
-        , div [] [ text "Hold shift and press mouse to remove trixel" ]
-        , hr [] []
-        , h2 [] [ text "Color Palette" ]
-        , div [] [ selectColorPalette model ]
-        , div [] [ buttonForSettingBackgroundColor ]
-        , div [] [ text (String.fromInt model.selectedColorIndex) ]
-        , div [] [ viewColorPalette model ]
-        , hr [] []
-        , levelSelection model
-        , hr [] []
-        , h2 [] [ text "What More?" ]
-        ]
+    html <|
+        div
+            [ style "position" "absolute"
+            , style "height" "100%"
+            , style "width" "260px"
+            , style "right" "0px"
+            , style "margin" "40px"
+            , style "font-size" "12px"
+            , style "overflow" "scroll"
+            ]
+            [ h2 [] [ text "Editing the selected level" ]
+            , div [] [ text "Press mouse to add trixel" ]
+            , div [] [ text "Hold shift and press mouse to remove trixel" ]
+            , hr [] []
+            , h2 [] [ text "Color Palette" ]
+            , div [] [ selectColorPalette model ]
+            , div [] [ buttonForSettingBackgroundColor ]
+            , div [] [ text (String.fromInt model.selectedColorIndex) ]
+            , div [] [ viewColorPalette model ]
+            , hr [] []
+            , levelSelection model
+            , hr [] []
+            , h2 [] [ text "What More?" ]
+            ]
 
 
 buttonForSettingBackgroundColor : Html EditorMsg

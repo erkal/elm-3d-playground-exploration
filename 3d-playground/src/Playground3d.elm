@@ -155,7 +155,7 @@ gameWithConfigurations viewGameModel updateGameModel initialConfigurations initG
         updateGameModel
         initialConfigurations
         initGameModel
-        (\_ _ -> div [] [])
+        (\_ _ -> none)
         (\_ _ gameModel -> gameModel)
 
 
@@ -164,7 +164,7 @@ gameWithConfigurationsAndEditor :
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
     -> (Computer -> gameModel)
-    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> (Computer -> gameModel -> Element levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
 gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
@@ -301,7 +301,7 @@ layoutParams =
 
 view :
     (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> (Computer -> gameModel -> Element levelEditorMsg)
     -> Model gameModel
     -> Html (Msg levelEditorMsg)
 view viewGameModel viewLevelEditor model =
@@ -322,7 +322,7 @@ view viewGameModel viewLevelEditor model =
         , htmlAttribute (HA.style "user-select" "none")
 
         --
-        , inFront (html (Html.map LevelEditorMsg (viewLevelEditor computer gameModel)))
+        , inFront (Element.map LevelEditorMsg (viewLevelEditor computer gameModel))
         , inFront (viewGUI model)
         ]
         (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
