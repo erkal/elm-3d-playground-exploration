@@ -1,12 +1,12 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, darkGray, gray, green, lightGray, orange, red, rgb255, white)
+import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightGray, orange, red, rgb255, white)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Geometry exposing (Point, lerp)
+import Geometry exposing (Point, lerp, middlePoint)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
 import Level exposing (Level)
@@ -38,8 +38,9 @@ type alias Model =
 type GameState
     = Idle
     | DraggingPlayerVertex
-        { vertexId : VertexId
-        , targetId : Maybe VertexId
+        { startPosition : Point
+        , vertexId : VertexId
+        , target : Maybe ( VertexId, Point )
         }
 
 
@@ -57,9 +58,11 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
-    , floatConfig "sunlight azimuth" ( -pi, pi ) -2
-    , floatConfig "sunlight elevation" ( -pi, pi ) -2
+    , floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
+    , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
     , colorConfig "game background" (rgb255 60 50 50)
+    , colorConfig "pointer player" red
+    , colorConfig "pointer base" darkGreen
     , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.7
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
     , colorConfig "base" white
@@ -112,9 +115,33 @@ update computer model =
     in
     model
         |> updatePointerPosition computer
+        |> setAnimationTargetsOnDrag computer
         |> mapCurrentPlayerGraph Graph.tickAnimation
         |> mapCurrentBaseGraph Graph.tickAnimation
         |> handleInput
+
+
+setAnimationTargetsOnDrag : Computer -> Model -> Model
+setAnimationTargetsOnDrag computer model =
+    case model.gameState of
+        DraggingPlayerVertex { startPosition, vertexId, target } ->
+            case target of
+                Just ( targetId, targetPosition ) ->
+                    let
+                        elavate p =
+                            { p | z = p.z + 2 }
+                    in
+                    model
+                        |> mapCurrentPlayerGraph
+                            (Graph.setAnimationTarget targetId
+                                (elavate (middlePoint startPosition targetPosition))
+                            )
+
+                Nothing ->
+                    model
+
+        _ ->
+            model
 
 
 handlePlayerInput : Computer -> Model -> Model
@@ -219,7 +246,14 @@ startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
-                { model | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing } }
+                { model
+                    | gameState =
+                        DraggingPlayerVertex
+                            { startPosition = model.pointer
+                            , vertexId = vertexId
+                            , target = Nothing
+                            }
+                }
 
             _ ->
                 model
@@ -263,12 +297,19 @@ dragBaseVertex computer model =
 updateDraggingTarget : Computer -> Model -> Model
 updateDraggingTarget computer model =
     case model.gameState of
-        DraggingPlayerVertex { vertexId } ->
+        DraggingPlayerVertex dragData ->
             { model
                 | gameState =
                     DraggingPlayerVertex
-                        { vertexId = vertexId
-                        , targetId = secondNearestPlayerVertexAtReach computer model
+                        { dragData
+                            | target =
+                                secondNearestPlayerVertexAtReach computer model
+                                    |> Maybe.map
+                                        (\vertexId ->
+                                            ( vertexId
+                                            , Graph.getPosition vertexId (LS.current model.levels).playerGraph
+                                            )
+                                        )
                         }
             }
 
@@ -349,7 +390,7 @@ view computer model =
 
 floor : Computer -> Shape
 floor computer =
-    block (getColor "game background" computer) ( 30, 30, 1 )
+    block (getColor "game background" computer) ( 100, 100, 1 )
         |> moveZ -0.5
         |> moveZ -(getFloat "base height" computer)
 
@@ -392,13 +433,13 @@ drawPointer computer model =
     let
         ( color, zShift, radius ) =
             if model.editorIsOn then
-                ( black
+                ( getColor "pointer base" computer
                 , -(getFloat "base height" computer) + 0.01
                 , getFloat "pointer reach for base" computer
                 )
 
             else
-                ( orange
+                ( getColor "pointer player" computer
                 , 0
                 , getFloat "pointer reach for player" computer
                 )
@@ -506,6 +547,7 @@ drawBaseGraph computer model =
         [ drawVerticesOfBaseGraph computer model
         , drawEdgesOfBaseGraph computer model
         ]
+        |> moveZ -0.2
 
 
 drawVerticesOfBaseGraph : Computer -> Model -> Shape
