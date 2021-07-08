@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (blue, green, orange, red, rgb255)
+import Color exposing (black, blue, darkGray, gray, green, lightGray, orange, red, rgb255, white)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -11,7 +11,6 @@ import Html exposing (Html)
 import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
-import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Colors as Colors
 import Playground3d.Scene as Scene exposing (..)
@@ -56,18 +55,17 @@ type EditorState
 initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
     , colorConfig "game background" (rgb255 35 118 139)
     , floatConfig "pointer reach radius" ( 0.5, 2 ) 1
-    , floatConfig "period" ( 0.1, 5 ) 1
-    , colorConfig "base vertex" (rgb255 59 232 203)
-    , colorConfig "base edge" (rgb255 59 232 203)
-    , floatConfig "base vertex radius" ( 0.2, 0.5 ) 0.4
-    , floatConfig "base edge width" ( 0.2, 0.5 ) 0.4
-    , colorConfig "player vertex" (rgb255 212 99 144)
-    , colorConfig "player edge" (rgb255 212 99 144)
-    , floatConfig "player vertex radius" ( 0.1, 0.4 ) 0.3
-    , floatConfig "player edge width" ( 0.05, 0.3 ) 0.15
+    , colorConfig "base vertex" white
+    , colorConfig "base edge" white
+    , floatConfig "base vertex radius" ( 0.2, 1 ) 0.8
+    , floatConfig "base edge width" ( 0.2, 1 ) 0.7
+    , colorConfig "player vertex" (rgb255 120 150 210)
+    , colorConfig "player edge" (rgb255 120 150 210)
+    , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.5
+    , floatConfig "player edge width" ( 0.05, 0.5 ) 0.4
     ]
 
 
@@ -214,7 +212,16 @@ startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
-                { model | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing } }
+                { model
+                    | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing }
+                }
+                    |> mapCurrentPlayerGraph
+                        (Graph.setAnimationTarget vertexId
+                            { x = model.pointer.x
+                            , y = model.pointer.y
+                            , z = 0.2
+                            }
+                        )
 
             _ ->
                 model
@@ -249,7 +256,7 @@ dragBaseVertex : Computer -> Model -> Model
 dragBaseVertex computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
-            model |> mapCurrentBaseGraph (Graph.moveVertex vertexId model.pointer)
+            model |> mapCurrentBaseGraph (Graph.setPosition vertexId model.pointer)
 
         _ ->
             model
@@ -275,7 +282,9 @@ dragPlayerVertex : Computer -> Model -> Model
 dragPlayerVertex computer model =
     case model.gameState of
         DraggingPlayerVertex { vertexId } ->
-            model |> mapCurrentPlayerGraph (Graph.moveVertex vertexId model.pointer)
+            model
+                |> mapCurrentPlayerGraph
+                    (Graph.setAnimationTarget vertexId model.pointer)
 
         _ ->
             model
@@ -323,21 +332,24 @@ view computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor =
-            if model.editorIsOn then
-                rgb255 46 46 46
-
-            else
-                getColor "game background" computer
-        , sunlightAzimuth = -(degrees 135)
-        , sunlightElevation = -(degrees 45)
+        , backgroundColor = white
+        , sunlightAzimuth = 0
+        , sunlightElevation = -(degrees 90)
         }
         [ drawBaseGraph computer model
         , drawPlayerGraph computer model
         , drawDraggedBaseEdge computer model
-        , axes
+
+        --, axes
+        , floor computer
         , drawPointer computer model
         ]
+
+
+floor : Computer -> Shape
+floor computer =
+    block (getColor "game background" computer) ( 30, 30, 1 )
+        |> moveZ -0.51
 
 
 axes : Shape
@@ -375,7 +387,7 @@ drawDraggedBaseEdge computer model =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder orange (getFloat "pointer reach radius" computer) 0.02
+    cylinder gray (getFloat "pointer reach radius" computer) 0.02
         |> rotateX (degrees 90)
         |> moveX model.pointer.x
         |> moveY model.pointer.y
@@ -405,7 +417,7 @@ drawVerticesOfPlayerGraph computer model =
 drawPlayerVertex : Computer -> GameState -> ( VertexId, VertexData ) -> Shape
 drawPlayerVertex computer gameState ( vertexId, { position } ) =
     sphere (getColor "player vertex" computer) (getFloat "player vertex radius" computer)
-        |> scale (wave 1 1.1 1 computer.time)
+        --|> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
         |> moveZ position.z
@@ -594,6 +606,7 @@ viewEditor computer model =
         ]
         [ editorOnOffButton computer model
         , editorContent computer model
+        , viewDebugger computer model
         ]
 
 
@@ -607,7 +620,6 @@ editorContent computer model =
             ]
             [ explanationsForEditor computer model
             , viewLevelSelection computer model
-            , viewDebugger computer model
             ]
 
     else
@@ -644,9 +656,8 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
-        , text <|
-            "Editor state: "
-                ++ Debug.toString model.editorState
+        , paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        , paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
 

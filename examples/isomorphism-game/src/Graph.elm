@@ -90,9 +90,9 @@ edges (Graph graph) =
             )
 
 
-distance : Point -> Point -> Float
-distance p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2 + (q.z - p.z) ^ 2)
+distanceXY : Point -> Point -> Float
+distanceXY p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
 
 
 twoNeaerstVerticesAtReach : Float -> Point -> Graph -> Maybe ( VertexId, Maybe VertexId )
@@ -102,7 +102,7 @@ twoNeaerstVerticesAtReach reach p graph =
             (\( vertexId, { position } ) ->
                 let
                     dist =
-                        distance position p
+                        distanceXY position p
                 in
                 if dist < reach then
                     Just ( vertexId, dist )
@@ -176,8 +176,20 @@ lerp rate target current =
     }
 
 
-moveVertex : VertexId -> Point -> Graph -> Graph
-moveVertex vertexId newPosition (Graph graph) =
+setAnimationTarget : VertexId -> Point -> Graph -> Graph
+setAnimationTarget vertexId animationTarget (Graph graph) =
+    let
+        updatePosition vertexData =
+            { vertexData | animationTarget = animationTarget }
+    in
+    Graph
+        (graph
+            |> Dict.update vertexId (Maybe.map updatePosition)
+        )
+
+
+setPosition : VertexId -> Point -> Graph -> Graph
+setPosition vertexId newPosition (Graph graph) =
     let
         updatePosition vertexData =
             { vertexData | position = newPosition }
