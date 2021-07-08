@@ -57,18 +57,16 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
-    , floatConfig "sunlight azimuth" ( -pi, pi ) -0.45
-    , floatConfig "sunlight elevation" ( -pi, pi ) -0.45
-    , colorConfig "game background" (rgb255 35 118 139)
+    , floatConfig "sunlight azimuth" ( -pi, pi ) -2
+    , floatConfig "sunlight elevation" ( -pi, pi ) -2
+    , colorConfig "game background" (rgb255 60 50 50)
     , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.7
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
-    , colorConfig "base vertex" white
-    , colorConfig "base edge" white
+    , colorConfig "base" white
     , floatConfig "base height" ( 0.01, 5 ) 1
-    , floatConfig "base vertex radius" ( 0.2, 1 ) 0.8
-    , floatConfig "base edge width" ( 0.2, 1 ) 0.7
-    , colorConfig "player vertex" (rgb255 120 150 210)
-    , colorConfig "player edge" (rgb255 120 150 210)
+    , floatConfig "base vertex radius" ( 0.2, 2 ) 0.8
+    , floatConfig "base edge width" ( 0.2, 1.5 ) 1
+    , colorConfig "player" (rgb255 165 85 85)
     , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.5
     , floatConfig "player edge width" ( 0.05, 0.6 ) 0.5
     ]
@@ -104,16 +102,19 @@ mapCurrentPlayerGraph up model =
 
 update : Computer -> Model -> Model
 update computer model =
-    model
-        |> updatePointerPosition computer
-        |> mapCurrentPlayerGraph Graph.tickAnimation
-        |> mapCurrentBaseGraph Graph.tickAnimation
-        |> (if model.editorIsOn then
+    let
+        handleInput =
+            if model.editorIsOn then
                 handleInputForEditor computer
 
             else
                 handlePlayerInput computer
-           )
+    in
+    model
+        |> updatePointerPosition computer
+        |> mapCurrentPlayerGraph Graph.tickAnimation
+        |> mapCurrentBaseGraph Graph.tickAnimation
+        |> handleInput
 
 
 handlePlayerInput : Computer -> Model -> Model
@@ -376,7 +377,7 @@ drawDraggedBaseEdge computer model =
                         , model.pointer.y - sourcePosition.y
                         )
             in
-            block (getColor "base edge" computer) ( length, 0.3, 0.3 )
+            block (getColor "base" computer) ( length, 0.3, 0.3 )
                 |> moveX (length / 2)
                 |> rotateZ rotation
                 |> moveX sourcePosition.x
@@ -432,7 +433,7 @@ drawVerticesOfPlayerGraph computer model =
 
 drawPlayerVertex : Computer -> GameState -> ( VertexId, VertexData ) -> Shape
 drawPlayerVertex computer gameState ( vertexId, { position } ) =
-    sphere (getColor "player vertex" computer) (getFloat "player vertex radius" computer)
+    sphere (getColor "player" computer) (getFloat "player vertex radius" computer)
         --|> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
@@ -474,7 +475,7 @@ drawPlayerEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
             getFloat "player edge width" computer
     in
     block
-        (getColor "player edge" computer)
+        (getColor "player" computer)
         ( radius, width, width )
         |> moveX (radius / 2)
         |> rotateY (inclination - degrees 90)
@@ -518,7 +519,7 @@ drawVerticesOfBaseGraph computer model =
 drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
     cylinder
-        (getColor "base vertex" computer)
+        (getColor "base" computer)
         (getFloat "base vertex radius" computer)
         (getFloat "base height" computer)
         |> rotateX (degrees 90)
@@ -559,7 +560,7 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
         baseHeight =
             getFloat "base height" computer
     in
-    block (getColor "base edge" computer)
+    block (getColor "base" computer)
         ( length
         , getFloat "base edge width" computer
         , baseHeight
