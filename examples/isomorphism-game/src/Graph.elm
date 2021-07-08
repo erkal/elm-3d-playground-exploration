@@ -14,6 +14,7 @@ type alias VertexId =
 
 type alias VertexData =
     { position : Point
+    , animationTarget : Point
     , outNeighbours : Set VertexId
     }
 
@@ -145,7 +146,34 @@ secondNearestVertexAtReach reach p graph =
 
 
 
--- EDIT
+-- UPDATE
+
+
+tickAnimation : Graph -> Graph
+tickAnimation (Graph graph) =
+    Graph
+        (graph
+            |> Dict.map
+                (\_ vertexData ->
+                    { vertexData
+                        | position =
+                            vertexData.position
+                                |> lerp 0.3 vertexData.animationTarget
+                    }
+                )
+        )
+
+
+lerp : Float -> Point -> Point -> Point
+lerp rate target current =
+    let
+        lerpFloat get =
+            get current + rate * (get target - get current)
+    in
+    { x = lerpFloat .x
+    , y = lerpFloat .y
+    , z = lerpFloat .z
+    }
 
 
 moveVertex : VertexId -> Point -> Graph -> Graph
@@ -170,6 +198,7 @@ insertVertex position (Graph graph) =
 
         newVertex =
             { position = position
+            , animationTarget = position
             , outNeighbours = Set.empty
             }
     in
@@ -203,6 +232,7 @@ insertEdgeAndVertex source targetPosition (Graph graph) =
 
         targetVertex =
             { position = targetPosition
+            , animationTarget = targetPosition
             , outNeighbours = Set.empty
             }
     in

@@ -57,16 +57,17 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
+    , colorConfig "game background" (rgb255 35 118 139)
     , floatConfig "pointer reach radius" ( 0.5, 2 ) 1
-    , floatConfig "base vertex radius" ( 0.2, 0.5 ) 0.4
+    , floatConfig "period" ( 0.1, 5 ) 1
     , colorConfig "base vertex" (rgb255 59 232 203)
     , colorConfig "base edge" (rgb255 59 232 203)
-    , floatConfig "player vertex radius" ( 0.1, 0.4 ) 0.3
+    , floatConfig "base vertex radius" ( 0.2, 0.5 ) 0.4
+    , floatConfig "base edge width" ( 0.2, 0.5 ) 0.4
     , colorConfig "player vertex" (rgb255 212 99 144)
     , colorConfig "player edge" (rgb255 212 99 144)
+    , floatConfig "player vertex radius" ( 0.1, 0.4 ) 0.3
     , floatConfig "player edge width" ( 0.05, 0.3 ) 0.15
-    , colorConfig "game background" (rgb255 35 118 139)
-    , floatConfig "period" ( 0.1, 5 ) 1
     ]
 
 
@@ -107,6 +108,7 @@ update computer model =
 
             else
                 handlePlayerInput computer
+                    >> mapCurrentPlayerGraph Graph.tickAnimation
            )
 
 
@@ -522,7 +524,11 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
                 , targetPosition.y - sourcePosition.y
                 )
     in
-    block (getColor "base edge" computer) ( length, 0.3, 0.05 )
+    block (getColor "base edge" computer)
+        ( length
+        , getFloat "base edge width" computer
+        , 0.05
+        )
         |> moveX (length / 2)
         |> rotateZ rotation
         |> moveX sourcePosition.x
