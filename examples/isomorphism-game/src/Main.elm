@@ -37,7 +37,10 @@ type alias Model =
 
 type GameState
     = Idle
-    | DraggingPlayerVertex { vertexId : VertexId, targetId : Maybe VertexId }
+    | DraggingPlayerVertex
+        { vertexId : VertexId
+        , targetId : Maybe VertexId
+        }
 
 
 type EditorState
@@ -107,72 +110,6 @@ update computer model =
            )
 
 
-firstTwoPlayerVerticesAtPointerReach : Computer -> Model -> Maybe ( VertexId, Maybe VertexId )
-firstTwoPlayerVerticesAtPointerReach computer model =
-    model.levels
-        |> LS.current
-        |> .playerGraph
-        |> Graph.vertices
-        |> List.filterMap
-            (\( vertexId, { position } ) ->
-                let
-                    dist =
-                        distance position model.pointer
-                in
-                if dist < getFloat "pointer reach radius" computer then
-                    Just ( vertexId, dist )
-
-                else
-                    Nothing
-            )
-        |> List.sortBy Tuple.second
-        |> List.map Tuple.first
-        |> (\l ->
-                case l of
-                    first :: second :: _ ->
-                        Just ( first, Just second )
-
-                    [ only ] ->
-                        Just ( only, Nothing )
-
-                    [] ->
-                        Nothing
-           )
-
-
-firstPlayerVertexAtPointerReach : Computer -> Model -> Maybe VertexId
-firstPlayerVertexAtPointerReach computer model =
-    case firstTwoPlayerVerticesAtPointerReach computer model of
-        Just ( first, _ ) ->
-            Just first
-
-        _ ->
-            Nothing
-
-
-secondPlayerVertexAtPointerReach : Computer -> Model -> Maybe VertexId
-secondPlayerVertexAtPointerReach computer model =
-    case firstTwoPlayerVerticesAtPointerReach computer model of
-        Just ( first, Just second ) ->
-            Just second
-
-        _ ->
-            Nothing
-
-
-baseVertexAtReach : Computer -> Model -> Maybe ( VertexId, VertexData )
-baseVertexAtReach computer model =
-    model.levels
-        |> LS.current
-        |> .baseGraph
-        |> Graph.vertices
-        |> List.filter
-            (\( _, { position } ) ->
-                distance position model.pointer < getFloat "base vertex radius" computer
-            )
-        |> List.head
-
-
 handlePlayerInput : Computer -> Model -> Model
 handlePlayerInput computer model =
     model
@@ -193,11 +130,39 @@ handleInputForEditor computer model =
         |> endDragging computer
 
 
+nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
+nearestBaseVertexAtReach computer model =
+    Graph.neaerstVertexAtReach
+        (getFloat "pointer reach radius" computer)
+        model.pointer
+        (LS.current model.levels).baseGraph
+
+
+nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
+nearestPlayerVertexAtReach computer model =
+    Graph.neaerstVertexAtReach
+        (getFloat "pointer reach radius" computer)
+        model.pointer
+        (LS.current model.levels).playerGraph
+
+
+secondNearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
+secondNearestPlayerVertexAtReach computer model =
+    Graph.secondNearestVertexAtReach
+        (getFloat "pointer reach radius" computer)
+        model.pointer
+        (LS.current model.levels).playerGraph
+
+
 startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
     if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
-        case ( model.editorState, baseVertexAtReach computer model ) of
-            ( EditorIdle, Just ( vertexId, _ ) ) ->
+        case
+            ( model.editorState
+            , nearestBaseVertexAtReach computer model
+            )
+        of
+            ( EditorIdle, Just vertexId ) ->
                 { model | editorState = DraggingBaseEdge { sourceId = vertexId } }
 
             _ ->
@@ -210,8 +175,8 @@ startDraggingBaseEdge computer model =
 insertBaseEdge : Computer -> Model -> Model
 insertBaseEdge computer model =
     if not computer.mouse.down then
-        case ( model.editorState, baseVertexAtReach computer model ) of
-            ( DraggingBaseEdge { sourceId }, Just ( targetId, _ ) ) ->
+        case ( model.editorState, nearestBaseVertexAtReach computer model ) of
+            ( DraggingBaseEdge { sourceId }, Just targetId ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
 
@@ -230,7 +195,7 @@ insertBaseEdge computer model =
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
     if computer.mouse.down && computer.keyboard.space then
-        case ( model.editorState, baseVertexAtReach computer model ) of
+        case ( model.editorState, nearestBaseVertexAtReach computer model ) of
             ( EditorIdle, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
@@ -245,7 +210,7 @@ insertVertex computer model =
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
-        case ( model.gameState, firstPlayerVertexAtPointerReach computer model ) of
+        case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
                 { model | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing } }
 
@@ -260,35 +225,15 @@ startDraggingPlayerVertex computer model =
 -- QUERY
 
 
-closestBaseVertexToPointer : Model -> Maybe { distance : Float, vertexId : VertexId, vertexData : VertexData }
-closestBaseVertexToPointer model =
-    (LS.current model.levels).baseGraph
-        |> Graph.vertices
-        |> List.map
-            (\( vertexId, vertexData ) ->
-                { distance = distance model.pointer vertexData.position
-                , vertexId = vertexId
-                , vertexData = vertexData
-                }
-            )
-        |> List.sortBy .distance
-        |> List.head
-
-
-distance : Point -> Point -> Float
-distance p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
-
-
 startDraggingBaseVertex : Computer -> Model -> Model
 startDraggingBaseVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case
             ( model.editorState
-            , closestBaseVertexToPointer model
+            , nearestBaseVertexAtReach computer model
             )
         of
-            ( EditorIdle, Just { vertexId } ) ->
+            ( EditorIdle, Just vertexId ) ->
                 { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
 
             _ ->
@@ -316,7 +261,7 @@ updateDraggingTarget computer model =
                 | gameState =
                     DraggingPlayerVertex
                         { vertexId = vertexId
-                        , targetId = secondPlayerVertexAtPointerReach computer model
+                        , targetId = secondNearestPlayerVertexAtReach computer model
                         }
             }
 
@@ -695,8 +640,7 @@ viewDebugger computer model =
         [ header "Debugger"
         , text <|
             "Editor state: "
-
-        --++ Debug.toString model.editorState
+                ++ Debug.toString model.editorState
         ]
 
 

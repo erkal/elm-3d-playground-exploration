@@ -91,6 +91,61 @@ edges (Graph graph) =
             )
 
 
+distance : Point -> Point -> Float
+distance p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2 + (q.z - p.z) ^ 2)
+
+
+twoNeaerstVerticesAtReach : Float -> Point -> Graph -> Maybe ( VertexId, Maybe VertexId )
+twoNeaerstVerticesAtReach reach p graph =
+    vertices graph
+        |> List.filterMap
+            (\( vertexId, { position } ) ->
+                let
+                    dist =
+                        distance position p
+                in
+                if dist < reach then
+                    Just ( vertexId, dist )
+
+                else
+                    Nothing
+            )
+        |> List.sortBy Tuple.second
+        |> List.map Tuple.first
+        |> (\l ->
+                case l of
+                    first :: second :: _ ->
+                        Just ( first, Just second )
+
+                    [ only ] ->
+                        Just ( only, Nothing )
+
+                    [] ->
+                        Nothing
+           )
+
+
+neaerstVertexAtReach : Float -> Point -> Graph -> Maybe VertexId
+neaerstVertexAtReach reach p graph =
+    case twoNeaerstVerticesAtReach reach p graph of
+        Just ( first, _ ) ->
+            Just first
+
+        _ ->
+            Nothing
+
+
+secondNearestVertexAtReach : Float -> Point -> Graph -> Maybe VertexId
+secondNearestVertexAtReach reach p graph =
+    case twoNeaerstVerticesAtReach reach p graph of
+        Just ( first, Just second ) ->
+            Just second
+
+        _ ->
+            Nothing
+
+
 
 -- EDIT
 
