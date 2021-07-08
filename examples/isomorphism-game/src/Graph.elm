@@ -1,6 +1,5 @@
 module Graph exposing
     ( Graph
-    , Point
     , VertexData
     , VertexId
     , edges
@@ -19,6 +18,7 @@ module Graph exposing
     )
 
 import Dict exposing (Dict)
+import Geometry exposing (Point, distanceXY, lerp)
 import Set exposing (Set)
 
 
@@ -34,13 +34,6 @@ type alias VertexData =
     { position : Point
     , animationTarget : Point
     , outNeighbours : Set VertexId
-    }
-
-
-type alias Point =
-    { x : Float
-    , y : Float
-    , z : Float
     }
 
 
@@ -108,11 +101,6 @@ edges (Graph graph) =
             )
 
 
-distanceXY : Point -> Point -> Float
-distanceXY p q =
-    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
-
-
 twoNeaerstVerticesAtReach : Float -> Point -> Graph -> Maybe ( VertexId, Maybe VertexId )
 twoNeaerstVerticesAtReach reach p graph =
     vertices graph
@@ -176,22 +164,10 @@ tickAnimation (Graph graph) =
                     { vertexData
                         | position =
                             vertexData.position
-                                |> lerp 0.3 vertexData.animationTarget
+                                |> lerp 0.5 vertexData.animationTarget
                     }
                 )
         )
-
-
-lerp : Float -> Point -> Point -> Point
-lerp rate target current =
-    let
-        lerpFloat get =
-            get current + rate * (get target - get current)
-    in
-    { x = lerpFloat .x
-    , y = lerpFloat .y
-    , z = lerpFloat .z
-    }
 
 
 setAnimationTarget : VertexId -> Point -> Graph -> Graph

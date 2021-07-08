@@ -6,7 +6,8 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Graph exposing (Graph, Point, VertexData, VertexId)
+import Geometry exposing (Point, lerp)
+import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
 import Level exposing (Level)
 import LevelSelector as LS exposing (Levels)
@@ -309,9 +310,12 @@ updatePointerPosition : Computer -> Model -> Model
 updatePointerPosition computer model =
     { model
         | pointer =
-            computer.mouse
-                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                |> Maybe.withDefault model.pointer
+            model.pointer
+                |> lerp 0.5
+                    (computer.mouse
+                        |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                        |> Maybe.withDefault model.pointer
+                    )
     }
 
 
