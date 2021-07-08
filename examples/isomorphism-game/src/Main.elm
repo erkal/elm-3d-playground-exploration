@@ -60,10 +60,11 @@ initialConfigurations =
     , floatConfig "sunlight azimuth" ( -pi, pi ) -0.45
     , floatConfig "sunlight elevation" ( -pi, pi ) -0.45
     , colorConfig "game background" (rgb255 35 118 139)
-    , floatConfig "pointer reach radius" ( 0.5, 2 ) 1
+    , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.7
+    , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
     , colorConfig "base vertex" white
     , colorConfig "base edge" white
-    , floatConfig "base height" ( 0.2, 5 ) 2
+    , floatConfig "base height" ( 0.01, 5 ) 1
     , floatConfig "base vertex radius" ( 0.2, 1 ) 0.8
     , floatConfig "base edge width" ( 0.2, 1 ) 0.7
     , colorConfig "player vertex" (rgb255 120 150 210)
@@ -137,7 +138,7 @@ handleInputForEditor computer model =
 nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestBaseVertexAtReach computer model =
     Graph.neaerstVertexAtReach
-        (getFloat "pointer reach radius" computer)
+        (getFloat "pointer reach for base" computer)
         model.pointer
         (LS.current model.levels).baseGraph
 
@@ -145,7 +146,7 @@ nearestBaseVertexAtReach computer model =
 nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestPlayerVertexAtReach computer model =
     Graph.neaerstVertexAtReach
-        (getFloat "pointer reach radius" computer)
+        (getFloat "pointer reach for player" computer)
         model.pointer
         (LS.current model.levels).playerGraph
 
@@ -153,7 +154,7 @@ nearestPlayerVertexAtReach computer model =
 secondNearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
 secondNearestPlayerVertexAtReach computer model =
     Graph.secondNearestVertexAtReach
-        (getFloat "pointer reach radius" computer)
+        (getFloat "pointer reach for player" computer)
         model.pointer
         (LS.current model.levels).playerGraph
 
@@ -357,7 +358,7 @@ floor : Computer -> Shape
 floor computer =
     block (getColor "game background" computer) ( 30, 30, 1 )
         |> moveZ -0.5
-        |> moveZ -(getFloat "base height" computer / 2)
+        |> moveZ -(getFloat "base height" computer)
 
 
 axes : Shape
@@ -395,8 +396,23 @@ drawDraggedBaseEdge computer model =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder gray (getFloat "pointer reach radius" computer) 0.02
+    let
+        ( color, zShift, radius ) =
+            if model.editorIsOn then
+                ( black
+                , -(getFloat "base height" computer) + 0.01
+                , getFloat "pointer reach for base" computer
+                )
+
+            else
+                ( gray
+                , 0
+                , getFloat "pointer reach for player" computer
+                )
+    in
+    cylinder color radius 0.02
         |> rotateX (degrees 90)
+        |> moveZ zShift
         |> moveX model.pointer.x
         |> moveY model.pointer.y
         |> moveZ model.pointer.z
