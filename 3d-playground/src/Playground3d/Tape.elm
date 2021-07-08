@@ -252,14 +252,39 @@ view tape =
             , paddingXY 0 6
             , centerY
             ]
-            [ tapeButtons tape
-            , clock tape
+            [ viewTapeButtons tape
+            , viewFpsMeter tape
+            , viewClock tape
             ]
         ]
 
 
-clock : Tape gameModel -> Element Msg
-clock ((Tape state _) as tape) =
+fpsMeter : Tape gameModel -> Maybe Int
+fpsMeter ((Tape state { pastReversed }) as tape) =
+    pastReversed
+        |> List.drop 59
+        |> List.head
+        |> Maybe.map (Tuple.first >> .time)
+        |> Maybe.map (\t -> round (60 / ((currentComputer tape).time - t)))
+
+
+viewFpsMeter : Tape gameModel -> Element Msg
+viewFpsMeter tape =
+    case fpsMeter tape of
+        Nothing ->
+            none
+
+        Just fps ->
+            el
+                [ Font.size 14
+                , Font.color Colors.lightText
+                , Font.family [ Font.monospace ]
+                ]
+                (text (String.fromInt fps ++ " FPS"))
+
+
+viewClock : Tape gameModel -> Element Msg
+viewClock ((Tape state _) as tape) =
     let
         conditionalStyling =
             case state of
@@ -284,8 +309,8 @@ clock ((Tape state _) as tape) =
         )
 
 
-tapeButtons : Tape gameModel -> Element Msg
-tapeButtons (Tape state { pastReversed, current, future }) =
+viewTapeButtons : Tape gameModel -> Element Msg
+viewTapeButtons (Tape state { pastReversed, current, future }) =
     row
         []
         [ el [ width (px 40) ] <|
