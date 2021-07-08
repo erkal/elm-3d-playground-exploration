@@ -56,16 +56,19 @@ initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
+    , floatConfig "sunlight azimuth" ( -pi, pi ) -0.45
+    , floatConfig "sunlight elevation" ( -pi, pi ) -0.45
     , colorConfig "game background" (rgb255 35 118 139)
     , floatConfig "pointer reach radius" ( 0.5, 2 ) 1
     , colorConfig "base vertex" white
     , colorConfig "base edge" white
+    , floatConfig "base height" ( 0.2, 5 ) 2
     , floatConfig "base vertex radius" ( 0.2, 1 ) 0.8
     , floatConfig "base edge width" ( 0.2, 1 ) 0.7
     , colorConfig "player vertex" (rgb255 120 150 210)
     , colorConfig "player edge" (rgb255 120 150 210)
     , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.5
-    , floatConfig "player edge width" ( 0.05, 0.5 ) 0.4
+    , floatConfig "player edge width" ( 0.05, 0.6 ) 0.5
     ]
 
 
@@ -333,8 +336,8 @@ view computer model =
         , screen = computer.screen
         , camera = camera computer
         , backgroundColor = white
-        , sunlightAzimuth = 0
-        , sunlightElevation = -(degrees 90)
+        , sunlightAzimuth = getFloat "sunlight azimuth" computer
+        , sunlightElevation = getFloat "sunlight elevation" computer
         }
         [ drawBaseGraph computer model
         , drawPlayerGraph computer model
@@ -349,7 +352,8 @@ view computer model =
 floor : Computer -> Shape
 floor computer =
     block (getColor "game background" computer) ( 30, 30, 1 )
-        |> moveZ -0.51
+        |> moveZ -0.5
+        |> moveZ -(getFloat "base height" computer / 2)
 
 
 axes : Shape
@@ -501,8 +505,12 @@ drawVerticesOfBaseGraph computer model =
 
 drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
-    cylinder (getColor "base vertex" computer) (getFloat "base vertex radius" computer) 0.05
+    cylinder
+        (getColor "base vertex" computer)
+        (getFloat "base vertex radius" computer)
+        (getFloat "base height" computer)
         |> rotateX (degrees 90)
+        |> moveZ -(getFloat "base height" computer / 2)
         |> moveX position.x
         |> moveY position.y
         |> moveZ position.z
@@ -535,12 +543,16 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
                 ( targetPosition.x - sourcePosition.x
                 , targetPosition.y - sourcePosition.y
                 )
+
+        baseHeight =
+            getFloat "base height" computer
     in
     block (getColor "base edge" computer)
         ( length
         , getFloat "base edge width" computer
-        , 0.05
+        , baseHeight
         )
+        |> moveZ -(baseHeight / 2)
         |> moveX (length / 2)
         |> rotateZ rotation
         |> moveX sourcePosition.x
