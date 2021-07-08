@@ -21,6 +21,7 @@ type alias VertexData =
 type alias Point =
     { x : Float
     , y : Float
+    , z : Float
     }
 
 
@@ -32,12 +33,12 @@ empty =
 exampleGraph : Graph
 exampleGraph =
     empty
-        |> insertVertex (Point 0 0)
-        |> insertVertex (Point -3 2)
-        |> insertVertex (Point 2 -3)
-        |> insertVertex (Point 3 1)
-        |> insertVertex (Point 3 3)
-        |> insertVertex (Point -3 -3)
+        |> insertVertex (Point 0 0 0)
+        |> insertVertex (Point -3 2 0)
+        |> insertVertex (Point 2 -3 0)
+        |> insertVertex (Point 3 1 0)
+        |> insertVertex (Point 3 3 0)
+        |> insertVertex (Point -3 -3 0)
         |> insertEdge 0 2
         |> insertEdge 1 3
         |> insertEdge 3 4
@@ -60,7 +61,7 @@ getPosition vertexId (Graph graph) =
     graph
         |> Dict.get vertexId
         |> Maybe.map .position
-        |> Maybe.withDefault (Point -10 -10)
+        |> Maybe.withDefault (Point -10 -10 0)
 
 
 edges :

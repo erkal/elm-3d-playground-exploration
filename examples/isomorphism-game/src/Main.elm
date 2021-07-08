@@ -71,7 +71,7 @@ init : Computer -> Model
 init computer =
     { editorIsOn = False
     , levels = LS.singleton Level.exampleLevel
-    , pointer = Point 0 0
+    , pointer = Point 0 0 0
     , gameState = Idle
     , editorState = EditorIdle
     }
@@ -352,7 +352,6 @@ updatePointerPosition computer model =
         | pointer =
             computer.mouse
                 |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                |> Maybe.map (\{ x, y } -> { x = x, y = y })
                 |> Maybe.withDefault model.pointer
     }
 
@@ -429,10 +428,11 @@ drawDraggedBaseEdge computer model =
 
 drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
-    cylinder orange (getFloat "pointer reach radius" computer) 0.05
+    cylinder orange (getFloat "pointer reach radius" computer) 0.02
         |> rotateX (degrees 90)
         |> moveX model.pointer.x
         |> moveY model.pointer.y
+        |> moveZ model.pointer.z
 
 
 
@@ -458,24 +458,10 @@ drawVerticesOfPlayerGraph computer model =
 drawPlayerVertex : Computer -> GameState -> ( VertexId, VertexData ) -> Shape
 drawPlayerVertex computer gameState ( vertexId, { position } ) =
     sphere (getColor "player vertex" computer) (getFloat "player vertex radius" computer)
-        |> highlightForExchange computer gameState vertexId
         |> scale (wave 1 1.1 1 computer.time)
         |> moveX position.x
         |> moveY position.y
-
-
-highlightForExchange : Computer -> GameState -> VertexId -> (Shape -> Shape)
-highlightForExchange computer gameState vertexId =
-    case gameState of
-        DraggingPlayerVertex { targetId } ->
-            if targetId == Just vertexId then
-                moveZ 1
-
-            else
-                identity
-
-        _ ->
-            identity
+        |> moveZ position.z
 
 
 drawEdgesOfPlayerGraph : Computer -> Model -> Shape
@@ -500,22 +486,38 @@ drawPlayerEdge :
     -> Shape
 drawPlayerEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
     let
-        ( length, rotation ) =
-            toPolar
-                ( targetPosition.x - sourcePosition.x
-                , targetPosition.y - sourcePosition.y
-                )
+        ( x, y, z ) =
+            ( targetPosition.x - sourcePosition.x
+            , targetPosition.y - sourcePosition.y
+            , targetPosition.z - sourcePosition.z
+            )
+
+        { radius, azimuth, inclination } =
+            toSphericalCoordinates ( x, y, z )
 
         width =
             getFloat "player edge width" computer
     in
     block
         (getColor "player edge" computer)
-        ( length, wave width (1.1 * width) 1 computer.time, 0.4 )
-        |> moveX (length / 2)
-        |> rotateZ rotation
+        ( radius, width, width )
+        |> moveX (radius / 2)
+        |> rotateY (inclination - degrees 90)
+        |> rotateZ azimuth
         |> moveX sourcePosition.x
         |> moveY sourcePosition.y
+        |> moveZ sourcePosition.z
+
+
+toSphericalCoordinates ( x, y, z ) =
+    let
+        r =
+            sqrt (x ^ 2 + y ^ 2 + z ^ 2)
+    in
+    { radius = r
+    , azimuth = atan2 y x
+    , inclination = acos (z / r)
+    }
 
 
 
@@ -540,10 +542,11 @@ drawVerticesOfBaseGraph computer model =
 
 drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
-    cylinder (getColor "base vertex" computer) (getFloat "base vertex radius" computer) 0.3
+    cylinder (getColor "base vertex" computer) (getFloat "base vertex radius" computer) 0.05
         |> rotateX (degrees 90)
         |> moveX position.x
         |> moveY position.y
+        |> moveZ position.z
 
 
 drawEdgesOfBaseGraph : Computer -> Model -> Shape
@@ -574,7 +577,7 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
                 , targetPosition.y - sourcePosition.y
                 )
     in
-    block (getColor "base edge" computer) ( length, 0.3, 0.3 )
+    block (getColor "base edge" computer) ( length, 0.3, 0.05 )
         |> moveX (length / 2)
         |> rotateZ rotation
         |> moveX sourcePosition.x
@@ -692,7 +695,8 @@ viewDebugger computer model =
         [ header "Debugger"
         , text <|
             "Editor state: "
-                ++ Debug.toString model.editorState
+
+        --++ Debug.toString model.editorState
         ]
 
 
