@@ -259,14 +259,26 @@ view tape =
 
 
 clock : Tape gameModel -> Element Msg
-clock tape =
+clock ((Tape state _) as tape) =
+    let
+        conditionalStyling =
+            case state of
+                Recording _ ->
+                    [ Font.color Colors.red
+                    ]
+
+                _ ->
+                    [ Font.color Colors.lightGray
+                    ]
+    in
     el
-        [ Font.size 14
-        , alignRight
-        , Font.alignRight
-        , Font.color Colors.lightText
-        , Font.family [ Font.monospace ]
-        ]
+        (conditionalStyling
+            ++ [ Font.size 14
+               , alignRight
+               , Font.alignRight
+               , Font.family [ Font.monospace ]
+               ]
+        )
         (text
             ((currentComputer tape).time |> Round.round 3)
         )
@@ -325,6 +337,12 @@ recButton msg color =
 
 slider : Tape gameModel -> Element Msg
 slider tape =
+    let
+        ( value, max ) =
+            ( lengthOfPast tape
+            , totalSize tape - 1
+            )
+    in
     el
         [ width fill
         , centerY
@@ -332,21 +350,33 @@ slider tape =
     <|
         Input.slider
             [ behindContent
-                (el
+                (row
                     [ width fill
                     , height (px 4)
                     , centerY
                     , Background.color Colors.inputBackground
+                    , Border.rounded 2
                     ]
-                    none
+                    [ el
+                        [ width (fillPortion value)
+                        , height fill
+                        , Background.color Colors.red
+                        , Border.rounded 2
+                        ]
+                        none
+                    , el
+                        [ width (fillPortion (max - value))
+                        ]
+                        none
+                    ]
                 )
             ]
             { onChange = round >> SliderMovedTo
             , label = Input.labelHidden ""
             , min = 0
-            , max = toFloat (totalSize tape) - 1
+            , max = toFloat max
             , step = Just 1
-            , value = toFloat (lengthOfPast tape)
+            , value = toFloat value
             , thumb =
                 Input.thumb
                     [ width (px 12)
