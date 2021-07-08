@@ -14,21 +14,18 @@ module Playground3d.Tape exposing
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
-import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer)
 import Playground3d.Icons as Icons
 import Round
-import Svg exposing (Svg, line)
-import Svg.Attributes as SA
 
 
 type Tape gameModel
     = Tape
         State
-        { past : List ( Computer, gameModel )
+        { pastReversed : List ( Computer, gameModel )
         , current : ( Computer, gameModel )
         , future : List ( Computer, gameModel )
         }
@@ -53,7 +50,7 @@ init : Computer -> (Computer -> gameModel) -> Tape gameModel
 init initialComputer initGameModel =
     Tape
         (Recording Usual)
-        { past = []
+        { pastReversed = []
         , current = ( initialComputer, initGameModel initialComputer )
         , future = []
         }
@@ -138,7 +135,7 @@ tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
             in
             Tape
                 (Recording Usual)
-                { past = pastCurrentFuture.past ++ [ pastCurrentFuture.current ]
+                { pastReversed = pastCurrentFuture.current :: pastCurrentFuture.pastReversed
                 , current = ( newComputer, newGameModel )
                 , future = []
                 }
@@ -172,7 +169,7 @@ update msg tape =
 
         SliderMovedTo tickIndex ->
             tape
-                |> goTo tickIndex
+                |> jumpTo tickIndex
 
 
 pause : Tape gameModel -> Tape gameModel
@@ -193,12 +190,12 @@ startPlaying ((Tape _ pastCurrentFuture) as tape) =
 
 
 goToNext : Tape gameModel -> Maybe (Tape gameModel)
-goToNext (Tape state { past, current, future }) =
+goToNext (Tape state { pastReversed, current, future }) =
     case future of
         next :: rest ->
             Just
                 (Tape state
-                    { past = past ++ [ current ]
+                    { pastReversed = current :: pastReversed
                     , current = next
                     , future = rest
                     }
@@ -208,11 +205,11 @@ goToNext (Tape state { past, current, future }) =
             Nothing
 
 
-goTo : Int -> Tape gameModel -> Tape gameModel
-goTo tickIndex ((Tape _ { past, current, future }) as tape) =
+jumpTo : Int -> Tape gameModel -> Tape gameModel
+jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
     let
         allLoaded =
-            past ++ [ current ] ++ future
+            List.reverse pastReversed ++ [ current ] ++ future
 
         l =
             List.take tickIndex allLoaded
@@ -223,7 +220,7 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
     case r of
         head :: tail ->
             Tape Paused
-                { past = l
+                { pastReversed = List.reverse l
                 , current = head
                 , future = tail
                 }
@@ -232,7 +229,7 @@ goTo tickIndex ((Tape _ { past, current, future }) as tape) =
             case List.reverse l of
                 lastOfl :: rest ->
                     Tape Paused
-                        { past = List.reverse rest
+                        { pastReversed = rest
                         , current = lastOfl
                         , future = []
                         }
@@ -255,28 +252,65 @@ view tape =
             , paddingXY 0 6
             , centerY
             ]
-            [ tapeButtons tape
-            , clock tape
+            [ viewTapeButtons tape
+            , viewFpsMeter tape
+            , viewClock tape
             ]
         ]
 
 
-clock : Tape gameModel -> Element Msg
-clock tape =
+fpsMeter : Tape gameModel -> Maybe Int
+fpsMeter ((Tape state { pastReversed }) as tape) =
+    pastReversed
+        |> List.drop 59
+        |> List.head
+        |> Maybe.map (Tuple.first >> .time)
+        |> Maybe.map (\t -> round (60 / ((currentComputer tape).time - t)))
+
+
+viewFpsMeter : Tape gameModel -> Element Msg
+viewFpsMeter tape =
+    case fpsMeter tape of
+        Nothing ->
+            none
+
+        Just fps ->
+            el
+                [ Font.size 14
+                , Font.color Colors.lightText
+                , Font.family [ Font.monospace ]
+                ]
+                (text (String.fromInt fps ++ " FPS"))
+
+
+viewClock : Tape gameModel -> Element Msg
+viewClock ((Tape state _) as tape) =
+    let
+        conditionalStyling =
+            case state of
+                Recording _ ->
+                    [ Font.color Colors.red
+                    ]
+
+                _ ->
+                    [ Font.color Colors.lightGray
+                    ]
+    in
     el
-        [ Font.size 14
-        , alignRight
-        , Font.alignRight
-        , Font.color Colors.lightText
-        , Font.family [ Font.monospace ]
-        ]
+        (conditionalStyling
+            ++ [ Font.size 14
+               , alignRight
+               , Font.alignRight
+               , Font.family [ Font.monospace ]
+               ]
+        )
         (text
             ((currentComputer tape).time |> Round.round 3)
         )
 
 
-tapeButtons : Tape gameModel -> Element Msg
-tapeButtons (Tape state { past, current, future }) =
+viewTapeButtons : Tape gameModel -> Element Msg
+viewTapeButtons (Tape state { pastReversed, current, future }) =
     row
         []
         [ el [ width (px 40) ] <|
@@ -328,6 +362,12 @@ recButton msg color =
 
 slider : Tape gameModel -> Element Msg
 slider tape =
+    let
+        ( value, max ) =
+            ( lengthOfPast tape
+            , totalSize tape - 1
+            )
+    in
     el
         [ width fill
         , centerY
@@ -335,22 +375,33 @@ slider tape =
     <|
         Input.slider
             [ behindContent
-                (el
+                (row
                     [ width fill
                     , height (px 4)
                     , centerY
                     , Background.color Colors.inputBackground
-                    , clipY
+                    , Border.rounded 2
                     ]
-                    (timeSeparators tape)
+                    [ el
+                        [ width (fillPortion value)
+                        , height fill
+                        , Background.color Colors.red
+                        , Border.rounded 2
+                        ]
+                        none
+                    , el
+                        [ width (fillPortion (max - value))
+                        ]
+                        none
+                    ]
                 )
             ]
             { onChange = round >> SliderMovedTo
             , label = Input.labelHidden ""
             , min = 0
-            , max = toFloat (totalSize tape) - 1
+            , max = toFloat max
             , step = Just 1
-            , value = toFloat (lengthOfPast tape)
+            , value = toFloat value
             , thumb =
                 Input.thumb
                     [ width (px 12)
@@ -359,72 +410,6 @@ slider tape =
                     , Background.color Colors.red
                     ]
             }
-
-
-timeSeparators : Tape gameModel -> Element Msg
-timeSeparators ((Tape _ { past, current, future }) as tape) =
-    let
-        start =
-            past
-                |> List.head
-                |> Maybe.withDefault current
-                |> Tuple.first
-                |> .time
-
-        end =
-            future
-                |> List.reverse
-                |> List.head
-                |> Maybe.withDefault current
-                |> Tuple.first
-                |> .time
-
-        totalDuration =
-            end - start
-
-        interval =
-            1
-
-        n =
-            floor (totalDuration / interval)
-
-        separator i =
-            let
-                x =
-                    toFloat i * interval / totalDuration
-            in
-            line
-                [ SA.x1 (String.fromFloat x)
-                , SA.x2 (String.fromFloat x)
-                , SA.y1 "0"
-                , SA.y2 "0.02"
-                , SA.strokeWidth "0.01"
-                , SA.stroke "white"
-                ]
-                []
-
-        value =
-            lengthOfPast tape
-
-        max =
-            totalSize tape - 1
-
-        redRectangle =
-            Svg.rect
-                [ SA.width (String.fromFloat (toFloat value / toFloat max))
-                , SA.height "0.2"
-                , SA.fill "rgb(255, 60, 0)"
-                ]
-                []
-    in
-    el [ width fill ] <|
-        html <|
-            Svg.svg
-                [ SA.viewBox "0 0 1 1"
-                ]
-                (redRectangle
-                    :: (List.range 1 n |> List.map separator)
-                )
 
 
 tapeButtonWithIcon : String -> msg -> Color -> Element msg
@@ -436,10 +421,10 @@ tapeButtonWithIcon iconD msg color =
 
 
 totalSize : Tape gameModel -> Int
-totalSize (Tape _ { past, current, future }) =
-    List.length past + 1 + List.length future
+totalSize (Tape _ { pastReversed, current, future }) =
+    List.length pastReversed + 1 + List.length future
 
 
 lengthOfPast : Tape gameModel -> Int
-lengthOfPast (Tape _ { past }) =
-    List.length past
+lengthOfPast (Tape _ { pastReversed }) =
+    List.length pastReversed
