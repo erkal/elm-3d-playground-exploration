@@ -12,7 +12,6 @@ module Graph exposing
     , neaerstVertexAtReach
     , secondNearestVertexAtReach
     , setAnimationTarget
-    , setPosition
     , tickAnimation
     , vertices
     )
@@ -175,18 +174,6 @@ setAnimationTarget vertexId animationTarget (Graph graph) =
     let
         updatePosition vertexData =
             { vertexData | animationTarget = animationTarget }
-    in
-    Graph
-        (graph
-            |> Dict.update vertexId (Maybe.map updatePosition)
-        )
-
-
-setPosition : VertexId -> Point -> Graph -> Graph
-setPosition vertexId newPosition (Graph graph) =
-    let
-        updatePosition vertexData =
-            { vertexData | position = newPosition }
     in
     Graph
         (graph

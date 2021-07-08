@@ -106,12 +106,13 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> updatePointerPosition computer
+        |> mapCurrentPlayerGraph Graph.tickAnimation
+        |> mapCurrentBaseGraph Graph.tickAnimation
         |> (if model.editorIsOn then
                 handleInputForEditor computer
 
             else
                 handlePlayerInput computer
-                    >> mapCurrentPlayerGraph Graph.tickAnimation
            )
 
 
@@ -217,16 +218,7 @@ startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
-                { model
-                    | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing }
-                }
-                    |> mapCurrentPlayerGraph
-                        (Graph.setAnimationTarget vertexId
-                            { x = model.pointer.x
-                            , y = model.pointer.y
-                            , z = 0.2
-                            }
-                        )
+                { model | gameState = DraggingPlayerVertex { vertexId = vertexId, targetId = Nothing } }
 
             _ ->
                 model
@@ -261,7 +253,7 @@ dragBaseVertex : Computer -> Model -> Model
 dragBaseVertex computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
-            model |> mapCurrentBaseGraph (Graph.setPosition vertexId model.pointer)
+            model |> mapCurrentBaseGraph (Graph.setAnimationTarget vertexId model.pointer)
 
         _ ->
             model
@@ -405,7 +397,7 @@ drawPointer computer model =
                 )
 
             else
-                ( gray
+                ( orange
                 , 0
                 , getFloat "pointer reach for player" computer
                 )
