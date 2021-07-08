@@ -1,4 +1,22 @@
-module Graph exposing (..)
+module Graph exposing
+    ( Graph
+    , Point
+    , VertexData
+    , VertexId
+    , edges
+    , empty
+    , exampleGraph
+    , getPosition
+    , insertEdge
+    , insertEdgeAndVertex
+    , insertVertex
+    , neaerstVertexAtReach
+    , secondNearestVertexAtReach
+    , setAnimationTarget
+    , setPosition
+    , tickAnimation
+    , vertices
+    )
 
 import Dict exposing (Dict)
 import Set exposing (Set)
