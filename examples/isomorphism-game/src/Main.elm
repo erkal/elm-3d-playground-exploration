@@ -9,7 +9,7 @@ import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, lerp, middlePoint)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
-import Level exposing (Level)
+import Level exposing (BaseGraph, Level, PlayerGraph)
 import LevelSelector as LS exposing (Levels)
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
@@ -89,14 +89,14 @@ init computer =
 -- UPDATE
 
 
-mapCurrentBaseGraph : (Graph -> Graph) -> Model -> Model
+mapCurrentBaseGraph : (BaseGraph -> BaseGraph) -> Model -> Model
 mapCurrentBaseGraph up model =
     { model
         | levels = LS.mapCurrent (Level.mapBaseGraph up) model.levels
     }
 
 
-mapCurrentPlayerGraph : (Graph -> Graph) -> Model -> Model
+mapCurrentPlayerGraph : (PlayerGraph -> PlayerGraph) -> Model -> Model
 mapCurrentPlayerGraph up model =
     { model
         | levels = LS.mapCurrent (Level.mapPlayerGraph up) model.levels
@@ -166,7 +166,7 @@ handleInputForEditor computer model =
 
 nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestBaseVertexAtReach computer model =
-    Graph.neaerstVertexAtReach
+    Graph.nearestVertexAtReach
         (getFloat "pointer reach for base" computer)
         model.pointer
         (LS.current model.levels).baseGraph
@@ -174,7 +174,7 @@ nearestBaseVertexAtReach computer model =
 
 nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestPlayerVertexAtReach computer model =
-    Graph.neaerstVertexAtReach
+    Graph.nearestVertexAtReach
         (getFloat "pointer reach for player" computer)
         model.pointer
         (LS.current model.levels).playerGraph
@@ -217,7 +217,7 @@ insertBaseEdge computer model =
             ( DraggingBaseEdge { sourceId }, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph
-                        (Graph.insertEdgeAndVertex sourceId model.pointer)
+                        (Graph.insertEdgeAndVertex () sourceId model.pointer)
 
             _ ->
                 model
@@ -232,7 +232,7 @@ insertVertex computer model =
         case ( model.editorState, nearestBaseVertexAtReach computer model ) of
             ( EditorIdle, Nothing ) ->
                 model
-                    |> mapCurrentBaseGraph (Graph.insertVertex model.pointer)
+                    |> mapCurrentBaseGraph (Graph.insertVertex () model.pointer)
 
             _ ->
                 model
@@ -472,7 +472,7 @@ drawVerticesOfPlayerGraph computer model =
         )
 
 
-drawPlayerVertex : Computer -> GameState -> ( VertexId, VertexData ) -> Shape
+drawPlayerVertex : Computer -> GameState -> ( VertexId, { vertexData | position : Point } ) -> Shape
 drawPlayerVertex computer gameState ( vertexId, { position } ) =
     sphere (getColor "player" computer) (getFloat "player vertex radius" computer)
         --|> scale (wave 1 1.1 1 computer.time)
@@ -558,7 +558,7 @@ drawVerticesOfBaseGraph computer model =
         )
 
 
-drawBaseVertex : Computer -> ( VertexId, VertexData ) -> Shape
+drawBaseVertex : Computer -> ( VertexId, { vertexData | position : Point } ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
     cylinder
         (getColor "base" computer)

@@ -4,12 +4,13 @@ module Graph exposing
     , VertexId
     , edges
     , empty
-    , exampleGraph
+    , exampleBaseGraph
     , getPosition
     , insertEdge
     , insertEdgeAndVertex
     , insertVertex
-    , neaerstVertexAtReach
+    , mapVertices
+    , nearestVertexAtReach
     , secondNearestVertexAtReach
     , setAnimationTarget
     , tickAnimation
@@ -21,33 +22,34 @@ import Geometry exposing (Point, distanceXY, lerp)
 import Set exposing (Set)
 
 
-type Graph
-    = Graph (Dict VertexId VertexData)
+type Graph data
+    = Graph (Dict VertexId (VertexData data))
 
 
 type alias VertexId =
     Int
 
 
-type alias VertexData =
+type alias VertexData data =
     { position : Point
     , animationTarget : Point
     , outNeighbours : Set VertexId
+    , data : data
     }
 
 
-empty : Graph
+empty : Graph data
 empty =
     Graph Dict.empty
 
 
-exampleGraph : Graph
-exampleGraph =
+exampleBaseGraph : Graph ()
+exampleBaseGraph =
     empty
-        |> insertVertex (Point 2 2 0)
-        |> insertVertex (Point 2 -2 0)
-        |> insertVertex (Point -2 -2 0)
-        |> insertVertex (Point -2 2 0)
+        |> insertVertex () (Point 2 2 0)
+        |> insertVertex () (Point 2 -2 0)
+        |> insertVertex () (Point -2 -2 0)
+        |> insertVertex () (Point -2 2 0)
         |> insertEdge 0 1
         |> insertEdge 1 2
         |> insertEdge 2 3
@@ -59,13 +61,19 @@ exampleGraph =
 -- QUERY
 
 
-vertices : Graph -> List ( VertexId, VertexData )
+vertices : Graph data -> List ( VertexId, VertexData data )
 vertices (Graph graph) =
     graph
         |> Dict.toList
 
 
-getPosition : VertexId -> Graph -> Point
+mapVertices : (VertexId -> VertexData data1 -> VertexData data2) -> Graph data1 -> Graph data2
+mapVertices up (Graph graph) =
+    Graph
+        (graph |> Dict.map up)
+
+
+getPosition : VertexId -> Graph data -> Point
 getPosition vertexId (Graph graph) =
     graph
         |> Dict.get vertexId
@@ -74,7 +82,7 @@ getPosition vertexId (Graph graph) =
 
 
 edges :
-    Graph
+    Graph data
     ->
         List
             { sourcePosition : Point
@@ -100,8 +108,8 @@ edges (Graph graph) =
             )
 
 
-twoNeaerstVerticesAtReach : Float -> Point -> Graph -> Maybe ( VertexId, Maybe VertexId )
-twoNeaerstVerticesAtReach reach p graph =
+twoNearestVerticesAtReach : Float -> Point -> Graph data -> Maybe ( VertexId, Maybe VertexId )
+twoNearestVerticesAtReach reach p graph =
     vertices graph
         |> List.filterMap
             (\( vertexId, { position } ) ->
@@ -130,9 +138,9 @@ twoNeaerstVerticesAtReach reach p graph =
            )
 
 
-neaerstVertexAtReach : Float -> Point -> Graph -> Maybe VertexId
-neaerstVertexAtReach reach p graph =
-    case twoNeaerstVerticesAtReach reach p graph of
+nearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
+nearestVertexAtReach reach p graph =
+    case twoNearestVerticesAtReach reach p graph of
         Just ( first, _ ) ->
             Just first
 
@@ -140,9 +148,9 @@ neaerstVertexAtReach reach p graph =
             Nothing
 
 
-secondNearestVertexAtReach : Float -> Point -> Graph -> Maybe VertexId
+secondNearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
 secondNearestVertexAtReach reach p graph =
-    case twoNeaerstVerticesAtReach reach p graph of
+    case twoNearestVerticesAtReach reach p graph of
         Just ( first, Just second ) ->
             Just second
 
@@ -154,7 +162,7 @@ secondNearestVertexAtReach reach p graph =
 -- UPDATE
 
 
-tickAnimation : Graph -> Graph
+tickAnimation : Graph data -> Graph data
 tickAnimation (Graph graph) =
     Graph
         (graph
@@ -169,7 +177,7 @@ tickAnimation (Graph graph) =
         )
 
 
-setAnimationTarget : VertexId -> Point -> Graph -> Graph
+setAnimationTarget : VertexId -> Point -> Graph data -> Graph data
 setAnimationTarget vertexId animationTarget (Graph graph) =
     let
         updatePosition vertexData =
@@ -181,8 +189,8 @@ setAnimationTarget vertexId animationTarget (Graph graph) =
         )
 
 
-insertVertex : Point -> Graph -> Graph
-insertVertex position (Graph graph) =
+insertVertex : data -> Point -> Graph data -> Graph data
+insertVertex data position (Graph graph) =
     let
         newId =
             List.maximum (Dict.keys graph)
@@ -193,12 +201,13 @@ insertVertex position (Graph graph) =
             { position = position
             , animationTarget = position
             , outNeighbours = Set.empty
+            , data = data
             }
     in
     Graph (graph |> Dict.insert newId newVertex)
 
 
-insertEdge : VertexId -> VertexId -> Graph -> Graph
+insertEdge : VertexId -> VertexId -> Graph data -> Graph data
 insertEdge source target (Graph graph) =
     Graph
         (graph
@@ -215,8 +224,8 @@ insertEdge source target (Graph graph) =
         )
 
 
-insertEdgeAndVertex : VertexId -> Point -> Graph -> Graph
-insertEdgeAndVertex source targetPosition (Graph graph) =
+insertEdgeAndVertex : data -> VertexId -> Point -> Graph data -> Graph data
+insertEdgeAndVertex data source targetPosition (Graph graph) =
     let
         targetId =
             List.maximum (Dict.keys graph)
@@ -227,6 +236,7 @@ insertEdgeAndVertex source targetPosition (Graph graph) =
             { position = targetPosition
             , animationTarget = targetPosition
             , outNeighbours = Set.empty
+            , data = data
             }
     in
     Graph
