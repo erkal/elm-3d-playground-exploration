@@ -6,6 +6,7 @@
 - color-shower: [demo](https://erkal.github.io/elm-3d-playground-exploration/color-shower), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/color-shower/src)
 - dancing-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/dancing-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/dancing-cubes/src)
 - happy-birthday-andrey: [demo](https://erkal.github.io/elm-3d-playground-exploration/happy-birthday-andrey), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/happy-birthday-andrey/src)
+- isomorphism-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/isomorphism-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/isomorphism-game/src)
 - john-harris-eight-rolling-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/john-harris-eight-rolling-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/john-harris-eight-rolling-cubes/src)
 - multiple-shadows-from-ianmackenzie: [demo](https://erkal.github.io/elm-3d-playground-exploration/multiple-shadows-from-ianmackenzie), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/multiple-shadows-from-ianmackenzie/src)
 - recursive-rotation: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-rotation), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/recursive-rotation/src)

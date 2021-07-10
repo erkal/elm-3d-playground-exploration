@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightGray, orange, red, rgb255, white)
+import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -9,12 +9,18 @@ import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, lerp, middlePoint)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
+import Illuminance
 import Level exposing (BaseGraph, Level, PlayerGraph)
 import LevelSelector as LS exposing (Levels)
+import LuminousFlux
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Colors as Colors
+import Playground3d.Light as Light
 import Playground3d.Scene as Scene exposing (..)
+import Scene3d
+import Scene3d.Light
+import Temperature
 
 
 main =
@@ -60,7 +66,11 @@ initialConfigurations =
     , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
     , floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
     , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
-    , colorConfig "game background" (rgb255 60 50 50)
+    , floatConfig "azimuth for third light" ( -pi, pi ) 1
+    , floatConfig "elevation for third light" ( -pi, pi ) -2
+    , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
+    , floatConfig "elevation for fourth light" ( -pi, pi ) -2
+    , colorConfig "game background" (rgb255 44 100 200)
     , colorConfig "pointer player" red
     , colorConfig "pointer base" darkGreen
     , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.7
@@ -370,13 +380,61 @@ camera computer =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    Scene.sunny
-        { devicePixelRatio = computer.devicePixelRatio
-        , screen = computer.screen
+    --Scene.sunny
+    --    { devicePixelRatio = computer.devicePixelRatio
+    --    , screen = computer.screen
+    --    , camera = camera computer
+    --    , backgroundColor = white
+    --    , sunlightAzimuth = getFloat "sunlight azimuth" computer
+    --    , sunlightElevation = getFloat "sunlight elevation" computer
+    --    }
+    let
+        firstLight =
+            Light.point
+                { position = { x = -2, y = 4, z = 2 }
+                , chromaticity = Scene3d.Light.incandescent
+                , intensity = LuminousFlux.lumens 6000
+                }
+
+        secondLight =
+            Light.point
+                { position = { x = 2, y = 3, z = 2 }
+                , chromaticity = Scene3d.Light.fluorescent
+                , intensity = LuminousFlux.lumens 6000
+                }
+
+        thirdLight =
+            Light.directional
+                { azimuth = getFloat "azimuth for third light" computer
+                , elevation = getFloat "elevation for third light" computer
+                , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
+                , intensity = Illuminance.lux 120
+                }
+
+        fourthLight =
+            Light.soft
+                { azimuth = getFloat "azimuth for fourth light" computer
+                , elevation = getFloat "elevation for fourth light" computer
+                , chromaticity = Scene3d.Light.fluorescent
+                , intensityAbove = Illuminance.lux 20
+                , intensityBelow = Illuminance.lux 10
+                }
+    in
+    Scene.custom
+        { screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
-        , sunlightAzimuth = getFloat "sunlight azimuth" computer
-        , sunlightElevation = getFloat "sunlight elevation" computer
+        , lights =
+            Scene3d.fourLights
+                firstLight
+                secondLight
+                thirdLight
+                fourthLight
+        , clipDepth = 0.1
+        , exposure = Scene3d.exposureValue 6
+        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+        , whiteBalance = Scene3d.Light.fluorescent
+        , antialiasing = Scene3d.multisampling
+        , backgroundColor = lightBlue
         }
         [ drawBaseGraph computer model
         , drawPlayerGraph computer model
@@ -723,8 +781,9 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
-        , paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
-        , paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+
+        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
 
