@@ -5,6 +5,7 @@ module Graph exposing
     , edges
     , empty
     , exampleBaseGraph
+    , getData
     , getPosition
     , insertEdge
     , insertEdgeAndVertex
@@ -70,6 +71,13 @@ getPosition vertexId (Graph graph) =
         |> Dict.get vertexId
         |> Maybe.map .position
         |> Maybe.withDefault (Point -10 -10 0)
+
+
+getData : VertexId -> Graph data -> Maybe data
+getData vertexId (Graph graph) =
+    graph
+        |> Dict.get vertexId
+        |> Maybe.map .data
 
 
 edges :

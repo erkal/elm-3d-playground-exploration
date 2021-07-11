@@ -6,7 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Geometry exposing (Point, lerp, middlePoint)
+import Geometry exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
 import Illuminance
@@ -123,23 +123,83 @@ update computer model =
                 handlePlayerInput computer
     in
     model
-        |> lerpPlayerVerticesToBaseVertices computer
         |> updatePointerPosition computer
+        |> updateDragTarget computer
+        |> tickPlayerVertices computer
+        |> tickBaseVertices computer
         |> handleInput
 
 
-lerpPlayerVerticesToBaseVertices : Computer -> Model -> Model
-lerpPlayerVerticesToBaseVertices computer model =
-    let
-        lerpToBaseVertex vertexId vertexData =
-            { vertexData
-                | position =
-                    vertexData.position
-                        |> lerp 0.5
-                            (Graph.getPosition vertexData.data.mappedToBaseVertex
-                                (LS.current model.levels).baseGraph
-                            )
+updateDragTarget : Computer -> Model -> Model
+updateDragTarget computer model =
+    case model.gameState of
+        DraggingPlayerVertex dragData ->
+            { model
+                | gameState =
+                    DraggingPlayerVertex
+                        { dragData | maybeTargetIdOnBaseGraph = nearestBaseVertexAtReach computer model }
             }
+
+        _ ->
+            model
+
+
+tickPlayerVertices : Computer -> Model -> Model
+tickPlayerVertices computer model =
+    let
+        baseGraph =
+            (LS.current model.levels).baseGraph
+
+        playerGraph =
+            (LS.current model.levels).playerGraph
+
+        lerpToBaseVertex vertexId vertexData =
+            case model.gameState of
+                DraggingPlayerVertex { dragged, maybeTargetIdOnBaseGraph } ->
+                    if vertexId == dragged then
+                        { vertexData
+                            | position =
+                                vertexData.position
+                                    |> lerp 0.3
+                                        (model.pointer
+                                            |> (\p -> Point p.x p.y (p.z + 2))
+                                        )
+                        }
+
+                    else if Just vertexData.data.mappedToBaseVertex == maybeTargetIdOnBaseGraph then
+                        { vertexData
+                            | position =
+                                vertexData.position
+                                    |> lerp 0.05
+                                        (Graph.getPosition
+                                            (Graph.getData dragged playerGraph
+                                                |> Maybe.map .mappedToBaseVertex
+                                                |> Maybe.withDefault 0
+                                            )
+                                            baseGraph
+                                            |> (\p -> Point p.x p.y (p.z + 1))
+                                        )
+                        }
+
+                    else
+                        { vertexData
+                            | position =
+                                vertexData.position
+                                    |> lerp 0.05
+                                        (Graph.getPosition vertexData.data.mappedToBaseVertex
+                                            baseGraph
+                                        )
+                        }
+
+                _ ->
+                    { vertexData
+                        | position =
+                            vertexData.position
+                                |> lerp 0.05
+                                    (Graph.getPosition vertexData.data.mappedToBaseVertex
+                                        baseGraph
+                                    )
+                    }
     in
     model
         |> mapCurrentPlayerGraph (Graph.mapVertices lerpToBaseVertex)
@@ -149,7 +209,6 @@ handlePlayerInput : Computer -> Model -> Model
 handlePlayerInput computer model =
     model
         |> startDraggingPlayerVertex computer
-        |> dragPlayerVertex computer
         |> endDraggingPlayerVertex computer
 
 
@@ -158,7 +217,6 @@ handleInputForEditor computer model =
     model
         |> insertVertex computer
         |> startDraggingBaseVertex computer
-        |> dragBaseVertex computer
         |> startDraggingBaseEdge computer
         |> insertBaseEdge computer
         |> endDraggingBaseVertex computer
@@ -275,8 +333,8 @@ startDraggingBaseVertex computer model =
         model
 
 
-dragBaseVertex : Computer -> Model -> Model
-dragBaseVertex computer model =
+tickBaseVertices : Computer -> Model -> Model
+tickBaseVertices computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
             let
@@ -290,37 +348,48 @@ dragBaseVertex computer model =
             model
 
 
-dragPlayerVertex : Computer -> Model -> Model
-dragPlayerVertex computer model =
-    case model.gameState of
-        DraggingPlayerVertex dragData ->
-            let
-                moveToPointerPosition vertexData =
-                    { vertexData | position = model.pointer }
-            in
-            model
-                |> mapCurrentPlayerGraph (Graph.mapVertex dragData.dragged moveToPointerPosition)
-
-        _ ->
-            model
-
-
 endDraggingPlayerVertex : Computer -> Model -> Model
 endDraggingPlayerVertex computer model =
     if not computer.mouse.down then
         case model.gameState of
             DraggingPlayerVertex dragData ->
-                --case dragData.maybeTargetIdOnBaseGraph of
-                --    Just targetIdOnBaseGraph ->
-                --        { model
-                --            | gameState = Idle
-                --        }
-                --            |> mapCurrentPlayerGraph (Graph.setData dragData.dragged)
-                --
-                --    Nothing ->
-                { model
-                    | gameState = Idle
-                }
+                case dragData.maybeTargetIdOnBaseGraph of
+                    Just targetIdOnBaseGraph ->
+                        let
+                            setMappedVertexTo vertexId data =
+                                { data | mappedToBaseVertex = vertexId }
+
+                            newTargetIdOnBaseGraph vertexId vertexData =
+                                if vertexId == dragData.dragged then
+                                    { vertexData
+                                        | data =
+                                            vertexData.data
+                                                |> setMappedVertexTo targetIdOnBaseGraph
+                                    }
+
+                                else if vertexData.data.mappedToBaseVertex == targetIdOnBaseGraph then
+                                    { vertexData
+                                        | data =
+                                            vertexData.data
+                                                |> setMappedVertexTo
+                                                    (Graph.getData dragData.dragged (LS.current model.levels).playerGraph
+                                                        |> Maybe.map .mappedToBaseVertex
+                                                        |> Maybe.withDefault 0
+                                                    )
+                                    }
+
+                                else
+                                    vertexData
+                        in
+                        { model
+                            | gameState = Idle
+                        }
+                            |> mapCurrentPlayerGraph (Graph.mapVertices newTargetIdOnBaseGraph)
+
+                    Nothing ->
+                        { model
+                            | gameState = Idle
+                        }
 
             _ ->
                 model
@@ -344,12 +413,9 @@ updatePointerPosition : Computer -> Model -> Model
 updatePointerPosition computer model =
     { model
         | pointer =
-            model.pointer
-                |> lerp 0.5
-                    (computer.mouse
-                        |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                        |> Maybe.withDefault model.pointer
-                    )
+            computer.mouse
+                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                |> Maybe.withDefault model.pointer
     }
 
 
@@ -380,16 +446,16 @@ view computer model =
     let
         firstLight =
             Light.point
-                { position = { x = -2, y = 4, z = 2 }
+                { position = { x = -2, y = 4, z = 4 }
                 , chromaticity = Scene3d.Light.incandescent
-                , intensity = LuminousFlux.lumens 6000
+                , intensity = LuminousFlux.lumens 12000
                 }
 
         secondLight =
             Light.point
-                { position = { x = 2, y = 3, z = 2 }
+                { position = { x = 2, y = 3, z = 4 }
                 , chromaticity = Scene3d.Light.fluorescent
-                , intensity = LuminousFlux.lumens 6000
+                , intensity = LuminousFlux.lumens 12000
                 }
 
         thirdLight =
@@ -770,6 +836,7 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
+        , paragraph [] [ text <| "model.pointer: " ++ Debug.toString model.pointer ]
         , paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
         , paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
