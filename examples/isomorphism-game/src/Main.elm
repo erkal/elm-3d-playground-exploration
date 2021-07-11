@@ -364,12 +364,7 @@ view computer model =
     Scene.custom
         { screen = computer.screen
         , camera = camera computer
-        , lights =
-            Scene3d.fourLights
-                firstLight
-                secondLight
-                thirdLight
-                fourthLight
+        , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
         , clipDepth = 0.1
         , exposure = Scene3d.exposureValue 6
         , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
@@ -514,9 +509,14 @@ drawPlayerEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
         width =
             getFloat "player edge width" computer
     in
-    block
+    cylinder
         (getColor "player" computer)
-        ( radius, width, width )
+        (0.5 * width)
+        radius
+        |> rotateZ (degrees 90)
+        --block
+        --    (getColor "player" computer)
+        --    ( radius, width, width )
         |> moveX (radius / 2)
         |> rotateY (inclination - degrees 90)
         |> rotateZ azimuth
