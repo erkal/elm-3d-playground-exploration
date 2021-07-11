@@ -123,8 +123,26 @@ update computer model =
                 handlePlayerInput computer
     in
     model
+        |> lerpPlayerVerticesToBaseVertices computer
         |> updatePointerPosition computer
         |> handleInput
+
+
+lerpPlayerVerticesToBaseVertices : Computer -> Model -> Model
+lerpPlayerVerticesToBaseVertices computer model =
+    let
+        lerpToBaseVertex vertexId vertexData =
+            { vertexData
+                | position =
+                    vertexData.position
+                        |> lerp 0.5
+                            (Graph.getPosition vertexData.data.mappedToBaseVertex
+                                (LS.current model.levels).baseGraph
+                            )
+            }
+    in
+    model
+        |> mapCurrentPlayerGraph (Graph.mapVertices lerpToBaseVertex)
 
 
 handlePlayerInput : Computer -> Model -> Model
