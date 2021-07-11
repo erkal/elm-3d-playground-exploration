@@ -836,9 +836,9 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
-        , paragraph [] [ text <| "model.pointer: " ++ Debug.toString model.pointer ]
-        , paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
-        , paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+
+        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
 
