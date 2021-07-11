@@ -43,11 +43,7 @@ type alias Model =
 
 type GameState
     = Idle
-    | DraggingPlayerVertex
-        { startPosition : Point
-        , vertexId : VertexId
-        , target : Maybe ( VertexId, Point )
-        }
+    | DraggingPlayerVertex VertexId
 
 
 type EditorState
@@ -125,33 +121,9 @@ update computer model =
     in
     model
         |> updatePointerPosition computer
-        |> setAnimationTargetsOnDrag computer
         |> mapCurrentPlayerGraph Graph.tickAnimation
         |> mapCurrentBaseGraph Graph.tickAnimation
         |> handleInput
-
-
-setAnimationTargetsOnDrag : Computer -> Model -> Model
-setAnimationTargetsOnDrag computer model =
-    case model.gameState of
-        DraggingPlayerVertex { startPosition, vertexId, target } ->
-            case target of
-                Just ( targetId, targetPosition ) ->
-                    let
-                        elavate p =
-                            { p | z = p.z + 2 }
-                    in
-                    model
-                        |> mapCurrentPlayerGraph
-                            (Graph.setAnimationTarget targetId
-                                (elavate (middlePoint startPosition targetPosition))
-                            )
-
-                Nothing ->
-                    model
-
-        _ ->
-            model
 
 
 handlePlayerInput : Computer -> Model -> Model
@@ -159,7 +131,6 @@ handlePlayerInput computer model =
     model
         |> startDraggingPlayerVertex computer
         |> dragPlayerVertex computer
-        |> updateDraggingTarget computer
         |> endDragging computer
 
 
@@ -256,14 +227,7 @@ startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
-                { model
-                    | gameState =
-                        DraggingPlayerVertex
-                            { startPosition = model.pointer
-                            , vertexId = vertexId
-                            , target = Nothing
-                            }
-                }
+                { model | gameState = DraggingPlayerVertex vertexId }
 
             _ ->
                 model
@@ -304,33 +268,10 @@ dragBaseVertex computer model =
             model
 
 
-updateDraggingTarget : Computer -> Model -> Model
-updateDraggingTarget computer model =
-    case model.gameState of
-        DraggingPlayerVertex dragData ->
-            { model
-                | gameState =
-                    DraggingPlayerVertex
-                        { dragData
-                            | target =
-                                secondNearestPlayerVertexAtReach computer model
-                                    |> Maybe.map
-                                        (\vertexId ->
-                                            ( vertexId
-                                            , Graph.getPosition vertexId (LS.current model.levels).playerGraph
-                                            )
-                                        )
-                        }
-            }
-
-        _ ->
-            model
-
-
 dragPlayerVertex : Computer -> Model -> Model
 dragPlayerVertex computer model =
     case model.gameState of
-        DraggingPlayerVertex { vertexId } ->
+        DraggingPlayerVertex vertexId ->
             model
                 |> mapCurrentPlayerGraph
                     (Graph.setAnimationTarget vertexId model.pointer)
