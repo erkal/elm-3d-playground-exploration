@@ -5,19 +5,18 @@ module Graph exposing
     , edges
     , empty
     , exampleBaseGraph
-    , getData
     , getPosition
     , insertEdge
     , insertEdgeAndVertex
     , insertVertex
+    , mapVertex
     , mapVertices
     , nearestVertexAtReach
-    , setVertexPosition
     , vertices
     )
 
 import Dict exposing (Dict)
-import Geometry exposing (Point, distanceXY, lerp)
+import Geometry exposing (Point, distanceXY)
 import Set exposing (Set)
 
 
@@ -65,25 +64,12 @@ vertices (Graph graph) =
         |> Dict.toList
 
 
-mapVertices : (VertexId -> VertexData data1 -> VertexData data2) -> Graph data1 -> Graph data2
-mapVertices up (Graph graph) =
-    Graph
-        (graph |> Dict.map up)
-
-
 getPosition : VertexId -> Graph data -> Point
 getPosition vertexId (Graph graph) =
     graph
         |> Dict.get vertexId
         |> Maybe.map .position
         |> Maybe.withDefault (Point -10 -10 0)
-
-
-getData : VertexId -> Graph data -> Maybe data
-getData vertexId (Graph graph) =
-    graph
-        |> Dict.get vertexId
-        |> Maybe.map .data
 
 
 edges :
@@ -137,15 +123,17 @@ nearestVertexAtReach reach p graph =
 -- UPDATE
 
 
-setVertexPosition : VertexId -> Point -> Graph data -> Graph data
-setVertexPosition vertexId position (Graph graph) =
-    let
-        updatePosition vertexData =
-            { vertexData | position = position }
-    in
+mapVertices : (VertexId -> VertexData data1 -> VertexData data2) -> Graph data1 -> Graph data2
+mapVertices up (Graph graph) =
+    Graph
+        (graph |> Dict.map up)
+
+
+mapVertex : VertexId -> (VertexData data -> VertexData data) -> Graph data -> Graph data
+mapVertex vertexId up (Graph graph) =
     Graph
         (graph
-            |> Dict.update vertexId (Maybe.map updatePosition)
+            |> Dict.update vertexId (Maybe.map up)
         )
 
 

@@ -261,8 +261,12 @@ dragBaseVertex : Computer -> Model -> Model
 dragBaseVertex computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
+            let
+                moveToPointerPosition vertexData =
+                    { vertexData | position = model.pointer }
+            in
             model
-                |> mapCurrentBaseGraph (Graph.setVertexPosition vertexId model.pointer)
+                |> mapCurrentBaseGraph (Graph.mapVertex vertexId moveToPointerPosition)
 
         _ ->
             model
@@ -272,8 +276,12 @@ dragPlayerVertex : Computer -> Model -> Model
 dragPlayerVertex computer model =
     case model.gameState of
         DraggingPlayerVertex dragData ->
+            let
+                moveToPointerPosition vertexData =
+                    { vertexData | position = model.pointer }
+            in
             model
-                |> mapCurrentPlayerGraph (Graph.setVertexPosition dragData.dragged model.pointer)
+                |> mapCurrentPlayerGraph (Graph.mapVertex dragData.dragged moveToPointerPosition)
 
         _ ->
             model
@@ -744,9 +752,8 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
-
-        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
-        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+        , paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        , paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
 
