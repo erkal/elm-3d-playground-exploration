@@ -5,15 +5,14 @@ module Graph exposing
     , edges
     , empty
     , exampleBaseGraph
+    , getData
     , getPosition
     , insertEdge
     , insertEdgeAndVertex
     , insertVertex
     , mapVertices
     , nearestVertexAtReach
-    , secondNearestVertexAtReach
-    , setAnimationTarget
-    , tickAnimation
+    , setVertexPosition
     , vertices
     )
 
@@ -32,7 +31,6 @@ type alias VertexId =
 
 type alias VertexData data =
     { position : Point
-    , animationTarget : Point
     , outNeighbours : Set VertexId
     , data : data
     }
@@ -81,6 +79,13 @@ getPosition vertexId (Graph graph) =
         |> Maybe.withDefault (Point -10 -10 0)
 
 
+getData : VertexId -> Graph data -> Maybe data
+getData vertexId (Graph graph) =
+    graph
+        |> Dict.get vertexId
+        |> Maybe.map .data
+
+
 edges :
     Graph data
     ->
@@ -108,8 +113,8 @@ edges (Graph graph) =
             )
 
 
-twoNearestVerticesAtReach : Float -> Point -> Graph data -> Maybe ( VertexId, Maybe VertexId )
-twoNearestVerticesAtReach reach p graph =
+nearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
+nearestVertexAtReach reach p graph =
     vertices graph
         |> List.filterMap
             (\( vertexId, { position } ) ->
@@ -124,64 +129,19 @@ twoNearestVerticesAtReach reach p graph =
                     Nothing
             )
         |> List.sortBy Tuple.second
-        |> List.map Tuple.first
-        |> (\l ->
-                case l of
-                    first :: second :: _ ->
-                        Just ( first, Just second )
-
-                    [ only ] ->
-                        Just ( only, Nothing )
-
-                    [] ->
-                        Nothing
-           )
-
-
-nearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
-nearestVertexAtReach reach p graph =
-    case twoNearestVerticesAtReach reach p graph of
-        Just ( first, _ ) ->
-            Just first
-
-        _ ->
-            Nothing
-
-
-secondNearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
-secondNearestVertexAtReach reach p graph =
-    case twoNearestVerticesAtReach reach p graph of
-        Just ( first, Just second ) ->
-            Just second
-
-        _ ->
-            Nothing
+        |> List.head
+        |> Maybe.map Tuple.first
 
 
 
 -- UPDATE
 
 
-tickAnimation : Graph data -> Graph data
-tickAnimation (Graph graph) =
-    Graph
-        (graph
-            |> Dict.map
-                (\_ vertexData ->
-                    { vertexData
-                        | position =
-                            vertexData.position
-                                |> lerp 0.5 vertexData.animationTarget
-                    }
-                )
-        )
-
-
-setAnimationTarget : VertexId -> Point -> Graph data -> Graph data
-setAnimationTarget vertexId animationTarget (Graph graph) =
+setVertexPosition : VertexId -> Point -> Graph data -> Graph data
+setVertexPosition vertexId position (Graph graph) =
     let
         updatePosition vertexData =
-            { vertexData | animationTarget = animationTarget }
+            { vertexData | position = position }
     in
     Graph
         (graph
@@ -199,7 +159,6 @@ insertVertex data position (Graph graph) =
 
         newVertex =
             { position = position
-            , animationTarget = position
             , outNeighbours = Set.empty
             , data = data
             }
@@ -234,7 +193,6 @@ insertEdgeAndVertex data source targetPosition (Graph graph) =
 
         targetVertex =
             { position = targetPosition
-            , animationTarget = targetPosition
             , outNeighbours = Set.empty
             , data = data
             }

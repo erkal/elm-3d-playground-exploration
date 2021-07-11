@@ -40,7 +40,6 @@ levelFrom baseGraph =
             |> Graph.mapVertices
                 (\vertexId vertexData ->
                     { position = vertexData.position
-                    , animationTarget = vertexData.animationTarget
                     , outNeighbours = vertexData.outNeighbours
                     , data = { mappedToBaseVertex = vertexId }
                     }

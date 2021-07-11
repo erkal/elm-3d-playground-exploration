@@ -43,7 +43,10 @@ type alias Model =
 
 type GameState
     = Idle
-    | DraggingPlayerVertex VertexId
+    | DraggingPlayerVertex
+        { dragged : VertexId
+        , maybeTargetIdOnBaseGraph : Maybe VertexId
+        }
 
 
 type EditorState
@@ -67,9 +70,9 @@ initialConfigurations =
     , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
     , floatConfig "elevation for fourth light" ( -pi, pi ) -2
     , colorConfig "game background" (rgb255 44 100 200)
-    , colorConfig "pointer player" red
+    , colorConfig "pointer player" lightGray
     , colorConfig "pointer base" darkGreen
-    , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.7
+    , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.3
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
     , colorConfig "base" white
     , floatConfig "base height" ( 0.01, 5 ) 1
@@ -121,8 +124,6 @@ update computer model =
     in
     model
         |> updatePointerPosition computer
-        |> mapCurrentPlayerGraph Graph.tickAnimation
-        |> mapCurrentBaseGraph Graph.tickAnimation
         |> handleInput
 
 
@@ -131,7 +132,7 @@ handlePlayerInput computer model =
     model
         |> startDraggingPlayerVertex computer
         |> dragPlayerVertex computer
-        |> endDragging computer
+        |> endDraggingPlayerVertex computer
 
 
 handleInputForEditor : Computer -> Model -> Model
@@ -142,7 +143,7 @@ handleInputForEditor computer model =
         |> dragBaseVertex computer
         |> startDraggingBaseEdge computer
         |> insertBaseEdge computer
-        |> endDragging computer
+        |> endDraggingBaseVertex computer
 
 
 nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
@@ -156,14 +157,6 @@ nearestBaseVertexAtReach computer model =
 nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestPlayerVertexAtReach computer model =
     Graph.nearestVertexAtReach
-        (getFloat "pointer reach for player" computer)
-        model.pointer
-        (LS.current model.levels).playerGraph
-
-
-secondNearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
-secondNearestPlayerVertexAtReach computer model =
-    Graph.secondNearestVertexAtReach
         (getFloat "pointer reach for player" computer)
         model.pointer
         (LS.current model.levels).playerGraph
@@ -227,7 +220,13 @@ startDraggingPlayerVertex computer model =
     if computer.mouse.down && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
-                { model | gameState = DraggingPlayerVertex vertexId }
+                { model
+                    | gameState =
+                        DraggingPlayerVertex
+                            { dragged = vertexId
+                            , maybeTargetIdOnBaseGraph = Nothing
+                            }
+                }
 
             _ ->
                 model
@@ -262,7 +261,8 @@ dragBaseVertex : Computer -> Model -> Model
 dragBaseVertex computer model =
     case model.editorState of
         DraggingBaseVertex { vertexId } ->
-            model |> mapCurrentBaseGraph (Graph.setAnimationTarget vertexId model.pointer)
+            model
+                |> mapCurrentBaseGraph (Graph.setVertexPosition vertexId model.pointer)
 
         _ ->
             model
@@ -271,21 +271,43 @@ dragBaseVertex computer model =
 dragPlayerVertex : Computer -> Model -> Model
 dragPlayerVertex computer model =
     case model.gameState of
-        DraggingPlayerVertex vertexId ->
+        DraggingPlayerVertex dragData ->
             model
-                |> mapCurrentPlayerGraph
-                    (Graph.setAnimationTarget vertexId model.pointer)
+                |> mapCurrentPlayerGraph (Graph.setVertexPosition dragData.dragged model.pointer)
 
         _ ->
             model
 
 
-endDragging : Computer -> Model -> Model
-endDragging computer model =
+endDraggingPlayerVertex : Computer -> Model -> Model
+endDraggingPlayerVertex computer model =
+    if not computer.mouse.down then
+        case model.gameState of
+            DraggingPlayerVertex dragData ->
+                --case dragData.maybeTargetIdOnBaseGraph of
+                --    Just targetIdOnBaseGraph ->
+                --        { model
+                --            | gameState = Idle
+                --        }
+                --            |> mapCurrentPlayerGraph (Graph.setData dragData.dragged)
+                --
+                --    Nothing ->
+                { model
+                    | gameState = Idle
+                }
+
+            _ ->
+                model
+
+    else
+        model
+
+
+endDraggingBaseVertex : Computer -> Model -> Model
+endDraggingBaseVertex computer model =
     if not computer.mouse.down then
         { model
-            | gameState = Idle
-            , editorState = EditorIdle
+            | editorState = EditorIdle
         }
 
     else
