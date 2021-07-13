@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
+import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -10,7 +11,9 @@ import Geometry exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
 import Illuminance
+import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
+import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
 import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
@@ -33,7 +36,7 @@ main =
 
 
 type alias Model =
-    { editorIsOn : Bool
+    { editor : Editor
     , levels : Levels Level
     , pointer : Point
     , gameState : GameState
@@ -86,7 +89,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { editorIsOn = False
+    { editor = Editor.init
     , levels = LS.singleton Level.exampleLevel
     , pointer = Point 0 0 0
     , gameState = Idle
@@ -116,7 +119,7 @@ update : Computer -> Model -> Model
 update computer model =
     let
         handleInput =
-            if model.editorIsOn then
+            if model.editor.isOn then
                 handleInputForEditor computer
 
             else
@@ -540,7 +543,7 @@ drawPointer : Computer -> Model -> Shape
 drawPointer computer model =
     let
         ( color, zShift, radius ) =
-            if model.editorIsOn then
+            if model.editor.isOn then
                 ( getColor "pointer base" computer
                 , -(getFloat "base height" computer) + 0.01
                 , getFloat "pointer reach for base" computer
@@ -738,13 +741,15 @@ type EditorMsg
     | PressedAddLevelButton
     | PressedRemoveLevelButton
     | PressedMoveLevelOneUoButton
+    | ClickedExportLevelsButton
+    | ClickedImportLevelsButton
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
-            { model | editorIsOn = bool }
+            { model | editor = model.editor |> Editor.onOff bool }
 
         PressedPreviousLevelButton ->
             { model
@@ -771,6 +776,17 @@ updateFromEditor computer editorMsg model =
         PressedMoveLevelOneUoButton ->
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
+        ClickedExportLevelsButton ->
+            { model | editor = model.editor |> Editor.exportLevels model.levels }
+
+        ClickedImportLevelsButton ->
+            { model
+                | levels =
+                    model.editor.jsonLevelsToImport
+                        |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
+                        |> Result.withDefault model.levels
+            }
+
 
 viewEditor : Computer -> Model -> Element EditorMsg
 viewEditor computer model =
@@ -792,7 +808,7 @@ viewEditor computer model =
 
 editorContent : Computer -> Model -> Element EditorMsg
 editorContent computer model =
-    if model.editorIsOn then
+    if model.editor.isOn then
         column
             [ width fill
             , height fill
@@ -817,7 +833,7 @@ editorOnOffButton computer model =
     checkbox []
         { onChange = ClickedEditorOnOffButton
         , icon = Input.defaultCheckbox
-        , checked = model.editorIsOn
+        , checked = model.editor.isOn
         , label = Input.labelLeft [] (text "Editor")
         }
 
@@ -860,6 +876,11 @@ viewLevelSelection computer model =
             , makeButton "Remove current level" PressedRemoveLevelButton
             , makeButton "Move level one up" PressedMoveLevelOneUoButton
             ]
+
+        --, row []
+        --    [ levelExporting computer model
+        --    , levelImporting computer model
+        --    ]
         ]
 
 
@@ -874,3 +895,60 @@ makeButton buttonText editorMsg =
         { onPress = Just editorMsg
         , label = text buttonText
         }
+
+
+
+--levelExporting : Computer -> Model -> Element EditorMsg
+--levelExporting computer model =
+--    div []
+--        [ h3 [] [ text "Export Levels" ]
+--        , p [] [ exportLevelsButton computer model ]
+--        , p [] [ textAreaForExportedLevels model ]
+--        ]
+--
+--
+--levelImporting : Computer -> Model -> Element EditorMsg
+--levelImporting computer model =
+--    div []
+--        [ h3 [] [ text "Import Levels" ]
+--        , p [] [ textAreaForLevelsToImport model ]
+--        , p [] [ importLevelsButton computer model ]
+--        ]
+--
+--
+--exportLevelsButton : Computer -> Model -> Html EditorMsg
+--exportLevelsButton computer model =
+--    button
+--        [ style "cursor" "pointer"
+--        , onClick ClickedExportLevelsButton
+--        ]
+--        [ text "Export LevelSelector as json" ]
+--
+--
+--importLevelsButton : Computer -> Model -> Html EditorMsg
+--importLevelsButton computer model =
+--    button
+--        [ style "cursor" "pointer"
+--        , onClick ClickedImportLevelsButton
+--        ]
+--        [ text "Import LevelSelector" ]
+--
+--
+--textAreaForExportedLevels : Model -> Element EditorMsg
+--textAreaForExportedLevels model =
+--    div
+--        []
+--        [ textarea
+--            []
+--            [ text model.editor.jsonExportedLevels ]
+--        ]
+--
+--
+--textAreaForLevelsToImport : Model -> Element EditorMsg
+--textAreaForLevelsToImport model =
+--    div
+--        []
+--        [ textarea
+--            [ Events.onInput EditedTextAreaForImportingLevels ]
+--            [ text model.editor.jsonLevelsToImport ]
+--        ]

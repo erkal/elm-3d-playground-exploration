@@ -1,10 +1,12 @@
 module Graph exposing
     ( Graph
+    , Graph_PreEncoded
     , VertexData
     , VertexId
     , edges
     , empty
     , exampleBaseGraph
+    , fromPreEncoded
     , getData
     , getPosition
     , insertEdge
@@ -13,6 +15,7 @@ module Graph exposing
     , mapVertex
     , mapVertices
     , nearestVertexAtReach
+    , toPreEncoded
     , vertices
     )
 
@@ -53,6 +56,35 @@ exampleBaseGraph =
         |> insertEdge 2 3
         |> insertEdge 3 0
         |> insertEdge 0 2
+
+
+
+-- PREPARE TO ENCODE/DECODE
+
+
+type alias Graph_PreEncoded data =
+    List ( String, VertexData data )
+
+
+toPreEncoded : Graph data -> List ( String, VertexData data )
+toPreEncoded (Graph graph) =
+    graph
+        |> Dict.toList
+        |> List.map (\( vertexId, vertexData ) -> ( String.fromInt vertexId, vertexData ))
+
+
+fromPreEncoded : List ( String, VertexData data ) -> Graph data
+fromPreEncoded l =
+    Graph
+        (l
+            |> List.map
+                (\( vertexIdAsString, vertexData ) ->
+                    ( String.toInt vertexIdAsString |> Maybe.withDefault 999
+                    , vertexData
+                    )
+                )
+            |> Dict.fromList
+        )
 
 
 

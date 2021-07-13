@@ -1,12 +1,13 @@
 module Level exposing (..)
 
 import Geometry exposing (Point)
-import Graph exposing (Graph, VertexId, insertEdge, insertVertex)
+import Graph exposing (Graph(..), Graph_PreEncoded, VertexId, insertEdge, insertVertex)
+import Json.Encode exposing (Value)
 
 
 type alias Level =
     { baseGraph : BaseGraph
-    , playerGraph : Graph { mappedToBaseVertex : VertexId }
+    , playerGraph : PlayerGraph
     }
 
 
@@ -57,6 +58,38 @@ empty =
     { baseGraph = Graph.empty
     , playerGraph = Graph.empty
     }
+
+
+
+-- PREPARE TO ENCODE/DECODE
+
+
+type alias Level_PreEncoded =
+    { baseGraph : Graph_PreEncoded ()
+    , playerGraph : Graph_PreEncoded PlayerGraphVertexData
+    }
+
+
+type alias PlayerGraphVertexData =
+    { mappedToBaseVertex : VertexId }
+
+
+toPreEncoded : Level -> Level_PreEncoded
+toPreEncoded level =
+    { baseGraph = level.baseGraph |> Graph.toPreEncoded
+    , playerGraph = level.playerGraph |> Graph.toPreEncoded
+    }
+
+
+fromPreEncoded : Level_PreEncoded -> Level
+fromPreEncoded level_PreEncoded =
+    { baseGraph = level_PreEncoded.baseGraph |> Graph.fromPreEncoded
+    , playerGraph = level_PreEncoded.playerGraph |> Graph.fromPreEncoded
+    }
+
+
+
+-- UPDATE
 
 
 mapBaseGraph : (BaseGraph -> BaseGraph) -> Level -> Level
