@@ -37,6 +37,7 @@ port module Playground3d exposing
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
+import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -102,12 +103,12 @@ toXY =
     Computer.toXY
 
 
-floatConfig =
-    Configurations.Float
+floatConfig key ( min, max ) value =
+    ( key, Configurations.Float ( min, max ) value )
 
 
-colorConfig =
-    Configurations.Color
+colorConfig key value =
+    ( key, Configurations.Color value )
 
 
 getColor =
@@ -146,7 +147,7 @@ game viewGameModel updateGameModel initGameModel =
 gameWithConfigurations :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
-    -> Configurations
+    -> List ( String, Config )
     -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
 gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
@@ -162,7 +163,7 @@ gameWithConfigurations viewGameModel updateGameModel initialConfigurations initG
 gameWithConfigurationsAndEditor :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
-    -> Configurations
+    -> List ( String, Config )
     -> (Computer -> gameModel)
     -> (Computer -> gameModel -> Element levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
@@ -172,7 +173,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             let
                 initialComputer =
-                    Computer.init flags initialConfigurations
+                    Computer.init flags (Dict.fromList initialConfigurations)
             in
             ( { activeMode = ConfigurationsMode
               , tape = Tape.init initialComputer initGameModel

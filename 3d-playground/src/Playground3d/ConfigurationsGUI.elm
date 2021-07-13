@@ -2,6 +2,7 @@ module Playground3d.ConfigurationsGUI exposing (..)
 
 import Color exposing (black)
 import Color.Convert exposing (colorToHex, hexToColor)
+import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -25,13 +26,13 @@ view configurations =
         , Font.regular
         , scrollbarY
         ]
-        (List.map viewConfig configurations)
+        (configurations |> Dict.map viewConfig |> Dict.values)
 
 
-viewConfig : Config -> Element Msg
-viewConfig config =
+viewConfig : String -> Config -> Element Msg
+viewConfig key config =
     case config of
-        Float key ( min, max ) value ->
+        Float ( min, max ) value ->
             sliderInput
                 { labelText = key
                 , value = value
@@ -41,7 +42,7 @@ viewConfig config =
                 , onChange = SetFloat key
                 }
 
-        Color key value ->
+        Color value ->
             el [ width fill ] <|
                 html <|
                     Html.div []

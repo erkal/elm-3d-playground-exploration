@@ -1,16 +1,17 @@
 module Playground3d.Configurations exposing (..)
 
 import Color exposing (Color)
+import Dict exposing (Dict)
 import Round
 
 
 type alias Configurations =
-    List Config
+    Dict String Config
 
 
 type Config
-    = Float String ( Float, Float ) Float
-    | Color String Color
+    = Float ( Float, Float ) Float
+    | Color Color
 
 
 
@@ -20,40 +21,32 @@ type Config
 getFloat : String -> Configurations -> Float
 getFloat key configurations =
     configurations
-        |> List.filterMap
+        |> Dict.get key
+        |> Maybe.map
             (\config ->
                 case config of
-                    Float k _ value ->
-                        if k == key then
-                            Just value
-
-                        else
-                            Nothing
+                    Float _ value ->
+                        value
 
                     _ ->
-                        Nothing
+                        0
             )
-        |> List.head
         |> Maybe.withDefault 0
 
 
 getColor : String -> Configurations -> Color
 getColor key configurations =
     configurations
-        |> List.filterMap
+        |> Dict.get key
+        |> Maybe.map
             (\config ->
                 case config of
-                    Color k value ->
-                        if k == key then
-                            Just value
-
-                        else
-                            Nothing
+                    Color value ->
+                        value
 
                     _ ->
-                        Nothing
+                        Color.black
             )
-        |> List.head
         |> Maybe.withDefault Color.black
 
 
@@ -93,32 +86,28 @@ update msg configurations =
     case msg of
         SetFloat key newValue ->
             configurations
-                |> List.map
-                    (\config ->
-                        case config of
-                            Float k ( min, max ) _ ->
-                                if k == key then
-                                    Float k ( min, max ) (roundFloatValue min max newValue)
+                |> Dict.update key
+                    (Maybe.map
+                        (\config ->
+                            case config of
+                                Float ( min, max ) _ ->
+                                    Float ( min, max ) (roundFloatValue min max newValue)
 
-                                else
+                                _ ->
                                     config
-
-                            _ ->
-                                config
+                        )
                     )
 
         SetColor key newValue ->
             configurations
-                |> List.map
-                    (\config ->
-                        case config of
-                            Color k _ ->
-                                if k == key then
-                                    Color k newValue
+                |> Dict.update key
+                    (Maybe.map
+                        (\config ->
+                            case config of
+                                Color _ ->
+                                    Color newValue
 
-                                else
+                                _ ->
                                     config
-
-                            _ ->
-                                config
+                        )
                     )
