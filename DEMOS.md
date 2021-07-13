@@ -9,6 +9,7 @@
 - isomorphism-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/isomorphism-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/isomorphism-game/src)
 - john-harris-eight-rolling-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/john-harris-eight-rolling-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/john-harris-eight-rolling-cubes/src)
 - multiple-shadows-from-ianmackenzie: [demo](https://erkal.github.io/elm-3d-playground-exploration/multiple-shadows-from-ianmackenzie), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/multiple-shadows-from-ianmackenzie/src)
+- planetary-system: [demo](https://erkal.github.io/elm-3d-playground-exploration/planetary-system), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/planetary-system/src)
 - recursive-rotation: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-rotation), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/recursive-rotation/src)
 - recursive-tree: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-tree), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/recursive-tree/src)
 - red-faced-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/red-faced-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/red-faced-cube/src)
