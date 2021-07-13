@@ -77,7 +77,8 @@ sunny arguments shapes =
 
 
 custom :
-    { screen : Computer.Screen
+    { devicePixelRatio : Float
+    , screen : Computer.Screen
     , camera : Camera
     , lights : Lights ()
     , clipDepth : Float
@@ -89,20 +90,21 @@ custom :
     }
     -> List Shape
     -> Html Never
-custom properties shapes =
-    Scene3d.custom
-        { lights = properties.lights
-        , camera = properties.camera
-        , clipDepth = Length.meters properties.clipDepth
-        , exposure = properties.exposure
-        , toneMapping = properties.toneMapping
-        , whiteBalance = properties.whiteBalance
-        , antialiasing = properties.antialiasing
+custom arguments shapes =
+    ModifiedFromScene3d.Scenes.customWithDevicePixelRatio
+        { devicePixelRatio = arguments.devicePixelRatio
+        , lights = arguments.lights
+        , camera = arguments.camera
+        , clipDepth = Length.meters arguments.clipDepth
+        , exposure = arguments.exposure
+        , toneMapping = arguments.toneMapping
+        , whiteBalance = arguments.whiteBalance
+        , antialiasing = arguments.antialiasing
         , dimensions =
-            ( Pixels.int (round properties.screen.width)
-            , Pixels.int (round properties.screen.height)
+            ( Pixels.int (round arguments.screen.width)
+            , Pixels.int (round arguments.screen.height)
             )
-        , background = Scene3d.backgroundColor properties.backgroundColor
+        , background = Scene3d.backgroundColor arguments.backgroundColor
         , entities = toEntities shapes
         }
 

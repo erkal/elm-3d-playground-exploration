@@ -98,7 +98,8 @@ view computer model =
                 }
     in
     Scene.custom
-        { screen = computer.screen
+        { devicePixelRatio = computer.devicePixelRatio
+        , screen = computer.screen
         , camera = camera
         , lights =
             Scene3d.fourLights

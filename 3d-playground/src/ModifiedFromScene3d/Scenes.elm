@@ -1,4 +1,4 @@
-module ModifiedFromScene3d.Scenes exposing (sunnyWithDevicePixelRatio)
+module ModifiedFromScene3d.Scenes exposing (customWithDevicePixelRatio, sunnyWithDevicePixelRatio)
 
 import Camera3d exposing (Camera3d)
 import Direction3d exposing (Direction3d)
@@ -7,8 +7,8 @@ import Illuminance
 import Length exposing (Length, Meters)
 import Pixels exposing (Pixels)
 import Quantity exposing (Quantity)
-import Scene3d exposing (Background, Entity, custom, exposureValue, multisampling, noToneMapping, supersampling, threeLights)
-import Scene3d.Light as Light
+import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, multisampling, noToneMapping, supersampling, threeLights)
+import Scene3d.Light as Light exposing (Chromaticity)
 
 
 sunnyWithDevicePixelRatio :
@@ -61,3 +61,34 @@ sunnyWithDevicePixelRatio arguments =
         , background = arguments.background
         , entities = arguments.entities
         }
+
+
+customWithDevicePixelRatio :
+    { devicePixelRatio : Float
+    , lights : Lights coordinates
+    , camera : Camera3d Meters coordinates
+    , clipDepth : Length
+    , exposure : Exposure
+    , toneMapping : ToneMapping
+    , whiteBalance : Chromaticity
+    , antialiasing : Antialiasing
+    , dimensions : ( Quantity Int Pixels, Quantity Int Pixels )
+    , background : Background coordinates
+    , entities : List (Entity coordinates)
+    }
+    -> Html msg
+customWithDevicePixelRatio arguments =
+    composite
+        { camera = arguments.camera
+        , clipDepth = arguments.clipDepth
+        , antialiasing = supersampling arguments.devicePixelRatio
+        , dimensions = arguments.dimensions
+        , background = arguments.background
+        }
+        [ { lights = arguments.lights
+          , exposure = arguments.exposure
+          , toneMapping = arguments.toneMapping
+          , whiteBalance = arguments.whiteBalance
+          , entities = arguments.entities
+          }
+        ]
