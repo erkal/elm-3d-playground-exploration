@@ -2,7 +2,6 @@ module Level exposing (..)
 
 import Geometry exposing (Point)
 import Graph exposing (Graph(..), Graph_PreEncoded, VertexId, insertEdge, insertVertex)
-import Json.Encode exposing (Value)
 
 
 type alias Level =
@@ -19,25 +18,11 @@ type alias PlayerGraph =
     Graph { mappedToBaseVertex : VertexId }
 
 
-exampleBaseGraph : Graph ()
-exampleBaseGraph =
-    Graph.empty
-        |> insertVertex () (Point 2 2 0)
-        |> insertVertex () (Point 2 -2 0)
-        |> insertVertex () (Point -2 -2 0)
-        |> insertVertex () (Point -2 2 0)
-        |> insertEdge 0 1
-        |> insertEdge 1 2
-        |> insertEdge 2 3
-        |> insertEdge 3 0
-        |> insertEdge 0 2
-
-
-levelFrom : BaseGraph -> Level
-levelFrom baseGraph =
-    { baseGraph = baseGraph
+resetPlayerGraph : Level -> Level
+resetPlayerGraph level =
+    { baseGraph = level.baseGraph
     , playerGraph =
-        baseGraph
+        level.baseGraph
             |> Graph.mapVertices
                 (\vertexId vertexData ->
                     { position = vertexData.position
@@ -50,7 +35,24 @@ levelFrom baseGraph =
 
 exampleLevel : Level
 exampleLevel =
-    levelFrom exampleBaseGraph
+    resetPlayerGraph
+        { baseGraph = exampleBaseGraph
+        , playerGraph = Graph.empty
+        }
+
+
+exampleBaseGraph : Graph ()
+exampleBaseGraph =
+    Graph.empty
+        |> insertVertex () (Point 2 2 0)
+        |> insertVertex () (Point 2 -2 0)
+        |> insertVertex () (Point -2 -2 0)
+        |> insertVertex () (Point -2 2 0)
+        |> insertEdge 0 1
+        |> insertEdge 1 2
+        |> insertEdge 2 3
+        |> insertEdge 3 0
+        |> insertEdge 0 2
 
 
 empty : Level

@@ -9,6 +9,7 @@ import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
+import HardcodedLevels exposing (hardcodedLevels)
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
@@ -91,7 +92,7 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { editor = Editor.init
-    , levels = LS.singleton Level.exampleLevel
+    , levels = hardcodedLevels
     , pointer = Point 0 0 0
     , gameState = Idle
     , editorState = EditorIdle
@@ -427,7 +428,7 @@ updatePointerPosition computer model =
 camera : Computer -> Camera
 camera computer =
     perspectiveWithOrbit
-        { focalPoint = { x = -2, y = 0, z = 0 }
+        { focalPoint = { x = 0, y = 0, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
         , distance = getFloat "camera distance" computer
@@ -739,7 +740,8 @@ type EditorMsg
     | PressedNextLevelButton
     | PressedAddLevelButton
     | PressedRemoveLevelButton
-    | PressedMoveLevelOneUoButton
+    | PressedMoveLevelOneUpButton
+    | PressedResetPlayerGraphButton
     | ClickedExportLevelsButton
     | ClickedImportLevelsButton
     | EditedTextAreaForImportingLevels String
@@ -773,11 +775,14 @@ updateFromEditor computer editorMsg model =
         PressedRemoveLevelButton ->
             { model | levels = model.levels |> LS.removeCurrent }
 
-        PressedMoveLevelOneUoButton ->
+        PressedMoveLevelOneUpButton ->
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
+        PressedResetPlayerGraphButton ->
+            { model | levels = model.levels |> LS.mapCurrent Level.resetPlayerGraph }
+
         ClickedExportLevelsButton ->
-            { model | editor = model.editor |> Editor.exportLevels model.levels }
+            { model | editor = model.editor |> Editor.exportLevels (Debug.log "" model.levels) }
 
         ClickedImportLevelsButton ->
             { model
@@ -834,7 +839,7 @@ editorContent computer model =
             , spacing 20
             ]
             [ explanationsForEditor computer model
-            , viewLevelSelection computer model
+            , viewLevelsEditor computer model
             ]
 
     else
@@ -877,17 +882,22 @@ viewDebugger computer model =
         ]
 
 
-viewLevelSelection : Computer -> Model -> Element EditorMsg
-viewLevelSelection computer model =
+viewLevelsEditor : Computer -> Model -> Element EditorMsg
+viewLevelsEditor computer model =
     column [ spacing 10 ]
-        [ header "Level Selection"
-        , row [ spacing 10 ]
-            [ makeButton "Add level" PressedAddLevelButton
-            , makeButton "Remove current level" PressedRemoveLevelButton
-            , makeButton "Move level one up" PressedMoveLevelOneUoButton
-            ]
+        [ levelManipulationButtons computer model
+        , makeButton "Reset player graph" PressedResetPlayerGraphButton
         , levelExporting computer model
         , levelImporting computer model
+        ]
+
+
+levelManipulationButtons : Computer -> Model -> Element EditorMsg
+levelManipulationButtons computer model =
+    row [ spacing 10 ]
+        [ makeButton "Add level" PressedAddLevelButton
+        , makeButton "Remove current level" PressedRemoveLevelButton
+        , makeButton "Move level one up" PressedMoveLevelOneUpButton
         ]
 
 
