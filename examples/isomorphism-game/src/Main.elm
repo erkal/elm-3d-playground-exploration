@@ -163,11 +163,8 @@ tickPlayerVertices computer model =
                     if vertexId == dragged then
                         { vertexData
                             | position =
-                                vertexData.position
-                                    |> lerp 0.3
-                                        (model.pointer
-                                            |> (\p -> Point p.x p.y (p.z + 2))
-                                        )
+                                model.pointer
+                                    |> (\p -> Point p.x p.y p.z)
                         }
 
                     else if Just vertexData.data.mappedToBaseVertex == maybeTargetIdOnBaseGraph then
