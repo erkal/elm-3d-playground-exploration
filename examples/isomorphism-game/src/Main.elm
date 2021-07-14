@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -796,18 +796,32 @@ updateFromEditor computer editorMsg model =
 viewEditor : Computer -> Model -> Element EditorMsg
 viewEditor computer model =
     column
-        [ alignTop
-        , alignRight
-        , padding 20
-        , spacing 20
-        , width (px 600)
+        [ width fill
         , height fill
-        , Font.color Colors.lightText
-        , Font.size 13
         ]
-        [ editorOnOffButton computer model
-        , editorContent computer model
-        , viewDebugger computer model
+        [ column
+            [ alignTop
+            , alignRight
+            , padding 20
+            , spacing 20
+            , width (px 600)
+            , height fill
+            , Font.color Colors.lightText
+            , Font.size 13
+            ]
+            [ editorOnOffButton computer model
+            , editorContent computer model
+
+            --, viewDebugger computer model
+            ]
+        , row
+            [ alignBottom
+            , centerX
+            , Font.size 30
+            , Font.bold
+            , padding 20
+            ]
+            [ levelSelectionButtons computer model ]
         ]
 
 
@@ -865,24 +879,30 @@ viewDebugger computer model =
 
 viewLevelSelection : Computer -> Model -> Element EditorMsg
 viewLevelSelection computer model =
-    column []
+    column [ spacing 10 ]
         [ header "Level Selection"
         , row [ spacing 10 ]
-            [ makeButton "<" PressedPreviousLevelButton
-            , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
-                text <|
-                    String.concat
-                        [ String.fromInt (LS.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LS.size model.levels)
-                        ]
-            , makeButton ">" PressedNextLevelButton
-            , makeButton "Add level" PressedAddLevelButton
+            [ makeButton "Add level" PressedAddLevelButton
             , makeButton "Remove current level" PressedRemoveLevelButton
             , makeButton "Move level one up" PressedMoveLevelOneUoButton
             ]
         , levelExporting computer model
         , levelImporting computer model
+        ]
+
+
+levelSelectionButtons : Computer -> Model -> Element EditorMsg
+levelSelectionButtons computer model =
+    row [ spacing 10 ]
+        [ makeButton "<" PressedPreviousLevelButton
+        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+            text <|
+                String.concat
+                    [ String.fromInt (LS.currentIndex model.levels)
+                    , " / "
+                    , String.fromInt (LS.size model.levels)
+                    ]
+        , makeButton ">" PressedNextLevelButton
         ]
 
 
@@ -902,8 +922,7 @@ makeButton buttonText editorMsg =
 levelExporting : Computer -> Model -> Element EditorMsg
 levelExporting computer model =
     column
-        [ paddingXY 0 20
-        , spacing 20
+        [ spacing 10
         , width fill
         ]
         [ makeButton "Export Levels" ClickedExportLevelsButton
@@ -916,7 +935,7 @@ textAreaForExportedLevels model =
     el
         [ width fill
         , height (px 100)
-        , padding 20
+        , padding 10
         , Background.color Colors.black
         , Font.family [ Font.monospace ]
         , scrollbarY
@@ -929,8 +948,7 @@ textAreaForExportedLevels model =
 levelImporting : Computer -> Model -> Element EditorMsg
 levelImporting computer model =
     column
-        [ paddingXY 0 20
-        , spacing 20
+        [ spacing 10
         , width fill
         ]
         [ makeButton "Import Levels" ClickedImportLevelsButton
@@ -943,7 +961,7 @@ textAreaForLevelsToImport model =
     Input.text
         [ width fill
         , height (px 100)
-        , padding 20
+        , padding 10
         , Background.color Colors.black
         , Font.family [ Font.monospace ]
         , scrollbarY
