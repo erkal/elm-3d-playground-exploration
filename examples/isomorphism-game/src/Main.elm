@@ -782,7 +782,14 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.mapCurrent Level.resetPlayerGraph }
 
         ClickedExportLevelsButton ->
-            { model | editor = model.editor |> Editor.exportLevels (Debug.log "" model.levels) }
+            { model
+                | editor =
+                    model.editor
+                        |> Editor.exportLevels
+                            (model.levels
+                             --|> Debug.log ""
+                            )
+            }
 
         ClickedImportLevelsButton ->
             { model
