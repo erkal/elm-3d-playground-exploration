@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, layout, none, padding, paddingXY, paragraph, px, row, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -10,6 +10,7 @@ import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import Html exposing (Html)
+import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
@@ -744,6 +745,7 @@ type EditorMsg
     | PressedMoveLevelOneUoButton
     | ClickedExportLevelsButton
     | ClickedImportLevelsButton
+    | EditedTextAreaForImportingLevels String
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
@@ -786,6 +788,11 @@ updateFromEditor computer editorMsg model =
                     model.editor.jsonLevelsToImport
                         |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
                         |> Result.withDefault model.levels
+            }
+
+        EditedTextAreaForImportingLevels string ->
+            { model
+                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
             }
 
 
@@ -877,11 +884,8 @@ viewLevelSelection computer model =
             , makeButton "Remove current level" PressedRemoveLevelButton
             , makeButton "Move level one up" PressedMoveLevelOneUoButton
             ]
-
-        --, row []
-        --    [ levelExporting computer model
-        --    , levelImporting computer model
-        --    ]
+        , levelExporting computer model
+        , levelImporting computer model
         ]
 
 
@@ -898,58 +902,59 @@ makeButton buttonText editorMsg =
         }
 
 
+levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting computer model =
+    column
+        [ paddingXY 0 20
+        , spacing 20
+        , width fill
+        ]
+        [ makeButton "Export Levels" ClickedExportLevelsButton
+        , textAreaForExportedLevels model
+        ]
 
---levelExporting : Computer -> Model -> Element EditorMsg
---levelExporting computer model =
---    div []
---        [ h3 [] [ text "Export Levels" ]
---        , p [] [ exportLevelsButton computer model ]
---        , p [] [ textAreaForExportedLevels model ]
---        ]
---
---
---levelImporting : Computer -> Model -> Element EditorMsg
---levelImporting computer model =
---    div []
---        [ h3 [] [ text "Import Levels" ]
---        , p [] [ textAreaForLevelsToImport model ]
---        , p [] [ importLevelsButton computer model ]
---        ]
---
---
---exportLevelsButton : Computer -> Model -> Html EditorMsg
---exportLevelsButton computer model =
---    button
---        [ style "cursor" "pointer"
---        , onClick ClickedExportLevelsButton
---        ]
---        [ text "Export LevelSelector as json" ]
---
---
---importLevelsButton : Computer -> Model -> Html EditorMsg
---importLevelsButton computer model =
---    button
---        [ style "cursor" "pointer"
---        , onClick ClickedImportLevelsButton
---        ]
---        [ text "Import LevelSelector" ]
---
---
---textAreaForExportedLevels : Model -> Element EditorMsg
---textAreaForExportedLevels model =
---    div
---        []
---        [ textarea
---            []
---            [ text model.editor.jsonExportedLevels ]
---        ]
---
---
---textAreaForLevelsToImport : Model -> Element EditorMsg
---textAreaForLevelsToImport model =
---    div
---        []
---        [ textarea
---            [ Events.onInput EditedTextAreaForImportingLevels ]
---            [ text model.editor.jsonLevelsToImport ]
---        ]
+
+textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels model =
+    el
+        [ width fill
+        , height (px 100)
+        , padding 20
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        (text model.editor.jsonExportedLevels)
+
+
+levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting computer model =
+    column
+        [ paddingXY 0 20
+        , spacing 20
+        , width fill
+        ]
+        [ makeButton "Import Levels" ClickedImportLevelsButton
+        , textAreaForLevelsToImport model
+        ]
+
+
+textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport model =
+    Input.text
+        [ width fill
+        , height (px 100)
+        , padding 20
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        { onChange = EditedTextAreaForImportingLevels
+        , text = model.editor.jsonLevelsToImport
+        , placeholder = Nothing
+        , label = Input.labelHidden "Imported Levels"
+        }

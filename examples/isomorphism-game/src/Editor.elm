@@ -36,3 +36,10 @@ exportLevels levels editor =
         | jsonExportedLevels =
             Json.Encode.encode 2 (LevelSelector.encode Level.Encode.encode levels)
     }
+
+
+setTextAreaForImportingLevels : String -> Editor -> Editor
+setTextAreaForImportingLevels string editor =
+    { editor
+        | jsonLevelsToImport = string
+    }
