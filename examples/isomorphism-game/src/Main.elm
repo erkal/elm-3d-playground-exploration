@@ -77,15 +77,15 @@ initialConfigurations =
     , colorConfig "game background" (rgb255 44 100 200)
     , colorConfig "pointer player" lightGray
     , colorConfig "pointer base" darkGreen
-    , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.3
+    , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.5
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
-    , colorConfig "base" white
+    , colorConfig "base" (rgb255 176 69 76)
     , floatConfig "base height" ( 0.01, 5 ) 1
     , floatConfig "base vertex radius" ( 0.2, 2 ) 0.8
     , floatConfig "base edge width" ( 0.2, 1.5 ) 1
-    , colorConfig "player" (rgb255 165 85 85)
-    , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.5
-    , floatConfig "player edge width" ( 0.05, 0.6 ) 0.5
+    , colorConfig "player" white
+    , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
+    , floatConfig "player edge width" ( 0.05, 0.6 ) 0.25
     ]
 
 
