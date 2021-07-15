@@ -57,7 +57,7 @@ type alias TouchEvent =
 
 init : { devicePixelRatio : Float } -> Configurations -> Computer
 init { devicePixelRatio } initialConfigurations =
-    { mouse = Mouse 0 0 False False
+    { mouse = Mouse 0 0 False
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
@@ -70,7 +70,7 @@ init { devicePixelRatio } initialConfigurations =
 resetInput : Computer -> Computer
 resetInput computer =
     { computer
-        | mouse = Mouse 0 0 False False
+        | mouse = Mouse 0 0 False
         , touches = Dict.empty
         , keyboard = emptyKeyboard
     }
@@ -84,7 +84,7 @@ tickTime deltaTimeInSeconds computer =
 
 
 update : Msg -> Computer -> Computer
-update msg computer =
+update msg ({ mouse } as computer) =
     case msg of
         GotViewport { viewport } ->
             { computer
@@ -101,10 +101,10 @@ update msg computer =
             { computer | keyboard = updateKeyboard isDown key computer.keyboard }
 
         MouseMove pageX pageY ->
-            { computer | mouse = mouseMove (computer.screen.left + pageX) (computer.screen.top - pageY) computer.mouse }
+            { computer | mouse = { mouse | x = computer.screen.left + pageX, y = computer.screen.top - pageY } }
 
         MouseButton isDown ->
-            { computer | mouse = mouseDown isDown computer.mouse }
+            { computer | mouse = { mouse | down = isDown } }
 
         TouchStart touchEvents ->
             { computer
@@ -212,7 +212,6 @@ type alias Mouse =
     { x : Float
     , y : Float
     , down : Bool
-    , move : Bool
     }
 
 
@@ -243,20 +242,6 @@ toScreen width height =
     , right = width / 2
     , bottom = -height / 2
     }
-
-
-
--- MOUSE HELPERS
-
-
-mouseDown : Bool -> Mouse -> Mouse
-mouseDown bool mouse =
-    { mouse | down = bool }
-
-
-mouseMove : Float -> Float -> Mouse -> Mouse
-mouseMove x y mouse =
-    { mouse | x = x, y = y, move = True }
 
 
 

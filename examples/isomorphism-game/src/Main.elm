@@ -416,30 +416,9 @@ updatePointerPosition : Computer -> Model -> Model
 updatePointerPosition computer model =
     { model
         | pointer =
-            let
-                newXY =
-                    case Dict.toList computer.touches of
-                        ( _, xy ) :: _ ->
-                            Just xy
-
-                        _ ->
-                            if computer.mouse.move then
-                                Just
-                                    { x = computer.mouse.x
-                                    , y = computer.mouse.y
-                                    }
-
-                            else
-                                Nothing
-            in
-            case newXY of
-                Just xy ->
-                    xy
-                        |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                        |> Maybe.withDefault model.pointer
-
-                Nothing ->
-                    model.pointer
+            computer.mouse
+                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                |> Maybe.withDefault model.pointer
     }
 
 
@@ -845,8 +824,7 @@ viewEditor computer model =
             ]
             [ editorOnOffButton computer model
             , editorContent computer model
-
-            --, viewDebugger computer model
+            , viewDebugger computer model
             ]
         , row
             [ alignBottom
