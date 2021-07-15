@@ -19,7 +19,8 @@ import Level exposing (BaseGraph, Level, PlayerGraph)
 import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
+import Playground3d exposing (Computer, boolConfig, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
+import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Colors as Colors
 import Playground3d.Light as Light
@@ -41,7 +42,7 @@ main =
 type alias Model =
     { editor : Editor
     , levels : Levels Level
-    , pointer : Point
+    , pointerXY : Point
     , gameState : GameState
     , editorState : EditorState
     }
@@ -78,7 +79,8 @@ initialConfigurations =
     , colorConfig "game background" (rgb255 44 100 200)
     , colorConfig "pointer player" lightGray
     , colorConfig "pointer base" darkGreen
-    , floatConfig "pointer reach for player" ( 0.5, 2 ) 0.5
+    , boolConfig "pointer reach view on/off" False
+    , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.5
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
     , colorConfig "base" (rgb255 176 69 76)
     , floatConfig "base height" ( 0.01, 5 ) 1
@@ -94,7 +96,7 @@ init : Computer -> Model
 init computer =
     { editor = Editor.init
     , levels = hardcodedLevels
-    , pointer = Point 0 0 0
+    , pointerXY = Point 0 0 0
     , gameState = Idle
     , editorState = EditorIdle
     }
@@ -165,7 +167,7 @@ tickPlayerVertices computer model =
                     if vertexId == dragged then
                         { vertexData
                             | position =
-                                model.pointer
+                                model.pointerXY
                                     |> (\p -> Point p.x p.y p.z)
                         }
 
@@ -229,7 +231,7 @@ nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestBaseVertexAtReach computer model =
     Graph.nearestVertexAtReach
         (getFloat "pointer reach for base" computer)
-        model.pointer
+        model.pointerXY
         (LS.current model.levels).baseGraph
 
 
@@ -237,13 +239,13 @@ nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
 nearestPlayerVertexAtReach computer model =
     Graph.nearestVertexAtReach
         (getFloat "pointer reach for player" computer)
-        model.pointer
+        model.pointerXY
         (LS.current model.levels).playerGraph
 
 
 startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
-    if computer.keyboard.shift && not computer.keyboard.space && computer.mouse.down then
+    if computer.keyboard.shift && not computer.keyboard.space && computer.pointer.down then
         case
             ( model.editorState
             , nearestBaseVertexAtReach computer model
@@ -261,7 +263,7 @@ startDraggingBaseEdge computer model =
 
 insertBaseEdge : Computer -> Model -> Model
 insertBaseEdge computer model =
-    if not computer.mouse.down then
+    if not computer.pointer.down then
         case ( model.editorState, nearestBaseVertexAtReach computer model ) of
             ( DraggingBaseEdge { sourceId }, Just targetId ) ->
                 model
@@ -270,7 +272,7 @@ insertBaseEdge computer model =
             ( DraggingBaseEdge { sourceId }, Nothing ) ->
                 model
                     |> mapCurrentBaseGraph
-                        (Graph.insertEdgeAndVertex () sourceId model.pointer)
+                        (Graph.insertEdgeAndVertex () sourceId model.pointerXY)
 
             _ ->
                 model
@@ -281,11 +283,11 @@ insertBaseEdge computer model =
 
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
-    if computer.mouse.down && computer.keyboard.space then
+    if computer.pointer.down && computer.keyboard.space then
         case ( model.editorState, nearestBaseVertexAtReach computer model ) of
             ( EditorIdle, Nothing ) ->
                 model
-                    |> mapCurrentBaseGraph (Graph.insertVertex () model.pointer)
+                    |> mapCurrentBaseGraph (Graph.insertVertex () model.pointerXY)
 
             _ ->
                 model
@@ -296,7 +298,7 @@ insertVertex computer model =
 
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
-    if (not (Dict.isEmpty computer.touches) || computer.mouse.down) && not computer.keyboard.shift then
+    if (not (Dict.isEmpty computer.touches) || computer.pointer.down) && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
                 { model
@@ -320,7 +322,7 @@ startDraggingPlayerVertex computer model =
 
 startDraggingBaseVertex : Computer -> Model -> Model
 startDraggingBaseVertex computer model =
-    if computer.mouse.down && not computer.keyboard.shift then
+    if computer.pointer.down && not computer.keyboard.shift then
         case
             ( model.editorState
             , nearestBaseVertexAtReach computer model
@@ -342,7 +344,7 @@ tickBaseVertices computer model =
         DraggingBaseVertex { vertexId } ->
             let
                 moveToPointerPosition vertexData =
-                    { vertexData | position = model.pointer }
+                    { vertexData | position = model.pointerXY }
             in
             model
                 |> mapCurrentBaseGraph (Graph.mapVertex vertexId moveToPointerPosition)
@@ -353,7 +355,7 @@ tickBaseVertices computer model =
 
 endDraggingPlayerVertex : Computer -> Model -> Model
 endDraggingPlayerVertex computer model =
-    if Dict.isEmpty computer.touches && not computer.mouse.down then
+    if Dict.isEmpty computer.touches && not computer.pointer.down then
         case model.gameState of
             DraggingPlayerVertex dragData ->
                 case dragData.maybeTargetIdOnBaseGraph of
@@ -403,7 +405,7 @@ endDraggingPlayerVertex computer model =
 
 endDraggingBaseVertex : Computer -> Model -> Model
 endDraggingBaseVertex computer model =
-    if not computer.mouse.down then
+    if not computer.pointer.down then
         { model
             | editorState = EditorIdle
         }
@@ -415,10 +417,10 @@ endDraggingBaseVertex computer model =
 updatePointerPosition : Computer -> Model -> Model
 updatePointerPosition computer model =
     { model
-        | pointer =
-            computer.mouse
+        | pointerXY =
+            computer.pointer
                 |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                |> Maybe.withDefault model.pointer
+                |> Maybe.withDefault model.pointerXY
     }
 
 
@@ -496,7 +498,7 @@ view computer model =
 
         --, axes
         , floor computer
-        , drawPointer computer model
+        , drawPointerReach computer model
         ]
 
 
@@ -526,8 +528,8 @@ drawDraggedBaseEdge computer model =
 
                 ( length, rotation ) =
                     toPolar
-                        ( model.pointer.x - sourcePosition.x
-                        , model.pointer.y - sourcePosition.y
+                        ( model.pointerXY.x - sourcePosition.x
+                        , model.pointerXY.y - sourcePosition.y
                         )
             in
             block (getColor "base" computer) ( length, 0.3, 0.3 )
@@ -540,8 +542,8 @@ drawDraggedBaseEdge computer model =
             group []
 
 
-drawPointer : Computer -> Model -> Shape
-drawPointer computer model =
+drawPointerReach : Computer -> Model -> Shape
+drawPointerReach computer model =
     let
         ( color, zShift, radius ) =
             if model.editor.isOn then
@@ -556,12 +558,16 @@ drawPointer computer model =
                 , getFloat "pointer reach for player" computer
                 )
     in
-    cylinder color radius 0.02
-        |> rotateX (degrees 90)
-        |> moveZ zShift
-        |> moveX model.pointer.x
-        |> moveY model.pointer.y
-        |> moveZ model.pointer.z
+    if getBool "pointer reach view on/off" computer then
+        cylinder color radius 0.02
+            |> rotateX (degrees 90)
+            |> moveZ zShift
+            |> moveX model.pointerXY.x
+            |> moveY model.pointerXY.y
+            |> moveZ model.pointerXY.z
+
+    else
+        group []
 
 
 
@@ -580,14 +586,22 @@ drawVerticesOfPlayerGraph : Computer -> Model -> Shape
 drawVerticesOfPlayerGraph computer model =
     group
         (Graph.vertices (LS.current model.levels).playerGraph
-            |> List.map (drawPlayerVertex computer model.gameState)
+            |> List.map (drawPlayerVertex computer model)
         )
 
 
-drawPlayerVertex : Computer -> GameState -> ( VertexId, { vertexData | position : Point } ) -> Shape
-drawPlayerVertex computer gameState ( vertexId, { position } ) =
+drawPlayerVertex : Computer -> Model -> ( VertexId, { vertexData | position : Point } ) -> Shape
+drawPlayerVertex computer model ( vertexId, { position } ) =
+    let
+        highlightDraggedVertex =
+            if nearestPlayerVertexAtReach computer model == Just vertexId then
+                scale (wave 1 1.5 1 computer.time)
+
+            else
+                identity
+    in
     sphere (getColor "player" computer) (getFloat "player vertex radius" computer)
-        --|> scale (wave 1 1.1 1 computer.time)
+        |> highlightDraggedVertex
         |> moveX position.x
         |> moveY position.y
         |> moveZ position.z

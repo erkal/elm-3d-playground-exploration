@@ -12,10 +12,27 @@ type alias Configurations =
 type Config
     = Float ( Float, Float ) Float
     | Color Color
+    | Bool Bool
 
 
 
 -- QUERY
+
+
+getBool : String -> Configurations -> Bool
+getBool key configurations =
+    configurations
+        |> Dict.get key
+        |> Maybe.map
+            (\config ->
+                case config of
+                    Bool value ->
+                        value
+
+                    _ ->
+                        False
+            )
+        |> Maybe.withDefault False
 
 
 getFloat : String -> Configurations -> Float
@@ -57,6 +74,7 @@ getColor key configurations =
 type Msg
     = SetFloat String Float
     | SetColor String Color
+    | SetBool String Bool
 
 
 roundFloatValue : Float -> Float -> Float -> Float
@@ -92,6 +110,20 @@ update msg configurations =
                             case config of
                                 Float ( min, max ) _ ->
                                     Float ( min, max ) (roundFloatValue min max newValue)
+
+                                _ ->
+                                    config
+                        )
+                    )
+
+        SetBool key newValue ->
+            configurations
+                |> Dict.update key
+                    (Maybe.map
+                        (\config ->
+                            case config of
+                                Bool _ ->
+                                    Bool newValue
 
                                 _ ->
                                     config

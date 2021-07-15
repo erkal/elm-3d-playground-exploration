@@ -26,6 +26,7 @@ import Set
 type alias Computer =
     { mouse : Mouse
     , touches : Dict Int { x : Float, y : Float }
+    , pointer : Pointer
     , keyboard : Keyboard
     , screen : Screen
     , time : Float
@@ -40,7 +41,8 @@ type Msg
     | Resized Int Int
     | VisibilityChanged E.Visibility
     | MouseMove Float Float
-    | MouseButton Bool
+    | MouseUp
+    | MouseDown
     | TouchStart (List TouchEvent)
     | TouchMove (List TouchEvent)
     | TouchEnd (List TouchEvent)
@@ -58,6 +60,7 @@ type alias TouchEvent =
 init : { devicePixelRatio : Float } -> Configurations -> Computer
 init { devicePixelRatio } initialConfigurations =
     { mouse = Mouse 0 0 False
+    , pointer = Pointer 0 0 False
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
@@ -71,6 +74,7 @@ resetInput : Computer -> Computer
 resetInput computer =
     { computer
         | mouse = Mouse 0 0 False
+        , pointer = Pointer 0 0 False
         , touches = Dict.empty
         , keyboard = emptyKeyboard
     }
@@ -84,7 +88,7 @@ tickTime deltaTimeInSeconds computer =
 
 
 update : Msg -> Computer -> Computer
-update msg ({ mouse } as computer) =
+update msg ({ mouse, pointer } as computer) =
     case msg of
         GotViewport { viewport } ->
             { computer
@@ -92,19 +96,36 @@ update msg ({ mouse } as computer) =
             }
 
         Resized w h ->
-            { computer | screen = toScreen (toFloat w) (toFloat h) }
+            { computer
+                | screen = toScreen (toFloat w) (toFloat h)
+            }
 
         VisibilityChanged visibility ->
-            computer |> resetInput
+            computer
+                |> resetInput
 
         KeyChanged isDown key ->
-            { computer | keyboard = updateKeyboard isDown key computer.keyboard }
+            { computer
+                | keyboard = updateKeyboard isDown key computer.keyboard
+            }
 
         MouseMove pageX pageY ->
-            { computer | mouse = { mouse | x = computer.screen.left + pageX, y = computer.screen.top - pageY } }
+            { computer
+                | mouse = { mouse | x = computer.screen.left + pageX, y = computer.screen.top - pageY }
+                , pointer = { pointer | x = computer.screen.left + pageX, y = computer.screen.top - pageY }
+            }
 
-        MouseButton isDown ->
-            { computer | mouse = { mouse | down = isDown } }
+        MouseDown ->
+            { computer
+                | mouse = { mouse | down = True }
+                , pointer = { pointer | down = True }
+            }
+
+        MouseUp ->
+            { computer
+                | mouse = { mouse | down = False }
+                , pointer = { pointer | down = False }
+            }
 
         TouchStart touchEvents ->
             { computer
@@ -113,11 +134,20 @@ update msg ({ mouse } as computer) =
                         |> List.foldl
                             (\{ identifier, pageX, pageY } ->
                                 Dict.insert identifier
-                                    { x = computer.screen.left + pageX
-                                    , y = computer.screen.top - pageY
-                                    }
+                                    { x = computer.screen.left + pageX, y = computer.screen.top - pageY }
                             )
                             computer.touches
+                , pointer =
+                    case touchEvents of
+                        { pageX, pageY } :: _ ->
+                            { pointer
+                                | x = computer.screen.left + pageX
+                                , y = computer.screen.top - pageY
+                                , down = True
+                            }
+
+                        [] ->
+                            computer.pointer
             }
 
         TouchMove touchEvents ->
@@ -132,24 +162,30 @@ update msg ({ mouse } as computer) =
                                     }
                             )
                             computer.touches
+                , pointer =
+                    case touchEvents of
+                        { pageX, pageY } :: _ ->
+                            { pointer | x = computer.screen.left + pageX, y = computer.screen.top - pageY }
+
+                        [] ->
+                            computer.pointer
             }
 
         TouchEnd touchEvents ->
             { computer
-                | touches =
-                    touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                | touches = touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                , pointer = { pointer | down = False }
             }
 
         TouchCancel touchEvents ->
             { computer
-                | touches =
-                    touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                | touches = touchEvents |> List.foldl (\{ identifier } -> Dict.remove identifier) computer.touches
+                , pointer = { pointer | down = False }
             }
 
         FromConfigurationsEditor configurationsMsg ->
             { computer
-                | configurations =
-                    computer.configurations |> Configurations.update configurationsMsg
+                | configurations = computer.configurations |> Configurations.update configurationsMsg
             }
 
 
@@ -215,8 +251,20 @@ type alias Mouse =
     }
 
 
+type alias Pointer =
+    { x : Float
+    , y : Float
+    , down : Bool
+    }
+
+
 
 -- CONFIGURATIONS
+
+
+getBool : String -> Computer -> Bool
+getBool key computer =
+    computer.configurations |> Configurations.getBool key
 
 
 getFloat : String -> Computer -> Float

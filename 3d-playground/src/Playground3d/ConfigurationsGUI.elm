@@ -7,7 +7,7 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Element.Input as Input
+import Element.Input as Input exposing (checkbox)
 import Html
 import Html.Attributes as HA
 import Html.Events as HE
@@ -32,6 +32,14 @@ view configurations =
 viewConfig : String -> Config -> Element Msg
 viewConfig key config =
     case config of
+        Bool value ->
+            checkbox []
+                { onChange = SetBool key
+                , icon = Input.defaultCheckbox
+                , checked = value
+                , label = Input.labelLeft [] (text key)
+                }
+
         Float ( min, max ) value ->
             sliderInput
                 { labelText = key

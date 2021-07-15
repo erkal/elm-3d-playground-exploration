@@ -2,7 +2,7 @@ port module Playground3d exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
     , getColor, getFloat
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
-    , colorConfig, floatConfig
+    , boolConfig, colorConfig, floatConfig, getBool
     )
 
 {-|
@@ -103,12 +103,20 @@ toXY =
     Computer.toXY
 
 
+boolConfig key value =
+    ( key, Configurations.Bool value )
+
+
 floatConfig key ( min, max ) value =
     ( key, Configurations.Float ( min, max ) value )
 
 
 colorConfig key value =
     ( key, Configurations.Color value )
+
+
+getBool =
+    Computer.getBool
 
 
 getColor =
@@ -218,8 +226,8 @@ gameSubscriptions =
                 , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
                 , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
                 , E.onVisibilityChange VisibilityChanged
-                , E.onMouseDown (D.succeed (MouseButton True))
-                , E.onMouseUp (D.succeed (MouseButton False))
+                , E.onMouseDown (D.succeed MouseDown)
+                , E.onMouseUp (D.succeed MouseUp)
                 , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
                 , touchStart TouchStart
                 , touchMove TouchMove
