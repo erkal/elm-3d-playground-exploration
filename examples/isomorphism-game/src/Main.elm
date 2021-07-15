@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
+import Dict
 import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
@@ -295,7 +296,7 @@ insertVertex computer model =
 
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
-    if computer.mouse.down && not computer.keyboard.shift then
+    if (not (Dict.isEmpty computer.touches) || computer.mouse.down) && not computer.keyboard.shift then
         case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
             ( Idle, Just vertexId ) ->
                 { model
@@ -352,7 +353,7 @@ tickBaseVertices computer model =
 
 endDraggingPlayerVertex : Computer -> Model -> Model
 endDraggingPlayerVertex computer model =
-    if not computer.mouse.down then
+    if Dict.isEmpty computer.touches && not computer.mouse.down then
         case model.gameState of
             DraggingPlayerVertex dragData ->
                 case dragData.maybeTargetIdOnBaseGraph of
@@ -415,9 +416,30 @@ updatePointerPosition : Computer -> Model -> Model
 updatePointerPosition computer model =
     { model
         | pointer =
-            computer.mouse
-                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
-                |> Maybe.withDefault model.pointer
+            let
+                newXY =
+                    case Dict.toList computer.touches of
+                        ( _, xy ) :: _ ->
+                            Just xy
+
+                        _ ->
+                            if computer.mouse.move then
+                                Just
+                                    { x = computer.mouse.x
+                                    , y = computer.mouse.y
+                                    }
+
+                            else
+                                Nothing
+            in
+            case newXY of
+                Just xy ->
+                    xy
+                        |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                        |> Maybe.withDefault model.pointer
+
+                Nothing ->
+                    model.pointer
     }
 
 

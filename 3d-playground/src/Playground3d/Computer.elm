@@ -57,7 +57,7 @@ type alias TouchEvent =
 
 init : { devicePixelRatio : Float } -> Configurations -> Computer
 init { devicePixelRatio } initialConfigurations =
-    { mouse = Mouse 0 0 False
+    { mouse = Mouse 0 0 False False
     , touches = Dict.empty
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
@@ -70,7 +70,7 @@ init { devicePixelRatio } initialConfigurations =
 resetInput : Computer -> Computer
 resetInput computer =
     { computer
-        | mouse = Mouse 0 0 False
+        | mouse = Mouse 0 0 False False
         , touches = Dict.empty
         , keyboard = emptyKeyboard
     }
@@ -95,10 +95,7 @@ update msg computer =
             { computer | screen = toScreen (toFloat w) (toFloat h) }
 
         VisibilityChanged visibility ->
-            { computer
-                | keyboard = emptyKeyboard
-                , mouse = Mouse computer.mouse.x computer.mouse.y False
-            }
+            computer |> resetInput
 
         KeyChanged isDown key ->
             { computer | keyboard = updateKeyboard isDown key computer.keyboard }
@@ -215,6 +212,7 @@ type alias Mouse =
     { x : Float
     , y : Float
     , down : Bool
+    , move : Bool
     }
 
 
@@ -258,7 +256,7 @@ mouseDown bool mouse =
 
 mouseMove : Float -> Float -> Mouse -> Mouse
 mouseMove x y mouse =
-    { mouse | x = x, y = y }
+    { mouse | x = x, y = y, move = True }
 
 
 
