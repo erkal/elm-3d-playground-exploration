@@ -1,6 +1,7 @@
 module Main exposing (main)
 
-import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white)
+import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white, yellow)
+import Color.Interpolate exposing (Space(..))
 import Dict
 import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
@@ -593,15 +594,14 @@ drawVerticesOfPlayerGraph computer model =
 drawPlayerVertex : Computer -> Model -> ( VertexId, { vertexData | position : Point } ) -> Shape
 drawPlayerVertex computer model ( vertexId, { position } ) =
     let
-        highlightDraggedVertex =
+        color =
             if nearestPlayerVertexAtReach computer model == Just vertexId then
-                scale (wave 1 1.5 1 computer.time)
+                yellow
 
             else
-                identity
+                getColor "player" computer
     in
-    sphere (getColor "player" computer) (getFloat "player vertex radius" computer)
-        |> highlightDraggedVertex
+    sphere color (getFloat "player vertex radius" computer)
         |> moveX position.x
         |> moveY position.y
         |> moveZ position.z
