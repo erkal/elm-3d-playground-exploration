@@ -4,7 +4,7 @@ import Color exposing (gray, hsl)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
@@ -32,10 +32,14 @@ init computer =
 
 
 initialConfigurations =
-    [ floatConfig "a" ( 0, 3 ) 1
-    , floatConfig "lux" ( 2, 5 ) 5
-    , floatConfig "intensity above" ( 0, 300 ) 60
-    , floatConfig "intensity below" ( 0, 300 ) 290
+    [ configBlock "Parameters" True <|
+        [ floatConfig "a" ( 0, 3 ) 1
+        ]
+    , configBlock "Colors and light" True <|
+        [ floatConfig "lux" ( 2, 5 ) 5
+        , floatConfig "intensity above" ( 0, 300 ) 60
+        , floatConfig "intensity below" ( 0, 300 ) 290
+        ]
     ]
 
 

@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (hsl)
 import Html exposing (Html)
-import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, getInt, intConfig)
 import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
@@ -49,14 +49,20 @@ camera computer =
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 60 ) 50
-    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
-    , floatConfig "delay per index" ( 0, 1 ) 0.15
-    , floatConfig "number of spheres" ( 10, 100 ) 50
-    , floatConfig "saturation" ( 0, 1 ) 0.5
-    , floatConfig "lighting" ( 0, 1 ) 0.7
-    , colorConfig "background color" (hsl 0.85 0.32 0.45)
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera distance" ( 3, 60 ) 50
+        , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
+        ]
+    , configBlock "Parameters" True <|
+        [ floatConfig "delay per index" ( 0, 1 ) 0.15
+        , intConfig "number of spheres" ( 10, 100 ) 50
+        ]
+    , configBlock "Colors and light" True <|
+        [ floatConfig "saturation" ( 0, 1 ) 0.5
+        , floatConfig "lighting" ( 0, 1 ) 0.7
+        , colorConfig "background color" (hsl 0.85 0.32 0.45)
+        ]
     ]
 
 
@@ -80,7 +86,7 @@ spheresInAColumn : Computer -> Shape
 spheresInAColumn computer =
     let
         n =
-            floor (getFloat "number of spheres" computer)
+            getInt "number of spheres" computer
     in
     group
         (List.range -(n // 2) (n // 2)
@@ -95,7 +101,7 @@ sphereWithIndex computer i =
             computer.time + toFloat i * getFloat "delay per index" computer
 
         n =
-            floor (getFloat "number of spheres" computer)
+            getInt "number of spheres" computer
 
         size =
             30 / toFloat n

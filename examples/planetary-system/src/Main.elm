@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (..)
 import Html exposing (Html)
-import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Animation exposing (..)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
@@ -21,10 +21,14 @@ type alias Model =
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 8 ) 4
-    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
-    , floatConfig "tommy" ( 0.1, 0.5 ) 0.3
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera distance" ( 3, 8 ) 4
+        , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
+        ]
+    , configBlock "Parameters" True <|
+        [ floatConfig "sun size" ( 0.1, 0.5 ) 0.3
+        ]
     ]
 
 
@@ -85,7 +89,7 @@ axes =
 
 sun : Computer -> Shape
 sun computer =
-    sphere orange (getFloat "tommy" computer)
+    sphere orange (getFloat "sun size" computer)
 
 
 earthAndMoon : Computer -> Shape

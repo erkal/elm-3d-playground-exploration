@@ -4,7 +4,7 @@ import Color exposing (blue, brown, gray, green, hsl, lightBlue, lightGreen, lig
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground3d.Animation exposing (spin, wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
@@ -32,12 +32,16 @@ init computer =
 
 
 initialConfigurations =
-    [ floatConfig "number of tree blocks" ( 1, 20 ) 16
-    , floatConfig "turning speed of the tree" ( 0.1, 4 ) 1
-    , floatConfig "azimuth for third light" ( -pi, pi ) 1
-    , floatConfig "elevation for third light" ( -pi, pi ) -2
-    , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
-    , floatConfig "elevation for fourth light" ( -pi, pi ) -2
+    [ configBlock "Parameters" True <|
+        [ intConfig "number of tree blocks" ( 1, 20 ) 16
+        , floatConfig "turning speed of the tree" ( 0.1, 4 ) 1
+        ]
+    , configBlock "Lighting" True <|
+        [ floatConfig "azimuth for third light" ( -pi, pi ) 1
+        , floatConfig "elevation for third light" ( -pi, pi ) -2
+        , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
+        , floatConfig "elevation for fourth light" ( -pi, pi ) -2
+        ]
     ]
 
 
@@ -237,18 +241,18 @@ tree : Computer -> Shape
 tree computer =
     let
         n =
-            getFloat "number of tree blocks" computer
+            getInt "number of tree blocks" computer
 
         layerBlock i =
             let
                 width =
-                    0.2 * (n - toFloat i) |> min 2
+                    0.2 * toFloat (n - i) |> min 2
 
                 height =
                     0.25
 
                 wavyColor =
-                    hsl (wave (toFloat i / n) 1 10 computer.time) 0.6 0.6
+                    hsl (wave (toFloat i / toFloat n) 1 10 computer.time) 0.6 0.6
             in
             block wavyColor ( width, height, width )
                 |> moveY (toFloat i * 1.2 * height)
@@ -256,7 +260,7 @@ tree computer =
     in
     group
         [ block brown ( 0.2, 8, 0.2 )
-        , group (List.map layerBlock (List.range 0 (Basics.floor n - 1)))
+        , group (List.map layerBlock (List.range 0 (n - 1)))
         ]
 
 

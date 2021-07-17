@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Color exposing (hsl, white)
 import Html exposing (Html)
-import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Scene as Scene exposing (..)
@@ -21,9 +21,11 @@ type alias Model =
 
 
 initialConfigurations =
-    [ floatConfig "camera x" ( -40, 40 ) 0
-    , floatConfig "camera y" ( -40, 40 ) 0
-    , floatConfig "camera z" ( -40, 40 ) 16
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera x" ( -40, 40 ) 0
+        , floatConfig "camera y" ( -40, 40 ) 0
+        , floatConfig "camera z" ( -40, 40 ) 16
+        ]
     ]
 
 

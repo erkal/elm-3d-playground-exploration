@@ -17,6 +17,10 @@ toString color =
         ++ ")"
 
 
+transparent =
+    rgba255 0 0 0 0
+
+
 linkBlue =
     rgb255 18 133 206
 

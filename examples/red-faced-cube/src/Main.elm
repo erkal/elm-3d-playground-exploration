@@ -65,22 +65,26 @@ type State
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 60 ) 20
-    , floatConfig "camera azimuth" ( -pi, pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.15
-    , floatConfig "cubes side length" ( 0.5, 1 ) 0.95
-    , floatConfig "duration of step animation" ( 0.1, 1 ) 0.23
-    , floatConfig "duration of mistake animation" ( 0.1, 1 ) 0.5
-    , floatConfig "height of following lights" ( 0.1, 8 ) 5
-    , floatConfig "lumens of following lights" ( 40000, 120000 ) 100000
-
-    --
-    , colorConfig "background color" (rgb255 223 224 226)
-    , colorConfig "color 1" (rgb255 244 88 67)
-    , colorConfig "color 2" (rgb255 255 200 40)
-    , colorConfig "path color" (rgb255 244 88 67)
-    , colorConfig "board color" (rgb255 165 166 169)
-    , colorConfig "wall color" (rgb255 38 48 64)
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera distance" ( 3, 60 ) 20
+        , floatConfig "camera azimuth" ( -pi, pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.15
+        ]
+    , configBlock "Parameters" True <|
+        [ floatConfig "cubes side length" ( 0.5, 1 ) 0.95
+        , floatConfig "duration of step animation" ( 0.1, 1 ) 0.23
+        , floatConfig "duration of mistake animation" ( 0.1, 1 ) 0.5
+        , floatConfig "height of following lights" ( 0.1, 8 ) 5
+        ]
+    , configBlock "Colors and light" True <|
+        [ floatConfig "lumens of following lights" ( 40000, 120000 ) 100000
+        , colorConfig "background color" (rgb255 223 224 226)
+        , colorConfig "color 1" (rgb255 244 88 67)
+        , colorConfig "color 2" (rgb255 255 200 40)
+        , colorConfig "path color" (rgb255 244 88 67)
+        , colorConfig "board color" (rgb255 165 166 169)
+        , colorConfig "wall color" (rgb255 38 48 64)
+        ]
     ]
 
 

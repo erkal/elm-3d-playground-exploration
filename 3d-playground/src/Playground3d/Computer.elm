@@ -267,6 +267,11 @@ getBool key computer =
     computer.configurations |> Configurations.getBool key
 
 
+getInt : String -> Computer -> Int
+getInt key computer =
+    computer.configurations |> Configurations.getInt key
+
+
 getFloat : String -> Computer -> Float
 getFloat key computer =
     computer.configurations |> Configurations.getFloat key

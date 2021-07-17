@@ -1,8 +1,8 @@
 port module Playground3d exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
-    , getColor, getFloat
+    , getColor, getFloat, getBool
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
-    , boolConfig, colorConfig, floatConfig, getBool
+    , boolConfig, colorConfig, configBlock, floatConfig, getInt, intConfig
     )
 
 {-|
@@ -15,7 +15,7 @@ port module Playground3d exposing
 
 # Configurations
 
-@docs configurations, getColor, getFloat
+@docs configurations, getColor, getFloat, getBool
 
 
 # Groups
@@ -48,7 +48,7 @@ import Html.Attributes as HA
 import Json.Decode as D
 import Playground3d.Colors as Colors
 import Playground3d.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
-import Playground3d.Configurations as Configurations exposing (Config(..), Configurations)
+import Playground3d.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground3d.ConfigurationsGUI as ConfigurationsGUI
 import Playground3d.Icons as Icons
 import Playground3d.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
@@ -103,8 +103,16 @@ toXY =
     Computer.toXY
 
 
+configBlock =
+    Configurations.configBlock
+
+
 boolConfig key value =
     ( key, Configurations.Bool value )
+
+
+intConfig key ( min, max ) value =
+    ( key, Configurations.Int ( min, max ) value )
 
 
 floatConfig key ( min, max ) value =
@@ -121,6 +129,10 @@ getBool =
 
 getColor =
     Computer.getColor
+
+
+getInt =
+    Computer.getInt
 
 
 getFloat =
@@ -155,7 +167,7 @@ game viewGameModel updateGameModel initGameModel =
 gameWithConfigurations :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
-    -> List ( String, Config )
+    -> Configurations
     -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
 gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
@@ -171,7 +183,7 @@ gameWithConfigurations viewGameModel updateGameModel initialConfigurations initG
 gameWithConfigurationsAndEditor :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
-    -> List ( String, Config )
+    -> Configurations
     -> (Computer -> gameModel)
     -> (Computer -> gameModel -> Element levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
@@ -181,7 +193,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             let
                 initialComputer =
-                    Computer.init flags (Dict.fromList initialConfigurations)
+                    Computer.init flags initialConfigurations
             in
             ( { activeMode = ConfigurationsMode
               , tape = Tape.init initialComputer initGameModel
@@ -375,7 +387,7 @@ leftStripe activeMode =
                 , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
                 , Border.color Colors.menuBorder
                 , pointer
-                , htmlAttribute (HA.title "Activate Distraction Free Mode (A)")
+                , htmlAttribute (HA.title "Activate Distraction Free Mode")
                 ]
                 (html (Icons.draw 46 Colors.white Icons.icons.yinAndYang))
 
@@ -442,7 +454,11 @@ leftStripe activeMode =
 leftBar : Mode -> Tape gameModel -> Element (Msg levelEditorMsg)
 leftBar activeMode tape =
     column
-        [ Background.color Colors.menuBackground
+        [ if (tape |> currentComputer |> .screen |> .width) > 600 then
+            Background.color Colors.menuBackground
+
+          else
+            Background.color Colors.transparent
         , Border.widthEach { bottom = 0, left = 0, right = 1, top = 0 }
         , Border.color Colors.menuBorder
         , width (px layoutParams.leftBarWidth)
@@ -473,7 +489,6 @@ viewTape tape =
         , paddingEach { bottom = 20, left = 0, right = 0, top = 0 }
         , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
         , Border.color Colors.menuBorder
-        , Background.color Colors.menuBackground
         ]
         [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Time Travel")
         , Element.map TapeMsg (Tape.view tape)
@@ -485,22 +500,19 @@ viewConfigurations tape =
     column
         [ width fill
         , height fill
-        , spacing 14
         ]
         [ row
             [ spacing 14
             , width fill
             ]
-            [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Configurations")
-
-            --, Input.button [ alignRight ]
-            --    { onPress = Nothing
-            --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
-            --    }
-            --, Input.button [ alignRight ]
-            --    { onPress = Nothing
-            --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
-            --    }
+            [--, Input.button [ alignRight ]
+             --    { onPress = Nothing
+             --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
+             --    }
+             --, Input.button [ alignRight ]
+             --    { onPress = Nothing
+             --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
+             --    }
             ]
         , Element.map (FromConfigurationsEditor >> ToComputer)
             (ConfigurationsGUI.view (currentComputer tape).configurations)

@@ -1,10 +1,9 @@
 module Main exposing (main)
 
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white, yellow)
-import Color.Interpolate exposing (Space(..))
 import Dict
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -20,8 +19,7 @@ import Level exposing (BaseGraph, Level, PlayerGraph)
 import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Playground3d exposing (Computer, boolConfig, colorConfig, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
-import Playground3d.Animation exposing (wave)
+import Playground3d exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground3d.Colors as Colors
 import Playground3d.Light as Light
@@ -68,28 +66,38 @@ type EditorState
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 40 ) 20
-    , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
-    , floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
-    , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
-    , floatConfig "azimuth for third light" ( -pi, pi ) 1
-    , floatConfig "elevation for third light" ( -pi, pi ) -2
-    , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
-    , floatConfig "elevation for fourth light" ( -pi, pi ) -2
-    , colorConfig "game background" (rgb255 44 100 200)
-    , colorConfig "pointer player" lightGray
-    , colorConfig "pointer base" darkGreen
-    , boolConfig "pointer reach view on/off" False
-    , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.5
-    , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
-    , colorConfig "base" (rgb255 176 69 76)
-    , floatConfig "base height" ( 0.01, 5 ) 0.4
-    , floatConfig "base vertex radius" ( 0.2, 2 ) 0.5
-    , floatConfig "base edge width" ( 0.2, 1.5 ) 1
-    , colorConfig "player" white
-    , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
-    , floatConfig "player edge width" ( 0.05, 0.6 ) 0.25
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera distance" ( 3, 40 ) 20
+        , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
+        ]
+    , configBlock "Light" True <|
+        [ floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
+        , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
+        , floatConfig "azimuth for third light" ( -pi, pi ) 1
+        , floatConfig "elevation for third light" ( -pi, pi ) -2
+        , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
+        , floatConfig "elevation for fourth light" ( -pi, pi ) -2
+        ]
+    , configBlock "Pointer" True <|
+        [ colorConfig "pointer player" lightGray
+        , colorConfig "pointer base" darkGreen
+        , boolConfig "pointer reach view on/off" False
+        , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.5
+        , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
+        ]
+    , configBlock "Base" True <|
+        [ colorConfig "game background" (rgb255 44 100 200)
+        , colorConfig "base" (rgb255 176 69 76)
+        , floatConfig "base height" ( 0.01, 5 ) 0.4
+        , floatConfig "base vertex radius" ( 0.2, 2 ) 0.5
+        , floatConfig "base edge width" ( 0.2, 1.5 ) 1
+        ]
+    , configBlock "Player Graph" True <|
+        [ colorConfig "player" white
+        , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
+        , floatConfig "player edge width" ( 0.05, 0.6 ) 0.25
+        ]
     ]
 
 

@@ -18,21 +18,38 @@ import Playground3d.Configurations exposing (..)
 
 view : Configurations -> Element Msg
 view =
-    lazy view_
+    lazy viewConfigurations
 
 
-view_ : Configurations -> Element Msg
-view_ configurations =
+viewConfigurations : Configurations -> Element Msg
+viewConfigurations configurations =
     column
         [ width fill
         , height fill
-        , spacing 12
         , Font.color Colors.lightText
         , Font.size 12
         , Font.regular
         , scrollbarY
         ]
-        (configurations |> Dict.map viewConfig |> Dict.values)
+        (List.map viewBlock configurations)
+
+
+viewBlock : Block -> Element Msg
+viewBlock block =
+    column
+        [ width fill
+        , spacing 8
+        , paddingXY 0 14
+        , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
+        , Border.color Colors.menuBorder
+        ]
+        [ el [ Font.size 16, Font.bold, Font.color Colors.white ] (text block.name)
+        , column
+            [ width fill
+            , spacing 6
+            ]
+            (block.configs |> Dict.map viewConfig |> Dict.values)
+        ]
 
 
 viewConfig : String -> Config -> Element Msg
@@ -54,6 +71,16 @@ viewConfig key config =
                 , max = max
                 , step = 0.001 * (max - min)
                 , onChange = SetFloat key
+                }
+
+        Int ( min, max ) value ->
+            sliderInput
+                { labelText = key
+                , value = toFloat value
+                , min = toFloat min
+                , max = toFloat max
+                , step = 1
+                , onChange = round >> SetInt key
                 }
 
         Color value ->

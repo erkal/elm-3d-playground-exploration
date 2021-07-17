@@ -5,7 +5,7 @@ import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..
 import Dict
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, colorConfig, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground3d.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Playground3d.Scene as Scene exposing (..)
 import World exposing (RollResult(..), World)
@@ -44,17 +44,23 @@ type State
 
 
 initialConfigurations =
-    [ floatConfig "camera distance" ( 3, 20 ) 10
-    , floatConfig "camera azimuth" ( -pi, pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
-    , floatConfig "sunlight azimuth" ( -pi, pi ) 2
-    , floatConfig "sunlight elevation" ( -pi, 0 ) -2
-    , floatConfig "cubes side length" ( 0.5, 1 ) 0.9
-    , floatConfig "duration of rolling animation" ( 0.1, 1 ) 0.25
-    , colorConfig "color 1" (rgb255 244 88 67)
-    , colorConfig "color 2" (rgb255 47 41 43)
-    , colorConfig "board color" (rgb255 223 224 226)
-    , colorConfig "background color" (rgb255 165 166 169)
+    [ configBlock "Camera" True <|
+        [ floatConfig "camera distance" ( 3, 20 ) 10
+        , floatConfig "camera azimuth" ( -pi, pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
+        ]
+    , configBlock "Parameters" True <|
+        [ floatConfig "cubes side length" ( 0.5, 1 ) 0.9
+        , floatConfig "duration of rolling animation" ( 0.1, 1 ) 0.25
+        ]
+    , configBlock "Colors and light" True <|
+        [ colorConfig "color 1" (rgb255 244 88 67)
+        , colorConfig "color 2" (rgb255 47 41 43)
+        , colorConfig "board color" (rgb255 223 224 226)
+        , colorConfig "background color" (rgb255 165 166 169)
+        , floatConfig "sunlight azimuth" ( -pi, pi ) 2
+        , floatConfig "sunlight elevation" ( -pi, 0 ) -2
+        ]
     ]
 
 

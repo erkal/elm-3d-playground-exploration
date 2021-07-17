@@ -4,7 +4,7 @@ import Color exposing (darkGray, gray, hsl)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, floatConfig, gameWithConfigurations, getFloat)
+import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground3d.Animation exposing (wave)
 import Playground3d.Camera exposing (Camera, perspective)
 import Playground3d.Light as Light
@@ -32,14 +32,18 @@ init computer =
 
 
 initialConfigurations =
-    [ floatConfig "number of blocks" ( 10, 60 ) 25
-    , floatConfig "frequency" ( 1, 20 ) 10
-    , floatConfig "minWidth" ( 0, 45 ) 35
-    , floatConfig "maxWidth" ( 10, 50 ) 37
-    , floatConfig "period" ( 0.5, 10 ) 5
-    , floatConfig "lux" ( 2, 5 ) 5
-    , floatConfig "intensity above" ( 0, 300 ) 0
-    , floatConfig "intensity below" ( 0, 300 ) 0
+    [ configBlock "Parameters" True <|
+        [ intConfig "number of blocks" ( 10, 60 ) 25
+        , floatConfig "frequency" ( 1, 20 ) 10
+        , floatConfig "minWidth" ( 0, 45 ) 35
+        , floatConfig "maxWidth" ( 10, 50 ) 37
+        , floatConfig "period" ( 0.5, 10 ) 5
+        ]
+    , configBlock "Colors and light" True <|
+        [ floatConfig "lux" ( 2, 5 ) 5
+        , floatConfig "intensity above" ( 0, 300 ) 0
+        , floatConfig "intensity below" ( 0, 300 ) 0
+        ]
     ]
 
 
@@ -134,7 +138,7 @@ wavingBlocks : Computer -> Shape
 wavingBlocks ({ time } as computer) =
     let
         n =
-            floor (getFloat "number of blocks" computer)
+            getInt "number of blocks" computer
 
         delayForColor i =
             0.004 * period * toFloat i
