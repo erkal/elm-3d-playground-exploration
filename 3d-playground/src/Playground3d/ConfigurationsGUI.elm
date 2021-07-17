@@ -8,6 +8,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (checkbox)
+import Element.Lazy exposing (lazy)
 import Html
 import Html.Attributes as HA
 import Html.Events as HE
@@ -16,7 +17,12 @@ import Playground3d.Configurations exposing (..)
 
 
 view : Configurations -> Element Msg
-view configurations =
+view =
+    lazy view_
+
+
+view_ : Configurations -> Element Msg
+view_ configurations =
     column
         [ width fill
         , height fill

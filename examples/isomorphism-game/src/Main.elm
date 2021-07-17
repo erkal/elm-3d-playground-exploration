@@ -70,7 +70,7 @@ type EditorState
 initialConfigurations =
     [ floatConfig "camera distance" ( 3, 40 ) 20
     , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.45
+    , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
     , floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
     , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
     , floatConfig "azimuth for third light" ( -pi, pi ) 1
@@ -84,8 +84,8 @@ initialConfigurations =
     , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.5
     , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
     , colorConfig "base" (rgb255 176 69 76)
-    , floatConfig "base height" ( 0.01, 5 ) 1
-    , floatConfig "base vertex radius" ( 0.2, 2 ) 0.8
+    , floatConfig "base height" ( 0.01, 5 ) 0.4
+    , floatConfig "base vertex radius" ( 0.2, 2 ) 0.5
     , floatConfig "base edge width" ( 0.2, 1.5 ) 1
     , colorConfig "player" white
     , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
@@ -498,6 +498,7 @@ view computer model =
         , drawDraggedBaseEdge computer model
 
         --, axes
+        , sphere red 0.1
         , floor computer
         , drawPointerReach computer model
         ]
