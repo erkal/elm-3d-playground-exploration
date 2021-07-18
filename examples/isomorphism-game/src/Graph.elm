@@ -14,7 +14,7 @@ module Graph exposing
     , insertVertex
     , mapVertex
     , mapVertices
-    , nearestVertexAtReach
+    , nearestVertex
     , toPreEncoded
     , vertices
     )
@@ -139,22 +139,15 @@ edges (Graph graph) =
             )
 
 
-nearestVertexAtReach : Float -> Point -> Graph data -> Maybe VertexId
-nearestVertexAtReach reach p graph =
-    vertices graph
-        |> List.filterMap
-            (\( vertexId, { position } ) ->
-                let
-                    dist =
-                        distanceXY position p
-                in
-                if dist < reach then
-                    Just ( vertexId, dist )
+distanceXYSquared : Point -> Point -> Float
+distanceXYSquared p q =
+    (q.x - p.x) ^ 2 + (q.y - p.y) ^ 2
 
-                else
-                    Nothing
-            )
-        |> List.sortBy Tuple.second
+
+nearestVertex : Point -> Graph data -> Maybe VertexId
+nearestVertex p graph =
+    vertices graph
+        |> List.sortBy (\( _, { position } ) -> distanceXYSquared position p)
         |> List.head
         |> Maybe.map Tuple.first
 

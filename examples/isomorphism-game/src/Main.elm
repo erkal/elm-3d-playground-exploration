@@ -154,7 +154,7 @@ updateDragTarget computer model =
             { model
                 | gameState =
                     DraggingPlayerVertex
-                        { dragData | maybeTargetIdOnBaseGraph = nearestBaseVertexAtReach computer model }
+                        { dragData | maybeTargetIdOnBaseGraph = nearestBaseVertex computer model }
             }
 
         _ ->
@@ -184,7 +184,7 @@ tickPlayerVertices computer model =
                         { vertexData
                             | position =
                                 vertexData.position
-                                    |> lerp 0.05
+                                    |> lerp 0.1
                                         (Graph.getPosition
                                             (Graph.getData dragged playerGraph
                                                 |> Maybe.map .mappedToBaseVertex
@@ -199,7 +199,7 @@ tickPlayerVertices computer model =
                         { vertexData
                             | position =
                                 vertexData.position
-                                    |> lerp 0.05
+                                    |> lerp 0.1
                                         (Graph.getPosition vertexData.data.mappedToBaseVertex
                                             baseGraph
                                         )
@@ -209,7 +209,7 @@ tickPlayerVertices computer model =
                     { vertexData
                         | position =
                             vertexData.position
-                                |> lerp 0.05
+                                |> lerp 0.1
                                     (Graph.getPosition vertexData.data.mappedToBaseVertex
                                         baseGraph
                                     )
@@ -236,20 +236,21 @@ handleInputForEditor computer model =
         |> endDraggingBaseVertex computer
 
 
-nearestBaseVertexAtReach : Computer -> Model -> Maybe VertexId
-nearestBaseVertexAtReach computer model =
-    Graph.nearestVertexAtReach
-        (getFloat "pointer reach for base" computer)
-        model.pointerXY
-        (LS.current model.levels).baseGraph
+nearestBaseVertex : Computer -> Model -> Maybe VertexId
+nearestBaseVertex computer model =
+    Graph.nearestVertex model.pointerXY (LS.current model.levels).baseGraph
 
 
-nearestPlayerVertexAtReach : Computer -> Model -> Maybe VertexId
-nearestPlayerVertexAtReach computer model =
-    Graph.nearestVertexAtReach
-        (getFloat "pointer reach for player" computer)
-        model.pointerXY
-        (LS.current model.levels).playerGraph
+playerVertexOnTheNearestBaseVertex : Computer -> Model -> Maybe VertexId
+playerVertexOnTheNearestBaseVertex computer model =
+    let
+        v =
+            nearestBaseVertex computer model
+    in
+    Graph.vertices (LS.current model.levels).playerGraph
+        |> List.filter (\( _, { data } ) -> Just data.mappedToBaseVertex == v)
+        |> List.head
+        |> Maybe.map Tuple.first
 
 
 startDraggingBaseEdge : Computer -> Model -> Model
@@ -257,7 +258,7 @@ startDraggingBaseEdge computer model =
     if computer.keyboard.shift && not computer.keyboard.space && computer.pointer.down then
         case
             ( model.editorState
-            , nearestBaseVertexAtReach computer model
+            , nearestBaseVertex computer model
             )
         of
             ( EditorIdle, Just vertexId ) ->
@@ -273,15 +274,19 @@ startDraggingBaseEdge computer model =
 insertBaseEdge : Computer -> Model -> Model
 insertBaseEdge computer model =
     if not computer.pointer.down then
-        case ( model.editorState, nearestBaseVertexAtReach computer model ) of
+        case ( model.editorState, nearestBaseVertex computer model ) of
             ( DraggingBaseEdge { sourceId }, Just targetId ) ->
-                model
-                    |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
+                if
+                    distanceXY (Graph.getPosition targetId (LS.current model.levels).baseGraph) model.pointerXY
+                        < getFloat "pointer reach for base" computer
+                then
+                    model
+                        |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
 
-            ( DraggingBaseEdge { sourceId }, Nothing ) ->
-                model
-                    |> mapCurrentBaseGraph
-                        (Graph.insertEdgeAndVertex () sourceId model.pointerXY)
+                else
+                    model
+                        |> mapCurrentBaseGraph
+                            (Graph.insertEdgeAndVertex () sourceId model.pointerXY)
 
             _ ->
                 model
@@ -293,10 +298,17 @@ insertBaseEdge computer model =
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
     if computer.pointer.down && computer.keyboard.space then
-        case ( model.editorState, nearestBaseVertexAtReach computer model ) of
-            ( EditorIdle, Nothing ) ->
-                model
-                    |> mapCurrentBaseGraph (Graph.insertVertex () model.pointerXY)
+        case ( model.editorState, nearestBaseVertex computer model ) of
+            ( EditorIdle, Just vertexId ) ->
+                if
+                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
+                        > getFloat "pointer reach for base" computer
+                then
+                    model
+                        |> mapCurrentBaseGraph (Graph.insertVertex () model.pointerXY)
+
+                else
+                    model
 
             _ ->
                 model
@@ -305,18 +317,30 @@ insertVertex computer model =
         model
 
 
+distanceXY : Point -> Point -> Float
+distanceXY p q =
+    sqrt ((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2)
+
+
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
     if (not (Dict.isEmpty computer.touches) || computer.pointer.down) && not computer.keyboard.shift then
-        case ( model.gameState, nearestPlayerVertexAtReach computer model ) of
+        case ( model.gameState, playerVertexOnTheNearestBaseVertex computer model ) of
             ( Idle, Just vertexId ) ->
-                { model
-                    | gameState =
-                        DraggingPlayerVertex
-                            { dragged = vertexId
-                            , maybeTargetIdOnBaseGraph = Nothing
-                            }
-                }
+                if
+                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).playerGraph) model.pointerXY
+                        < getFloat "pointer reach for player" computer
+                then
+                    { model
+                        | gameState =
+                            DraggingPlayerVertex
+                                { dragged = vertexId
+                                , maybeTargetIdOnBaseGraph = Nothing
+                                }
+                    }
+
+                else
+                    model
 
             _ ->
                 model
@@ -334,11 +358,18 @@ startDraggingBaseVertex computer model =
     if computer.pointer.down && not computer.keyboard.shift then
         case
             ( model.editorState
-            , nearestBaseVertexAtReach computer model
+            , nearestBaseVertex computer model
             )
         of
             ( EditorIdle, Just vertexId ) ->
-                { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
+                if
+                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
+                        < getFloat "pointer reach for base" computer
+                then
+                    { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
+
+                else
+                    model
 
             _ ->
                 model
@@ -506,7 +537,7 @@ view computer model =
         , drawDraggedBaseEdge computer model
 
         --, axes
-        , sphere red 0.1
+        --, sphere red 0.1
         , floor computer
         , drawPointerReach computer model
         ]
@@ -604,7 +635,7 @@ drawPlayerVertex : Computer -> Model -> ( VertexId, { vertexData | position : Po
 drawPlayerVertex computer model ( vertexId, { position } ) =
     let
         color =
-            if nearestPlayerVertexAtReach computer model == Just vertexId then
+            if playerVertexOnTheNearestBaseVertex computer model == Just vertexId then
                 yellow
 
             else
