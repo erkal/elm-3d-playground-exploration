@@ -81,8 +81,8 @@ initialConfigurations =
         ]
     , configBlock "Pointer" True <|
         [ boolConfig "pointer view on/off" True
-        , colorConfig "pointer color" darkGreen
-        , floatConfig "pointer reach" ( 0.5, 2 ) 1.5
+        , colorConfig "pointer color" yellow
+        , floatConfig "pointer reach" ( 0.5, 2 ) 1
         ]
     , configBlock "Base" True <|
         [ colorConfig "game background" (rgb255 44 100 200)
