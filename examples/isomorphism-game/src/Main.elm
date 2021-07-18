@@ -80,11 +80,9 @@ initialConfigurations =
         , floatConfig "elevation for fourth light" ( -pi, pi ) -2
         ]
     , configBlock "Pointer" True <|
-        [ colorConfig "pointer player" lightGray
-        , colorConfig "pointer base" darkGreen
-        , boolConfig "pointer reach view on/off" False
-        , floatConfig "pointer reach for player" ( 0.5, 2 ) 1.5
-        , floatConfig "pointer reach for base" ( 0.5, 2 ) 1
+        [ boolConfig "pointer view on/off" True
+        , colorConfig "pointer color" darkGreen
+        , floatConfig "pointer reach" ( 0.5, 2 ) 1.5
         ]
     , configBlock "Base" True <|
         [ colorConfig "game background" (rgb255 44 100 200)
@@ -278,7 +276,7 @@ insertBaseEdge computer model =
             ( DraggingBaseEdge { sourceId }, Just targetId ) ->
                 if
                     distanceXY (Graph.getPosition targetId (LS.current model.levels).baseGraph) model.pointerXY
-                        < getFloat "pointer reach for base" computer
+                        < getFloat "pointer reach" computer
                 then
                     model
                         |> mapCurrentBaseGraph (Graph.insertEdge sourceId targetId)
@@ -302,7 +300,7 @@ insertVertex computer model =
             ( EditorIdle, Just vertexId ) ->
                 if
                     distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
-                        > getFloat "pointer reach for base" computer
+                        > getFloat "pointer reach" computer
                 then
                     model
                         |> mapCurrentBaseGraph (Graph.insertVertex () model.pointerXY)
@@ -329,7 +327,7 @@ startDraggingPlayerVertex computer model =
             ( Idle, Just vertexId ) ->
                 if
                     distanceXY (Graph.getPosition vertexId (LS.current model.levels).playerGraph) model.pointerXY
-                        < getFloat "pointer reach for player" computer
+                        < getFloat "pointer reach" computer
                 then
                     { model
                         | gameState =
@@ -364,7 +362,7 @@ startDraggingBaseVertex computer model =
             ( EditorIdle, Just vertexId ) ->
                 if
                     distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
-                        < getFloat "pointer reach for base" computer
+                        < getFloat "pointer reach" computer
                 then
                     { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
 
@@ -587,19 +585,12 @@ drawPointerReach : Computer -> Model -> Shape
 drawPointerReach computer model =
     let
         ( color, zShift, radius ) =
-            if model.editor.isOn then
-                ( getColor "pointer base" computer
-                , -(getFloat "base height" computer) + 0.01
-                , getFloat "pointer reach for base" computer
-                )
-
-            else
-                ( getColor "pointer player" computer
-                , 0
-                , getFloat "pointer reach for player" computer
-                )
+            ( getColor "pointer color" computer
+            , -(getFloat "base height" computer) + 0.01
+            , getFloat "pointer reach" computer
+            )
     in
-    if getBool "pointer reach view on/off" computer then
+    if getBool "pointer view on/off" computer then
         cylinder color radius 0.02
             |> rotateX (degrees 90)
             |> moveZ zShift
