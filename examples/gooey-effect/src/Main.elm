@@ -43,9 +43,15 @@ update computer model =
 
 view : Computer -> Model -> Html Never
 view computer model =
+    let
+        ( w, h ) =
+            ( computer.screen.width * computer.devicePixelRatio
+            , computer.screen.height * computer.devicePixelRatio
+            )
+    in
     WebGL.toHtml
-        [ width (round (computer.screen.width * computer.devicePixelRatio))
-        , height (round (computer.screen.height * computer.devicePixelRatio))
+        [ width (round w)
+        , height (round h)
         , style "width" (String.fromFloat computer.screen.width)
         , style "height" (String.fromFloat computer.screen.height)
         ]
@@ -54,7 +60,7 @@ view computer model =
             fragmentShader
             mesh
             { time = computer.time
-            , resolution = vec2 computer.screen.width computer.screen.height
+            , resolution = vec2 w h
             }
         ]
 
@@ -120,18 +126,18 @@ fragmentShader =
         }
 
         void main () {
-            vec2 uv = (gl_FragCoord.xy - resolution.xy) / resolution.x;
+            vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.x;
 
             vec3 pixel = vec3(0.0, 0.0, 0.0);
             vec2 positions[5];
-            positions[0] = vec2(sin(time * 1.4) * 1.3, cos(time * 2.3) * 0.4);
-            positions[1] = vec2(sin(time * 3.0) * 0.5, cos(time * 1.3) * 0.6);
-            positions[2] = vec2(sin(time * 2.1) * 0.1, cos(time * 1.9) * 0.8);
-            positions[3] = vec2(sin(time * 1.1) * 1.1, cos(time * 2.6) * 0.7);
+            positions[0] = vec2(sin(time * 1.4) * 0.2, cos(time * 1.3) * 0.2);
+            positions[1] = vec2(sin(time * 1.0) * 0.2, cos(time * 1.3) * 0.2);
+            positions[2] = vec2(sin(time * 2.1) * 0.2, cos(time * 1.9) * 0.2);
+            positions[3] = vec2(sin(time * 1.1) * 0.2, cos(time * 1.6) * 0.2);
             positions[4] = vec2(0.0, 0.0);
 
             for	(int i = 0; i < 5; i++)
-                pixel += Sphere(uv, positions[i], 0.12);
+                pixel += Sphere(uv, positions[i], 0.05);
 
             pixel = step(1.0, pixel) * pixel;
 
