@@ -44,9 +44,10 @@ update computer model =
 view : Computer -> Model -> Html Never
 view computer model =
     WebGL.toHtml
-        [ width (round computer.screen.width)
-        , height (round computer.screen.height)
-        , style "border" "solid"
+        [ width (round (computer.screen.width * computer.devicePixelRatio))
+        , height (round (computer.screen.height * computer.devicePixelRatio))
+        , style "width" (String.fromFloat computer.screen.width)
+        , style "height" (String.fromFloat computer.screen.height)
         ]
         [ WebGL.entity
             vertexShader
@@ -97,6 +98,7 @@ vertexShader : Shader Vertex Uniforms {}
 vertexShader =
     [glsl|
         attribute vec2 position;
+
         void main () {
             gl_Position = vec4(position, 0.0, 1.0);
         }
@@ -107,6 +109,7 @@ fragmentShader : Shader {} Uniforms {}
 fragmentShader =
     [glsl|
         precision mediump float;
+
         uniform float time;
         uniform vec2 resolution;
 
@@ -117,22 +120,21 @@ fragmentShader =
         }
 
         void main () {
-            vec2 uv = gl_FragCoord.xy / resolution;
+            vec2 uv = (gl_FragCoord.xy - resolution.xy) / resolution.x;
 
             vec3 pixel = vec3(0.0, 0.0, 0.0);
-            vec2 positions[4];
+            vec2 positions[5];
             positions[0] = vec2(sin(time * 1.4) * 1.3, cos(time * 2.3) * 0.4);
             positions[1] = vec2(sin(time * 3.0) * 0.5, cos(time * 1.3) * 0.6);
             positions[2] = vec2(sin(time * 2.1) * 0.1, cos(time * 1.9) * 0.8);
             positions[3] = vec2(sin(time * 1.1) * 1.1, cos(time * 2.6) * 0.7);
+            positions[4] = vec2(0.0, 0.0);
 
-            for	(int i = 0; i < 4; i++)
-                pixel += Sphere(uv, positions[i], 0.1);
+            for	(int i = 0; i < 5; i++)
+                pixel += Sphere(uv, positions[i], 0.12);
 
             pixel = step(1.0, pixel) * pixel;
 
             gl_FragColor = vec4(pixel, 1.0);
-//            gl_FragColor = vec4(0.5, 0.0, 0.5, 1.0);
-
         }
     |]
