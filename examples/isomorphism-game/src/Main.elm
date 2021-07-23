@@ -179,16 +179,24 @@ tickPlayerVertices computer model =
                         }
 
                     else if Just vertexData.data.mappedToBaseVertex == maybeTargetIdOnBaseGraph then
-                        { vertexData
-                            | position =
-                                vertexData.position
-                                    |> lerp 0.1
+                        let
+                            target =
+                                Graph.getPosition vertexData.data.mappedToBaseVertex baseGraph
+                                    |> lerp 0.3
+                                        -- this lerp is not applied on every tick but just once!
                                         (Graph.getPosition
                                             (Graph.getData dragged playerGraph
                                                 |> Maybe.map .mappedToBaseVertex
                                                 |> Maybe.withDefault 0
                                             )
                                             baseGraph
+                                        )
+                        in
+                        { vertexData
+                            | position =
+                                vertexData.position
+                                    |> lerp 0.1
+                                        (target
                                             |> (\p -> Point p.x p.y (p.z + 1))
                                         )
                         }
