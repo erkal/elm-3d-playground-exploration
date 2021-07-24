@@ -55,14 +55,7 @@ view computer model =
         , style "width" (String.fromFloat computer.screen.width)
         , style "height" (String.fromFloat computer.screen.height)
         ]
-        [ WebGL.entity
-            vertexShader
-            fragmentShader
-            mesh
-            { time = computer.time
-            , resolution = vec2 w h
-            }
-        ]
+        [ WebGL.entity vertexShader fragmentShader mesh { time = computer.time, resolution = vec2 w h } ]
 
 
 
@@ -76,11 +69,6 @@ type alias Vertex =
 
 mesh : Mesh Vertex
 mesh =
-    -- v2 +---+ v1
-    --    |\  |
-    --    | \ |
-    --    |  \|
-    -- v3 +---+ v0
     WebGL.indexedTriangles
         [ Vertex (vec2 1 -1)
         , Vertex (vec2 1 1)
@@ -119,27 +107,20 @@ fragmentShader =
         uniform float time;
         uniform vec2 resolution;
 
-        vec3 Sphere(vec2 uv, vec2 position, float radius)
-        {
-            float dist = radius / distance(uv, position);
-            return vec3(dist * dist);
-        }
-
         void main () {
-            vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.x;
+            // the origin is the center of the canvas
+            vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);
+
+            vec2 centers[3];
+            centers[0] = vec2(sin(time * 0.5) * 0.2, cos(time * 0.2) * 0.3);
+            centers[1] = vec2(sin(time * 0.6) * 0.3, cos(time * 0.7) * 0.2);
+            centers[2] = vec2(sin(time * 0.4) * 0.3, cos(time * 0.3) * 0.3);
 
             vec3 pixel = vec3(0.0, 0.0, 0.0);
-            vec2 positions[5];
-            positions[0] = vec2(sin(time * 1.4) * 0.2, cos(time * 1.3) * 0.2);
-            positions[1] = vec2(sin(time * 1.0) * 0.2, cos(time * 1.3) * 0.2);
-            positions[2] = vec2(sin(time * 2.1) * 0.2, cos(time * 1.9) * 0.2);
-            positions[3] = vec2(sin(time * 1.1) * 0.2, cos(time * 1.6) * 0.2);
-            positions[4] = vec2(0.0, 0.0);
+            for	(int i = 0; i < 3; i++)
+                pixel += vec3(0.05 / distance(uv, centers[i]));
 
-            for	(int i = 0; i < 5; i++)
-                pixel += Sphere(uv, positions[i], 0.05);
-
-            pixel = step(1.0, pixel) * pixel;
+            pixel = step(1.0, pixel);
 
             gl_FragColor = vec4(pixel, 1.0);
         }
