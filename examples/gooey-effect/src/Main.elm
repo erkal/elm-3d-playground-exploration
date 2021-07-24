@@ -20,7 +20,10 @@ type alias Model =
 
 
 initialConfigurations =
-    []
+    [ configBlock "Parameters" True <|
+        [ floatConfig "ball radius" ( 0.01, 0.2 ) 0.06
+        ]
+    ]
 
 
 init : Computer -> Model
@@ -55,7 +58,14 @@ view computer model =
         , style "width" (String.fromFloat computer.screen.width)
         , style "height" (String.fromFloat computer.screen.height)
         ]
-        [ WebGL.entity vertexShader fragmentShader mesh { time = computer.time, resolution = vec2 w h } ]
+        [ WebGL.entity vertexShader
+            fragmentShader
+            mesh
+            { time = computer.time
+            , resolution = vec2 w h
+            , ballRadius = getFloat "ball radius" computer
+            }
+        ]
 
 
 
@@ -85,6 +95,7 @@ mesh =
 type alias Uniforms =
     { time : Float
     , resolution : Vec2
+    , ballRadius : Float
     }
 
 
@@ -106,9 +117,9 @@ fragmentShader =
 
         uniform float time;
         uniform vec2 resolution;
+        uniform float ballRadius;
 
         void main () {
-            // the origin is the center of the canvas
             vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);
 
             vec2 centers[3];
@@ -118,7 +129,7 @@ fragmentShader =
 
             vec3 pixel = vec3(0.0, 0.0, 0.0);
             for	(int i = 0; i < 3; i++)
-                pixel += vec3(0.05 / distance(uv, centers[i]));
+                pixel += vec3(ballRadius / distance(uv, centers[i]));
 
             pixel = step(1.0, pixel);
 
