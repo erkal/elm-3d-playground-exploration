@@ -28,4 +28,4 @@ yarn dev
 ```
 enter the number you are asked for and open the shown url in your browser.
 
-To create a new game, just duplicate one of the directories in `games` directory and you are ready: `yarn dev` will show your new game in the list.
+To create a new example, just duplicate one of the directories in `examples` directory.
