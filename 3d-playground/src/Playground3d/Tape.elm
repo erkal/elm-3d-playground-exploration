@@ -99,7 +99,7 @@ updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
 
 
 tick : (Computer -> gameModel -> gameModel) -> Float -> Tape gameModel -> Tape gameModel
-tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape) =
+tick updateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape) =
     case state of
         Paused ->
             tape
@@ -131,7 +131,7 @@ tick upDateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
                            )
 
                 newGameModel =
-                    lastGameModel |> upDateGameModel newComputer
+                    lastGameModel |> updateGameModel newComputer
             in
             Tape
                 (Recording Usual)
