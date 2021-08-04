@@ -207,15 +207,6 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
             ( gameUpdate updateGameModel updateFromEditor msg model
             , Cmd.none
             )
-
-        subscriptions { visibility } =
-            case visibility of
-                E.Hidden ->
-                    E.onVisibilityChange VisibilityChanged
-                        |> Sub.map ToComputer
-
-                E.Visible ->
-                    gameSubscriptions
     in
     Browser.element
         { init = init
@@ -229,23 +220,29 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
 -- SUBSCRIPTIONS
 
 
-gameSubscriptions : Sub (Msg levelEditorMsg)
-gameSubscriptions =
-    Sub.batch <|
-        E.onAnimationFrameDelta ((*) 0.001 >> Tick)
-            :: List.map (Sub.map ToComputer)
-                [ E.onResize Resized
-                , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
-                , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-                , E.onVisibilityChange VisibilityChanged
-                , E.onMouseDown (D.succeed MouseDown)
-                , E.onMouseUp (D.succeed MouseUp)
-                , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
-                , touchStart TouchStart
-                , touchMove TouchMove
-                , touchEnd TouchEnd
-                , touchCancel TouchCancel
-                ]
+subscriptions : Model gameModel -> Sub (Msg levelEditorMsg)
+subscriptions { visibility } =
+    case visibility of
+        E.Hidden ->
+            E.onVisibilityChange VisibilityChanged
+                |> Sub.map ToComputer
+
+        E.Visible ->
+            Sub.batch <|
+                E.onAnimationFrameDelta ((*) 0.001 >> Tick)
+                    :: List.map (Sub.map ToComputer)
+                        [ E.onResize Resized
+                        , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
+                        , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
+                        , E.onVisibilityChange VisibilityChanged
+                        , E.onMouseDown (D.succeed MouseDown)
+                        , E.onMouseUp (D.succeed MouseUp)
+                        , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
+                        , touchStart TouchStart
+                        , touchMove TouchMove
+                        , touchEnd TouchEnd
+                        , touchCancel TouchCancel
+                        ]
 
 
 type alias Model gameModel =
