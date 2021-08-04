@@ -37,7 +37,6 @@ port module Playground exposing
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
-import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border

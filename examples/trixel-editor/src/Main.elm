@@ -14,11 +14,11 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
-import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurationsAndEditor, getFloat)
-import Playground3d.Animation exposing (wave)
-import Playground3d.Camera exposing (Camera, perspective)
-import Playground3d.Geometry exposing (Point)
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurationsAndEditor, getFloat)
+import Playground.Animation exposing (wave)
+import Playground.Camera exposing (Camera, perspective)
+import Playground.Geometry exposing (Point)
+import Playground.Scene as Scene exposing (..)
 import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
 import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
@@ -111,7 +111,7 @@ insertTrixelOnTouch computer model =
     computer.touches
         |> Dict.foldl
             (\_ xy ->
-                case Playground3d.Camera.mouseOverXY (camera computer) computer.screen xy of
+                case Playground.Camera.mouseOverXY (camera computer) computer.screen xy of
                     Nothing ->
                         identity
 
@@ -145,7 +145,7 @@ removeTrixelOnShiftMouseDown computer model =
 updateMouseOverUV : Computer -> Model -> Model
 updateMouseOverUV computer model =
     case
-        Playground3d.Camera.mouseOverXY
+        Playground.Camera.mouseOverXY
             (camera computer)
             computer.screen
             computer.mouse

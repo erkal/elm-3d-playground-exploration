@@ -465,7 +465,7 @@ updatePointerPosition computer model =
     { model
         | pointerXY =
             computer.pointer
-                |> Playground3d.Camera.mouseOverXY (camera computer) computer.screen
+                |> Playground.Camera.mouseOverXY (camera computer) computer.screen
                 |> Maybe.withDefault model.pointerXY
     }
 

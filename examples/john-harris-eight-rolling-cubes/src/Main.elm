@@ -5,9 +5,9 @@ import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..
 import Dict
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
-import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
-import Playground3d.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
+import Playground.Scene as Scene exposing (..)
 import World exposing (RollResult(..), World)
 
 

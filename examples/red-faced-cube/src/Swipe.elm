@@ -9,7 +9,7 @@ module Swipe exposing
     )
 
 import Dict
-import Playground3d exposing (Computer)
+import Playground exposing (Computer)
 
 
 type Swipe
