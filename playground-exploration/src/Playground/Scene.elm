@@ -1,4 +1,4 @@
-module Playground3d.Scene exposing
+module Playground.Scene exposing
     ( Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , custom, sunny
@@ -34,9 +34,9 @@ import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
 import ModifiedFromScene3d.Scenes
 import Pixels
-import Playground3d.Camera exposing (Camera)
-import Playground3d.Computer as Computer
-import Playground3d.Geometry exposing (Point)
+import Playground.Camera exposing (Camera)
+import Playground.Computer as Computer
+import Playground.Geometry exposing (Point)
 import Point3d exposing (Point3d)
 import Scene3d exposing (Antialiasing, Exposure, Lights, ToneMapping)
 import Scene3d.Light exposing (Chromaticity, Light)

@@ -1,10 +1,10 @@
-module Playground3d.Icons exposing
+module Playground.Icons exposing
     ( draw
     , icons
     )
 
 import Element exposing (Color)
-import Playground3d.Colors as Colors
+import Playground.Colors as Colors
 import Svg exposing (Svg, path, svg)
 import Svg.Attributes as SA
 

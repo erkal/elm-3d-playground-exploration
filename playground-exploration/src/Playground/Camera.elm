@@ -1,4 +1,4 @@
-module Playground3d.Camera exposing
+module Playground.Camera exposing
     ( Camera
     , mouseOverXY
     , mouseOverXYAtZ
@@ -18,8 +18,8 @@ import Direction3d
 import Length exposing (Length, Meters, inMeters)
 import Pixels
 import Plane3d exposing (Plane3d)
-import Playground3d exposing (Computer, Mouse, Screen)
-import Playground3d.Geometry exposing (Point, Vector)
+import Playground exposing (Computer, Mouse, Screen)
+import Playground.Geometry exposing (Point, Vector)
 import Point2d
 import Point3d exposing (Point3d)
 import Rectangle2d

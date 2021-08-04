@@ -19,11 +19,11 @@ import Level exposing (BaseGraph, Level, PlayerGraph)
 import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Playground3d exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
-import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground3d.Colors as Colors
-import Playground3d.Light as Light
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
+import Playground.Camera exposing (Camera, perspectiveWithOrbit)
+import Playground.Colors as Colors
+import Playground.Light as Light
+import Playground.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Temperature

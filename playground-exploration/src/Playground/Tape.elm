@@ -1,4 +1,4 @@
-module Playground3d.Tape exposing
+module Playground.Tape exposing
     ( Msg
     , Tape
     , currentComputer
@@ -16,9 +16,9 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Playground3d.Colors as Colors
-import Playground3d.Computer as Computer exposing (Computer)
-import Playground3d.Icons as Icons
+import Playground.Colors as Colors
+import Playground.Computer as Computer exposing (Computer)
+import Playground.Icons as Icons
 import Round
 
 

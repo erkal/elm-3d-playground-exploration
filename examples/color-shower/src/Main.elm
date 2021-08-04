@@ -2,10 +2,10 @@ module Main exposing (main)
 
 import Color exposing (hsl)
 import Html exposing (Html)
-import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, getInt, intConfig)
-import Playground3d.Animation exposing (wave)
-import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, getInt, intConfig)
+import Playground.Animation exposing (wave)
+import Playground.Camera exposing (Camera, perspectiveWithOrbit)
+import Playground.Scene as Scene exposing (..)
 
 
 main =

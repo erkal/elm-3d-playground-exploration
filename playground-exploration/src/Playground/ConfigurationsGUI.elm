@@ -1,4 +1,4 @@
-module Playground3d.ConfigurationsGUI exposing (..)
+module Playground.ConfigurationsGUI exposing (..)
 
 import Color exposing (black)
 import Color.Convert exposing (colorToHex, hexToColor)
@@ -12,8 +12,8 @@ import Element.Lazy exposing (lazy)
 import Html
 import Html.Attributes as HA
 import Html.Events as HE
-import Playground3d.Colors as Colors
-import Playground3d.Configurations exposing (..)
+import Playground.Colors as Colors
+import Playground.Configurations exposing (..)
 
 
 view : Configurations -> Element Msg

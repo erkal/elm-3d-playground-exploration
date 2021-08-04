@@ -1,4 +1,4 @@
-module Playground3d.Light exposing
+module Playground.Light exposing
     ( directional
     , point
     , soft
@@ -16,7 +16,7 @@ import Angle
 import Direction3d
 import Illuminance exposing (Illuminance)
 import LuminousFlux exposing (LuminousFlux)
-import Playground3d.Geometry exposing (Point, Vector)
+import Playground.Geometry exposing (Point, Vector)
 import Point3d exposing (Point3d)
 import Scene3d.Light exposing (Chromaticity, Light)
 

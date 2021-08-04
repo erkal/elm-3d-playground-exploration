@@ -4,11 +4,11 @@ import Color exposing (blue, brown, gray, green, hsl, lightBlue, lightGreen, lig
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground3d exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
-import Playground3d.Animation exposing (spin, wave)
-import Playground3d.Camera exposing (Camera, perspective)
-import Playground3d.Light as Light
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
+import Playground.Animation exposing (spin, wave)
+import Playground.Camera exposing (Camera, perspective)
+import Playground.Light as Light
+import Playground.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Temperature

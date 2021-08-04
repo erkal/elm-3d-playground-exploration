@@ -1,4 +1,4 @@
-module Playground3d.Computer exposing (..)
+module Playground.Computer exposing (..)
 
 {-| When writing a [`game`](#game), you can look up all sorts of information
 about your computer:
@@ -19,7 +19,7 @@ import Browser.Dom as Dom
 import Browser.Events as E
 import Color exposing (Color)
 import Dict exposing (Dict)
-import Playground3d.Configurations as Configurations exposing (Configurations)
+import Playground.Configurations as Configurations exposing (Configurations)
 import Set
 
 
@@ -226,7 +226,7 @@ type alias Screen =
 
 You could draw a circle around the mouse with a program like this:
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         game view update 0
@@ -361,7 +361,7 @@ type alias Keyboard =
 
 So to make a square move left and right based on the arrow keys, we could say:
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         game view update 0
@@ -400,7 +400,7 @@ toX keyboard =
 
 This can be used to move characters around in games just like [`toX`](#toX):
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         game view update ( 0, 0 )
@@ -445,7 +445,7 @@ normalized:
 
 Now when you go up/right, you are still going 1 pixel per update.
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         game view update ( 0, 0 )

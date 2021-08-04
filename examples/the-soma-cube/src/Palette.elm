@@ -2,7 +2,7 @@ module Palette exposing (..)
 
 import Array exposing (Array)
 import Color exposing (Color, gray, hsl, hsla)
-import Playground3d exposing (Computer, getFloat)
+import Playground exposing (Computer, getFloat)
 
 
 type alias Palette =

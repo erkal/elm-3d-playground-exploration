@@ -1,4 +1,4 @@
-module Playground3d.Colors exposing (..)
+module Playground.Colors exposing (..)
 
 import Element exposing (Color, rgb, rgb255, rgba255, toRgb)
 

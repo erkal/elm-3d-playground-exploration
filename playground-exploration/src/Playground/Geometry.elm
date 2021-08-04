@@ -1,4 +1,4 @@
-module Playground3d.Geometry exposing (Point, Vector, translateBy)
+module Playground.Geometry exposing (Point, Vector, translateBy)
 
 
 type alias Point =

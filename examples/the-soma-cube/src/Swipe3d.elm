@@ -10,8 +10,8 @@ module Swipe3d exposing
     )
 
 import Dict
-import Playground3d exposing (Computer)
-import Playground3d.Camera exposing (Camera)
+import Playground exposing (Computer)
+import Playground.Camera exposing (Camera)
 
 
 type SwipeState

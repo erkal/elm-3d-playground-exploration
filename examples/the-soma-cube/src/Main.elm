@@ -4,10 +4,10 @@ import Color exposing (Color, black, hsl, white)
 import Html exposing (Html, div, h2, p, text)
 import Html.Attributes exposing (style)
 import Palette
-import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
-import Playground3d.Animation exposing (wave)
-import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
+import Playground.Animation exposing (wave)
+import Playground.Camera exposing (Camera, perspectiveWithOrbit)
+import Playground.Scene as Scene exposing (..)
 import World exposing (Piece, World)
 
 

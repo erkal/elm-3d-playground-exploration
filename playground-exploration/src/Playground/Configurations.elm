@@ -1,4 +1,4 @@
-module Playground3d.Configurations exposing (..)
+module Playground.Configurations exposing (..)
 
 import Color exposing (Color)
 import Dict exposing (Dict)

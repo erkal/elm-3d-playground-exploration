@@ -3,7 +3,7 @@ module Main exposing (main)
 import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Math.Vector2 exposing (Vec2, vec2)
-import Playground3d exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import WebGL exposing (Mesh, Shader)
 
 

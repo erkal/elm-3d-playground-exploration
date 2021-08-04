@@ -9,12 +9,12 @@ import Html.Attributes exposing (style)
 import Illuminance
 import LuminousFlux
 import Path exposing (Path)
-import Playground3d exposing (..)
-import Playground3d.Animation exposing (wave)
-import Playground3d.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground3d.Geometry exposing (Point, Vector)
-import Playground3d.Light as Light
-import Playground3d.Scene as Scene exposing (..)
+import Playground exposing (..)
+import Playground.Animation exposing (wave)
+import Playground.Camera exposing (Camera, perspectiveWithOrbit)
+import Playground.Geometry exposing (Point, Vector)
+import Playground.Light as Light
+import Playground.Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Swipe exposing (Swipe)

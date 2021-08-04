@@ -1,4 +1,4 @@
-port module Playground3d exposing
+port module Playground exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
     , getColor, getFloat, getBool
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
@@ -46,12 +46,12 @@ import Element.Font as Font
 import Html exposing (Html)
 import Html.Attributes as HA
 import Json.Decode as D
-import Playground3d.Colors as Colors
-import Playground3d.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
-import Playground3d.Configurations as Configurations exposing (Block, Config(..), Configurations)
-import Playground3d.ConfigurationsGUI as ConfigurationsGUI
-import Playground3d.Icons as Icons
-import Playground3d.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
+import Playground.Colors as Colors
+import Playground.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
+import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
+import Playground.ConfigurationsGUI as ConfigurationsGUI
+import Playground.Icons as Icons
+import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
 import Task
 
 

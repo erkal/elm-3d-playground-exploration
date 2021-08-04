@@ -1,4 +1,4 @@
-module Playground3d.Animation exposing
+module Playground.Animation exposing
     ( spin
     , wave
     , zigzag
@@ -13,7 +13,7 @@ type alias Time =
 
 Here is an [`animation`](#animation) with a spinning triangle:
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         animation view
@@ -36,7 +36,7 @@ spin period time =
 
 Here is an [`animation`](#animation) with a circle that resizes:
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         animation view
@@ -58,7 +58,7 @@ wave lo hi period time =
 
 Here is an [`animation`](#animation) with a rectangle that tips back and forth:
 
-    import Playground3d exposing (..)
+    import Playground exposing (..)
 
     main =
         animation view
