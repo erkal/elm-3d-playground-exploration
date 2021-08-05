@@ -97,10 +97,10 @@ mouseOverXY =
 
 
 mouseOverXYAtZ : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverXYAtZ z camera screen xy =
+mouseOverXYAtZ z camera screen mouse =
     mouseOverPlane camera
         screen
-        xy
+        mouse
         (Plane3d.xy
             |> Plane3d.translateBy
                 (Vector3d.xyz
@@ -117,10 +117,10 @@ mouseOverYZ =
 
 
 mouseOverYZAtX : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverYZAtX x camera screen yz =
+mouseOverYZAtX x camera screen mouse =
     mouseOverPlane camera
         screen
-        yz
+        mouse
         (Plane3d.yz
             |> Plane3d.translateBy
                 (Vector3d.xyz
@@ -137,10 +137,10 @@ mouseOverZX =
 
 
 mouseOverZXAtY : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
-mouseOverZXAtY y camera screen zx =
+mouseOverZXAtY y camera screen mouse =
     mouseOverPlane camera
         screen
-        zx
+        mouse
         (Plane3d.yz
             |> Plane3d.translateBy
                 (Vector3d.xyz
