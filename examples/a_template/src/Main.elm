@@ -4,8 +4,8 @@ import Color exposing (blue, gray, green, red, rgb255)
 import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
-import Playground.Camera exposing (Camera, perspective)
-import Playground.Scene as Scene exposing (..)
+import Camera exposing (Camera, perspective)
+import Scene as Scene exposing (..)
 
 
 main =

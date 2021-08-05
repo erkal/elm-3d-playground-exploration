@@ -9,9 +9,9 @@ module Swipe3d exposing
     , swipedToZPositive
     )
 
+import Camera exposing (Camera)
 import Dict
 import Playground exposing (Computer)
-import Playground.Camera exposing (Camera)
 
 
 type SwipeState

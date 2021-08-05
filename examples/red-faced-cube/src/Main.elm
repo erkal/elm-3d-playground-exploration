@@ -1,9 +1,11 @@
 module Main exposing (main)
 
+import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
 import Color exposing (hsl, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
+import Geometry exposing (Point, Vector)
 import Html exposing (Html, br, div, h2, li, ol, p, span, text, ul)
 import Html.Attributes exposing (style)
 import Illuminance
@@ -11,10 +13,8 @@ import LuminousFlux
 import Path exposing (Path)
 import Playground exposing (..)
 import Playground.Animation exposing (wave)
-import Playground.Camera exposing (Camera, perspectiveWithOrbit)
-import Playground.Geometry exposing (Point, Vector)
 import Playground.Light as Light
-import Playground.Scene as Scene exposing (..)
+import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Swipe exposing (Swipe)

@@ -1,4 +1,4 @@
-module Playground.Scene exposing
+module Scene exposing
     ( Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , custom, sunny
@@ -26,17 +26,16 @@ module Playground.Scene exposing
 import Angle exposing (Angle)
 import Axis3d exposing (Axis3d)
 import Block3d exposing (Block3d)
+import Camera exposing (Camera)
 import Color exposing (Color)
 import Cylinder3d exposing (Cylinder3d)
 import Direction3d exposing (Direction3d)
+import Geometry exposing (Point)
 import Html exposing (Html)
 import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
 import ModifiedFromScene3d.Scenes
 import Pixels
-import Playground.Camera exposing (Camera)
-import Playground.Computer as Computer
-import Playground.Geometry exposing (Point)
 import Point3d exposing (Point3d)
 import Scene3d exposing (Antialiasing, Exposure, Lights, ToneMapping)
 import Scene3d.Light exposing (Chromaticity, Light)
@@ -48,7 +47,7 @@ import Vector3d
 
 sunny :
     { devicePixelRatio : Float
-    , screen : Computer.Screen
+    , screen : { screen | width : Float, height : Float }
     , camera : Camera
     , sunlightAzimuth : Float
     , sunlightElevation : Float
@@ -78,7 +77,7 @@ sunny arguments shapes =
 
 custom :
     { devicePixelRatio : Float
-    , screen : Computer.Screen
+    , screen : { screen | width : Float, height : Float }
     , camera : Camera
     , lights : Lights ()
     , clipDepth : Float

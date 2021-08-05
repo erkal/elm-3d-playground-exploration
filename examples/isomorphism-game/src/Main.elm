@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white, yellow)
 import Dict
 import Editor exposing (Editor)
@@ -8,7 +9,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
-import Geometry exposing (Point, lerp)
+import GeometryHelpers exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import HardcodedLevels exposing (hardcodedLevels)
 import Html exposing (Html)
@@ -20,10 +21,9 @@ import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
-import Playground.Camera exposing (Camera, perspectiveWithOrbit)
 import Playground.Colors as Colors
 import Playground.Light as Light
-import Playground.Scene as Scene exposing (..)
+import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Temperature
@@ -465,7 +465,7 @@ updatePointerPosition computer model =
     { model
         | pointerXY =
             computer.pointer
-                |> Playground.Camera.mouseOverXY (camera computer) computer.screen
+                |> Camera.mouseOverXY (camera computer) computer.screen
                 |> Maybe.withDefault model.pointerXY
     }
 

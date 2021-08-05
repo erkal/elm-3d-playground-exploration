@@ -3,11 +3,13 @@ module Main exposing (main)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
+import Camera exposing (Camera, perspective)
 import Color exposing (Color, black, blue, green, red, white)
 import ColorPalette exposing (Palette(..))
 import Dict
 import Dict.Any as AnyDict exposing (AnyDict)
 import Element exposing (Element, html)
+import Geometry exposing (Point)
 import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
 import Html.Attributes exposing (style, value)
 import Html.Events exposing (onClick)
@@ -16,9 +18,7 @@ import LevelSelector as LS exposing (Levels)
 import List.Nonempty as Nonempty
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurationsAndEditor, getFloat)
 import Playground.Animation exposing (wave)
-import Playground.Camera exposing (Camera, perspective)
-import Playground.Geometry exposing (Point)
-import Playground.Scene as Scene exposing (..)
+import Scene as Scene exposing (..)
 import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
 import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
@@ -111,7 +111,7 @@ insertTrixelOnTouch computer model =
     computer.touches
         |> Dict.foldl
             (\_ xy ->
-                case Playground.Camera.mouseOverXY (camera computer) computer.screen xy of
+                case Camera.mouseOverXY (camera computer) computer.screen xy of
                     Nothing ->
                         identity
 
@@ -145,7 +145,7 @@ removeTrixelOnShiftMouseDown computer model =
 updateMouseOverUV : Computer -> Model -> Model
 updateMouseOverUV computer model =
     case
-        Playground.Camera.mouseOverXY
+        Camera.mouseOverXY
             (camera computer)
             computer.screen
             computer.mouse

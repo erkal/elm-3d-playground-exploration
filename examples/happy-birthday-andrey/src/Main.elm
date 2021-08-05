@@ -6,9 +6,9 @@ import Illuminance
 import LuminousFlux
 import Playground exposing (Computer, gameWithConfigurations)
 import Playground.Animation exposing (wave)
-import Playground.Camera as Camera exposing (Camera, perspective)
+import Camera as Camera exposing (Camera, perspective)
 import Playground.Light as Light
-import Playground.Scene as Scene exposing (..)
+import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Set exposing (Set)

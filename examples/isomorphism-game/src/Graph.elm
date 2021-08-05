@@ -20,7 +20,7 @@ module Graph exposing
     )
 
 import Dict exposing (Dict)
-import Geometry exposing (Point, distanceXY)
+import GeometryHelpers exposing (Point, distanceXY)
 import Set exposing (Set)
 
 

@@ -1,13 +1,13 @@
 module Main exposing (main)
 
+import Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Color exposing (rgb255)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import Dict
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
-import Playground.Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
-import Playground.Scene as Scene exposing (..)
+import Scene as Scene exposing (..)
 import World exposing (RollResult(..), World)
 
 

@@ -1,4 +1,4 @@
-module Geometry exposing (..)
+module GeometryHelpers exposing (..)
 
 
 type alias Point =

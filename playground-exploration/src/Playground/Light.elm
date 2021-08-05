@@ -14,9 +14,9 @@ particular point light
 
 import Angle
 import Direction3d
+import Geometry exposing (Point, Vector)
 import Illuminance exposing (Illuminance)
 import LuminousFlux exposing (LuminousFlux)
-import Playground.Geometry exposing (Point, Vector)
 import Point3d exposing (Point3d)
 import Scene3d.Light exposing (Chromaticity, Light)
 

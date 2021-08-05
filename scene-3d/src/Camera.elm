@@ -1,4 +1,4 @@
-module Playground.Camera exposing
+module Camera exposing
     ( Camera
     , mouseOverXY
     , mouseOverXYAtZ
@@ -15,11 +15,10 @@ import Angle
 import Axis3d
 import Camera3d exposing (Camera3d)
 import Direction3d
+import Geometry exposing (Point, Vector)
 import Length exposing (Length, Meters, inMeters)
 import Pixels
 import Plane3d exposing (Plane3d)
-import Playground exposing (Computer, Mouse, Screen)
-import Playground.Geometry exposing (Point, Vector)
 import Point2d
 import Point3d exposing (Point3d)
 import Rectangle2d
@@ -92,12 +91,12 @@ orthographic { focalPoint, azimuth, elevation, viewportHeight } =
         }
 
 
-mouseOverXY : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverXY : Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverXY =
     mouseOverXYAtZ 0
 
 
-mouseOverXYAtZ : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverXYAtZ : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverXYAtZ z camera screen xy =
     mouseOverPlane camera
         screen
@@ -112,12 +111,12 @@ mouseOverXYAtZ z camera screen xy =
         )
 
 
-mouseOverYZ : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverYZ : Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverYZ =
     mouseOverYZAtX 0
 
 
-mouseOverYZAtX : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverYZAtX : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverYZAtX x camera screen yz =
     mouseOverPlane camera
         screen
@@ -132,12 +131,12 @@ mouseOverYZAtX x camera screen yz =
         )
 
 
-mouseOverZX : Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverZX : Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverZX =
     mouseOverZXAtY 0
 
 
-mouseOverZXAtY : Float -> Camera -> Screen -> { a | x : Float, y : Float } -> Maybe Point
+mouseOverZXAtY : Float -> Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Maybe Point
 mouseOverZXAtY y camera screen zx =
     mouseOverPlane camera
         screen
@@ -152,7 +151,7 @@ mouseOverZXAtY y camera screen zx =
         )
 
 
-mouseOverPlane : Camera -> Screen -> { a | x : Float, y : Float } -> Plane3d Meters () -> Maybe Point
+mouseOverPlane : Camera -> { screen | width : Float, height : Float } -> { a | x : Float, y : Float } -> Plane3d Meters () -> Maybe Point
 mouseOverPlane camera screen { x, y } plane =
     let
         screenRect =
