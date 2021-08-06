@@ -21,15 +21,18 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera distance" ( 3, 8 ) 4
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
         ]
-    , configBlock "Color" True <|
+    , configBlock "Color"
+        True
         [ colorConfig "cube color" (hsl 0 0.36 0.5)
         ]
-    , configBlock "Time" True <|
+    , configBlock "Time"
+        True
         [ floatConfig "period" ( 0.1, 5 ) 1
         ]
     ]

@@ -49,16 +49,19 @@ camera computer =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera distance" ( 3, 60 ) 50
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
         ]
-    , configBlock "Parameters" True <|
+    , configBlock "Parameters"
+        True
         [ floatConfig "delay per index" ( 0, 1 ) 0.15
         , intConfig "number of spheres" ( 10, 100 ) 50
         ]
-    , configBlock "Colors and light" True <|
+    , configBlock "Colors and light"
+        True
         [ floatConfig "saturation" ( 0, 1 ) 0.5
         , floatConfig "lighting" ( 0, 1 ) 0.7
         , colorConfig "background color" (hsl 0.85 0.32 0.45)

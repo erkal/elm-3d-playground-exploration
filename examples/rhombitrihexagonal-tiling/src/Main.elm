@@ -21,7 +21,8 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera x" ( -40, 40 ) 0
         , floatConfig "camera y" ( -40, 40 ) 0
         , floatConfig "camera z" ( -40, 40 ) 16

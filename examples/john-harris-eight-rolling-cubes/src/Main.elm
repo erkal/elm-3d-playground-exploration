@@ -44,16 +44,19 @@ type State
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera distance" ( 3, 20 ) 10
         , floatConfig "camera azimuth" ( -pi, pi ) 0
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
         ]
-    , configBlock "Parameters" True <|
+    , configBlock "Parameters"
+        True
         [ floatConfig "cubes side length" ( 0.5, 1 ) 0.9
         , floatConfig "duration of rolling animation" ( 0.1, 1 ) 0.25
         ]
-    , configBlock "Colors and light" True <|
+    , configBlock "Colors and light"
+        True
         [ colorConfig "color 1" (rgb255 244 88 67)
         , colorConfig "color 2" (rgb255 47 41 43)
         , colorConfig "board color" (rgb255 223 224 226)

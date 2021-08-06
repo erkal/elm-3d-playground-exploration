@@ -32,10 +32,12 @@ init computer =
 
 
 initialConfigurations =
-    [ configBlock "Parameters" True <|
+    [ configBlock "Parameters"
+        True
         [ floatConfig "a" ( 0, 3 ) 1
         ]
-    , configBlock "Colors and light" True <|
+    , configBlock "Colors and light"
+        True
         [ floatConfig "lux" ( 2, 5 ) 5
         , floatConfig "intensity above" ( 0, 300 ) 60
         , floatConfig "intensity below" ( 0, 300 ) 290

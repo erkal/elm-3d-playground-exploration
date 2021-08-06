@@ -61,12 +61,14 @@ view computer model =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera x" ( 0, 16 ) 8
         , floatConfig "camera y" ( 0, 10 ) 0
         , floatConfig "camera z" ( 0, 16 ) 6
         ]
-    , configBlock "Parameters" True <|
+    , configBlock "Parameters"
+        True
         [ floatConfig "radius" ( 0, 6 ) 1
         , intConfig "number of cubes" ( 1, 100 ) 19
         , intConfig "number of waves" ( 1, 20 ) 2
@@ -74,7 +76,8 @@ initialConfigurations =
         , floatConfig "cycle duration" ( 1, 10 ) 5
         , floatConfig "wave height" ( 0.5, 6 ) 1.5
         ]
-    , configBlock "Colors and light" True <|
+    , configBlock "Colors and light"
+        True
         [ floatConfig "saturation" ( 0, 1 ) 0.8
         , floatConfig "lightness" ( 0, 1 ) 0.7
         ]

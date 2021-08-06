@@ -57,12 +57,14 @@ currentPalette =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera x" ( -40, 40 ) 0
         , floatConfig "camera y" ( -40, 0 ) 0
         , floatConfig "camera z" ( 1, 50 ) 20
         ]
-    , configBlock "Parameters" True <|
+    , configBlock "Parameters"
+        True
         [ floatConfig "trixel scale" ( 0.5, 1 ) 1
         , floatConfig "minimum rotation degree" ( -(degrees 180), 0 ) 0
         , floatConfig "maximum rotation degree" ( 0, degrees 180 ) 0

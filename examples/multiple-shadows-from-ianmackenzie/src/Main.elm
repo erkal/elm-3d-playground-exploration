@@ -32,11 +32,13 @@ init computer =
 
 
 initialConfigurations =
-    [ configBlock "Parameters" True <|
+    [ configBlock "Parameters"
+        True
         [ intConfig "number of tree blocks" ( 1, 20 ) 16
         , floatConfig "turning speed of the tree" ( 0.1, 4 ) 1
         ]
-    , configBlock "Lighting" True <|
+    , configBlock "Lighting"
+        True
         [ floatConfig "azimuth for third light" ( -pi, pi ) 1
         , floatConfig "elevation for third light" ( -pi, pi ) -2
         , floatConfig "azimuth for fourth light" ( -pi, pi ) 1

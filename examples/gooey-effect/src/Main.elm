@@ -20,7 +20,8 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Parameters" True <|
+    [ configBlock "Parameters"
+        True
         [ floatConfig "ball radius" ( 0.01, 0.2 ) 0.06
         ]
     ]

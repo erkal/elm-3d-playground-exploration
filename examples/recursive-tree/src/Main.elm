@@ -21,7 +21,8 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Parameters" True <|
+    [ configBlock "Parameters"
+        True
         [ floatConfig "s" ( 1, 2 ) 1.5
         , floatConfig "t" ( 1, 2 ) 1.5
         ]

@@ -21,7 +21,8 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera height" ( 1.4, 1.57 ) 1.57
         ]
     ]

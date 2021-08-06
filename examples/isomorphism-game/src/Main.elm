@@ -66,12 +66,14 @@ type EditorState
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera distance" ( 3, 40 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
         ]
-    , configBlock "Light" True <|
+    , configBlock "Light"
+        True
         [ floatConfig "sunlight azimuth" ( -pi, pi ) -0.5
         , floatConfig "sunlight elevation" ( -pi, pi ) -2.7
         , floatConfig "azimuth for third light" ( -pi, pi ) 1
@@ -79,19 +81,22 @@ initialConfigurations =
         , floatConfig "azimuth for fourth light" ( -pi, pi ) 1
         , floatConfig "elevation for fourth light" ( -pi, pi ) -2
         ]
-    , configBlock "Pointer" True <|
+    , configBlock "Pointer"
+        True
         [ boolConfig "pointer view on/off" True
         , colorConfig "pointer color" yellow
         , floatConfig "pointer reach" ( 0.5, 2 ) 1
         ]
-    , configBlock "Base" True <|
+    , configBlock "Base"
+        True
         [ colorConfig "game background" (rgb255 44 100 200)
         , colorConfig "base" (rgb255 176 69 76)
         , floatConfig "base height" ( 0.01, 5 ) 0.4
         , floatConfig "base vertex radius" ( 0.2, 2 ) 0.5
         , floatConfig "base edge width" ( 0.2, 1.5 ) 1
         ]
-    , configBlock "Player Graph" True <|
+    , configBlock "Player Graph"
+        True
         [ colorConfig "player" white
         , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
         , floatConfig "player edge width" ( 0.05, 0.6 ) 0.25

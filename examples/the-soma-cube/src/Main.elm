@@ -24,16 +24,19 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Camera" True <|
+    [ configBlock "Camera"
+        True
         [ floatConfig "camera distance" ( 3, 60 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0.6
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.4
         ]
-    , configBlock "Parameters" True <|
+    , configBlock "Parameters"
+        True
         [ floatConfig "cube scale" ( 0.1, 1 ) 0.95
         , floatConfig "edge width" ( 0.001, 0.5 ) 0.1
         ]
-    , configBlock "Colors and light" True <|
+    , configBlock "Colors and light"
+        True
         [ floatConfig "sunlight azimuth" ( 0, 2 * pi ) 5.5
         , floatConfig "sunlight elevation" ( -pi / 2, pi / 2 ) -1
         , floatConfig "saturation" ( 0, 1 ) 0.6
