@@ -2,6 +2,7 @@
 
 - a_template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template-with-configurations/src)
 - a_template: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template/src)
+- ball-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/ball-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/ball-game/src)
 - celtic-knots: [demo](https://erkal.github.io/elm-3d-playground-exploration/celtic-knots), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/celtic-knots/src)
 - color-shower: [demo](https://erkal.github.io/elm-3d-playground-exploration/color-shower), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/color-shower/src)
 - dancing-cubes: [demo](https://erkal.github.io/elm-3d-playground-exploration/dancing-cubes), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/dancing-cubes/src)

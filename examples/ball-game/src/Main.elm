@@ -68,19 +68,7 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> handleArrowKeys computer
-        |> limitBall computer
-        |> physics computer
-
-
-limitBall : Computer -> Model -> Model
-limitBall computer model =
-    { model
-        | position =
-            Point
-                (model.position.x |> clamp -4 4)
-                model.position.y
-                (model.position.z |> clamp -4 4)
-    }
+        |> physics computer 0.16
 
 
 handleArrowKeys : Computer -> Model -> Model
@@ -93,15 +81,20 @@ handleArrowKeys computer model =
             )
     in
     { model
-        | speed =
-            model.speed |> addVector (scaleBy 0.1 force)
+        | acceleration =
+            model.acceleration |> addVector (scaleBy 0.001 force)
     }
 
 
-physics : Computer -> Model -> Model
-physics computer model =
+physics : Computer -> Float -> Model -> Model
+physics computer dt model =
+    let
+        newSpeed =
+            model.speed |> addVector (scaleBy dt model.acceleration)
+    in
     { model
-        | position = model.position |> translateBy (scaleBy 0.16 model.speed)
+        | speed = newSpeed
+        , position = model.position |> translateBy (scaleBy dt newSpeed)
     }
 
 
@@ -199,30 +192,35 @@ drawFloor computer =
 drawPlayer : Computer -> Model -> Shape
 drawPlayer computer model =
     let
+        ( fx, fy, fz ) =
+            model.acceleration
+
+        ( accelerationLength, accelerationRot ) =
+            toPolar ( fx, -fz )
+
         playerBall =
             group
                 [ sphere red 0.5 |> moveX -0.01
                 , sphere black 0.5 |> moveX 0.01
                 ]
+                |> rotateY accelerationRot
 
         ( vx, _, vz ) =
             model.speed
 
-        ( length, rotation ) =
+        ( speedLength, speedRot ) =
             toPolar ( vx, vz )
 
         speedVector =
-            cylinder red 0.2 (2 * length)
-                |> moveY length
+            cylinder red 0.2 (2 * speedLength)
+                |> moveY speedLength
                 |> rotateZ -(degrees 90)
-                |> rotateY -rotation
+                |> rotateY -speedRot
                 |> moveY 0.6
     in
     group
         [ speedVector
-        , group
-            [ playerBall
-            ]
+        , playerBall
         ]
         |> moveY 0.5
         |> moveX model.position.x
