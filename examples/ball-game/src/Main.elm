@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
-import Color exposing (black, blue, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white)
+import Color exposing (Color, black, blue, darkGray, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white, yellow)
 import Geometry exposing (Point, Vector, addVector, scaleBy, translateBy)
 import Html exposing (Html)
 import Illuminance
@@ -25,7 +25,12 @@ type alias Model =
 type alias Ball =
     { position : Point
     , speed : Vector
-    , acceleration : Vector
+    , -- in radians
+      rotationFromXAxis : Float
+    , -- in radians per second
+      rotationSpeed : Float
+    , -- in radians
+      rotation : Float
     }
 
 
@@ -33,7 +38,9 @@ initialBall : Ball
 initialBall =
     { position = Point 0 0 0
     , speed = ( 0, 0, 0 )
-    , acceleration = ( 0, 0, 0 )
+    , rotationFromXAxis = 0
+    , rotationSpeed = 0
+    , rotation = 0
     }
 
 
@@ -73,28 +80,17 @@ update computer model =
 
 handleArrowKeys : Computer -> Model -> Model
 handleArrowKeys computer model =
-    let
-        force =
-            ( toX computer.keyboard
-            , 0
-            , -(toY computer.keyboard)
-            )
-    in
     { model
-        | acceleration =
-            model.acceleration |> addVector (scaleBy 0.001 force)
+        | rotationFromXAxis = model.rotationFromXAxis + 0.1 * toX computer.keyboard
+        , rotationSpeed = toY computer.keyboard
     }
 
 
 physics : Computer -> Float -> Model -> Model
 physics computer dt model =
-    let
-        newSpeed =
-            model.speed |> addVector (scaleBy dt model.acceleration)
-    in
     { model
-        | speed = newSpeed
-        , position = model.position |> translateBy (scaleBy dt newSpeed)
+        | position = model.position |> translateBy (scaleBy dt model.speed)
+        , rotation = model.rotation + dt * model.rotationSpeed
     }
 
 
@@ -192,18 +188,23 @@ drawFloor computer =
 drawPlayer : Computer -> Model -> Shape
 drawPlayer computer model =
     let
-        ( fx, fy, fz ) =
-            model.acceleration
-
-        ( accelerationLength, accelerationRot ) =
-            toPolar ( fx, -fz )
-
         playerBall =
             group
-                [ sphere red 0.5 |> moveX -0.01
-                , sphere black 0.5 |> moveX 0.01
+                [ group
+                    [ sphere red 0.5 |> moveX -0.02
+                    , sphere yellow 0.5 |> moveX 0.02
+                    ]
+                    |> rotateZ -model.rotation
+                , group
+                    [ sphere yellow 0.3 |> moveX -0.06
+                    , sphere red 0.3 |> moveX 0.06
+                    ]
+                    |> moveY 1
+                , cylinder black 0.1 0.8 |> rotateZ (degrees 90) |> moveX 0.4 |> moveZ 0.6
+                , cylinder black 0.1 0.8 |> rotateZ (degrees 90) |> moveX 0.4 |> moveZ -0.6
+                , cylinder darkGray 0.2 1.4 |> rotateX (degrees 90)
                 ]
-                |> rotateY accelerationRot
+                |> rotateY model.rotationFromXAxis
 
         ( vx, _, vz ) =
             model.speed
