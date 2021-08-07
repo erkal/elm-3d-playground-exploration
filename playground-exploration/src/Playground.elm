@@ -2,7 +2,7 @@ port module Playground exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
     , getColor, getFloat, getBool
     , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
-    , boolConfig, colorConfig, configBlock, floatConfig, getInt, intConfig
+    , boolConfig, colorConfig, configBlock, floatConfig, getAxis, getInt, intConfig
     )
 
 {-|
@@ -50,6 +50,7 @@ import Playground.Computer as Computer exposing (Computer, Msg(..), TouchEvent, 
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
+import Playground.InputConfiguration exposing (InputConfiguration)
 import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
 import Task
 
@@ -100,6 +101,10 @@ toY =
 
 toXY =
     Computer.toXY
+
+
+getAxis =
+    Computer.getAxis
 
 
 configBlock =
@@ -160,6 +165,7 @@ game viewGameModel updateGameModel initGameModel =
         viewGameModel
         updateGameModel
         []
+        []
         initGameModel
 
 
@@ -167,13 +173,15 @@ gameWithConfigurations :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
+    -> InputConfiguration
     -> (Computer -> gameModel)
     -> Program Flags (Model gameModel) (Msg Never)
-gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
+gameWithConfigurations viewGameModel updateGameModel initialConfigurations inputConfiguration initGameModel =
     gameWithConfigurationsAndEditor
         viewGameModel
         updateGameModel
         initialConfigurations
+        inputConfiguration
         initGameModel
         (\_ _ -> none)
         (\_ _ gameModel -> gameModel)
@@ -183,16 +191,17 @@ gameWithConfigurationsAndEditor :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
+    -> InputConfiguration
     -> (Computer -> gameModel)
     -> (Computer -> gameModel -> Element levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
-gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
+gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations inputConfiguration initGameModel viewEditor updateFromEditor =
     let
         init flags =
             let
                 initialComputer =
-                    Computer.init flags initialConfigurations
+                    Computer.init flags initialConfigurations inputConfiguration
             in
             ( { activeMode = ConfigurationsMode
               , tape = Tape.init initialComputer initGameModel
