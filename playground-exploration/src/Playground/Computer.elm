@@ -20,6 +20,7 @@ import Browser.Events as E
 import Color exposing (Color)
 import Dict exposing (Dict)
 import Playground.Configurations as Configurations exposing (Configurations)
+import Playground.InputConfiguration exposing (InputConfiguration)
 import Set
 
 
@@ -32,6 +33,7 @@ type alias Computer =
     , time : Float
     , configurations : Configurations
     , devicePixelRatio : Float
+    , inputConfiguration : InputConfiguration
     }
 
 
@@ -57,8 +59,8 @@ type alias TouchEvent =
     }
 
 
-init : { devicePixelRatio : Float } -> Configurations -> Computer
-init { devicePixelRatio } initialConfigurations =
+init : { devicePixelRatio : Float } -> Configurations -> InputConfiguration -> Computer
+init { devicePixelRatio } initialConfigurations inputConfiguration =
     { mouse = Mouse 0 0 False
     , pointer = Pointer 0 0 False
     , touches = Dict.empty
@@ -67,6 +69,7 @@ init { devicePixelRatio } initialConfigurations =
     , time = 0
     , configurations = initialConfigurations
     , devicePixelRatio = devicePixelRatio
+    , inputConfiguration = inputConfiguration
     }
 
 
@@ -389,6 +392,51 @@ toX keyboard =
            else
             0
           )
+
+
+getAxis : String -> Computer -> Float
+getAxis axisName computer =
+    List.filterMap
+        (\( name, conf ) ->
+            if name == axisName then
+                let
+                    positiveValue =
+                        Set.toList computer.keyboard.keys
+                            |> Debug.log "keys"
+                            |> List.filter ((==) conf.positiveButton)
+
+                    negativeValue =
+                        Set.toList computer.keyboard.keys
+                            |> List.filter ((==) conf.negativeButton)
+                in
+                case ( positiveValue, negativeValue ) of
+                    ( _ :: _, _ :: _ ) ->
+                        Nothing
+
+                    ( _ :: _, [] ) ->
+                        Just 1
+
+                    ( [], _ :: _ ) ->
+                        Just -1
+
+                    ( [], [] ) ->
+                        Nothing
+
+            else
+                Nothing
+        )
+        computer.inputConfiguration
+        |> List.sum
+        |> (\val ->
+                if val > 0 then
+                    1
+
+                else if val < 0 then
+                    -1
+
+                else
+                    0
+           )
 
 
 {-| Turn the UP and DOWN arrows into a number.

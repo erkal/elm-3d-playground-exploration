@@ -6,7 +6,7 @@ import Geometry exposing (Point, Vector, addVector, scaleBy, translateBy)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, toX, toXY, toY)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getAxis, getColor, getFloat)
 import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
@@ -15,7 +15,7 @@ import Temperature
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    gameWithConfigurations view update initialConfigurations initialInputConfiguration init
 
 
 type alias Model =
@@ -55,6 +55,40 @@ initialConfigurations =
     ]
 
 
+initialInputConfiguration =
+    [ ( "horizontal"
+      , { description = "for horizontal movement"
+        , positiveButton = "d"
+        , negativeButton = "a"
+        , gravity = 1
+        , dead = 0.01
+        , sensitivity = 1
+        , snap = True
+        }
+      )
+    , ( "horizontal"
+      , { description = "for horizontal movement"
+        , positiveButton = "ArrowRight"
+        , negativeButton = "ArrowLeft"
+        , gravity = 1
+        , dead = 0.01
+        , sensitivity = 1
+        , snap = True
+        }
+      )
+    , ( "vertical"
+      , { description = "for vertical movement"
+        , positiveButton = "s"
+        , negativeButton = "w"
+        , gravity = 1
+        , dead = 0.01
+        , sensitivity = 1
+        , snap = True
+        }
+      )
+    ]
+
+
 init : Computer -> Model
 init computer =
     initialBall
@@ -74,16 +108,21 @@ update computer model =
 handleArrowKeys : Computer -> Model -> Model
 handleArrowKeys computer model =
     let
-        force =
-            ( toX computer.keyboard
-            , 0
-            , -(toY computer.keyboard)
-            )
+        x =
+            getAxis "horizontal" computer
+
+        z =
+            getAxis "vertical" computer
     in
-    { model
-        | acceleration =
-            model.acceleration |> addVector (scaleBy 0.001 force)
-    }
+    if x /= 0 || z /= 0 then
+        { model
+            | acceleration =
+                model.acceleration
+                    |> addVector (scaleBy 0.001 ( x, 0, z ))
+        }
+
+    else
+        model
 
 
 physics : Computer -> Float -> Model -> Model
