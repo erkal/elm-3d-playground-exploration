@@ -44,6 +44,15 @@ initialBall =
     }
 
 
+direction : Ball -> Vector
+direction ball =
+    let
+        ( x, z ) =
+            fromPolar ( 1, ball.rotationFromXAxis )
+    in
+    ( x, 0, z )
+
+
 
 -- INIT
 
@@ -83,6 +92,7 @@ handleArrowKeys computer model =
     { model
         | rotationFromXAxis = model.rotationFromXAxis + 0.1 * toX computer.keyboard
         , rotationSpeed = toY computer.keyboard
+        , speed = model.speed |> addVector (scaleBy (0.01 * toY computer.keyboard) (direction model)) |> Debug.log ""
     }
 
 
