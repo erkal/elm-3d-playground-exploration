@@ -19,7 +19,9 @@ main =
 
 
 type alias Model =
-    Ball
+    { camera : Camera
+    , ball : Ball
+    }
 
 
 type alias Ball =
@@ -78,7 +80,15 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    initialBall
+    { camera =
+        perspectiveWithOrbit
+            { focalPoint = { x = 0, y = 0, z = 0 }
+            , azimuth = getFloat "camera azimuth" computer
+            , elevation = getFloat "camera elevation" computer
+            , distance = getFloat "camera distance" computer
+            }
+    , ball = initialBall
+    }
 
 
 
@@ -87,54 +97,88 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
-    model
-        |> handleArrowKeys computer
-        |> friction computer 0.16
-        |> physics computer 0.16
-
-
-handleArrowKeys : Computer -> Model -> Model
-handleArrowKeys computer model =
     { model
-        | rotationFromXAxis = model.rotationFromXAxis - 0.04 * toX computer.keyboard
+        | ball =
+            model.ball
+                |> handleArrowKeys computer
+                |> friction computer 0.16
+                |> physics computer 0.16
+                |> gravity computer 0.16
+                |> floor computer 0.16
+        , camera =
+            perspectiveWithOrbit
+                { focalPoint = Point model.ball.position.x 0 model.ball.position.z
+                , azimuth = getFloat "camera azimuth" computer
+                , elevation = getFloat "camera elevation" computer
+                , distance = getFloat "camera distance" computer
+                }
+    }
+
+
+handleArrowKeys : Computer -> Ball -> Ball
+handleArrowKeys computer ball =
+    let
+        giveGas =
+            addVector
+                (scaleBy
+                    (getFloat "gas force" computer * toY computer.keyboard)
+                    (direction ball)
+                )
+
+        jump =
+            if ball.position.y == 0 && computer.keyboard.space then
+                addVector ( 0, 1.5, 0 )
+
+            else
+                identity
+    in
+    { ball
+        | rotationFromXAxis = ball.rotationFromXAxis - 0.04 * toX computer.keyboard
         , rotationSpeed = toY computer.keyboard
         , speed =
-            model.speed
-                |> addVector
-                    (scaleBy
-                        (getFloat "gas force" computer * toY computer.keyboard)
-                        (direction model)
-                    )
+            ball.speed
+                |> giveGas
+                |> jump
     }
 
 
-friction : Computer -> Float -> Model -> Model
-friction computer dt model =
-    { model
-        | speed = model.speed |> scaleBy (getFloat "friction" computer)
+friction : Computer -> Float -> Ball -> Ball
+friction computer dt ball =
+    { ball
+        | speed = ball.speed |> scaleBy (getFloat "friction" computer)
     }
 
 
-physics : Computer -> Float -> Model -> Model
-physics computer dt model =
-    { model
-        | position = model.position |> translateBy (scaleBy dt model.speed)
-        , rotation = model.rotation + dt * model.rotationSpeed
+gravity : Computer -> Float -> Ball -> Ball
+gravity computer dt ball =
+    { ball
+        | speed =
+            ball.speed |> addVector ( 0, -0.5 * dt, 0 )
+    }
+
+
+floor : Computer -> Float -> Ball -> Ball
+floor computer dt ball =
+    if ball.position.y < 0 then
+        { ball
+            | position = Point ball.position.x 0 ball.position.z
+            , speed = ball.speed |> (\( vx, vy, vz ) -> ( vx, 0, vz ))
+        }
+
+    else
+        ball
+
+
+physics : Computer -> Float -> Ball -> Ball
+physics computer dt ball =
+    { ball
+        | position = ball.position |> translateBy (scaleBy dt ball.speed)
+        , rotation = ball.rotation + dt * ball.rotationSpeed
     }
 
 
 
 -- VIEW
-
-
-camera : Computer -> Camera
-camera computer =
-    perspectiveWithOrbit
-        { focalPoint = { x = 0, y = 0, z = 0 }
-        , azimuth = getFloat "camera azimuth" computer
-        , elevation = getFloat "camera elevation" computer
-        , distance = getFloat "camera distance" computer
-        }
 
 
 view : Computer -> Model -> Html Never
@@ -179,7 +223,7 @@ viewGame computer model =
     Scene.custom
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera = camera computer
+        , camera = model.camera
         , lights =
             Scene3d.fourLights
                 firstLight
@@ -223,7 +267,7 @@ drawPlayer computer model =
                     [ sphere red 0.5 |> moveX -0.02
                     , sphere yellow 0.5 |> moveX 0.02
                     ]
-                    |> rotateZ -model.rotation
+                    |> rotateZ -model.ball.rotation
                 , group
                     [ sphere yellow 0.3 |> moveX -0.06
                     , sphere red 0.3 |> moveX 0.06
@@ -233,10 +277,10 @@ drawPlayer computer model =
                 , cylinder black 0.1 0.8 |> rotateZ (degrees 90) |> moveX 0.4 |> moveZ -0.6
                 , cylinder darkGray 0.2 1.4 |> rotateX (degrees 90)
                 ]
-                |> rotateY model.rotationFromXAxis
+                |> rotateY model.ball.rotationFromXAxis
 
         ( vx, _, vz ) =
-            model.speed
+            model.ball.speed
 
         ( speedLength, speedRot ) =
             toPolar ( vx, vz )
@@ -254,5 +298,6 @@ drawPlayer computer model =
         -- , speedVector
         ]
         |> moveY 0.5
-        |> moveX model.position.x
-        |> moveZ model.position.z
+        |> moveX model.ball.position.x
+        |> moveY model.ball.position.y
+        |> moveZ model.ball.position.z
