@@ -48,7 +48,7 @@ direction : Ball -> Vector
 direction ball =
     let
         ( x, z ) =
-            fromPolar ( 1, ball.rotationFromXAxis )
+            fromPolar ( 1, -ball.rotationFromXAxis )
     in
     ( x, 0, z )
 
@@ -63,6 +63,11 @@ initialConfigurations =
         [ floatConfig "camera distance" ( 3, 60 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
         , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.6
+        ]
+    , configBlock "Physics Parameters"
+        True
+        [ floatConfig "gas force" ( 0.001, 0.05 ) 0.01
+        , floatConfig "friction" ( 0.9, 1 ) 0.99
         ]
     , configBlock "Color"
         True
@@ -84,15 +89,29 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> handleArrowKeys computer
+        |> friction computer 0.16
         |> physics computer 0.16
 
 
 handleArrowKeys : Computer -> Model -> Model
 handleArrowKeys computer model =
     { model
-        | rotationFromXAxis = model.rotationFromXAxis + 0.1 * toX computer.keyboard
+        | rotationFromXAxis = model.rotationFromXAxis - 0.04 * toX computer.keyboard
         , rotationSpeed = toY computer.keyboard
-        , speed = model.speed |> addVector (scaleBy (0.01 * toY computer.keyboard) (direction model)) |> Debug.log ""
+        , speed =
+            model.speed
+                |> addVector
+                    (scaleBy
+                        (getFloat "gas force" computer * toY computer.keyboard)
+                        (direction model)
+                    )
+    }
+
+
+friction : Computer -> Float -> Model -> Model
+friction computer dt model =
+    { model
+        | speed = model.speed |> scaleBy (getFloat "friction" computer)
     }
 
 
@@ -230,8 +249,9 @@ drawPlayer computer model =
                 |> moveY 0.6
     in
     group
-        [ speedVector
-        , playerBall
+        [ playerBall
+
+        -- , speedVector
         ]
         |> moveY 0.5
         |> moveX model.position.x
