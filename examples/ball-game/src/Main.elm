@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGray, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white, yellow)
-import Geometry exposing (Point, Vector, addVector, scaleBy, translateBy)
+import Geometry exposing (Point, Vector, addVector, dotProduct, scaleBy, translateBy)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
@@ -28,7 +28,7 @@ type alias Ball =
     { position : Point
     , speed : Vector
     , -- in radians
-      rotationFromXAxis : Float
+      directionFromXAxis : Float
     , -- in radians per second
       rotationSpeed : Float
     , -- in radians
@@ -40,17 +40,17 @@ initialBall : Ball
 initialBall =
     { position = Point 0 0 0
     , speed = ( 0, 0, 0 )
-    , rotationFromXAxis = 0
+    , directionFromXAxis = 0
     , rotationSpeed = 0
     , rotation = 0
     }
 
 
-direction : Ball -> Vector
-direction ball =
+directionAsVector : Ball -> Vector
+directionAsVector ball =
     let
         ( x, z ) =
-            fromPolar ( 1, -ball.rotationFromXAxis )
+            fromPolar ( 1, -ball.directionFromXAxis )
     in
     ( x, 0, z )
 
@@ -68,8 +68,8 @@ initialConfigurations =
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 0.001, 0.05 ) 0.01
-        , floatConfig "friction" ( 0.9, 1 ) 0.99
+        [ floatConfig "gas force" ( 0.005, 0.08 ) 0.04
+        , floatConfig "friction" ( 0.9, 1 ) 0.97
         ]
     , configBlock "Color"
         True
@@ -118,12 +118,19 @@ update computer model =
 handleArrowKeys : Computer -> Ball -> Ball
 handleArrowKeys computer ball =
     let
+        direction =
+            directionAsVector ball
+
         giveGas =
-            addVector
-                (scaleBy
-                    (getFloat "gas force" computer * toY computer.keyboard)
-                    (direction ball)
-                )
+            if ball.position.y == 0 then
+                addVector
+                    (scaleBy
+                        (getFloat "gas force" computer * toY computer.keyboard)
+                        direction
+                    )
+
+            else
+                identity
 
         jump =
             if ball.position.y == 0 && computer.keyboard.space then
@@ -133,8 +140,13 @@ handleArrowKeys computer ball =
                 identity
     in
     { ball
-        | rotationFromXAxis = ball.rotationFromXAxis - 0.04 * toX computer.keyboard
-        , rotationSpeed = toY computer.keyboard
+        | directionFromXAxis = ball.directionFromXAxis - 0.04 * toX computer.keyboard
+        , rotationSpeed =
+            if toY computer.keyboard == 0 then
+                dotProduct ball.speed direction
+
+            else
+                ball.rotationSpeed + 0.1 * toY computer.keyboard |> clamp -2 2
         , speed = ball.speed |> giveGas |> jump
     }
 
@@ -276,7 +288,7 @@ drawPlayer computer model =
                 , cylinder darkGray 0.2 1.4
                     |> rotateX (degrees 90)
                 ]
-                |> rotateY model.ball.rotationFromXAxis
+                |> rotateY model.ball.directionFromXAxis
 
         ( vx, _, vz ) =
             model.ball.speed

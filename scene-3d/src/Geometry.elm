@@ -2,6 +2,7 @@ module Geometry exposing
     ( Point
     , Vector
     , addVector
+    , dotProduct
     , scaleBy
     , translateBy
     )
@@ -24,6 +25,11 @@ addVector ( x1, y1, z1 ) ( x2, y2, z2 ) =
     , y1 + y2
     , z1 + z2
     )
+
+
+dotProduct : Vector -> Vector -> Float
+dotProduct ( x1, y1, z1 ) ( x2, y2, z2 ) =
+    x1 * x2 + y1 * y2 + z1 * z2
 
 
 scaleBy : Float -> Vector -> Vector
