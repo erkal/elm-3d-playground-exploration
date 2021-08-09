@@ -135,10 +135,7 @@ handleArrowKeys computer ball =
     { ball
         | rotationFromXAxis = ball.rotationFromXAxis - 0.04 * toX computer.keyboard
         , rotationSpeed = toY computer.keyboard
-        , speed =
-            ball.speed
-                |> giveGas
-                |> jump
+        , speed = ball.speed |> giveGas |> jump
     }
 
 
@@ -268,14 +265,16 @@ drawPlayer computer model =
                     , sphere yellow 0.5 |> moveX 0.02
                     ]
                     |> rotateZ -model.ball.rotation
-                , group
-                    [ sphere yellow 0.3 |> moveX -0.06
-                    , sphere red 0.3 |> moveX 0.06
-                    ]
-                    |> moveY 1
-                , cylinder black 0.1 0.8 |> rotateZ (degrees 90) |> moveX 0.4 |> moveZ 0.6
-                , cylinder black 0.1 0.8 |> rotateZ (degrees 90) |> moveX 0.4 |> moveZ -0.6
-                , cylinder darkGray 0.2 1.4 |> rotateX (degrees 90)
+                , cylinder black 0.1 0.8
+                    |> rotateZ (degrees 90)
+                    |> moveX 0.4
+                    |> moveZ 0.6
+                , cylinder black 0.1 0.8
+                    |> rotateZ (degrees 90)
+                    |> moveX 0.4
+                    |> moveZ -0.6
+                , cylinder darkGray 0.2 1.4
+                    |> rotateX (degrees 90)
                 ]
                 |> rotateY model.ball.rotationFromXAxis
 
