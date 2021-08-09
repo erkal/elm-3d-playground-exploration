@@ -121,20 +121,15 @@ handleArrowKeys computer ball =
         direction =
             directionAsVector ball
 
-        giveGas =
-            if ball.position.y == 0 then
-                addVector
-                    (scaleBy
-                        (getFloat "gas force" computer * toY computer.keyboard)
-                        direction
-                    )
+        gasForce =
+            getFloat "gas force" computer
 
-            else
-                identity
+        giveGas =
+            addVector (scaleBy (gasForce * toY computer.keyboard) direction)
 
         jump =
             if ball.position.y == 0 && computer.keyboard.space then
-                addVector ( 0, 1.5, 0 )
+                addVector ( 0, 1.7, 0 )
 
             else
                 identity
@@ -143,10 +138,11 @@ handleArrowKeys computer ball =
         | directionFromXAxis = ball.directionFromXAxis - 0.04 * toX computer.keyboard
         , rotationSpeed =
             if toY computer.keyboard == 0 then
+                -- if there is no keyboard input, we rotate the ball looking at its speed
                 dotProduct ball.speed direction
 
             else
-                ball.rotationSpeed + 0.1 * toY computer.keyboard |> clamp -2 2
+                ball.rotationSpeed + 0.5 * toY computer.keyboard |> clamp -2 2
         , speed = ball.speed |> giveGas |> jump
     }
 
@@ -214,19 +210,19 @@ viewGame computer model =
 
         thirdLight =
             Light.directional
-                { azimuth = getFloat "azimuth for third light" computer
-                , elevation = getFloat "elevation for third light" computer
+                { azimuth = 0
+                , elevation = degrees 90
                 , chromaticity = Scene3d.Light.colorTemperature (Temperature.kelvins 2000)
-                , intensity = Illuminance.lux 120
+                , intensity = Illuminance.lux 240
                 }
 
         fourthLight =
             Light.soft
-                { azimuth = getFloat "azimuth for fourth light" computer
-                , elevation = getFloat "elevation for fourth light" computer
+                { azimuth = 0
+                , elevation = degrees 90
                 , chromaticity = Scene3d.Light.fluorescent
-                , intensityAbove = Illuminance.lux 20
-                , intensityBelow = Illuminance.lux 10
+                , intensityAbove = Illuminance.lux 30
+                , intensityBelow = Illuminance.lux 30
                 }
     in
     Scene.custom
@@ -263,8 +259,15 @@ drawAxes =
 
 drawFloor : Computer -> Shape
 drawFloor computer =
-    block (getColor "floor color" computer) ( 10, 1, 10 )
-        |> moveY -0.5
+    group
+        [ block (getColor "floor color" computer) ( 50, 1, 50 ) |> moveY -0.5
+        , cylinder blue 2 2 |> moveZ 5
+        , cylinder blue 3 2 |> moveX 10
+        , cylinder blue 1 2 |> moveX 6 |> moveZ 8
+        , cylinder blue 1 2 |> moveX -6 |> moveZ -8
+        , cylinder blue 2 2 |> moveX -16 |> moveZ 12
+        , cylinder blue 3 2 |> moveX -16 |> moveZ 6
+        ]
 
 
 drawPlayer : Computer -> Model -> Shape
