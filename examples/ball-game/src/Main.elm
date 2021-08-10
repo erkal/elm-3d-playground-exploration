@@ -264,7 +264,7 @@ updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
-            { model | editor = model.editor |> Editor.onOff bool }
+            { model | editor = model.editor |> Editor.toggle bool }
 
         PressedPreviousLevelButton ->
             { model
@@ -382,9 +382,9 @@ explanationsForEditor : Computer -> Model -> Element EditorMsg
 explanationsForEditor computer model =
     textColumn []
         [ header "Editing the selected level"
-        , paragraph [] [ text "- Hold shift + space & Press mouse to add vertex" ]
-        , paragraph [] [ text "- To move vertices drag them with mouse" ]
-        , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
+        , paragraph [] [ text "- ..." ]
+        , paragraph [] [ text "- ..." ]
+        , paragraph [] [ text "- ..." ]
         ]
 
 

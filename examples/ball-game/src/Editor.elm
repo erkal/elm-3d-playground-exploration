@@ -25,8 +25,8 @@ init =
 -- UPDATE
 
 
-onOff : Bool -> Editor -> Editor
-onOff bool editor =
+toggle : Bool -> Editor -> Editor
+toggle bool editor =
     { editor | isOn = bool }
 
 
