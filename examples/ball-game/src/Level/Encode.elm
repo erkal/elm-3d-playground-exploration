@@ -88,5 +88,4 @@ encodePolygonBody polygonBody =
     Json.Encode.object <|
         [ ( "data", encodePolygonData polygonBody.data )
         , ( "polygon", encodePolygon polygonBody.polygon )
-        , ( "angularVelocity", Json.Encode.float polygonBody.angularVelocity )
         ]

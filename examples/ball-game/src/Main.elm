@@ -13,7 +13,7 @@ import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
 import Json.Encode
-import Level exposing (Level, PointXZ)
+import Level exposing (Level, PointXZ, Polygon)
 import Level.Decode
 import Level.Encode
 import LevelSelector as LS exposing (Levels)
@@ -44,9 +44,16 @@ type alias Model =
 
     -- editor:
     , editorIsOn : Bool
+    , editorState : EditorState
     , jsonExportedLevels : String
     , jsonLevelsToImport : String
     }
+
+
+type EditorState
+    = Idle
+    | DrawingPolygon_SelectingCenter
+    | DrawingPolygon_SelectingVertices Polygon
 
 
 
@@ -88,6 +95,7 @@ init computer =
 
     --
     , editorIsOn = False
+    , editorState = Idle
     , jsonExportedLevels = ""
     , jsonLevelsToImport = ""
     }
@@ -308,7 +316,10 @@ updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
-            { model | editorIsOn = bool }
+            { model
+                | editorIsOn = bool
+                , editorState = Idle
+            }
 
         PressedPreviousLevelButton ->
             { model

@@ -91,4 +91,3 @@ polygonBodyDecoder =
     Json.Decode.succeed Level.PolygonBody
         |> required "data" polygonDataDecoder
         |> required "polygon" polygonDecoder
-        |> required "angularVelocity" Json.Decode.float

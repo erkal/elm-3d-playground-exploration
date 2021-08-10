@@ -22,7 +22,6 @@ type alias Ball =
 type alias PolygonBody =
     { data : PolygonData
     , polygon : Polygon
-    , angularVelocity : Float
     }
 
 
