@@ -83,14 +83,14 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { camera =
+    { levels = LS.singleton Level.empty
+    , camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
             , azimuth = getFloat "camera azimuth" computer
             , elevation = getFloat "camera elevation" computer
             , distance = getFloat "camera distance" computer
             }
-    , levels = LS.singleton Level.empty
     , mouseOverXZ = PointXZ 0 0
 
     --
@@ -197,12 +197,7 @@ viewGame computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = model.camera
-        , lights =
-            Scene3d.fourLights
-                firstLight
-                secondLight
-                thirdLight
-                fourthLight
+        , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
         , clipDepth = 0.1
         , exposure = Scene3d.exposureValue 6
         , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
