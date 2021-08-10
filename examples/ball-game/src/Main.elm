@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGray, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white, yellow)
-import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -13,8 +12,10 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
+import Json.Encode
 import Level exposing (Level, PointXZ)
 import Level.Decode
+import Level.Encode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat, toX, toY)
@@ -37,10 +38,14 @@ main =
 
 
 type alias Model =
-    { camera : Camera
-    , editor : Editor
+    { levels : Levels Level
+    , camera : Camera
     , mouseOverXZ : PointXZ
-    , levels : Levels Level
+
+    -- editor:
+    , editorIsOn : Bool
+    , jsonExportedLevels : String
+    , jsonLevelsToImport : String
     }
 
 
@@ -71,16 +76,20 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { editor = Editor.init
-    , levels = LS.singleton Level.empty
-    , mouseOverXZ = PointXZ 0 0
-    , camera =
+    { camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
             , azimuth = getFloat "camera azimuth" computer
             , elevation = getFloat "camera elevation" computer
             , distance = getFloat "camera distance" computer
             }
+    , levels = LS.singleton Level.empty
+    , mouseOverXZ = PointXZ 0 0
+
+    --
+    , editorIsOn = False
+    , jsonExportedLevels = ""
+    , jsonLevelsToImport = ""
     }
 
 
@@ -299,7 +308,7 @@ updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
-            { model | editor = model.editor |> Editor.toggle bool }
+            { model | editorIsOn = bool }
 
         PressedPreviousLevelButton ->
             { model
@@ -328,25 +337,21 @@ updateFromEditor computer editorMsg model =
 
         ClickedExportLevelsButton ->
             { model
-                | editor =
-                    model.editor
-                        |> Editor.exportLevels
-                            (model.levels
-                             --|> Debug.log ""
-                            )
+                | jsonExportedLevels =
+                    Json.Encode.encode 2 (LS.encode Level.Encode.encode model.levels)
             }
 
         ClickedImportLevelsButton ->
             { model
                 | levels =
-                    model.editor.jsonLevelsToImport
+                    model.jsonLevelsToImport
                         |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 
         EditedTextAreaForImportingLevels string ->
             { model
-                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
+                | jsonLevelsToImport = string
             }
 
 
@@ -383,7 +388,7 @@ viewEditor computer model =
 
 editorContent : Computer -> Model -> Element EditorMsg
 editorContent computer model =
-    if model.editor.isOn then
+    if model.editorIsOn then
         column
             [ width fill
             , height fill
@@ -408,7 +413,7 @@ editorOnOffButton computer model =
     checkbox []
         { onChange = ClickedEditorOnOffButton
         , icon = Input.defaultCheckbox
-        , checked = model.editor.isOn
+        , checked = model.editorIsOn
         , label = Input.labelLeft [] (text "Editor")
         }
 
@@ -502,7 +507,7 @@ textAreaForExportedLevels model =
         , htmlAttribute (style "user-select" "text")
         , Border.rounded 10
         ]
-        (text model.editor.jsonExportedLevels)
+        (text model.jsonExportedLevels)
 
 
 levelImporting : Computer -> Model -> Element EditorMsg
@@ -529,7 +534,7 @@ textAreaForLevelsToImport model =
         , Border.rounded 10
         ]
         { onChange = EditedTextAreaForImportingLevels
-        , text = model.editor.jsonLevelsToImport
+        , text = model.jsonLevelsToImport
         , placeholder = Nothing
         , label = Input.labelHidden "Imported Levels"
         }
