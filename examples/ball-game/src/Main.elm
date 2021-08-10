@@ -2,11 +2,21 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGray, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white, yellow)
-import Geometry exposing (Point, Vector, addVector, dotProduct, scaleBy, translateBy)
+import Editor exposing (Editor)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
+import Element.Input as Input exposing (button, checkbox)
+import Geometry exposing (Point, Vector)
 import Html exposing (Html)
+import Html.Attributes exposing (style)
 import Illuminance
+import Level exposing (Level)
+import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, toX, toXY, toY)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat, toX, toY)
+import Playground.Colors as Colors
 import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
@@ -15,44 +25,20 @@ import Temperature
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    gameWithConfigurationsAndEditor
+        view
+        update
+        initialConfigurations
+        init
+        viewEditor
+        updateFromEditor
 
 
 type alias Model =
     { camera : Camera
-    , ball : Ball
+    , editor : Editor
+    , levels : Levels Level
     }
-
-
-type alias Ball =
-    { position : Point
-    , speed : Vector
-    , -- in radians
-      directionFromXAxis : Float
-    , -- in radians per second
-      rotationSpeed : Float
-    , -- in radians
-      rotation : Float
-    }
-
-
-initialBall : Ball
-initialBall =
-    { position = Point 0 0 0
-    , speed = ( 0, 0, 0 )
-    , directionFromXAxis = 0
-    , rotationSpeed = 0
-    , rotation = 0
-    }
-
-
-directionAsVector : Ball -> Vector
-directionAsVector ball =
-    let
-        ( x, z ) =
-            fromPolar ( 1, -ball.directionFromXAxis )
-    in
-    ( x, 0, z )
 
 
 
@@ -68,8 +54,8 @@ initialConfigurations =
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 0.005, 0.08 ) 0.04
-        , floatConfig "friction" ( 0.9, 1 ) 0.97
+        [ floatConfig "gas force" ( 0.01, 0.08 ) 0.06
+        , floatConfig "friction" ( 0.2, 0.4 ) 0.25
         ]
     , configBlock "Color"
         True
@@ -80,14 +66,15 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { camera =
+    { editor = Editor.init
+    , levels = LS.singleton Level.empty
+    , camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
             , azimuth = getFloat "camera azimuth" computer
             , elevation = getFloat "camera elevation" computer
             , distance = getFloat "camera distance" computer
             }
-    , ball = initialBall
     }
 
 
@@ -97,88 +84,19 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
+    let
+        ball =
+            (LS.current model.levels).ball
+    in
     { model
-        | ball =
-            model.ball
-                |> handleArrowKeys computer
-                |> friction computer 0.16
-                |> physics computer 0.16
-                |> gravity computer 0.16
-                |> floor computer 0.16
-        , camera =
+        | camera =
             perspectiveWithOrbit
-                { focalPoint = Point model.ball.position.x 0 model.ball.position.z
+                { focalPoint = Point ball.position.x 0 ball.position.z
                 , azimuth = getFloat "camera azimuth" computer
                 , elevation = getFloat "camera elevation" computer
                 , distance = getFloat "camera distance" computer
                 }
-    }
-
-
-handleArrowKeys : Computer -> Ball -> Ball
-handleArrowKeys computer ball =
-    let
-        direction =
-            directionAsVector ball
-
-        gasForce =
-            getFloat "gas force" computer
-
-        giveGas =
-            addVector (scaleBy (gasForce * toY computer.keyboard) direction)
-
-        jump =
-            if ball.position.y == 0 && computer.keyboard.space then
-                addVector ( 0, 1.7, 0 )
-
-            else
-                identity
-    in
-    { ball
-        | directionFromXAxis = ball.directionFromXAxis - 0.04 * toX computer.keyboard
-        , rotationSpeed =
-            if toY computer.keyboard == 0 then
-                -- if there is no keyboard input, we rotate the ball looking at its speed
-                dotProduct ball.speed direction
-
-            else
-                ball.rotationSpeed + 0.5 * toY computer.keyboard |> clamp -2 2
-        , speed = ball.speed |> giveGas |> jump
-    }
-
-
-friction : Computer -> Float -> Ball -> Ball
-friction computer dt ball =
-    { ball
-        | speed = ball.speed |> scaleBy (getFloat "friction" computer)
-    }
-
-
-gravity : Computer -> Float -> Ball -> Ball
-gravity computer dt ball =
-    { ball
-        | speed =
-            ball.speed |> addVector ( 0, -0.5 * dt, 0 )
-    }
-
-
-floor : Computer -> Float -> Ball -> Ball
-floor computer dt ball =
-    if ball.position.y < 0 then
-        { ball
-            | position = Point ball.position.x 0 ball.position.z
-            , speed = ball.speed |> (\( vx, vy, vz ) -> ( vx, 0, vz ))
-        }
-
-    else
-        ball
-
-
-physics : Computer -> Float -> Ball -> Ball
-physics computer dt ball =
-    { ball
-        | position = ball.position |> translateBy (scaleBy dt ball.speed)
-        , rotation = ball.rotation + dt * ball.rotationSpeed
+        , levels = model.levels |> LS.mapCurrent (Level.tick computer 0.16)
     }
 
 
@@ -273,13 +191,16 @@ drawFloor computer =
 drawPlayer : Computer -> Model -> Shape
 drawPlayer computer model =
     let
+        ball =
+            (LS.current model.levels).ball
+
         playerBall =
             group
                 [ group
                     [ sphere red 0.5 |> moveX -0.02
                     , sphere yellow 0.5 |> moveX 0.02
                     ]
-                    |> rotateZ -model.ball.rotation
+                    |> rotateZ -ball.rotation
                 , cylinder black 0.1 0.8
                     |> rotateZ (degrees 90)
                     |> moveX 0.4
@@ -291,10 +212,10 @@ drawPlayer computer model =
                 , cylinder darkGray 0.2 1.4
                     |> rotateX (degrees 90)
                 ]
-                |> rotateY model.ball.directionFromXAxis
+                |> rotateY ball.directionFromXAxis
 
         ( vx, _, vz ) =
-            model.ball.speed
+            ball.speed
 
         ( speedLength, speedRot ) =
             toPolar ( vx, vz )
@@ -312,6 +233,214 @@ drawPlayer computer model =
         -- , speedVector
         ]
         |> moveY 0.5
-        |> moveX model.ball.position.x
-        |> moveY model.ball.position.y
-        |> moveZ model.ball.position.z
+        |> moveX ball.position.x
+        |> moveY ball.position.y
+        |> moveZ ball.position.z
+
+
+
+--  EDITOR
+
+
+type EditorMsg
+    = ClickedEditorOnOffButton Bool
+    | PressedPreviousLevelButton
+    | PressedNextLevelButton
+    | PressedAddLevelButton
+    | PressedRemoveLevelButton
+    | PressedMoveLevelOneUpButton
+    | ClickedExportLevelsButton
+    | ClickedImportLevelsButton
+    | EditedTextAreaForImportingLevels String
+
+
+updateFromEditor : Computer -> EditorMsg -> Model -> Model
+updateFromEditor computer editorMsg model =
+    case editorMsg of
+        _ ->
+            model
+
+
+viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor computer model =
+    column
+        [ width fill
+        , height fill
+        ]
+        [ column
+            [ alignTop
+            , alignRight
+            , padding 20
+            , spacing 20
+            , width (px 600)
+            , height fill
+            , Font.color Colors.lightText
+            , Font.size 13
+            ]
+            [ editorOnOffButton computer model
+            , editorContent computer model
+            , viewDebugger computer model
+            ]
+        , row
+            [ alignBottom
+            , centerX
+            , Font.size 30
+            , Font.bold
+            , padding 20
+            ]
+            [ levelSelectionButtons computer model ]
+        ]
+
+
+editorContent : Computer -> Model -> Element EditorMsg
+editorContent computer model =
+    if model.editor.isOn then
+        column
+            [ width fill
+            , height fill
+            , spacing 20
+            ]
+            [ explanationsForEditor computer model
+            , viewLevelEditor computer model
+            ]
+
+    else
+        none
+
+
+header : String -> Element EditorMsg
+header str =
+    el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
+        (text str)
+
+
+editorOnOffButton : Computer -> Model -> Element EditorMsg
+editorOnOffButton computer model =
+    checkbox []
+        { onChange = ClickedEditorOnOffButton
+        , icon = Input.defaultCheckbox
+        , checked = model.editor.isOn
+        , label = Input.labelLeft [] (text "Editor")
+        }
+
+
+explanationsForEditor : Computer -> Model -> Element EditorMsg
+explanationsForEditor computer model =
+    textColumn []
+        [ header "Editing the selected level"
+        , paragraph [] [ text "- Hold shift + space & Press mouse to add vertex" ]
+        , paragraph [] [ text "- To move vertices drag them with mouse" ]
+        , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
+        ]
+
+
+viewDebugger : Computer -> Model -> Element EditorMsg
+viewDebugger computer model =
+    textColumn [ alignBottom ]
+        [ header "Debugger"
+
+        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+        ]
+
+
+viewLevelEditor : Computer -> Model -> Element EditorMsg
+viewLevelEditor computer model =
+    column [ spacing 10 ]
+        [ levelManipulationButtons computer model
+        , levelExporting computer model
+        , levelImporting computer model
+        ]
+
+
+levelManipulationButtons : Computer -> Model -> Element EditorMsg
+levelManipulationButtons computer model =
+    row [ spacing 10 ]
+        [ makeButton "Add level" PressedAddLevelButton
+        , makeButton "Remove current level" PressedRemoveLevelButton
+        , makeButton "Move level one up" PressedMoveLevelOneUpButton
+        ]
+
+
+levelSelectionButtons : Computer -> Model -> Element EditorMsg
+levelSelectionButtons computer model =
+    row [ spacing 10 ]
+        [ makeButton "<" PressedPreviousLevelButton
+        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+            text <|
+                String.concat
+                    [ String.fromInt (LS.currentIndex model.levels)
+                    , " / "
+                    , String.fromInt (LS.size model.levels)
+                    ]
+        , makeButton ">" PressedNextLevelButton
+        ]
+
+
+makeButton : String -> EditorMsg -> Element EditorMsg
+makeButton buttonText editorMsg =
+    button
+        [ Font.color Colors.black
+        , paddingXY 10 6
+        , Background.color Colors.lightGray
+        , Border.rounded 8
+        ]
+        { onPress = Just editorMsg
+        , label = text buttonText
+        }
+
+
+levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting computer model =
+    column
+        [ spacing 10
+        , width fill
+        ]
+        [ makeButton "Export Levels" ClickedExportLevelsButton
+        , textAreaForExportedLevels model
+        ]
+
+
+textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels model =
+    el
+        [ width fill
+        , height (px 100)
+        , padding 10
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        (text model.editor.jsonExportedLevels)
+
+
+levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting computer model =
+    column
+        [ spacing 10
+        , width fill
+        ]
+        [ makeButton "Import Levels" ClickedImportLevelsButton
+        , textAreaForLevelsToImport model
+        ]
+
+
+textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport model =
+    Input.text
+        [ width fill
+        , height (px 100)
+        , padding 10
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        { onChange = EditedTextAreaForImportingLevels
+        , text = model.editor.jsonLevelsToImport
+        , placeholder = Nothing
+        , label = Input.labelHidden "Imported Levels"
+        }
