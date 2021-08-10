@@ -47,24 +47,6 @@ empty =
 
 
 
--- PREPARE TO ENCODE/DECODE
-
-
-type alias Level_PreEncoded =
-    Level
-
-
-toPreEncoded : Level -> Level_PreEncoded
-toPreEncoded level =
-    level
-
-
-fromPreEncoded : Level_PreEncoded -> Level
-fromPreEncoded level_PreEncoded =
-    level_PreEncoded
-
-
-
 -- UPDATE
 
 

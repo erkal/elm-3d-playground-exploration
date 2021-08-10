@@ -12,7 +12,9 @@ import Geometry exposing (Point, Vector)
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
+import Json.Decode
 import Level exposing (Level)
+import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat, toX, toY)
@@ -257,8 +259,56 @@ type EditorMsg
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
-        _ ->
-            model
+        ClickedEditorOnOffButton bool ->
+            { model | editor = model.editor |> Editor.onOff bool }
+
+        PressedPreviousLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToPrevious
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedNextLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LS.goToNext
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedAddLevelButton ->
+            { model | levels = model.levels |> LS.add Level.empty }
+
+        PressedRemoveLevelButton ->
+            { model | levels = model.levels |> LS.removeCurrent }
+
+        PressedMoveLevelOneUpButton ->
+            { model | levels = model.levels |> LS.moveLevelOneUp }
+
+        ClickedExportLevelsButton ->
+            { model
+                | editor =
+                    model.editor
+                        |> Editor.exportLevels
+                            (model.levels
+                             --|> Debug.log ""
+                            )
+            }
+
+        ClickedImportLevelsButton ->
+            { model
+                | levels =
+                    model.editor.jsonLevelsToImport
+                        |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
+                        |> Result.withDefault model.levels
+            }
+
+        EditedTextAreaForImportingLevels string ->
+            { model
+                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
+            }
 
 
 viewEditor : Computer -> Model -> Element EditorMsg
