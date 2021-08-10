@@ -6,19 +6,42 @@ import Playground exposing (Computer, getFloat, toX, toY)
 
 type alias Level =
     { ball : Ball
+    , polygons : List PolygonBody
     }
 
 
 type alias Ball =
     { position : Point
     , speed : Vector
-    , -- in radians
-      directionFromXAxis : Float
-    , -- in radians per second
-      rotationSpeed : Float
-    , -- in radians
-      rotation : Float
+    , directionFromXAxis : {- in radians -} Float
+    , rotationSpeed : {- in radians per second -} Float
+    , rotation : {- in radians -} Float
     }
+
+
+type alias PolygonBody =
+    { data : PolygonData
+    , polygon : Polygon
+    , angularVelocity : Float
+    }
+
+
+type alias Polygon =
+    { coordinateCenter : PointXZ
+    , verticesInLocalCoordinates : List PointXZ
+    }
+
+
+type alias PointXZ =
+    { x : Float
+    , z : Float
+    }
+
+
+type PolygonData
+    = -- TODO
+      TypeA
+    | TypeB
 
 
 initialBall : Ball
@@ -43,6 +66,7 @@ directionAsVector ball =
 empty : Level
 empty =
     { ball = initialBall
+    , polygons = []
     }
 
 
@@ -56,13 +80,14 @@ tick computer level =
         dt =
             0.016
     in
-    { ball =
-        level.ball
-            |> handleArrowKeys computer dt
-            |> friction computer dt
-            |> physics computer dt
-            |> gravity computer dt
-            |> floor computer dt
+    { level
+        | ball =
+            level.ball
+                |> handleArrowKeys computer dt
+                |> friction computer dt
+                |> physics computer dt
+                |> gravity computer dt
+                |> floor computer dt
     }
 
 

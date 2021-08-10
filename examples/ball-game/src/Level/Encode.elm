@@ -2,13 +2,14 @@ module Level.Encode exposing (encode)
 
 import Geometry
 import Json.Encode exposing (Value)
-import Level exposing (Level)
+import Level exposing (Level, PolygonData(..))
 
 
 encode : Level -> Value
 encode level =
     Json.Encode.object <|
         [ ( "ball", encodeBall level.ball )
+        , ( "polygons", Json.Encode.list encodePolygonBody level.polygons )
         ]
 
 
@@ -37,4 +38,55 @@ encodeBall ball =
         , ( "directionFromXAxis", Json.Encode.float ball.directionFromXAxis )
         , ( "rotationSpeed", Json.Encode.float ball.rotationSpeed )
         , ( "rotation", Json.Encode.float ball.rotation )
+        ]
+
+
+
+-- TODO: double-check generated code
+
+
+encodePolygonData : Level.PolygonData -> Value
+encodePolygonData polygonData =
+    case polygonData of
+        TypeA ->
+            Json.Encode.string "TypeA"
+
+        TypeB ->
+            Json.Encode.string "TypeB"
+
+
+
+-- TODO: double-check generated code
+
+
+encodeLevelPointXZ : Level.PointXZ -> Value
+encodeLevelPointXZ pointXZ =
+    Json.Encode.object <|
+        [ ( "x", Json.Encode.float pointXZ.x )
+        , ( "z", Json.Encode.float pointXZ.z )
+        ]
+
+
+
+-- TODO: double-check generated code
+
+
+encodePolygon : Level.Polygon -> Value
+encodePolygon polygon =
+    Json.Encode.object <|
+        [ ( "coordinateCenter", encodeLevelPointXZ polygon.coordinateCenter )
+        , ( "verticesInLocalCoordinates", Json.Encode.list encodeLevelPointXZ polygon.verticesInLocalCoordinates )
+        ]
+
+
+
+-- TODO: double-check generated code
+
+
+encodePolygonBody : Level.PolygonBody -> Value
+encodePolygonBody polygonBody =
+    Json.Encode.object <|
+        [ ( "data", encodePolygonData polygonBody.data )
+        , ( "polygon", encodePolygon polygonBody.polygon )
+        , ( "angularVelocity", Json.Encode.float polygonBody.angularVelocity )
         ]

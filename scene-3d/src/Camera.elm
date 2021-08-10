@@ -141,7 +141,7 @@ mouseOverZXAtY y camera screen mouse =
     mouseOverPlane camera
         screen
         mouse
-        (Plane3d.yz
+        (Plane3d.zx
             |> Plane3d.translateBy
                 (Vector3d.xyz
                     (Length.meters 0)

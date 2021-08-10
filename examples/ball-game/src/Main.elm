@@ -13,7 +13,7 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
-import Level exposing (Level)
+import Level exposing (Level, PointXZ)
 import Level.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
@@ -39,6 +39,7 @@ main =
 type alias Model =
     { camera : Camera
     , editor : Editor
+    , mouseOverXZ : PointXZ
     , levels : Levels Level
     }
 
@@ -72,6 +73,7 @@ init : Computer -> Model
 init computer =
     { editor = Editor.init
     , levels = LS.singleton Level.empty
+    , mouseOverXZ = PointXZ 0 0
     , camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
@@ -88,6 +90,14 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
+    model
+        |> moveCamera computer
+        |> updateMouseOverXZ computer
+        |> tick computer
+
+
+moveCamera : Computer -> Model -> Model
+moveCamera computer model =
     let
         ball =
             (LS.current model.levels).ball
@@ -100,7 +110,25 @@ update computer model =
                 , elevation = getFloat "camera elevation" computer
                 , distance = getFloat "camera distance" computer
                 }
-        , levels =
+    }
+
+
+updateMouseOverXZ : Computer -> Model -> Model
+updateMouseOverXZ computer model =
+    { model
+        | mouseOverXZ =
+            computer.pointer
+                |> Camera.mouseOverZX model.camera computer.screen
+                |> Maybe.map (\{ x, z } -> PointXZ x z)
+                |> Debug.log ""
+                |> Maybe.withDefault model.mouseOverXZ
+    }
+
+
+tick : Computer -> Model -> Model
+tick computer model =
+    { model
+        | levels =
             model.levels
                 |> LS.mapCurrent (Level.tick computer)
     }
@@ -169,6 +197,7 @@ viewGame computer model =
         [ drawAxes
         , drawFloor computer
         , drawPlayer computer model
+        , drawMouseOverXZ computer model
         ]
 
 
@@ -192,6 +221,13 @@ drawFloor computer =
         , cylinder blue 2 2 |> moveX -16 |> moveZ 12
         , cylinder blue 3 2 |> moveX -16 |> moveZ 6
         ]
+
+
+drawMouseOverXZ : Computer -> Model -> Shape
+drawMouseOverXZ computer model =
+    sphere orange 0.3
+        |> moveX model.mouseOverXZ.x
+        |> moveZ model.mouseOverXZ.z
 
 
 drawPlayer : Computer -> Model -> Shape
