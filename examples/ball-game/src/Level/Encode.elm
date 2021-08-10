@@ -2,7 +2,7 @@ module Level.Encode exposing (encode)
 
 import Geometry
 import Json.Encode exposing (Value)
-import Level exposing (Level, PolygonData(..))
+import Level exposing (Level, PolygonType(..))
 
 
 encode : Level -> Value
@@ -45,7 +45,7 @@ encodeBall ball =
 -- TODO: double-check generated code
 
 
-encodePolygonData : Level.PolygonData -> Value
+encodePolygonData : Level.PolygonType -> Value
 encodePolygonData polygonData =
     case polygonData of
         TypeA ->
@@ -86,6 +86,6 @@ encodePolygon polygon =
 encodePolygonBody : Level.PolygonBody -> Value
 encodePolygonBody polygonBody =
     Json.Encode.object <|
-        [ ( "data", encodePolygonData polygonBody.data )
+        [ ( "data", encodePolygonData polygonBody.polygonType )
         , ( "polygon", encodePolygon polygonBody.polygon )
         ]

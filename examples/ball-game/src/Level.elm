@@ -20,7 +20,7 @@ type alias Ball =
 
 
 type alias PolygonBody =
-    { data : PolygonData
+    { polygonType : PolygonType
     , polygon : Polygon
     }
 
@@ -37,7 +37,7 @@ type alias PointXZ =
     }
 
 
-type PolygonData
+type PolygonType
     = -- TODO
       TypeA
     | TypeB

@@ -52,8 +52,7 @@ type alias Model =
 
 type EditorState
     = Idle
-    | DrawingPolygon_SelectingCenter
-    | DrawingPolygon_SelectingVertices Polygon
+    | DrawingPolygon Polygon
 
 
 
@@ -427,10 +426,10 @@ editorOnOffButton computer model =
 explanationsForEditor : Computer -> Model -> Element EditorMsg
 explanationsForEditor computer model =
     textColumn []
-        [ header "Editing the selected level"
-        , paragraph [] [ text "- ..." ]
-        , paragraph [] [ text "- ..." ]
-        , paragraph [] [ text "- ..." ]
+        [ header "Editing current level"
+        , paragraph [] [ text "hold shift key and click in counterclockwise order to draw a polygon" ]
+        , paragraph [] [ text "press the `d` key to remove mouse-overed polygon" ]
+        , paragraph [] [ text "press the `t` key to change the type of mouse-overed polygon" ]
         ]
 
 

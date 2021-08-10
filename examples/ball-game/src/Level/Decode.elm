@@ -3,7 +3,7 @@ module Level.Decode exposing (decoder)
 import Geometry
 import Json.Decode exposing (Decoder, Error, Value)
 import Json.Decode.Pipeline exposing (required)
-import Level exposing (Level, PolygonData(..))
+import Level exposing (Level, PolygonType(..))
 
 
 decoder : Decoder Level
@@ -43,7 +43,7 @@ ballDecoder =
 -- TODO: double-check generated code
 
 
-polygonDataDecoder : Decoder Level.PolygonData
+polygonDataDecoder : Decoder Level.PolygonType
 polygonDataDecoder =
     let
         get id =
