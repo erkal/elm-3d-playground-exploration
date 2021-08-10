@@ -30,6 +30,7 @@ type alias Computer =
     , keyboard : Keyboard
     , screen : Screen
     , time : Float
+    , deltaTime : Float
     , configurations : Configurations
     , devicePixelRatio : Float
     }
@@ -65,6 +66,7 @@ init { devicePixelRatio } initialConfigurations =
     , keyboard = emptyKeyboard
     , screen = toScreen 600 600
     , time = 0
+    , deltaTime = 0
     , configurations = initialConfigurations
     , devicePixelRatio = devicePixelRatio
     }
@@ -84,6 +86,7 @@ tickTime : Float -> Computer -> Computer
 tickTime deltaTimeInSeconds computer =
     { computer
         | time = computer.time + deltaTimeInSeconds
+        , deltaTime = deltaTimeInSeconds
     }
 
 

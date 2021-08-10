@@ -56,8 +56,10 @@ initialConfigurations =
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 0.01, 0.08 ) 0.06
-        , floatConfig "friction" ( 0.2, 0.4 ) 0.25
+        [ floatConfig "gas force" ( 6, 20 ) 36
+        , floatConfig "friction" ( 0, 1 ) 0.5
+        , floatConfig "direction change speed" ( 1, 5 ) 3
+        , floatConfig "jump speed" ( 1, 2 ) 8
         ]
     , configBlock "Color"
         True
@@ -98,7 +100,9 @@ update computer model =
                 , elevation = getFloat "camera elevation" computer
                 , distance = getFloat "camera distance" computer
                 }
-        , levels = model.levels |> LS.mapCurrent (Level.tick computer 0.16)
+        , levels =
+            model.levels
+                |> LS.mapCurrent (Level.tick computer)
     }
 
 

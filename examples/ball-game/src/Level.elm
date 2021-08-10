@@ -50,15 +50,15 @@ empty =
 -- UPDATE
 
 
-tick : Computer -> Float -> Level -> Level
-tick computer dt level =
+tick : Computer -> Level -> Level
+tick computer level =
     { ball =
         level.ball
             |> handleArrowKeys computer
-            |> friction computer dt
-            |> physics computer dt
-            |> gravity computer dt
-            |> floor computer dt
+            |> friction computer
+            |> physics computer
+            --|> gravity computer
+            |> floor computer
     }
 
 
@@ -72,45 +72,49 @@ handleArrowKeys computer ball =
             getFloat "gas force" computer
 
         giveGas =
-            addVector (scaleBy (gasForce * toY computer.keyboard) direction)
+            addVector (scaleBy (computer.deltaTime * gasForce * toY computer.keyboard) direction)
 
         jump =
             if ball.position.y == 0 && computer.keyboard.space then
-                addVector ( 0, 1.7, 0 )
+                addVector ( 0, getFloat "jump speed" computer, 0 )
 
             else
                 identity
     in
     { ball
-        | directionFromXAxis = ball.directionFromXAxis - 0.04 * toX computer.keyboard
+        | directionFromXAxis =
+            ball.directionFromXAxis
+                - (toX computer.keyboard
+                    * getFloat "direction change speed" computer
+                    * computer.deltaTime
+                  )
         , rotationSpeed =
             if toY computer.keyboard == 0 then
                 -- if there is no keyboard input, we rotate the ball looking at its speed
                 dotProduct ball.speed direction
 
             else
-                ball.rotationSpeed + 0.5 * toY computer.keyboard |> clamp -2 2
+                ball.rotationSpeed + computer.deltaTime * 1000 * toY computer.keyboard |> clamp -12 12
         , speed = ball.speed |> giveGas |> jump
     }
 
 
-friction : Computer -> Float -> Ball -> Ball
-friction computer dt ball =
+friction : Computer -> Ball -> Ball
+friction computer ball =
     { ball
-        | speed = ball.speed |> scaleBy (1 - dt * getFloat "friction" computer)
+        | speed = ball.speed |> scaleBy (1 - computer.deltaTime * getFloat "friction" computer)
     }
 
 
-gravity : Computer -> Float -> Ball -> Ball
-gravity computer dt ball =
+gravity : Computer -> Ball -> Ball
+gravity computer ball =
     { ball
-        | speed =
-            ball.speed |> addVector ( 0, -0.5 * dt, 0 )
+        | speed = ball.speed |> addVector ( 0, -9.81 * computer.deltaTime, 0 )
     }
 
 
-floor : Computer -> Float -> Ball -> Ball
-floor computer dt ball =
+floor : Computer -> Ball -> Ball
+floor computer ball =
     if ball.position.y < 0 then
         { ball
             | position = Point ball.position.x 0 ball.position.z
@@ -121,9 +125,9 @@ floor computer dt ball =
         ball
 
 
-physics : Computer -> Float -> Ball -> Ball
-physics computer dt ball =
+physics : Computer -> Ball -> Ball
+physics computer ball =
     { ball
-        | position = ball.position |> translateBy (scaleBy dt ball.speed)
-        , rotation = ball.rotation + dt * ball.rotationSpeed
+        | position = ball.position |> translateBy (scaleBy computer.deltaTime ball.speed)
+        , rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
     }
