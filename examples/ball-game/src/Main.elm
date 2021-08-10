@@ -56,8 +56,8 @@ initialConfigurations =
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 6, 20 ) 36
-        , floatConfig "friction" ( 0, 1 ) 0.5
+        [ floatConfig "gas force" ( 20, 60 ) 40
+        , floatConfig "friction" ( 0, 1 ) 0.4
         , floatConfig "direction change speed" ( 1, 5 ) 3
         , floatConfig "jump speed" ( 1, 2 ) 8
         ]
