@@ -120,7 +120,6 @@ updateMouseOverXZ computer model =
             computer.pointer
                 |> Camera.mouseOverZX model.camera computer.screen
                 |> Maybe.map (\{ x, z } -> PointXZ x z)
-                |> Debug.log ""
                 |> Maybe.withDefault model.mouseOverXZ
     }
 
@@ -225,7 +224,7 @@ drawFloor computer =
 
 drawMouseOverXZ : Computer -> Model -> Shape
 drawMouseOverXZ computer model =
-    sphere orange 0.3
+    cylinder orange 0.1 5
         |> moveX model.mouseOverXZ.x
         |> moveZ model.mouseOverXZ.z
 
