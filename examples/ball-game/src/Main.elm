@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
-import Color exposing (Color, black, blue, darkGray, gray, green, hsl, lightBlue, lightGray, orange, red, rgb255, white, yellow)
+import Color exposing (Color, black, blue, green, orange, red, rgb255, white, yellow)
 import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -13,12 +13,14 @@ import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
 import Json.Encode
-import Level exposing (Level, PointXZ, Polygon)
-import Level.Decode
-import Level.Encode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat, toX, toY)
+import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d)
+import Physics.Tick as WorldUpdate
+import Physics.World as World exposing (World)
+import Physics.World.Decode
+import Physics.World.Encode
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground.Colors as Colors
 import Playground.Light as Light
 import Scene exposing (..)
@@ -38,9 +40,9 @@ main =
 
 
 type alias Model =
-    { levels : Levels Level
+    { levels : Levels World
     , camera : Camera
-    , mouseOverXZ : PointXZ
+    , mouseOverXY : Point2d
 
     -- editor:
     , editorIsOn : Bool
@@ -52,7 +54,6 @@ type alias Model =
 
 type EditorState
     = Idle
-    | DrawingPolygon Polygon
 
 
 
@@ -64,7 +65,7 @@ initialConfigurations =
         True
         [ floatConfig "camera distance" ( 3, 60 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.6
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
         ]
     , configBlock "Physics Parameters"
         True
@@ -82,7 +83,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton Level.empty
+    { levels = LS.singleton World.init
     , camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
@@ -90,7 +91,7 @@ init computer =
             , elevation = getFloat "camera elevation" computer
             , distance = getFloat "camera distance" computer
             }
-    , mouseOverXZ = PointXZ 0 0
+    , mouseOverXY = Point2d 0 0
 
     --
     , editorIsOn = False
@@ -107,9 +108,20 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
+        |> updateMouseOverXY computer
+        |> tickWorld computer
         |> moveCamera computer
-        |> updateMouseOverXZ computer
-        |> tick computer
+
+
+updateMouseOverXY : Computer -> Model -> Model
+updateMouseOverXY computer model =
+    { model
+        | mouseOverXY =
+            computer.pointer
+                |> Camera.mouseOverXY model.camera computer.screen
+                |> Maybe.map (\p -> Point2d p.x p.y)
+                |> Maybe.withDefault model.mouseOverXY
+    }
 
 
 moveCamera : Computer -> Model -> Model
@@ -121,7 +133,7 @@ moveCamera computer model =
     { model
         | camera =
             perspectiveWithOrbit
-                { focalPoint = Point ball.position.x 0 ball.position.z
+                { focalPoint = Point ball.circle.center.x ball.circle.center.y 0
                 , azimuth = getFloat "camera azimuth" computer
                 , elevation = getFloat "camera elevation" computer
                 , distance = getFloat "camera distance" computer
@@ -129,24 +141,13 @@ moveCamera computer model =
     }
 
 
-updateMouseOverXZ : Computer -> Model -> Model
-updateMouseOverXZ computer model =
-    { model
-        | mouseOverXZ =
-            computer.pointer
-                |> Camera.mouseOverZX model.camera computer.screen
-                |> Maybe.map (\{ x, z } -> PointXZ x z)
-                |> Maybe.withDefault model.mouseOverXZ
-    }
-
-
-tick : Computer -> Model -> Model
-tick computer model =
-    { model
-        | levels =
-            model.levels
-                |> LS.mapCurrent (Level.tick computer)
-    }
+tickWorld : Computer -> Model -> Model
+tickWorld computer model =
+    let
+        newWorld =
+            LS.current model.levels |> WorldUpdate.tick computer
+    in
+    { model | levels = model.levels |> LS.mapCurrent (always newWorld) }
 
 
 
@@ -163,14 +164,14 @@ viewGame computer model =
     let
         firstLight =
             Light.point
-                { position = { x = -2, y = 4, z = 1 }
+                { position = { x = -2, y = 4, z = 3 }
                 , chromaticity = Scene3d.Light.incandescent
                 , intensity = LuminousFlux.lumens 6000
                 }
 
         secondLight =
             Light.point
-                { position = { x = 2, y = 3, z = 1 }
+                { position = { x = 2, y = 3, z = 3 }
                 , chromaticity = Scene3d.Light.fluorescent
                 , intensity = LuminousFlux.lumens 6000
                 }
@@ -206,8 +207,8 @@ viewGame computer model =
         }
         [ drawAxes
         , drawFloor computer
-        , drawPlayer computer model
-        , drawMouseOverXZ computer model
+        , drawBall computer model
+        , drawMouseOverXY computer model
         ]
 
 
@@ -223,25 +224,19 @@ drawAxes =
 drawFloor : Computer -> Shape
 drawFloor computer =
     group
-        [ block (getColor "floor color" computer) ( 50, 1, 50 ) |> moveY -0.5
-        , cylinder blue 2 2 |> moveZ 5
-        , cylinder blue 3 2 |> moveX 10
-        , cylinder blue 1 2 |> moveX 6 |> moveZ 8
-        , cylinder blue 1 2 |> moveX -6 |> moveZ -8
-        , cylinder blue 2 2 |> moveX -16 |> moveZ 12
-        , cylinder blue 3 2 |> moveX -16 |> moveZ 6
+        [ block (getColor "floor color" computer) ( 50, 50, 1 ) |> moveZ -0.51
         ]
 
 
-drawMouseOverXZ : Computer -> Model -> Shape
-drawMouseOverXZ computer model =
-    cylinder orange 0.1 5
-        |> moveX model.mouseOverXZ.x
-        |> moveZ model.mouseOverXZ.z
+drawMouseOverXY : Computer -> Model -> Shape
+drawMouseOverXY computer model =
+    sphere orange 0.5
+        |> moveX model.mouseOverXY.x
+        |> moveY model.mouseOverXY.y
 
 
-drawPlayer : Computer -> Model -> Shape
-drawPlayer computer model =
+drawBall : Computer -> Model -> Shape
+drawBall computer model =
     let
         ball =
             (LS.current model.levels).ball
@@ -252,42 +247,32 @@ drawPlayer computer model =
                     [ sphere red 0.5 |> moveX -0.02
                     , sphere yellow 0.5 |> moveX 0.02
                     ]
-                    |> rotateZ -ball.rotation
-                , cylinder black 0.1 0.8
-                    |> rotateZ (degrees 90)
-                    |> moveX 0.4
-                    |> moveZ 0.6
-                , cylinder black 0.1 0.8
-                    |> rotateZ (degrees 90)
-                    |> moveX 0.4
-                    |> moveZ -0.6
-                , cylinder darkGray 0.2 1.4
-                    |> rotateX (degrees 90)
+                    |> rotateY ball.rotation
+                , cylinder black 0.2 1.4
                 ]
-                |> rotateY ball.directionFromXAxis
+                |> rotateZ ball.directionFromXAxis
 
-        ( vx, _, vz ) =
-            ball.speed
+        ( vx, vy ) =
+            ball.velocity
 
         ( speedLength, speedRot ) =
-            toPolar ( vx, vz )
+            toPolar ( vx, vy )
 
         speedVector =
-            cylinder red 0.2 (2 * speedLength)
-                |> moveY speedLength
+            cylinder red 0.2 (0.2 * speedLength)
+                |> moveY (0.1 * speedLength)
                 |> rotateZ -(degrees 90)
-                |> rotateY -speedRot
-                |> moveY 0.6
+                |> rotateZ speedRot
+                |> moveZ 0.6
     in
     group
         [ playerBall
 
-        -- , speedVector
+        --, speedVector
         ]
-        |> moveY 0.5
-        |> moveX ball.position.x
-        |> moveY ball.position.y
-        |> moveZ ball.position.z
+        |> moveZ 0.5
+        |> moveX ball.circle.center.x
+        |> moveY ball.circle.center.y
 
 
 
@@ -332,7 +317,7 @@ updateFromEditor computer editorMsg model =
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add Level.empty }
+            { model | levels = model.levels |> LS.add World.init }
 
         PressedRemoveLevelButton ->
             { model | levels = model.levels |> LS.removeCurrent }
@@ -343,14 +328,14 @@ updateFromEditor computer editorMsg model =
         ClickedExportLevelsButton ->
             { model
                 | jsonExportedLevels =
-                    Json.Encode.encode 2 (LS.encode Level.Encode.encode model.levels)
+                    Json.Encode.encode 2 (LS.encode Physics.World.Encode.encode model.levels)
             }
 
         ClickedImportLevelsButton ->
             { model
                 | levels =
                     model.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
+                        |> Json.Decode.decodeString (LS.decoder Physics.World.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 

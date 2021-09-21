@@ -427,7 +427,7 @@ buttonForSettingBackgroundColor =
 levelSelection : Model -> Html EditorMsg
 levelSelection model =
     div []
-        [ h2 [] [ text "Level Selection" ]
+        [ h2 [] [ text "LevelOld Selection" ]
         , p []
             [ button [ onClick PressedPreviousLevelButton ] [ text "<" ]
             , span [ style "margin" "10px" ]
