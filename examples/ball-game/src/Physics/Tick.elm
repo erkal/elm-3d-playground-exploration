@@ -19,26 +19,14 @@ tick computer world =
 collectCollectables : World -> World
 collectCollectables world =
     let
-        ( newCoins, hasCollectedCoin ) =
-            world.coins
-                |> List.foldr
-                    (\collectable ( l, b ) ->
-                        if not collectable.isCollected && distance collectable.center world.ball.circle.center < 1 then
-                            ( { collectable | isCollected = True } :: l
-                            , True
-                            )
+        collect collectable =
+            if not collectable.isCollected && distance collectable.center world.ball.circle.center < 1 then
+                { collectable | isCollected = True }
 
-                        else
-                            ( collectable :: l
-                            , b
-                            )
-                    )
-                    ( [], False )
+            else
+                collectable
     in
-    { world
-        | coins = newCoins
-        , coinIsCollectedInLastTick = hasCollectedCoin
-    }
+    { world | coins = world.coins |> List.map collect }
 
 
 

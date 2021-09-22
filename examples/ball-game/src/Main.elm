@@ -30,13 +30,7 @@ import Temperature
 
 
 main =
-    gameWithConfigurationsAndEditor
-        view
-        update
-        initialConfigurations
-        init
-        viewEditor
-        updateFromEditor
+    gameWithConfigurationsAndEditor view update initialConfigurations init viewEditor updateFromEditor
 
 
 type alias Model =
@@ -215,9 +209,9 @@ viewGame computer model =
 drawAxes : Shape
 drawAxes =
     group
-        [ line red ( 100, 0, 0 ) -- x axis
-        , line green ( 0, 100, 0 ) -- y axis
-        , line blue ( 0, 0, 100 ) -- z axis
+        [ block red ( 10, 0.1, 0.1 ) |> moveX 5 -- x axis
+        , block green ( 10, 0.1, 0.1 ) |> moveX 5 |> rotateZ (degrees 90) -- y axis
+        , block blue ( 10, 0.1, 0.1 ) |> moveX 5 |> rotateY -(degrees 90) -- z axis
         ]
 
 

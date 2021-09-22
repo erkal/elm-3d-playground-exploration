@@ -5,14 +5,14 @@ import Physics.World as World exposing (PolygonBody, World)
 
 
 bounce : { a | polygonBody : PolygonBody, collisionPoint : Point2d, normalAtCollisionPoint : Vector2d } -> World -> World
-bounce collisionResult world =
+bounce collisionResult ({ ball } as world) =
     let
         componentInNormal =
-            world.ball.velocity
+            ball.velocity
                 |> componentIn collisionResult.normalAtCollisionPoint
 
         componentInParallel =
-            world.ball.velocity
+            ball.velocity
                 |> subtract componentInNormal
 
         newVelocity =
@@ -25,5 +25,4 @@ bounce collisionResult world =
         world
 
     else
-        world
-            |> World.setBallVelocity newVelocity
+        { world | ball = { ball | velocity = newVelocity } }

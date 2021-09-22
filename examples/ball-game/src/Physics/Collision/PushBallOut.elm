@@ -1,19 +1,19 @@
 module Physics.Collision.PushBallOut exposing (..)
 
 import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, LineSegment2d, Point2d, Vector2d, translateBy, vectorTo)
-import Physics.World exposing (PolygonBody, World, mapBallCircle, verticesInWorldCoordinates)
+import Physics.World exposing (PolygonBody, World, verticesInWorldCoordinates)
 
 
 {-| This is an extra trick to prevent bugs that happen because floating point precession errors, when the ball is sitting in a narrow angle.
 -}
 fromWalls : World -> World
-fromWalls world =
+fromWalls ({ ball } as world) =
     let
         intersectingWalls : List LineSegment2d
         intersectingWalls =
             world.polygons
                 |> List.concatMap (verticesInWorldCoordinates >> Geometry2d.edgesOfPolygon)
-                |> List.filter (\wall -> not (List.isEmpty (Geometry2d.intersectCircleWithLineSegment wall world.ball.circle)))
+                |> List.filter (\wall -> not (List.isEmpty (Geometry2d.intersectCircleWithLineSegment wall ball.circle)))
 
         pushOutOfWall : LineSegment2d -> Circle2d -> Circle2d
         pushOutOfWall intersectingWall circle =
@@ -31,7 +31,6 @@ fromWalls world =
 
         newBallCircle =
             intersectingWalls
-                |> List.foldl pushOutOfWall world.ball.circle
+                |> List.foldl pushOutOfWall ball.circle
     in
-    world
-        |> mapBallCircle (always newBallCircle)
+    { world | ball = { ball | circle = newBallCircle } }

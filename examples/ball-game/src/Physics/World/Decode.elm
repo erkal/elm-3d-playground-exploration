@@ -3,7 +3,7 @@ module Physics.World.Decode exposing (..)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d)
-import Physics.World exposing (PolygonType(..), World)
+import Physics.World exposing (World)
 
 
 decoder : Decoder World
@@ -14,7 +14,6 @@ decoder =
         |> required "coins" (JD.list coinDecoder)
         |> required "collisionPointsHistoryBallToPolygons" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
         |> required "collisionPointsHistoryPolygonsToBall" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
-        |> required "coinIsCollectedInLastTick" JD.bool
         |> required "ballBouncedInLastTickToPolygonWithCenter" (JD.nullable physicsPrimitivesGeometry2dPoint2dDecoder)
 
 
@@ -58,32 +57,11 @@ ballDecoder =
 -- TODO: double-check generated code
 
 
-polygonTypeDecoder : Decoder Physics.World.PolygonType
-polygonTypeDecoder =
-    let
-        get id =
-            case id of
-                "TypeA" ->
-                    JD.succeed Physics.World.TypeA
-
-                "TypeB" ->
-                    JD.succeed Physics.World.TypeB
-
-                _ ->
-                    JD.fail ("unknown value for PolygonType: " ++ id)
-    in
-    JD.string |> JD.andThen get
-
-
-
--- TODO: double-check generated code
-
-
 polygon2dDecoder : Decoder Geometry2d.Polygon2d
 polygon2dDecoder =
     JD.succeed Geometry2d.Polygon2d
         |> required "center" physicsPrimitivesGeometry2dPoint2dDecoder
-        |> required "verticesInLocalCoordinates" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
+        |> required "vertexCoordinatesRelativeToCenter" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
 
 
 
@@ -93,7 +71,6 @@ polygon2dDecoder =
 polygonBodyDecoder : Decoder Physics.World.PolygonBody
 polygonBodyDecoder =
     JD.succeed Physics.World.PolygonBody
-        |> required "data" polygonTypeDecoder
         |> required "polygon" polygon2dDecoder
         |> required "bounciness" JD.float
 

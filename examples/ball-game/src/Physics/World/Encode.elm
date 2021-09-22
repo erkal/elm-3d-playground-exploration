@@ -2,7 +2,7 @@ module Physics.World.Encode exposing (..)
 
 import Json.Encode as JE exposing (Value)
 import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d)
-import Physics.World exposing (PolygonType(..), World)
+import Physics.World exposing (World)
 
 
 encode : World -> Value
@@ -13,7 +13,6 @@ encode world =
         , ( "coins", JE.list encodeCoin world.coins )
         , ( "collisionPointsHistoryBallToPolygons", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryBallToPolygons )
         , ( "collisionPointsHistoryPolygonsToBall", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryPolygonsToBall )
-        , ( "coinIsCollectedInLastTick", JE.bool world.coinIsCollectedInLastTick )
         , ( "ballBouncedInLastTickToPolygonWithCenter", (Maybe.map encodePhysicsPrimitivesGeometry2dPoint2d >> Maybe.withDefault JE.null) world.ballBouncedInLastTickToPolygonWithCenter )
         ]
 
@@ -61,25 +60,11 @@ encodeBall ball =
 -- TODO: double-check generated code
 
 
-encodePolygonType : Physics.World.PolygonType -> Value
-encodePolygonType polygonType =
-    case polygonType of
-        TypeA ->
-            JE.string "TypeA"
-
-        TypeB ->
-            JE.string "TypeB"
-
-
-
--- TODO: double-check generated code
-
-
 encodePolygon2d : Geometry2d.Polygon2d -> Value
 encodePolygon2d polygon2d =
     JE.object <|
         [ ( "center", encodePhysicsPrimitivesGeometry2dPoint2d polygon2d.center )
-        , ( "verticesInLocalCoordinates", JE.list encodePhysicsPrimitivesGeometry2dPoint2d polygon2d.vertexCoordinatesRelativeToCenter )
+        , ( "vertexCoordinatesRelativeToCenter", JE.list encodePhysicsPrimitivesGeometry2dPoint2d polygon2d.vertexCoordinatesRelativeToCenter )
         ]
 
 
@@ -90,8 +75,7 @@ encodePolygon2d polygon2d =
 encodePolygonBody : Physics.World.PolygonBody -> Value
 encodePolygonBody polygonBody =
     JE.object <|
-        [ ( "data", encodePolygonType polygonBody.data )
-        , ( "polygon", encodePolygon2d polygonBody.polygon )
+        [ ( "polygon", encodePolygon2d polygonBody.polygon )
         , ( "bounciness", JE.float polygonBody.bounciness )
         ]
 

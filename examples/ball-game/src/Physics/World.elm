@@ -9,31 +9,24 @@ type alias World =
     , coins : List Coin
     , collisionPointsHistoryBallToPolygons : List Point2d
     , collisionPointsHistoryPolygonsToBall : List Point2d
-
-    -- tick results to be used for visualisations and so
-    , coinIsCollectedInLastTick : Bool
     , ballBouncedInLastTickToPolygonWithCenter : Maybe Point2d
     }
 
 
 type alias PolygonBody =
-    { data : PolygonType
-    , polygon : Polygon2d
+    { polygon : Polygon2d
     , bounciness : Float
     }
-
-
-type PolygonType
-    = -- TODO
-      TypeA
-    | TypeB
 
 
 verticesInWorldCoordinates : PolygonBody -> List Point2d
 verticesInWorldCoordinates polygonBody =
     let
         toWorldCoordinates =
-            translateBy ( polygonBody.polygon.center.x, polygonBody.polygon.center.y )
+            translateBy
+                ( polygonBody.polygon.center.x
+                , polygonBody.polygon.center.y
+                )
     in
     polygonBody.polygon.vertexCoordinatesRelativeToCenter
         |> List.map toWorldCoordinates
@@ -61,9 +54,6 @@ init =
     , coins = []
     , collisionPointsHistoryBallToPolygons = []
     , collisionPointsHistoryPolygonsToBall = []
-
-    -- last tick data
-    , coinIsCollectedInLastTick = False
     , ballBouncedInLastTickToPolygonWithCenter = Nothing
     }
 
@@ -88,9 +78,7 @@ reset world =
 
 resetCoins : World -> World
 resetCoins world =
-    { world
-        | coins = world.coins |> List.map (\medal -> { medal | isCollected = False })
-    }
+    { world | coins = world.coins |> List.map (\medal -> { medal | isCollected = False }) }
 
 
 resetCollisionHistories : World -> World
@@ -99,10 +87,6 @@ resetCollisionHistories world =
         | collisionPointsHistoryBallToPolygons = []
         , collisionPointsHistoryPolygonsToBall = []
     }
-
-
-
--- ADDING POLYGONS
 
 
 addCoin : Point2d -> World -> World
@@ -114,8 +98,7 @@ addPolygon : { verticesInLocalCoordinates : List Point2d, center : Point2d } -> 
 addPolygon { verticesInLocalCoordinates, center } world =
     let
         newPolygon =
-            { data = TypeA
-            , polygon =
+            { polygon =
                 { center = center
                 , vertexCoordinatesRelativeToCenter = verticesInLocalCoordinates
                 }
@@ -152,10 +135,6 @@ removePolygons p world =
     { world | polygons = world.polygons |> List.filter (coversPoint >> not) }
 
 
-
--- SETTERS
-
-
 resetBall : World -> World
 resetBall world =
     { world | ball = initialBall }
@@ -164,18 +143,3 @@ resetBall world =
 mapBall : (Ball -> Ball) -> World -> World
 mapBall up world =
     { world | ball = up world.ball }
-
-
-mapBallVelocity : (Vector2d -> Vector2d) -> World -> World
-mapBallVelocity up =
-    mapBall (\ball -> { ball | velocity = up ball.velocity })
-
-
-setBallVelocity : Vector2d -> World -> World
-setBallVelocity newVelocity =
-    mapBallVelocity (always newVelocity)
-
-
-mapBallCircle : (Circle2d -> Circle2d) -> World -> World
-mapBallCircle up =
-    mapBall (\ball -> { ball | circle = up ball.circle })
