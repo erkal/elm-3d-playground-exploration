@@ -7,6 +7,8 @@ type alias World =
     { ball : Ball
     , polygons : List PolygonBody
     , coins : List Coin
+
+    --
     , collisionPointsHistoryBallToPolygons : List Point2d
     , collisionPointsHistoryPolygonsToBall : List Point2d
     , ballBouncedInLastTickToPolygonWithCenter : Maybe Point2d
@@ -50,7 +52,14 @@ type alias Coin =
 init : World
 init =
     { ball = initialBall
-    , polygons = []
+    , polygons =
+        [ { polygon =
+                { center = Point2d 6 6
+                , vertexCoordinatesRelativeToCenter = [ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
+                }
+          , bounciness = 1
+          }
+        ]
     , coins = []
     , collisionPointsHistoryBallToPolygons = []
     , collisionPointsHistoryPolygonsToBall = []

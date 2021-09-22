@@ -20,9 +20,6 @@ bounce collisionResult ({ ball } as world) =
                 |> scaleBy -1
                 |> scaleBy collisionResult.polygonBody.bounciness
                 |> Geometry2d.add componentInParallel
+                |> Debug.log ""
     in
-    if dotProduct componentInNormal newVelocity < 0 then
-        world
-
-    else
-        { world | ball = { ball | velocity = newVelocity } }
+    { world | ball = { ball | velocity = newVelocity } }

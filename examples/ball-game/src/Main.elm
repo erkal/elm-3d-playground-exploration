@@ -202,6 +202,7 @@ viewGame computer model =
         [ drawAxes
         , drawFloor computer
         , drawBall computer model
+        , drawPolygons computer model
         , drawMouseOverXY computer model
         ]
 
@@ -229,6 +230,23 @@ drawMouseOverXY computer model =
         |> moveY model.mouseOverXY.y
 
 
+drawPolygons : Computer -> Model -> Shape
+drawPolygons computer model =
+    let
+        drawPolygon polygon =
+            group
+                (polygon.vertexCoordinatesRelativeToCenter
+                    |> List.map (\{ x, y } -> sphere blue 0.1 |> moveX x |> moveY y)
+                )
+                |> moveX polygon.center.x
+                |> moveY polygon.center.y
+    in
+    group
+        ((LS.current model.levels).polygons
+            |> List.map (.polygon >> drawPolygon)
+        )
+
+
 drawBall : Computer -> Model -> Shape
 drawBall computer model =
     let
@@ -238,8 +256,8 @@ drawBall computer model =
         playerBall =
             group
                 [ group
-                    [ sphere red 0.5 |> moveX -0.02
-                    , sphere yellow 0.5 |> moveX 0.02
+                    [ sphere red ball.circle.radius |> moveX -0.02
+                    , sphere yellow ball.circle.radius |> moveX 0.02
                     ]
                     |> rotateY ball.rotation
                 , cylinder black 0.2 1.4
