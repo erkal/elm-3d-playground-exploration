@@ -1,9 +1,8 @@
 module Editor exposing (..)
 
-import Geometry exposing (Point)
 import Json.Encode
 import LevelSelector exposing (Levels)
-import Physics.Primitives.Geometry2d exposing (Point2d)
+import Physics.Primitives.Geometry2d exposing (Point2d, distance)
 import Physics.World as World exposing (World)
 import Physics.World.Encode
 
@@ -45,14 +44,32 @@ startDrawingPolygon editor =
     }
 
 
-handleMouseDownForDrawingPolygon : Point -> Editor -> Editor
-handleMouseDownForDrawingPolygon mouse editor =
+addVertexToDrawnPolygon : Point2d -> Editor -> Editor
+addVertexToDrawnPolygon mouse editor =
     case editor.state of
         Idle ->
             editor
 
         DrawingPolygon l ->
-            { editor | state = DrawingPolygon (l ++ [ Point2d mouse.x mouse.y ]) }
+            let
+                newPoint =
+                    Point2d mouse.x mouse.y
+            in
+            { editor
+                | state =
+                    DrawingPolygon
+                        (case List.reverse l of
+                            [] ->
+                                [ newPoint ]
+
+                            last :: _ ->
+                                if distance last newPoint > 2 then
+                                    l ++ [ newPoint ]
+
+                                else
+                                    l
+                        )
+            }
 
 
 finishDrawingPolygon : Editor -> Editor

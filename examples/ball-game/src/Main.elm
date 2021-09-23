@@ -25,6 +25,7 @@ import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Set
 import Temperature
 
 
@@ -86,10 +87,28 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
+    let
+        handleEditorInput =
+            if model.editor.isOn then
+                handleDrawingPolygon computer
+
+            else
+                identity
+    in
     model
+        |> handleEditorInput
         |> updateMouseOverXY computer
         |> tickWorld computer
         |> moveCamera computer
+
+
+handleDrawingPolygon : Computer -> Model -> Model
+handleDrawingPolygon computer model =
+    if computer.keyboard.shift then
+        { model | editor = model.editor |> Editor.addVertexToDrawnPolygon model.mouseOverXY }
+
+    else
+        model
 
 
 updateMouseOverXY : Computer -> Model -> Model
@@ -189,6 +208,7 @@ viewGame computer model =
         , drawBall computer model
         , drawPolygons computer model
         , drawMouseOverXY computer model
+        , drawPolygonBeingEdited computer model
         ]
 
 
@@ -213,6 +233,19 @@ drawMouseOverXY computer model =
     sphere orange 0.5
         |> moveX model.mouseOverXY.x
         |> moveY model.mouseOverXY.y
+
+
+drawPolygonBeingEdited : Computer -> Model -> Shape
+drawPolygonBeingEdited computer model =
+    case model.editor.state of
+        DrawingPolygon points ->
+            group
+                (points
+                    |> List.map (\{ x, y } -> sphere red 0.2 |> moveX x |> moveY y)
+                )
+
+        _ ->
+            group []
 
 
 drawPolygons : Computer -> Model -> Shape
@@ -432,11 +465,12 @@ viewPolygonEditor computer model =
                 column [ spacing 10 ]
                     [ paragraph
                         [ width fill
-                        , padding 10
+                        , padding 16
                         , Font.color Colors.red
+                        , Font.size 16
                         , Background.color Colors.black
                         ]
-                        [ text "Now draw your polygon in the counter-clockwise direction by holding `d` key pressed and clicking on the game area."
+                        [ text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. "
                         , text "After you are finished drawing, click the button below."
                         ]
                     , makeButton "Finish drawing polygon" (ClickedButtonFinishDrawingPolygon points)
