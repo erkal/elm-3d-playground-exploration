@@ -20,6 +20,7 @@
             "ianmackenzie/elm-3d-camera": "3.1.0",
             "ianmackenzie/elm-3d-scene": "1.0.1",
             "ianmackenzie/elm-geometry": "3.9.0",
+            "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units": "2.7.0",
             "mdgriffith/elm-ui": "1.1.8",
             "myrho/elm-round": "1.0.4",
@@ -37,7 +38,6 @@
             "ianmackenzie/elm-float-extra": "1.1.0",
             "ianmackenzie/elm-geometry-linear-algebra-interop": "2.0.2",
             "ianmackenzie/elm-interval": "2.0.0",
-            "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units-interval": "2.3.0"
         }
     },

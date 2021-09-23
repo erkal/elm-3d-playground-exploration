@@ -25,7 +25,6 @@ import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
-import Set
 import Temperature
 
 
