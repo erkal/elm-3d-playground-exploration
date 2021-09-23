@@ -74,6 +74,5 @@ bounce collisionResult ({ ball } as world) =
                 |> scaleBy -1
                 |> scaleBy collisionResult.polygonBody.bounciness
                 |> Geometry2d.add componentInParallel
-                |> Debug.log ""
     in
     { world | ball = { ball | velocity = newVelocity } }

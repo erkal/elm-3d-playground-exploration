@@ -2,7 +2,8 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, green, orange, red, rgb255, white, yellow)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Editor exposing (Editor, EditorState(..))
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -12,14 +13,12 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
-import Json.Encode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
 import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d)
 import Physics.Tick as WorldUpdate
 import Physics.World as World exposing (World)
 import Physics.World.Decode
-import Physics.World.Encode
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Playground.Colors as Colors
 import Playground.Light as Light
@@ -35,19 +34,10 @@ main =
 
 type alias Model =
     { levels : Levels World
+    , editor : Editor
     , camera : Camera
     , mouseOverXY : Point2d
-
-    -- editor:
-    , editorIsOn : Bool
-    , editorState : EditorState
-    , jsonExportedLevels : String
-    , jsonLevelsToImport : String
     }
-
-
-type EditorState
-    = Idle
 
 
 
@@ -78,6 +68,7 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { levels = LS.singleton World.init
+    , editor = Editor.init
     , camera =
         perspectiveWithOrbit
             { focalPoint = { x = 0, y = 0, z = 0 }
@@ -86,12 +77,6 @@ init computer =
             , distance = getFloat "camera distance" computer
             }
     , mouseOverXY = Point2d 0 0
-
-    --
-    , editorIsOn = False
-    , editorState = Idle
-    , jsonExportedLevels = ""
-    , jsonLevelsToImport = ""
     }
 
 
@@ -293,6 +278,8 @@ drawBall computer model =
 
 type EditorMsg
     = ClickedEditorOnOffButton Bool
+    | ClickedButtonStartDrawingPolygon
+    | ClickedButtonFinishDrawingPolygon (List Point2d)
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -308,8 +295,24 @@ updateFromEditor computer editorMsg model =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
             { model
-                | editorIsOn = bool
-                , editorState = Idle
+                | editor =
+                    model.editor |> Editor.toggle bool
+            }
+
+        ClickedButtonStartDrawingPolygon ->
+            { model | editor = model.editor |> Editor.startDrawingPolygon }
+
+        ClickedButtonFinishDrawingPolygon points ->
+            { model
+                | editor = model.editor |> Editor.finishDrawingPolygon
+                , levels =
+                    model.levels
+                        |> LS.mapCurrent
+                            (World.addPolygon
+                                { center = Point2d 0 0
+                                , verticesInLocalCoordinates = points
+                                }
+                            )
             }
 
         PressedPreviousLevelButton ->
@@ -338,22 +341,19 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
         ClickedExportLevelsButton ->
-            { model
-                | jsonExportedLevels =
-                    Json.Encode.encode 2 (LS.encode Physics.World.Encode.encode model.levels)
-            }
+            { model | editor = model.editor |> Editor.exportLevels model.levels }
 
         ClickedImportLevelsButton ->
             { model
                 | levels =
-                    model.jsonLevelsToImport
+                    model.editor.jsonLevelsToImport
                         |> Json.Decode.decodeString (LS.decoder Physics.World.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 
         EditedTextAreaForImportingLevels string ->
             { model
-                | jsonLevelsToImport = string
+                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
             }
 
 
@@ -366,48 +366,41 @@ viewEditor computer model =
         [ column
             [ alignTop
             , alignRight
+            , width (px 500)
+            , height fill
             , padding 20
             , spacing 20
-            , width (px 600)
-            , height fill
             , Font.color Colors.lightText
             , Font.size 13
             ]
-            [ editorOnOffButton computer model
-            , editorContent computer model
-            , viewDebugger computer model
-            ]
-        , row
-            [ alignBottom
-            , centerX
-            , Font.size 30
-            , Font.bold
-            , padding 20
-            ]
-            [ levelSelectionButtons computer model ]
+            (editorOnOffButton computer model
+                :: editorContent computer model
+            )
         ]
-
-
-editorContent : Computer -> Model -> Element EditorMsg
-editorContent computer model =
-    if model.editorIsOn then
-        column
-            [ width fill
-            , height fill
-            , spacing 20
-            ]
-            [ explanationsForEditor computer model
-            , viewLevelEditor computer model
-            ]
-
-    else
-        none
 
 
 header : String -> Element EditorMsg
 header str =
-    el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
+    el
+        [ width fill
+        , paddingXY 0 10
+        , Font.heavy
+        , Font.size 20
+        ]
         (text str)
+
+
+editorContent : Computer -> Model -> List (Element EditorMsg)
+editorContent computer model =
+    if model.editor.isOn then
+        [ viewPolygonEditor computer model
+        , viewLevelSelector computer model
+        , viewImportExportLevels computer model
+        , viewDebugger computer model
+        ]
+
+    else
+        []
 
 
 editorOnOffButton : Computer -> Model -> Element EditorMsg
@@ -415,19 +408,9 @@ editorOnOffButton computer model =
     checkbox []
         { onChange = ClickedEditorOnOffButton
         , icon = Input.defaultCheckbox
-        , checked = model.editorIsOn
+        , checked = model.editor.isOn
         , label = Input.labelLeft [] (text "Editor")
         }
-
-
-explanationsForEditor : Computer -> Model -> Element EditorMsg
-explanationsForEditor computer model =
-    textColumn []
-        [ header "Editing current level"
-        , paragraph [] [ text "hold shift key and click in counterclockwise order to draw a polygon" ]
-        , paragraph [] [ text "press the `d` key to remove mouse-overed polygon" ]
-        , paragraph [] [ text "press the `t` key to change the type of mouse-overed polygon" ]
-        ]
 
 
 viewDebugger : Computer -> Model -> Element EditorMsg
@@ -440,21 +423,40 @@ viewDebugger computer model =
         ]
 
 
-viewLevelEditor : Computer -> Model -> Element EditorMsg
-viewLevelEditor computer model =
-    column [ spacing 10 ]
-        [ levelManipulationButtons computer model
-        , levelExporting computer model
-        , levelImporting computer model
+viewPolygonEditor : Computer -> Model -> Element EditorMsg
+viewPolygonEditor computer model =
+    column []
+        [ header "Polygon editor"
+        , case model.editor.state of
+            DrawingPolygon points ->
+                column [ spacing 10 ]
+                    [ paragraph
+                        [ width fill
+                        , padding 10
+                        , Font.color Colors.red
+                        , Background.color Colors.black
+                        ]
+                        [ text "Now draw your polygon in the counter-clockwise direction by holding `d` key pressed and clicking on the game area."
+                        , text "After you are finished drawing, click the button below."
+                        ]
+                    , makeButton "Finish drawing polygon" (ClickedButtonFinishDrawingPolygon points)
+                    ]
+
+            _ ->
+                makeButton "Start drawing a polygon" ClickedButtonStartDrawingPolygon
         ]
 
 
-levelManipulationButtons : Computer -> Model -> Element EditorMsg
-levelManipulationButtons computer model =
-    row [ spacing 10 ]
-        [ makeButton "Add level" PressedAddLevelButton
-        , makeButton "Remove current level" PressedRemoveLevelButton
-        , makeButton "Move level one up" PressedMoveLevelOneUpButton
+viewLevelSelector : Computer -> Model -> Element EditorMsg
+viewLevelSelector computer model =
+    column []
+        [ header "Level Selector"
+        , row [ spacing 10 ]
+            [ levelSelectionButtons computer model
+            , makeButton "Add level" PressedAddLevelButton
+            , makeButton "Remove level" PressedRemoveLevelButton
+            , makeButton "Move level up" PressedMoveLevelOneUpButton
+            ]
         ]
 
 
@@ -486,6 +488,15 @@ makeButton buttonText editorMsg =
         }
 
 
+viewImportExportLevels : Computer -> Model -> Element EditorMsg
+viewImportExportLevels computer model =
+    column [ width fill, spacing 10 ]
+        [ header "Import/Export Levels"
+        , levelExporting computer model
+        , levelImporting computer model
+        ]
+
+
 levelExporting : Computer -> Model -> Element EditorMsg
 levelExporting computer model =
     column
@@ -509,7 +520,7 @@ textAreaForExportedLevels model =
         , htmlAttribute (style "user-select" "text")
         , Border.rounded 10
         ]
-        (text model.jsonExportedLevels)
+        (text model.editor.jsonExportedLevels)
 
 
 levelImporting : Computer -> Model -> Element EditorMsg
@@ -536,7 +547,7 @@ textAreaForLevelsToImport model =
         , Border.rounded 10
         ]
         { onChange = EditedTextAreaForImportingLevels
-        , text = model.jsonLevelsToImport
+        , text = model.editor.jsonLevelsToImport
         , placeholder = Nothing
         , label = Input.labelHidden "Imported Levels"
         }

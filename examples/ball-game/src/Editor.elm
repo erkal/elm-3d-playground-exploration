@@ -1,0 +1,77 @@
+module Editor exposing (..)
+
+import Geometry exposing (Point)
+import Json.Encode
+import LevelSelector exposing (Levels)
+import Physics.Primitives.Geometry2d exposing (Point2d)
+import Physics.World as World exposing (World)
+import Physics.World.Encode
+
+
+type alias Editor =
+    { isOn : Bool
+    , state : EditorState
+    , jsonExportedLevels : String
+    , jsonLevelsToImport : String
+    }
+
+
+init : Editor
+init =
+    { isOn = True
+    , state = Idle
+    , jsonExportedLevels = ""
+    , jsonLevelsToImport = ""
+    }
+
+
+toggle : Bool -> Editor -> Editor
+toggle bool editor =
+    { editor
+        | isOn = bool
+        , state = Idle
+    }
+
+
+type EditorState
+    = Idle
+    | DrawingPolygon (List Point2d)
+
+
+startDrawingPolygon : Editor -> Editor
+startDrawingPolygon editor =
+    { editor
+        | state = DrawingPolygon []
+    }
+
+
+handleMouseDownForDrawingPolygon : Point -> Editor -> Editor
+handleMouseDownForDrawingPolygon mouse editor =
+    case editor.state of
+        Idle ->
+            editor
+
+        DrawingPolygon l ->
+            { editor | state = DrawingPolygon (l ++ [ Point2d mouse.x mouse.y ]) }
+
+
+finishDrawingPolygon : Editor -> Editor
+finishDrawingPolygon editor =
+    { editor
+        | state = Idle
+    }
+
+
+setTextAreaForImportingLevels : String -> Editor -> Editor
+setTextAreaForImportingLevels string editor =
+    { editor
+        | jsonLevelsToImport = string
+    }
+
+
+exportLevels : Levels World -> Editor -> Editor
+exportLevels levels editor =
+    { editor
+        | jsonExportedLevels =
+            Json.Encode.encode 2 (LevelSelector.encode (World.reset >> Physics.World.Encode.encode) levels)
+    }
