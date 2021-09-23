@@ -59,7 +59,7 @@ initialConfigurations =
         True
         [ floatConfig "camera distance" ( 3, 60 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.8
         ]
     , configBlock "Physics Parameters"
         True

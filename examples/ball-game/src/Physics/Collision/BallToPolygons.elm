@@ -1,8 +1,7 @@
-module Physics.Collision.BallToPolygons exposing (..)
+module Physics.Collision.BallToPolygons exposing (collide)
 
-import Physics.Collision.Bounce as Bounce
 import Physics.Primitives.CircleToPolygon as CircleToPolygon
-import Physics.Primitives.Geometry2d exposing (Circle2d, Point2d, Vector2d, length, scaleBy)
+import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Vector2d, componentIn, length, scaleBy, subtract)
 import Physics.World exposing (PolygonBody, World, verticesInWorldCoordinates)
 import Playground exposing (Computer)
 
@@ -56,4 +55,25 @@ collide computer world =
                     -- TODO: This causes problems by DrawnBody's because their center is (0,0). this should be fixed.
                     Just collisionResult.polygonBody.polygon.center
             }
-                |> Bounce.bounce collisionResult
+                |> bounce collisionResult
+
+
+bounce : CollisionResult -> World -> World
+bounce collisionResult ({ ball } as world) =
+    let
+        componentInNormal =
+            ball.velocity
+                |> componentIn collisionResult.normalAtCollisionPoint
+
+        componentInParallel =
+            ball.velocity
+                |> subtract componentInNormal
+
+        newVelocity =
+            componentInNormal
+                |> scaleBy -1
+                |> scaleBy collisionResult.polygonBody.bounciness
+                |> Geometry2d.add componentInParallel
+                |> Debug.log ""
+    in
+    { world | ball = { ball | velocity = newVelocity } }

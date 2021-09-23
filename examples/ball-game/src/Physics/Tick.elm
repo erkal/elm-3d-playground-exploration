@@ -16,23 +16,6 @@ tick computer world =
         |> collectCollectables
 
 
-collectCollectables : World -> World
-collectCollectables world =
-    let
-        collect collectable =
-            if not collectable.isCollected && distance collectable.center world.ball.circle.center < 1 then
-                { collectable | isCollected = True }
-
-            else
-                collectable
-    in
-    { world | coins = world.coins |> List.map collect }
-
-
-
---
-
-
 moveBall : Computer -> Ball -> Ball
 moveBall computer ball =
     ball
@@ -42,16 +25,11 @@ moveBall computer ball =
         |> physics computer
 
 
-directionAsVector : Ball -> Vector2d
-directionAsVector ball =
-    fromPolar ( 1, ball.directionFromXAxis )
-
-
 handleArrowKeys : Computer -> Ball -> Ball
 handleArrowKeys computer ball =
     let
         direction =
-            directionAsVector ball
+            fromPolar ( 1, ball.directionFromXAxis )
 
         gasForce =
             getFloat "gas force" computer
@@ -73,7 +51,8 @@ handleArrowKeys computer ball =
 
             else
                 ball.rotationSpeed + computer.deltaTime * 1000 * toY computer.keyboard |> clamp -14 14
-        , velocity = ball.velocity |> giveGas
+        , velocity =
+            ball.velocity |> giveGas
     }
 
 
@@ -84,6 +63,13 @@ friction computer ball =
     }
 
 
+tickRotation : Computer -> Ball -> Ball
+tickRotation computer ball =
+    { ball
+        | rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
+    }
+
+
 physics : Computer -> Ball -> Ball
 physics computer ({ circle } as ball) =
     { ball
@@ -91,8 +77,18 @@ physics computer ({ circle } as ball) =
     }
 
 
-tickRotation : Computer -> Ball -> Ball
-tickRotation computer ball =
-    { ball
-        | rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
-    }
+
+--
+
+
+collectCollectables : World -> World
+collectCollectables world =
+    let
+        collect collectable =
+            if not collectable.isCollected && distance collectable.center world.ball.circle.center < 1 then
+                { collectable | isCollected = True }
+
+            else
+                collectable
+    in
+    { world | coins = world.coins |> List.map collect }
