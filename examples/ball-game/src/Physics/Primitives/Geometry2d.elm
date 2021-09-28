@@ -157,6 +157,20 @@ shiftLineSegmentToRight d ( p, q ) =
     )
 
 
+edgesOfPolyline : List Point2d -> List LineSegment2d
+edgesOfPolyline vertices =
+    let
+        shiftedVertices =
+            case vertices of
+                head :: tail ->
+                    tail
+
+                [] ->
+                    []
+    in
+    List.map2 Tuple.pair vertices shiftedVertices
+
+
 edgesOfPolygon : List Point2d -> List LineSegment2d
 edgesOfPolygon vertices =
     let

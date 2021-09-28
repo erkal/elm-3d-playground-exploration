@@ -671,7 +671,7 @@ drawPlayerEdge :
         , targetId : VertexId
         }
     -> Shape
-drawPlayerEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
+drawPlayerEdge computer { sourcePosition, targetPosition } =
     let
         ( x, y, z ) =
             ( targetPosition.x - sourcePosition.x

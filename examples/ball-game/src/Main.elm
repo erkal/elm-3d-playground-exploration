@@ -15,7 +15,7 @@ import Illuminance
 import Json.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, subtract, vectorTo)
+import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline, subtract, vectorTo)
 import Physics.Tick as WorldUpdate
 import Physics.World as World exposing (World)
 import Physics.World.Decode
@@ -214,9 +214,9 @@ viewGame computer model =
 drawAxes : Shape
 drawAxes =
     group
-        [ block red ( 10, 0.1, 0.1 ) |> moveX 5 -- x axis
-        , block green ( 10, 0.1, 0.1 ) |> moveX 5 |> rotateZ (degrees 90) -- y axis
-        , block blue ( 10, 0.1, 0.1 ) |> moveX 5 |> rotateY -(degrees 90) -- z axis
+        [ thickLine red 0.1 ( Point 0 0 0, Point 10 0 0 ) -- x axis
+        , thickLine green 0.1 ( Point 0 0 0, Point 0 10 0 ) -- y axis
+        , thickLine blue 0.1 ( Point 0 0 0, Point 0 0 10 ) -- z axis
         ]
 
 
@@ -240,25 +240,50 @@ drawPolygonBeingEdited computer model =
         DrawingPolygon points ->
             group
                 (points
-                    |> List.map (\{ x, y } -> sphere red 0.2 |> moveX x |> moveY y)
+                    |> edgesOfPolyline
+                    |> List.map (thickLine2d blue 0.1)
                 )
 
         _ ->
             group []
 
 
-thickLine : ( Point2d, Point2d ) -> Shape
-thickLine ( start, end ) =
+toSphericalCoordinates ( x, y, z ) =
     let
-        ( length, rotation ) =
-            toPolar (start |> vectorTo end)
+        r =
+            sqrt (x ^ 2 + y ^ 2 + z ^ 2)
     in
-    cylinder blue 0.1 length
-        |> rotateZ -(degrees 90)
-        |> moveX (length / 2)
-        |> rotateZ rotation
+    { radius = r
+    , azimuth = atan2 y x
+    , inclination = acos (z / r)
+    }
+
+
+thickLine2d : Color -> Float -> ( Point2d, Point2d ) -> Shape
+thickLine2d color thickness ( start, end ) =
+    thickLine color thickness ( Point start.x start.y 0, Point end.x end.y 0 )
+
+
+thickLine : Color -> Float -> ( Point, Point ) -> Shape
+thickLine color thickness ( start, end ) =
+    let
+        ( x, y, z ) =
+            ( end.x - start.x
+            , end.y - start.y
+            , end.z - start.z
+            )
+
+        { radius, azimuth, inclination } =
+            toSphericalCoordinates ( x, y, z )
+    in
+    cylinder color (0.5 * thickness) radius
+        |> rotateZ (degrees 90)
+        |> moveX (radius / 2)
+        |> rotateY (inclination - degrees 90)
+        |> rotateZ azimuth
         |> moveX start.x
         |> moveY start.y
+        |> moveZ start.z
 
 
 drawPolygons : Computer -> Model -> Shape
@@ -268,7 +293,7 @@ drawPolygons computer model =
             group
                 (polygon
                     |> edgesOfPolygon
-                    |> List.map thickLine
+                    |> List.map (thickLine2d blue 0.1)
                 )
     in
     group
