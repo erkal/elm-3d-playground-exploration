@@ -1,4 +1,7 @@
-module ModifiedFromScene3d.Scenes exposing (customWithDevicePixelRatio, sunnyWithDevicePixelRatio)
+module ModifiedFromScene3d.Scenes exposing
+    ( customWithDevicePixelRatio
+    , sunnyWithDevicePixelRatio
+    )
 
 import Camera3d exposing (Camera3d)
 import Direction3d exposing (Direction3d)
@@ -7,7 +10,7 @@ import Illuminance
 import Length exposing (Length, Meters)
 import Pixels exposing (Pixels)
 import Quantity exposing (Quantity)
-import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, multisampling, noToneMapping, supersampling, threeLights)
+import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, multisampling, noToneMapping, supersampling, threeLights, unlit)
 import Scene3d.Light as Light exposing (Chromaticity)
 
 

@@ -3,7 +3,7 @@ module Main exposing (main)
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -15,11 +15,11 @@ import Illuminance
 import Json.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline, subtract, vectorTo)
+import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
 import Physics.Tick as WorldUpdate
 import Physics.World as World exposing (World)
 import Physics.World.Decode
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
+import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground.Colors as Colors
 import Playground.Light as Light
 import Scene exposing (..)
@@ -46,7 +46,12 @@ type alias Model =
 
 
 initialConfigurations =
-    [ configBlock "Camera"
+    [ configBlock "View Options"
+        True
+        [ boolConfig "draw speed vector" False
+        , boolConfig "unlit" False
+        ]
+    , configBlock "Camera"
         True
         [ floatConfig "camera distance" ( 3, 60 ) 20
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
@@ -190,19 +195,31 @@ viewGame computer model =
                 , intensityAbove = Illuminance.lux 30
                 , intensityBelow = Illuminance.lux 30
                 }
+
+        viewScene =
+            if getBool "unlit" computer then
+                Scene.unlit
+                    { screen = computer.screen
+                    , camera = model.camera
+                    , clipDepth = 0.1
+                    , background = rgb255 46 46 46
+                    }
+
+            else
+                Scene.custom
+                    { devicePixelRatio = computer.devicePixelRatio
+                    , screen = computer.screen
+                    , camera = model.camera
+                    , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
+                    , clipDepth = 0.1
+                    , exposure = Scene3d.exposureValue 6
+                    , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+                    , whiteBalance = Scene3d.Light.fluorescent
+                    , antialiasing = Scene3d.multisampling
+                    , backgroundColor = rgb255 46 46 46
+                    }
     in
-    Scene.custom
-        { devicePixelRatio = computer.devicePixelRatio
-        , screen = computer.screen
-        , camera = model.camera
-        , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
-        , clipDepth = 0.1
-        , exposure = Scene3d.exposureValue 6
-        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
-        , whiteBalance = Scene3d.Light.fluorescent
-        , antialiasing = Scene3d.multisampling
-        , backgroundColor = rgb255 46 46 46
-        }
+    viewScene
         [ drawAxes
         , drawFloor computer
         , drawBall computer model
@@ -280,20 +297,47 @@ drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
         height =
-            1
+            2
 
         to3dPoint { x, y } =
             Point x y height
 
-        drawPolygonBody polygonBody =
+        drawTop polygonBody =
             group
                 (polygonBody.polygon
                     |> Triangulate.triangulate
                     |> List.map (\( a, b, c ) -> triangle blue ( to3dPoint a, to3dPoint b, to3dPoint c ))
                 )
+
+        drawWallForEdge ( start, end ) =
+            group
+                [ triangle blue
+                    ( to3dPoint start
+                    , to3dPoint end
+                    , to3dPoint start |> Geometry.translateBy ( 0, 0, -height )
+                    )
+                , triangle blue
+                    ( to3dPoint start |> Geometry.translateBy ( 0, 0, -height )
+                    , to3dPoint end
+                    , to3dPoint end |> Geometry.translateBy ( 0, 0, -height )
+                    )
+                ]
+
+        drawWalls polygonBody =
+            group
+                (polygonBody.polygon
+                    |> edgesOfPolygon
+                    |> List.map drawWallForEdge
+                )
+
+        drawPolygon polygonBody =
+            group
+                [ drawTop polygonBody
+                , drawWalls polygonBody
+                ]
     in
     group
-        ((LS.current model.levels).polygons |> List.map drawPolygonBody)
+        ((LS.current model.levels).polygons |> List.map drawPolygon)
 
 
 drawBall : Computer -> Model -> Shape
@@ -309,7 +353,7 @@ drawBall computer model =
                     , sphere yellow ball.circle.radius |> moveX 0.02
                     ]
                     |> rotateY ball.rotation
-                , cylinder black 0.2 1.4
+                , cylinder black 0.2 1.1
                 ]
                 |> rotateZ ball.directionFromXAxis
 
@@ -317,11 +361,15 @@ drawBall computer model =
             ball.velocity
 
         speedVector =
-            thickLine2d darkGreen
-                0.2
-                ( Point2d 0 0
-                , Point2d (0.3 * vx) (0.3 * vy)
-                )
+            if getBool "draw speed vector" computer then
+                thickLine2d darkGreen
+                    0.2
+                    ( Point2d 0 0
+                    , Point2d (0.3 * vx) (0.3 * vy)
+                    )
+
+            else
+                group []
     in
     group
         [ playerBall

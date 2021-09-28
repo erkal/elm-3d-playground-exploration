@@ -1,7 +1,7 @@
 module Scene exposing
     ( Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
-    , custom, sunny
+    , custom, sunny, unlit
     )
 
 {-|
@@ -19,7 +19,7 @@ module Scene exposing
 
 # Scenes
 
-@docs custom, sunny
+@docs custom, sunny, unlit
 
 -}
 
@@ -72,6 +72,27 @@ sunny arguments shapes =
             Direction3d.xyZ
                 (Angle.radians arguments.sunlightAzimuth)
                 (Angle.radians arguments.sunlightElevation)
+        }
+
+
+unlit :
+    { screen : { screen | width : Float, height : Float }
+    , camera : Camera
+    , clipDepth : Float
+    , background : Color
+    }
+    -> List Shape
+    -> Html Never
+unlit arguments shapes =
+    Scene3d.unlit
+        { dimensions =
+            ( Pixels.int (round arguments.screen.width)
+            , Pixels.int (round arguments.screen.height)
+            )
+        , camera = arguments.camera
+        , clipDepth = Length.meters arguments.clipDepth
+        , background = Scene3d.backgroundColor arguments.background
+        , entities = toEntities shapes
         }
 
 
@@ -154,6 +175,7 @@ type Shape
     | Group (List Shape)
 
 
+material : Color -> Material coordinates { a | normals : () }
 material color =
     Material.matte color
 
