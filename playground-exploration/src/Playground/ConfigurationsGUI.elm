@@ -60,7 +60,7 @@ viewConfig key config =
                 { onChange = SetBool key
                 , icon = Input.defaultCheckbox
                 , checked = value
-                , label = Input.labelLeft [] (text key)
+                , label = Input.labelRight [] (text key)
                 }
 
         Float ( min, max ) value ->
