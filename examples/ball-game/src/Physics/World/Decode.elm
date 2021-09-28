@@ -12,8 +12,7 @@ decoder =
         |> required "ball" ballDecoder
         |> required "polygons" (JD.list polygonBodyDecoder)
         |> required "coins" (JD.list coinDecoder)
-        |> required "collisionPointsHistoryBallToPolygons" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
-        |> required "collisionPointsHistoryPolygonsToBall" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
+        |> required "collisionPointsHistory" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
         |> required "ballBouncedInLastTickToPolygonWithId" (JD.nullable JD.int)
 
 

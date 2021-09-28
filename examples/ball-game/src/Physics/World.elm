@@ -9,8 +9,7 @@ type alias World =
     , coins : List Coin
 
     --
-    , collisionPointsHistoryBallToPolygons : List Point2d
-    , collisionPointsHistoryPolygonsToBall : List Point2d
+    , collisionPointsHistory : List Point2d
     , ballBouncedInLastTickToPolygonWithId : Maybe Int
     }
 
@@ -42,12 +41,11 @@ init =
     { ball = initialBall
     , polygons = []
     , coins = []
-    , collisionPointsHistoryBallToPolygons = []
-    , collisionPointsHistoryPolygonsToBall = []
+    , collisionPointsHistory = []
     , ballBouncedInLastTickToPolygonWithId = Nothing
     }
         -- TODO: Remove the next line[ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
-        |> addPolygon [ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
+        |> addPolygon [ Point2d 6 0, Point2d 6 6, Point2d 0 6 ]
 
 
 initialBall : Ball
@@ -76,8 +74,7 @@ resetCoins world =
 resetCollisionHistories : World -> World
 resetCollisionHistories world =
     { world
-        | collisionPointsHistoryBallToPolygons = []
-        , collisionPointsHistoryPolygonsToBall = []
+        | collisionPointsHistory = []
     }
 
 

@@ -11,8 +11,7 @@ encode world =
         [ ( "ball", encodeBall world.ball )
         , ( "polygons", JE.list encodePolygonBody world.polygons )
         , ( "coins", JE.list encodeCoin world.coins )
-        , ( "collisionPointsHistoryBallToPolygons", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryBallToPolygons )
-        , ( "collisionPointsHistoryPolygonsToBall", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryPolygonsToBall )
+        , ( "collisionPointsHistory", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistory )
         , ( "ballBouncedInLastTickToPolygonWithId", (Maybe.map JE.int >> Maybe.withDefault JE.null) world.ballBouncedInLastTickToPolygonWithId )
         ]
 

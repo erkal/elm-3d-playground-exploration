@@ -46,9 +46,9 @@ collide computer world =
 
         Just collisionResult ->
             { world
-                | collisionPointsHistoryBallToPolygons =
+                | collisionPointsHistory =
                     collisionResult.collisionPoint
-                        :: world.collisionPointsHistoryBallToPolygons
+                        :: world.collisionPointsHistory
                         |> List.take 15
                 , ballBouncedInLastTickToPolygonWithId =
                     -- TODO: This causes problems by DrawnBody's because their center is (0,0). this should be fixed.
