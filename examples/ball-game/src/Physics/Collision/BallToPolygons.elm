@@ -51,7 +51,6 @@ collide computer world =
                         :: world.collisionPointsHistory
                         |> List.take 15
                 , ballBouncedInLastTickToPolygonWithId =
-                    -- TODO: This causes problems by DrawnBody's because their center is (0,0). this should be fixed.
                     Just collisionResult.polygonBody.id
             }
                 |> bounce collisionResult

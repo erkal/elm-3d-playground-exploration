@@ -15,7 +15,7 @@ import Illuminance
 import Json.Decode
 import LevelSelector as LS exposing (Levels)
 import LuminousFlux
-import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d)
+import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, subtract, vectorTo)
 import Physics.Tick as WorldUpdate
 import Physics.World as World exposing (World)
 import Physics.World.Decode
@@ -247,13 +247,28 @@ drawPolygonBeingEdited computer model =
             group []
 
 
+thickLine : ( Point2d, Point2d ) -> Shape
+thickLine ( start, end ) =
+    let
+        ( length, rotation ) =
+            toPolar (start |> vectorTo end)
+    in
+    cylinder blue 0.1 length
+        |> rotateZ -(degrees 90)
+        |> moveX (length / 2)
+        |> rotateZ rotation
+        |> moveX start.x
+        |> moveY start.y
+
+
 drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
         drawPolygon polygon =
             group
                 (polygon
-                    |> List.map (\{ x, y } -> sphere blue 0.1 |> moveX x |> moveY y)
+                    |> edgesOfPolygon
+                    |> List.map thickLine
                 )
     in
     group
