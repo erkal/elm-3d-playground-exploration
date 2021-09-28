@@ -14,7 +14,7 @@ decoder =
         |> required "coins" (JD.list coinDecoder)
         |> required "collisionPointsHistoryBallToPolygons" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
         |> required "collisionPointsHistoryPolygonsToBall" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
-        |> required "ballBouncedInLastTickToPolygonWithCenter" (JD.nullable physicsPrimitivesGeometry2dPoint2dDecoder)
+        |> required "ballBouncedInLastTickToPolygonWithId" (JD.nullable JD.int)
 
 
 
@@ -57,21 +57,11 @@ ballDecoder =
 -- TODO: double-check generated code
 
 
-polygon2dDecoder : Decoder Geometry2d.Polygon2d
-polygon2dDecoder =
-    JD.succeed Geometry2d.Polygon2d
-        |> required "center" physicsPrimitivesGeometry2dPoint2dDecoder
-        |> required "vertexCoordinatesRelativeToCenter" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
-
-
-
--- TODO: double-check generated code
-
-
 polygonBodyDecoder : Decoder Physics.World.PolygonBody
 polygonBodyDecoder =
     JD.succeed Physics.World.PolygonBody
-        |> required "polygon" polygon2dDecoder
+        |> required "id" JD.int
+        |> required "polygon" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
         |> required "bounciness" JD.float
 
 

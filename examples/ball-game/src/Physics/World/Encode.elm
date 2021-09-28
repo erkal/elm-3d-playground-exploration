@@ -13,7 +13,7 @@ encode world =
         , ( "coins", JE.list encodeCoin world.coins )
         , ( "collisionPointsHistoryBallToPolygons", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryBallToPolygons )
         , ( "collisionPointsHistoryPolygonsToBall", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistoryPolygonsToBall )
-        , ( "ballBouncedInLastTickToPolygonWithCenter", (Maybe.map encodePhysicsPrimitivesGeometry2dPoint2d >> Maybe.withDefault JE.null) world.ballBouncedInLastTickToPolygonWithCenter )
+        , ( "ballBouncedInLastTickToPolygonWithId", (Maybe.map JE.int >> Maybe.withDefault JE.null) world.ballBouncedInLastTickToPolygonWithId )
         ]
 
 
@@ -60,22 +60,11 @@ encodeBall ball =
 -- TODO: double-check generated code
 
 
-encodePolygon2d : Geometry2d.Polygon2d -> Value
-encodePolygon2d polygon2d =
-    JE.object <|
-        [ ( "center", encodePhysicsPrimitivesGeometry2dPoint2d polygon2d.center )
-        , ( "vertexCoordinatesRelativeToCenter", JE.list encodePhysicsPrimitivesGeometry2dPoint2d polygon2d.vertexCoordinatesRelativeToCenter )
-        ]
-
-
-
--- TODO: double-check generated code
-
-
 encodePolygonBody : Physics.World.PolygonBody -> Value
 encodePolygonBody polygonBody =
     JE.object <|
-        [ ( "polygon", encodePolygon2d polygonBody.polygon )
+        [ ( "id", JE.int polygonBody.id )
+        , ( "polygon", JE.list encodePhysicsPrimitivesGeometry2dPoint2d polygonBody.polygon )
         , ( "bounciness", JE.float polygonBody.bounciness )
         ]
 

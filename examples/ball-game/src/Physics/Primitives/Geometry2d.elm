@@ -28,9 +28,7 @@ type alias LineSegment2d =
 
 
 type alias Polygon2d =
-    { center : Point2d
-    , vertexCoordinatesRelativeToCenter : List Point2d
-    }
+    List Point2d
 
 
 vectorFrom : LineSegment2d -> Vector2d

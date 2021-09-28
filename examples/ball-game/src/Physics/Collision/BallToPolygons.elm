@@ -2,7 +2,7 @@ module Physics.Collision.BallToPolygons exposing (collide)
 
 import Physics.Primitives.CircleToPolygon as CircleToPolygon
 import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Vector2d, componentIn, length, scaleBy, subtract)
-import Physics.World exposing (PolygonBody, World, verticesInWorldCoordinates)
+import Physics.World exposing (PolygonBody, World)
 import Playground exposing (Computer)
 
 
@@ -29,11 +29,10 @@ collide computer world =
         circleTranslation =
             world.ball.velocity |> scaleBy computer.deltaTime
 
-        collideToPolygon polygon =
-            polygon
-                |> verticesInWorldCoordinates
+        collideToPolygon polygonBody =
+            polygonBody.polygon
                 |> CircleToPolygon.collide world.ball.circle circleTranslation
-                |> Maybe.map (enhance polygon)
+                |> Maybe.map (enhance polygonBody)
 
         maybeCollisionResult =
             world.polygons
@@ -51,9 +50,9 @@ collide computer world =
                     collisionResult.collisionPoint
                         :: world.collisionPointsHistoryBallToPolygons
                         |> List.take 15
-                , ballBouncedInLastTickToPolygonWithCenter =
+                , ballBouncedInLastTickToPolygonWithId =
                     -- TODO: This causes problems by DrawnBody's because their center is (0,0). this should be fixed.
-                    Just collisionResult.polygonBody.polygon.center
+                    Just collisionResult.polygonBody.id
             }
                 |> bounce collisionResult
 

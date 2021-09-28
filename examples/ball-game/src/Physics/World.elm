@@ -11,27 +11,15 @@ type alias World =
     --
     , collisionPointsHistoryBallToPolygons : List Point2d
     , collisionPointsHistoryPolygonsToBall : List Point2d
-    , ballBouncedInLastTickToPolygonWithCenter : Maybe Point2d
+    , ballBouncedInLastTickToPolygonWithId : Maybe Int
     }
 
 
 type alias PolygonBody =
-    { polygon : Polygon2d
+    { id : Int
+    , polygon : Polygon2d
     , bounciness : Float
     }
-
-
-verticesInWorldCoordinates : PolygonBody -> List Point2d
-verticesInWorldCoordinates polygonBody =
-    let
-        toWorldCoordinates =
-            translateBy
-                ( polygonBody.polygon.center.x
-                , polygonBody.polygon.center.y
-                )
-    in
-    polygonBody.polygon.vertexCoordinatesRelativeToCenter
-        |> List.map toWorldCoordinates
 
 
 type alias Ball =
@@ -52,19 +40,14 @@ type alias Coin =
 init : World
 init =
     { ball = initialBall
-    , polygons =
-        [ { polygon =
-                { center = Point2d 6 6
-                , vertexCoordinatesRelativeToCenter = [ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
-                }
-          , bounciness = 1
-          }
-        ]
+    , polygons = []
     , coins = []
     , collisionPointsHistoryBallToPolygons = []
     , collisionPointsHistoryPolygonsToBall = []
-    , ballBouncedInLastTickToPolygonWithCenter = Nothing
+    , ballBouncedInLastTickToPolygonWithId = Nothing
     }
+        -- TODO: Remove the next line[ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
+        |> addPolygon [ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
 
 
 initialBall : Ball
@@ -103,14 +86,12 @@ addCoin center world =
     { world | coins = Coin center False :: world.coins }
 
 
-addPolygon : { verticesInLocalCoordinates : List Point2d, center : Point2d } -> World -> World
-addPolygon { verticesInLocalCoordinates, center } world =
+addPolygon : List Point2d -> World -> World
+addPolygon polygon world =
     let
         newPolygon =
-            { polygon =
-                { center = center
-                , vertexCoordinatesRelativeToCenter = verticesInLocalCoordinates
-                }
+            { id = 1 + (world.polygons |> List.map .id |> List.maximum |> Maybe.withDefault -1)
+            , polygon = polygon
             , bounciness = 1
             }
     in
@@ -138,10 +119,9 @@ removePolygons p world =
     let
         coversPoint polygon =
             polygon
-                |> verticesInWorldCoordinates
                 |> Geometry2d.pointInPolygon p
     in
-    { world | polygons = world.polygons |> List.filter (coversPoint >> not) }
+    { world | polygons = world.polygons |> List.filter (.polygon >> coversPoint >> not) }
 
 
 resetBall : World -> World

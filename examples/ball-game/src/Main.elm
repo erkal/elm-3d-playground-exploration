@@ -252,11 +252,9 @@ drawPolygons computer model =
     let
         drawPolygon polygon =
             group
-                (polygon.vertexCoordinatesRelativeToCenter
+                (polygon
                     |> List.map (\{ x, y } -> sphere blue 0.1 |> moveX x |> moveY y)
                 )
-                |> moveX polygon.center.x
-                |> moveY polygon.center.y
     in
     group
         ((LS.current model.levels).polygons
@@ -337,14 +335,7 @@ updateFromEditor computer editorMsg model =
         ClickedButtonFinishDrawingPolygon points ->
             { model
                 | editor = model.editor |> Editor.finishDrawingPolygon
-                , levels =
-                    model.levels
-                        |> LS.mapCurrent
-                            (World.addPolygon
-                                { center = Point2d 0 0
-                                , verticesInLocalCoordinates = points
-                                }
-                            )
+                , levels = model.levels |> LS.mapCurrent (World.addPolygon points)
             }
 
         PressedPreviousLevelButton ->
