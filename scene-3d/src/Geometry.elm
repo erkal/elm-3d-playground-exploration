@@ -5,6 +5,7 @@ module Geometry exposing
     , dotProduct
     , length
     , scaleBy
+    , toSphericalCoordinates
     , translateBy
     )
 
@@ -26,6 +27,18 @@ addVector ( x1, y1, z1 ) ( x2, y2, z2 ) =
     , y1 + y2
     , z1 + z2
     )
+
+
+toSphericalCoordinates : Vector -> { radius : Float, azimuth : Float, inclination : Float }
+toSphericalCoordinates ( x, y, z ) =
+    let
+        r =
+            length ( x, y, z )
+    in
+    { radius = r
+    , azimuth = atan2 y x
+    , inclination = acos (z / r)
+    }
 
 
 length : Vector -> Float

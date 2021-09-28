@@ -248,18 +248,6 @@ drawPolygonBeingEdited computer model =
             group []
 
 
-toSphericalCoordinates : Vector -> { radius : Float, azimuth : Float, inclination : Float }
-toSphericalCoordinates ( x, y, z ) =
-    let
-        r =
-            Geometry.length ( x, y, z )
-    in
-    { radius = r
-    , azimuth = atan2 y x
-    , inclination = acos (z / r)
-    }
-
-
 thickLine2d : Color -> Float -> ( Point2d, Point2d ) -> Shape
 thickLine2d color thickness ( start, end ) =
     thickLine color thickness ( Point start.x start.y 0, Point end.x end.y 0 )
@@ -275,7 +263,7 @@ thickLine color thickness ( start, end ) =
             )
 
         { radius, azimuth, inclination } =
-            toSphericalCoordinates ( x, y, z )
+            Geometry.toSphericalCoordinates ( x, y, z )
     in
     cylinder color (0.5 * thickness) radius
         |> rotateZ (degrees 90)
