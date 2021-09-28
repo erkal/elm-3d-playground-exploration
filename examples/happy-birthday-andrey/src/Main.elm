@@ -1,16 +1,17 @@
 module Main exposing (main)
 
+import Camera as Camera exposing (Camera, perspective)
 import Color exposing (Color, black, yellow)
 import Html exposing (Html)
 import Illuminance
 import LuminousFlux
 import Playground exposing (Computer, gameWithConfigurations)
 import Playground.Animation exposing (wave)
-import Camera as Camera exposing (Camera, perspective)
 import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Set exposing (Set)
 import Temperature
 
@@ -156,7 +157,7 @@ cubes computer model =
                 wavyRotation =
                     wave -pi pi 14 (computer.time + delay)
             in
-            cube yellow 1
+            cube (matte yellow) 1
                 |> rotateY wavyRotation
                 |> rotateX wavyRotation
                 |> rotateZ wavyRotation

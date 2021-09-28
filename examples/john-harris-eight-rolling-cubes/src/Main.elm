@@ -8,6 +8,7 @@ import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (style)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 import World exposing (RollResult(..), World)
 
 
@@ -240,10 +241,10 @@ board computer =
             getColor "board color" computer
 
         bottom =
-            block color ( 3, 3, 1 ) |> moveZ -0.5
+            block (matte color) ( 3, 3, 1 ) |> moveZ -0.5
 
         leftWall =
-            block color ( 0.1, 3.2, 0.2 ) |> moveX -1.55
+            block (matte color) ( 0.1, 3.2, 0.2 ) |> moveX -1.55
     in
     group
         [ leftWall
@@ -277,10 +278,10 @@ drawCube computer model (Cube ( x, y ) redFaceDirection) =
             getColor "color 2" computer
 
         redHalf =
-            block color1 ( s, s, s / 2 ) |> moveZ (s / 4)
+            block (matte color1) ( s, s, s / 2 ) |> moveZ (s / 4)
 
         blackHalf =
-            block color2 ( s, s, s / 2 ) |> moveZ -(s / 4)
+            block (matte color2) ( s, s, s / 2 ) |> moveZ -(s / 4)
 
         positionWithRedFaceDirection =
             case redFaceDirection of

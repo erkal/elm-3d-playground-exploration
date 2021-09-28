@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (spin)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -96,7 +97,7 @@ helper computer i =
 
     else
         group
-            [ cube color 1
+            [ cube (matte color) 1
             , helper computer (i - 1)
                 |> scale scaling
                 |> rotateY angle

@@ -25,6 +25,7 @@ import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material as Material
 import Temperature
 import Triangulate
 
@@ -220,7 +221,7 @@ viewGame computer model =
                     }
     in
     viewScene
-        [ drawAxes
+        [ drawAxes computer
         , drawFloor computer
         , drawBall computer model
         , drawPolygons computer model
@@ -229,25 +230,35 @@ viewGame computer model =
         ]
 
 
-drawAxes : Shape
-drawAxes =
+drawAxes : Computer -> Shape
+drawAxes computer =
     group
-        [ thickLine red 0.1 ( Point 0 0 0, Point 10 0 0 ) -- x axis
-        , thickLine green 0.1 ( Point 0 0 0, Point 0 10 0 ) -- y axis
-        , thickLine blue 0.1 ( Point 0 0 0, Point 0 0 10 ) -- z axis
+        [ thickLine computer red 0.1 ( Point 0 0 0, Point 10 0 0 ) -- x axis
+        , thickLine computer green 0.1 ( Point 0 0 0, Point 0 10 0 ) -- y axis
+        , thickLine computer blue 0.1 ( Point 0 0 0, Point 0 0 10 ) -- z axis
         ]
+
+
+material computer color =
+    if getBool "unlit" computer then
+        Material.color color
+
+    else
+        Material.matte color
 
 
 drawFloor : Computer -> Shape
 drawFloor computer =
     group
-        [ block (getColor "floor color" computer) ( 50, 50, 1 ) |> moveZ -0.51
+        [ block (material computer (getColor "floor color" computer))
+            ( 50, 50, 1 )
+            |> moveZ -0.51
         ]
 
 
 drawMouseOverXY : Computer -> Model -> Shape
 drawMouseOverXY computer model =
-    sphere orange 0.5
+    sphere (material computer orange) 0.5
         |> moveX model.mouseOverXY.x
         |> moveY model.mouseOverXY.y
 
@@ -259,20 +270,20 @@ drawPolygonBeingEdited computer model =
             group
                 (points
                     |> edgesOfPolyline
-                    |> List.map (thickLine2d blue 0.2)
+                    |> List.map (thickLine2d computer blue 0.2)
                 )
 
         _ ->
             group []
 
 
-thickLine2d : Color -> Float -> ( Point2d, Point2d ) -> Shape
-thickLine2d color thickness ( start, end ) =
-    thickLine color thickness ( Point start.x start.y 0, Point end.x end.y 0 )
+thickLine2d : Computer -> Color -> Float -> ( Point2d, Point2d ) -> Shape
+thickLine2d computer color thickness ( start, end ) =
+    thickLine computer color thickness ( Point start.x start.y 0, Point end.x end.y 0 )
 
 
-thickLine : Color -> Float -> ( Point, Point ) -> Shape
-thickLine color thickness ( start, end ) =
+thickLine : Computer -> Color -> Float -> ( Point, Point ) -> Shape
+thickLine computer color thickness ( start, end ) =
     let
         ( x, y, z ) =
             ( end.x - start.x
@@ -283,7 +294,7 @@ thickLine color thickness ( start, end ) =
         { radius, azimuth, inclination } =
             Geometry.toSphericalCoordinates ( x, y, z )
     in
-    cylinder color (thickness / 2) radius
+    cylinder (material computer color) (thickness / 2) radius
         |> rotateZ (degrees 90)
         |> moveX (radius / 2)
         |> rotateY (inclination - degrees 90)
@@ -296,6 +307,9 @@ thickLine color thickness ( start, end ) =
 drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
+        material_ =
+            material computer blue
+
         height =
             2
 
@@ -306,17 +320,17 @@ drawPolygons computer model =
             group
                 (polygonBody.polygon
                     |> Triangulate.triangulate
-                    |> List.map (\( a, b, c ) -> triangle blue ( to3dPoint a, to3dPoint b, to3dPoint c ))
+                    |> List.map (\( a, b, c ) -> triangle material_ ( to3dPoint a, to3dPoint b, to3dPoint c ))
                 )
 
         drawWallForEdge ( start, end ) =
             group
-                [ triangle blue
+                [ triangle material_
                     ( to3dPoint start
                     , to3dPoint end
                     , to3dPoint start |> Geometry.translateBy ( 0, 0, -height )
                     )
-                , triangle blue
+                , triangle material_
                     ( to3dPoint start |> Geometry.translateBy ( 0, 0, -height )
                     , to3dPoint end
                     , to3dPoint end |> Geometry.translateBy ( 0, 0, -height )
@@ -349,11 +363,11 @@ drawBall computer model =
         playerBall =
             group
                 [ group
-                    [ sphere red ball.circle.radius |> moveX -0.02
-                    , sphere yellow ball.circle.radius |> moveX 0.02
+                    [ sphere (material computer red) ball.circle.radius |> moveX -0.02
+                    , sphere (material computer yellow) ball.circle.radius |> moveX 0.02
                     ]
                     |> rotateY ball.rotation
-                , cylinder black 0.2 1.1
+                , cylinder (material computer black) 0.2 1.1
                 ]
                 |> rotateZ ball.directionFromXAxis
 
@@ -362,7 +376,8 @@ drawBall computer model =
 
         speedVector =
             if getBool "draw speed vector" computer then
-                thickLine2d darkGreen
+                thickLine2d computer
+                    darkGreen
                     0.2
                     ( Point2d 0 0
                     , Point2d (0.3 * vx) (0.3 * vy)

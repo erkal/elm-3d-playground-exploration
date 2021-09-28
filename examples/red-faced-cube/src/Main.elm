@@ -17,6 +17,7 @@ import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
@@ -451,11 +452,11 @@ board computer =
             1 - getFloat "cubes side length" computer
 
         rightWall =
-            block (getColor "wall color" computer) ( wallWidth, 8 + wallWidth, wallWidth )
+            block (matte (getColor "wall color" computer)) ( wallWidth, 8 + wallWidth, wallWidth )
                 |> moveX 4
     in
     group
-        [ block (getColor "board color" computer) ( 8.01, 8.01, 1 ) |> moveZ -0.5
+        [ block (matte (getColor "board color" computer)) ( 8.01, 8.01, 1 ) |> moveZ -0.5
         , rightWall
         , rightWall |> rotateZ (degrees 90)
         , rightWall |> rotateZ (degrees 180)
@@ -506,7 +507,7 @@ drawWall computer (Wall ( x, y ) wallDirection) =
             1 - getFloat "cubes side length" computer
 
         southWall =
-            block (getColor "wall color" computer)
+            block (matte (getColor "wall color" computer))
                 ( 1 + wallWidth, wallWidth, wallWidth )
                 |> moveY -0.5
 
@@ -555,7 +556,7 @@ drawPath computer model =
                     identity
 
         drawCellOnPath i ( x, y ) =
-            cube (color i) 1
+            cube (matte (color i)) 1
                 |> animateHeight i
                 |> moveZ -0.49
                 |> moveX (toFloat x)
@@ -584,11 +585,11 @@ drawCubes computer model =
             getColor "color 2" computer
 
         redHalf =
-            block color1 ( s, s, s / 2 ) |> moveZ (s / 4)
+            block (matte color1) ( s, s, s / 2 ) |> moveZ (s / 4)
 
         yellowHalf =
             --block color2 ( s, s, excitedSideLength / 2 ) |> moveZ -(excitedSideLength / 4)
-            block color2 ( s, s, s / 2 ) |> moveZ -(s / 4)
+            block (matte color2) ( s, s, s / 2 ) |> moveZ -(s / 4)
 
         positionWithRedFaceDirection =
             case redFaceDirection of

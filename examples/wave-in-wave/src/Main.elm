@@ -11,6 +11,7 @@ import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Temperature
 
 
@@ -132,7 +133,7 @@ camera computer =
 shapes : Computer -> Model -> List Shape
 shapes computer model =
     [ wavingBlocks computer
-    , block gray ( 300, 1, 300 ) |> moveY -33
+    , block (matte gray) ( 300, 1, 300 ) |> moveY -33
     ]
 
 
@@ -171,7 +172,7 @@ wavingBlocks ({ time } as computer) =
             wave minWidth maxWidth period (time + delayForXzWaving i)
 
         ithBlock i =
-            block (color i)
+            block (matte (color i))
                 ( xzWaving i
                 , 0.9 * dist
                 , xzWaving i

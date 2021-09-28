@@ -1,11 +1,12 @@
 module Main exposing (main)
 
+import Camera exposing (Camera, perspective)
 import Color exposing (blue, gray, green, red, rgb255)
 import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
-import Camera exposing (Camera, perspective)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -74,7 +75,7 @@ axes =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block gray ( 1, 1, 1 )
+    block (matte gray) ( 1, 1, 1 )
         |> scale (wave 1 2 14 computer.time)
         |> rotateX (wave 1 10 30 computer.time)
         |> rotateY (wave 1 10 30 computer.time)

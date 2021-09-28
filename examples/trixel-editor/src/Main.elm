@@ -19,6 +19,7 @@ import List.Nonempty as Nonempty
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurationsAndEditor, getFloat)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
 import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
@@ -242,7 +243,7 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
 
         drawLeftFace : Shape
         drawLeftFace =
-            triangle (ColorPalette.get colorIndex palette)
+            triangle (matte (ColorPalette.get colorIndex palette))
                 ( { x = 0, y = 0, z = 0 }
                 , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
                 , { x = 0, y = 1, z = 0 }
@@ -305,7 +306,7 @@ drawVertex color radius v =
         { x, y } =
             Vertex.worldCoordinates v
     in
-    cube color radius
+    cube (matte color) radius
         |> moveX x
         |> moveY y
 

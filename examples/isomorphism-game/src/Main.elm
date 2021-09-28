@@ -26,6 +26,7 @@ import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Temperature
 
 
@@ -556,7 +557,7 @@ view computer model =
 
 floor : Computer -> Shape
 floor computer =
-    block (getColor "game background" computer) ( 100, 100, 1 )
+    block (matte (getColor "game background" computer)) ( 100, 100, 1 )
         |> moveZ -0.5
         |> moveZ -(getFloat "base height" computer)
 
@@ -584,7 +585,7 @@ drawDraggedBaseEdge computer model =
                         , model.pointerXY.y - sourcePosition.y
                         )
             in
-            block (getColor "base" computer) ( length, 0.3, 0.3 )
+            block (matte (getColor "base" computer)) ( length, 0.3, 0.3 )
                 |> moveX (length / 2)
                 |> rotateZ rotation
                 |> moveX sourcePosition.x
@@ -604,7 +605,7 @@ drawPointerReach computer model =
             )
     in
     if getBool "pointer view on/off" computer then
-        cylinder color radius 0.02
+        cylinder (matte color) radius 0.02
             |> rotateX (degrees 90)
             |> moveZ zShift
             |> moveX model.pointerXY.x
@@ -645,7 +646,7 @@ drawPlayerVertex computer model ( vertexId, { position } ) =
             else
                 getColor "player" computer
     in
-    sphere color (getFloat "player vertex radius" computer)
+    sphere (matte color) (getFloat "player vertex radius" computer)
         |> moveX position.x
         |> moveY position.y
         |> moveZ position.z
@@ -686,7 +687,7 @@ drawPlayerEdge computer { sourcePosition, targetPosition } =
             getFloat "player edge width" computer
     in
     cylinder
-        (getColor "player" computer)
+        (matte (getColor "player" computer))
         (0.5 * width)
         radius
         |> rotateZ (degrees 90)
@@ -736,7 +737,7 @@ drawVerticesOfBaseGraph computer model =
 drawBaseVertex : Computer -> ( VertexId, { vertexData | position : Point } ) -> Shape
 drawBaseVertex computer ( _, { position } ) =
     cylinder
-        (getColor "base" computer)
+        (matte (getColor "base" computer))
         (getFloat "base vertex radius" computer)
         (getFloat "base height" computer)
         |> rotateX (degrees 90)
@@ -777,7 +778,7 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
         baseHeight =
             getFloat "base height" computer
     in
-    block (getColor "base" computer)
+    block (matte (getColor "base" computer))
         ( length
         , getFloat "base edge width" computer
         , baseHeight

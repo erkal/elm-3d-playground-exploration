@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground.Animation exposing (..)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -91,21 +92,21 @@ axes =
 
 sun : Computer -> Shape
 sun computer =
-    sphere orange (getFloat "sun size" computer)
+    sphere (matte orange) (getFloat "sun size" computer)
 
 
 earthAndMoon : Computer -> Shape
 earthAndMoon computer =
     let
         earth =
-            sphere blue 0.1
+            sphere (matte blue) 0.1
 
         orbitDisc =
-            cylinder blue 0.2 0.05
+            cylinder (matte blue) 0.2 0.05
                 |> rotateZ (degrees 20)
 
         moon =
-            sphere white 0.04
+            sphere (matte white) 0.04
                 |> moveX 0.2
                 |> rotateY (degrees (spin 3 computer.time))
                 |> rotateZ (degrees 20)

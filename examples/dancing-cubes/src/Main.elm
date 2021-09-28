@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -108,10 +109,12 @@ cubes computer =
                     toFloat numberOfWaves * cycleDuration * ratio
             in
             cube
-                (hsl
-                    ratio
-                    (getFloat "saturation" computer)
-                    (getFloat "lightness" computer)
+                (matte
+                    (hsl
+                        ratio
+                        (getFloat "saturation" computer)
+                        (getFloat "lightness" computer)
+                    )
                 )
                 (getFloat "cube size" computer)
                 |> moveZ (getFloat "radius" computer)

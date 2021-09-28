@@ -11,6 +11,7 @@ import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Temperature
 
 
@@ -140,7 +141,7 @@ yellowBlocks computer =
             wave 0 1 4 (computer.time + delay i)
 
         oneBlock i =
-            block (hsl (wavy i) 0.6 0.8) ( 1, 3, 1 )
+            block (matte (hsl (wavy i) 0.6 0.8)) ( 1, 3, 1 )
                 |> scale (getFloat "a" computer * toFloat i)
                 |> moveX (getFloat "a" computer * toFloat i)
                 |> rotateY (wavy i)

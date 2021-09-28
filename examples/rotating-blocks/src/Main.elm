@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (spin, wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -79,7 +80,7 @@ axes =
 
 floor : Shape
 floor =
-    cylinder (rgb 0.294 0.588 0.478) 30 1
+    cylinder (matte (rgb 0.294 0.588 0.478)) 30 1
         |> moveY -1.001
 
 
@@ -89,7 +90,7 @@ makeCube computer i =
         w =
             wave 0.2 0.8 10 computer.time
     in
-    block (hsl w 0.5 0.5) ( toFloat i, 1, toFloat i )
+    block (matte (hsl w 0.5 0.5)) ( toFloat i, 1, toFloat i )
         |> moveY (toFloat i * 1.1)
         |> rotateY (0.1 * toFloat i)
         |> rotateY (spin 1000 computer.time)

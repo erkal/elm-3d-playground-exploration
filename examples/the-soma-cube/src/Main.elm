@@ -8,6 +8,7 @@ import Palette
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 import World exposing (Piece, World)
 
 
@@ -142,7 +143,7 @@ drawBigCube computer =
                 (getFloat "lightning" computer)
 
         edge =
-            block color ( edgeWidth, 3 + edgeWidth, edgeWidth )
+            block (matte color) ( edgeWidth, 3 + edgeWidth, edgeWidth )
 
         edgesParallelToYAxis =
             group
@@ -191,7 +192,7 @@ drawPiece computer color piece =
 
 drawCube : Computer -> Color -> ( Int, Int, Int ) -> Shape
 drawCube computer color ( x, y, z ) =
-    cube color 1
+    cube (matte color) 1
         |> scale (getFloat "cube scale" computer)
         |> moveX (toFloat x)
         |> moveY (toFloat y)

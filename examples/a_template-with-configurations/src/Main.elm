@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Playground.Animation exposing (..)
 import Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -84,5 +85,5 @@ view computer model =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block (getColor "cube color" computer) ( 1, 1, 1 )
+    block (matte (getColor "cube color" computer)) ( 1, 1, 1 )
         |> scale (wave 1 1.1 (getFloat "period" computer) computer.time)

@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -67,7 +68,7 @@ view computer model =
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        [ block white ( 40, 40, 1 ) |> moveZ -4
+        [ block (matte white) ( 40, 40, 1 ) |> moveZ -4
         , allShapes computer |> moveZ -0.5
         ]
 
@@ -147,21 +148,23 @@ cartesianProduct columns =
 
 squareBlock : Computer -> Shape
 squareBlock computer =
-    cube (color computer) 1
+    cube (material computer) 1
 
 
-color computer =
-    hsl
-        (wave 0 1 7 computer.time)
-        0.8
-        0.8
+material computer =
+    matte
+        (hsl
+            (wave 0 1 7 computer.time)
+            0.8
+            0.8
+        )
 
 
 triangleBlock : Computer -> Shape
 triangleBlock computer =
     let
         t =
-            triangle (color computer)
+            triangle (material computer)
                 ( { x = 0, y = 0, z = 0 }
                 , { x = cos (degrees 30), y = sin (degrees 30), z = 0 }
                 , { x = 0, y = 1, z = 0 }
@@ -171,7 +174,7 @@ triangleBlock computer =
                 |> moveY -(sqrt 3 / 6)
 
         side =
-            block (color computer) ( 1, 0.00000001, 1 )
+            block (material computer) ( 1, 0.00000001, 1 )
                 |> moveY -(sqrt 3 / 6)
     in
     group

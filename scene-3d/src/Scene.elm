@@ -39,7 +39,7 @@ import Pixels
 import Point3d exposing (Point3d)
 import Scene3d exposing (Antialiasing, Exposure, Lights, ToneMapping)
 import Scene3d.Light exposing (Chromaticity, Light)
-import Scene3d.Material as Material exposing (Material)
+import Scene3d.Material as Material exposing (Material, uniform)
 import Sphere3d exposing (Sphere3d)
 import Triangle3d exposing (Triangle3d)
 import Vector3d
@@ -142,17 +142,17 @@ toEntities drawables =
 drawableToEntities : Shape -> List (Scene3d.Entity ())
 drawableToEntities shape =
     case shape of
-        Block color block3d ->
-            [ Scene3d.blockWithShadow (material color) block3d ]
+        Block material_ block3d ->
+            [ Scene3d.blockWithShadow material_ block3d ]
 
-        Triangle color triangle3d ->
-            [ Scene3d.facetWithShadow (material color) triangle3d ]
+        Triangle material_ triangle3d ->
+            [ Scene3d.facetWithShadow material_ triangle3d ]
 
-        Sphere color sphere3d ->
-            [ Scene3d.sphereWithShadow (material color) sphere3d ]
+        Sphere material_ sphere3d ->
+            [ Scene3d.sphereWithShadow (uniform material_) sphere3d ]
 
-        Cylinder color cylinder3d ->
-            [ Scene3d.cylinderWithShadow (material color) cylinder3d ]
+        Cylinder material_ cylinder3d ->
+            [ Scene3d.cylinderWithShadow material_ cylinder3d ]
 
         Line color lineSegment3d ->
             [ Scene3d.lineSegment (Material.color color) lineSegment3d ]
@@ -166,26 +166,25 @@ drawableToEntities shape =
 -- SHAPES
 
 
+type alias Material_ =
+    Material () { normals : () }
+
+
 type Shape
-    = Block Color (Block3d Meters ())
-    | Triangle Color (Triangle3d Meters ())
-    | Cylinder Color (Cylinder3d Meters ())
-    | Sphere Color (Sphere3d Meters ())
+    = Block Material_ (Block3d Meters ())
+    | Triangle Material_ (Triangle3d Meters ())
+    | Cylinder Material_ (Cylinder3d Meters ())
+    | Sphere Material_ (Sphere3d Meters ())
     | Line Color (LineSegment3d Meters ())
     | Group (List Shape)
-
-
-material : Color -> Material coordinates { a | normals : () }
-material color =
-    Material.matte color
 
 
 type alias Vector =
     ( Float, Float, Float )
 
 
-block : Color -> Vector -> Shape
-block color ( xDim, yDim, zDim ) =
+block : Material_ -> Vector -> Shape
+block material_ ( xDim, yDim, zDim ) =
     let
         ( hXDim, hYDim, hZDim ) =
             ( xDim / 2
@@ -193,16 +192,16 @@ block color ( xDim, yDim, zDim ) =
             , zDim / 2
             )
     in
-    Block color
+    Block material_
         (Block3d.from
             (Point3d.meters -hXDim -hYDim -hZDim)
             (Point3d.meters hXDim hYDim hZDim)
         )
 
 
-triangle : Color -> ( Point, Point, Point ) -> Shape
-triangle color ( p, q, r ) =
-    Triangle color
+triangle : Material_ -> ( Point, Point, Point ) -> Shape
+triangle material_ ( p, q, r ) =
+    Triangle material_
         (Triangle3d.from
             (Point3d.meters p.x p.y p.z)
             (Point3d.meters q.x q.y q.z)
@@ -210,22 +209,22 @@ triangle color ( p, q, r ) =
         )
 
 
-cube : Color -> Float -> Shape
-cube color width =
+cube : Material_ -> Float -> Shape
+cube material_ width =
     let
         hw =
             width / 2
     in
-    Block color
+    Block material_
         (Block3d.from
             (Point3d.meters -hw -hw -hw)
             (Point3d.meters hw hw hw)
         )
 
 
-cylinder : Color -> Float -> Float -> Shape
-cylinder color radius length =
-    Cylinder color
+cylinder : Material_ -> Float -> Float -> Shape
+cylinder material_ radius length =
+    Cylinder material_
         (Cylinder3d.centeredOn Point3d.origin
             Direction3d.positiveY
             { radius = Length.meters radius
@@ -234,9 +233,9 @@ cylinder color radius length =
         )
 
 
-sphere : Color -> Float -> Shape
-sphere color radius =
-    Sphere color
+sphere : Material_ -> Float -> Shape
+sphere material_ radius =
+    Sphere material_
         (Sphere3d.withRadius (Length.meters radius) Point3d.origin)
 
 

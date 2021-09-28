@@ -10,7 +10,7 @@ import Illuminance
 import Length exposing (Length, Meters)
 import Pixels exposing (Pixels)
 import Quantity exposing (Quantity)
-import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, multisampling, noToneMapping, supersampling, threeLights, unlit)
+import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, noToneMapping, supersampling, threeLights)
 import Scene3d.Light as Light exposing (Chromaticity)
 
 

@@ -11,6 +11,7 @@ import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
+import Scene3d.Material exposing (matte)
 import Temperature
 
 
@@ -158,11 +159,11 @@ floor computer =
     in
     group
         [ funky
-        , octaThing gray
-        , octaThing blue
+        , octaThing (matte gray)
+        , octaThing (matte blue)
             |> scale 1.1
             |> moveY -0.1
-        , octaThing gray
+        , octaThing (matte gray)
             |> scale 1.2
             |> moveY -0.2
         , tree computer
@@ -187,8 +188,8 @@ spheres : Computer -> Shape
 spheres computer =
     group
         [ group
-            [ sphere lightBlue 0.5 |> moveX -0.02
-            , sphere lightGreen 0.5 |> moveX 0.02
+            [ sphere (matte lightBlue) 0.5 |> moveX -0.02
+            , sphere (matte lightGreen) 0.5 |> moveX 0.02
             ]
             |> rotateZ (spin 100 computer.time)
             |> moveZ 3.5
@@ -206,15 +207,15 @@ cubes computer =
                 |> rotateZ (spin 300 computer.time)
     in
     group
-        [ cube lightGreen 1
+        [ cube (matte lightGreen) 1
             |> spinIt
             |> moveX -2
             |> moveY 2
-        , cube blue 1
+        , cube (matte blue) 1
             |> spinIt
             |> moveX 2
             |> moveY 2
-        , cube lightPurple 1
+        , cube (matte lightPurple) 1
             |> spinIt
             |> moveY 4
         , tetrahedron
@@ -228,14 +229,14 @@ funky =
     let
         a =
             group
-                [ cube white 1
-                , cube white 1
+                [ cube (matte white) 1
+                , cube (matte white) 1
                     |> rotateY (degrees 45)
                 ]
     in
     group
         [ group [ a, a |> scale 1.3 |> moveY -0.4 ]
-        , cylinder white 1 0.5 |> moveY -0.7
+        , cylinder (matte white) 1 0.5 |> moveY -0.7
         ]
 
 
@@ -256,12 +257,12 @@ tree computer =
                 wavyColor =
                     hsl (wave (toFloat i / toFloat n) 1 10 computer.time) 0.6 0.6
             in
-            block wavyColor ( width, height, width )
+            block (matte wavyColor) ( width, height, width )
                 |> moveY (toFloat i * 1.2 * height)
                 |> rotateY (getFloat "turning speed of the tree" computer * toFloat i * wave 3 5 10 computer.time)
     in
     group
-        [ block brown ( 0.2, 8, 0.2 )
+        [ block (matte brown) ( 0.2, 8, 0.2 )
         , group (List.map layerBlock (List.range 0 (n - 1)))
         ]
 
@@ -276,7 +277,7 @@ orbitingCubes computer =
         (List.range 0 (n - 1)
             |> List.map
                 (\i ->
-                    cube orange 0.3
+                    cube (matte orange) 0.3
                         |> rotateZ (spin 300 computer.time)
                         |> rotateX (spin 600 computer.time)
                         |> moveY (wave -1 1 10 computer.time)
@@ -297,7 +298,7 @@ tetrahedron =
             sqrt 3 / 2
 
         equilateralTriangle =
-            triangle white
+            triangle (matte white)
                 ( { x = h, y = 0, z = 0 }
                 , { x = 0, y = 0.5, z = 0 }
                 , { x = 0, y = -0.5, z = 0 }

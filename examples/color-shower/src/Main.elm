@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -118,7 +119,7 @@ sphereWithIndex computer i =
         hue =
             wave 0 1 7 timeWithDelay
     in
-    sphere (hsl hue saturation lighting) size
+    sphere (matte (hsl hue saturation lighting)) size
         |> scale (wave 1 4 4 timeWithDelay)
         |> moveX (wave 3 4 1 timeWithDelay)
         |> rotateY (wave 0 10 20 timeWithDelay)

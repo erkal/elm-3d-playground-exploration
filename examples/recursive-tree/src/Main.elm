@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (spin, wave)
 import Scene as Scene exposing (..)
+import Scene3d.Material exposing (matte)
 
 
 main =
@@ -98,9 +99,9 @@ floor =
                 ]
     in
     group
-        [ octaThing gray
-        , octaThing blue |> scale 1.1 |> moveY -0.1
-        , octaThing gray |> scale 1.2 |> moveY -0.2
+        [ octaThing (matte gray)
+        , octaThing (matte blue) |> scale 1.1 |> moveY -0.1
+        , octaThing (matte gray) |> scale 1.2 |> moveY -0.2
         ]
 
 
@@ -119,7 +120,7 @@ recursiveTree computer w h s t n =
             hsl (wave (toFloat i / 6) 1 10 computer.time) 0.6 0.6
 
         baseRect =
-            block (wavyColor n) ( w, h, h )
+            block (matte (wavyColor n)) ( w, h, h )
 
         children =
             if n == 0 then
