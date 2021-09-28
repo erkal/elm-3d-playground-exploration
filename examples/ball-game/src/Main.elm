@@ -26,6 +26,7 @@ import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Temperature
+import Triangulate
 
 
 main =
@@ -278,11 +279,14 @@ thickLine color thickness ( start, end ) =
 drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
+        to3dPoint { x, y } =
+            Point x y 1
+
         drawPolygon polygon =
             group
                 (polygon
-                    |> edgesOfPolygon
-                    |> List.map (thickLine2d blue 0.1)
+                    |> Triangulate.triangulate
+                    |> List.map (\( a, b, c ) -> triangle blue ( to3dPoint a, to3dPoint b, to3dPoint c ))
                 )
     in
     group
