@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
-import Color exposing (Color, black, blue, green, orange, red, rgb255, white, yellow)
+import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
@@ -285,17 +285,15 @@ drawPolygons computer model =
         to3dPoint { x, y } =
             Point x y height
 
-        drawPolygon polygon =
+        drawPolygonBody polygonBody =
             group
-                (polygon
+                (polygonBody.polygon
                     |> Triangulate.triangulate
                     |> List.map (\( a, b, c ) -> triangle blue ( to3dPoint a, to3dPoint b, to3dPoint c ))
                 )
     in
     group
-        ((LS.current model.levels).polygons
-            |> List.map (.polygon >> drawPolygon)
-        )
+        ((LS.current model.levels).polygons |> List.map drawPolygonBody)
 
 
 drawBall : Computer -> Model -> Shape
@@ -318,20 +316,16 @@ drawBall computer model =
         ( vx, vy ) =
             ball.velocity
 
-        ( speedLength, speedRot ) =
-            toPolar ( vx, vy )
-
         speedVector =
-            cylinder red 0.2 (0.2 * speedLength)
-                |> moveY (0.1 * speedLength)
-                |> rotateZ -(degrees 90)
-                |> rotateZ speedRot
-                |> moveZ 0.6
+            thickLine2d darkGreen
+                0.2
+                ( Point2d 0 0
+                , Point2d (0.3 * vx) (0.3 * vy)
+                )
     in
     group
         [ playerBall
-
-        --, speedVector
+        , speedVector
         ]
         |> moveZ 0.5
         |> moveX ball.circle.center.x
