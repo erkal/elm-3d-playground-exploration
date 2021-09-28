@@ -241,13 +241,14 @@ drawPolygonBeingEdited computer model =
             group
                 (points
                     |> edgesOfPolyline
-                    |> List.map (thickLine2d blue 0.1)
+                    |> List.map (thickLine2d blue 0.2)
                 )
 
         _ ->
             group []
 
 
+toSphericalCoordinates : Vector -> { radius : Float, azimuth : Float, inclination : Float }
 toSphericalCoordinates ( x, y, z ) =
     let
         r =
