@@ -266,7 +266,7 @@ thickLine color thickness ( start, end ) =
         { radius, azimuth, inclination } =
             Geometry.toSphericalCoordinates ( x, y, z )
     in
-    cylinder color (0.5 * thickness) radius
+    cylinder color (thickness / 2) radius
         |> rotateZ (degrees 90)
         |> moveX (radius / 2)
         |> rotateY (inclination - degrees 90)
