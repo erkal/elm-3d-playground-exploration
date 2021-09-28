@@ -252,7 +252,7 @@ toSphericalCoordinates : Vector -> { radius : Float, azimuth : Float, inclinatio
 toSphericalCoordinates ( x, y, z ) =
     let
         r =
-            sqrt (x ^ 2 + y ^ 2 + z ^ 2)
+            Geometry.length ( x, y, z )
     in
     { radius = r
     , azimuth = atan2 y x

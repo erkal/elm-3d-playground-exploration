@@ -3,6 +3,7 @@ module Geometry exposing
     , Vector
     , addVector
     , dotProduct
+    , length
     , scaleBy
     , translateBy
     )
@@ -25,6 +26,11 @@ addVector ( x1, y1, z1 ) ( x2, y2, z2 ) =
     , y1 + y2
     , z1 + z2
     )
+
+
+length : Vector -> Float
+length ( x, y, z ) =
+    sqrt (x ^ 2 + y ^ 2 + z ^ 2)
 
 
 dotProduct : Vector -> Vector -> Float
