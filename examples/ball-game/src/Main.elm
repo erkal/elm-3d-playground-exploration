@@ -279,8 +279,11 @@ thickLine color thickness ( start, end ) =
 drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
+        height =
+            1
+
         to3dPoint { x, y } =
-            Point x y 1
+            Point x y height
 
         drawPolygon polygon =
             group
