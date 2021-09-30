@@ -13,12 +13,8 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
-import LevelSelector as LS exposing (Levels)
+import LevelSelector exposing (Levels)
 import LuminousFlux
-import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
-import Physics.Tick as WorldUpdate
-import Physics.World as World exposing (World)
-import Physics.World.Decode
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground.Colors as Colors
 import Playground.Light as Light
@@ -28,6 +24,10 @@ import Scene3d.Light
 import Scene3d.Material as Material
 import Temperature
 import Triangulate
+import World exposing (World)
+import World.Decode
+import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
+import World.Physics.Tick
 
 
 main =
@@ -74,7 +74,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton World.init
+    { levels = LevelSelector.singleton World.init
     , editor = Editor.init
     , camera =
         perspectiveWithOrbit
@@ -132,7 +132,7 @@ moveCamera : Computer -> Model -> Model
 moveCamera computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (LevelSelector.current model.levels).ball
     in
     { model
         | camera =
@@ -149,9 +149,9 @@ tickWorld : Computer -> Model -> Model
 tickWorld computer model =
     let
         newWorld =
-            LS.current model.levels |> WorldUpdate.tick computer
+            LevelSelector.current model.levels |> World.Physics.Tick.tick computer
     in
-    { model | levels = model.levels |> LS.mapCurrent (always newWorld) }
+    { model | levels = model.levels |> LevelSelector.mapCurrent (always newWorld) }
 
 
 
@@ -351,14 +351,14 @@ drawPolygons computer model =
                 ]
     in
     group
-        ((LS.current model.levels).polygons |> List.map drawPolygon)
+        ((LevelSelector.current model.levels).polygons |> List.map drawPolygon)
 
 
 drawBall : Computer -> Model -> Shape
 drawBall computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (LevelSelector.current model.levels).ball
 
         playerBall =
             group
@@ -428,14 +428,14 @@ updateFromEditor computer editorMsg model =
         ClickedButtonFinishDrawingPolygon points ->
             { model
                 | editor = model.editor |> Editor.finishDrawingPolygon
-                , levels = model.levels |> LS.mapCurrent (World.addPolygon points)
+                , levels = model.levels |> LevelSelector.mapCurrent (World.addPolygon points)
             }
 
         PressedPreviousLevelButton ->
             { model
                 | levels =
                     model.levels
-                        |> LS.goToPrevious
+                        |> LevelSelector.goToPrevious
                         |> Maybe.withDefault model.levels
             }
 
@@ -443,18 +443,18 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.levels
-                        |> LS.goToNext
+                        |> LevelSelector.goToNext
                         |> Maybe.withDefault model.levels
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add World.init }
+            { model | levels = model.levels |> LevelSelector.add World.init }
 
         PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
+            { model | levels = model.levels |> LevelSelector.removeCurrent }
 
         PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
+            { model | levels = model.levels |> LevelSelector.moveLevelOneUp }
 
         ClickedExportLevelsButton ->
             { model | editor = model.editor |> Editor.exportLevels model.levels }
@@ -463,7 +463,7 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder Physics.World.Decode.decoder)
+                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 
@@ -584,9 +584,9 @@ levelSelectionButtons computer model =
         , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
             text <|
                 String.concat
-                    [ String.fromInt (LS.currentIndex model.levels)
+                    [ String.fromInt (LevelSelector.currentIndex model.levels)
                     , " / "
-                    , String.fromInt (LS.size model.levels)
+                    , String.fromInt (LevelSelector.size model.levels)
                     ]
         , makeButton ">" PressedNextLevelButton
         ]

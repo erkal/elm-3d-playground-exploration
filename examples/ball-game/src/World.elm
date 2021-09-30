@@ -1,6 +1,6 @@
-module Physics.World exposing (..)
+module World exposing (..)
 
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Polygon2d, Vector2d, distance, translateBy)
+import World.Physics.Collision.Primitives.Geometry2d exposing (Circle2d, Point2d, Polygon2d, Vector2d, distance, pointInPolygon)
 
 
 type alias World =
@@ -113,12 +113,7 @@ removeCoins p world =
 
 removePolygons : Point2d -> World -> World
 removePolygons p world =
-    let
-        coversPoint polygon =
-            polygon
-                |> Geometry2d.pointInPolygon p
-    in
-    { world | polygons = world.polygons |> List.filter (.polygon >> coversPoint >> not) }
+    { world | polygons = world.polygons |> List.filter (.polygon >> pointInPolygon p >> not) }
 
 
 resetBall : World -> World

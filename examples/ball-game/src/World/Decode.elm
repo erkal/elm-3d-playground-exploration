@@ -1,9 +1,9 @@
-module Physics.World.Decode exposing (..)
+module World.Decode exposing (..)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d)
-import Physics.World exposing (World)
+import World exposing (World)
+import World.Physics.Collision.Primitives.Geometry2d exposing (Circle2d, Point2d)
 
 
 decoder : Decoder World
@@ -12,7 +12,7 @@ decoder =
         |> required "ball" ballDecoder
         |> required "polygons" (JD.list polygonBodyDecoder)
         |> required "coins" (JD.list coinDecoder)
-        |> required "collisionPointsHistory" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
+        |> required "collisionPointsHistory" (JD.list worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder)
         |> required "ballBouncedInLastTickToPolygonWithId" (JD.nullable JD.int)
 
 
@@ -20,8 +20,8 @@ decoder =
 -- TODO: double-check generated code
 
 
-physicsPrimitivesGeometry2dPoint2dDecoder : Decoder Point2d
-physicsPrimitivesGeometry2dPoint2dDecoder =
+worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder : Decoder Point2d
+worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder =
     JD.succeed Point2d
         |> required "x" JD.float
         |> required "y" JD.float
@@ -34,7 +34,7 @@ physicsPrimitivesGeometry2dPoint2dDecoder =
 circle2dDecoder : Decoder Circle2d
 circle2dDecoder =
     JD.succeed Circle2d
-        |> required "center" physicsPrimitivesGeometry2dPoint2dDecoder
+        |> required "center" worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder
         |> required "radius" JD.float
 
 
@@ -42,9 +42,9 @@ circle2dDecoder =
 -- TODO: double-check generated code
 
 
-ballDecoder : Decoder Physics.World.Ball
+ballDecoder : Decoder World.Ball
 ballDecoder =
-    JD.succeed Physics.World.Ball
+    JD.succeed World.Ball
         |> required "circle" circle2dDecoder
         |> required "velocity" (JD.map2 Tuple.pair (JD.index 0 JD.float) (JD.index 1 JD.float))
         |> required "directionFromXAxis" JD.float
@@ -56,11 +56,11 @@ ballDecoder =
 -- TODO: double-check generated code
 
 
-polygonBodyDecoder : Decoder Physics.World.PolygonBody
+polygonBodyDecoder : Decoder World.PolygonBody
 polygonBodyDecoder =
-    JD.succeed Physics.World.PolygonBody
+    JD.succeed World.PolygonBody
         |> required "id" JD.int
-        |> required "polygon" (JD.list physicsPrimitivesGeometry2dPoint2dDecoder)
+        |> required "polygon" (JD.list worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder)
         |> required "bounciness" JD.float
 
 
@@ -68,8 +68,8 @@ polygonBodyDecoder =
 -- TODO: double-check generated code
 
 
-coinDecoder : Decoder Physics.World.Coin
+coinDecoder : Decoder World.Coin
 coinDecoder =
-    JD.succeed Physics.World.Coin
-        |> required "center" physicsPrimitivesGeometry2dPoint2dDecoder
+    JD.succeed World.Coin
+        |> required "center" worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder
         |> required "isCollected" JD.bool

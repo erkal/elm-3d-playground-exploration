@@ -1,6 +1,6 @@
-module Physics.Primitives.CircleToPolygon exposing (CollisionResult, collide)
+module World.Physics.Collision.Primitives.CircleToPolygon exposing (CollisionResult, collide)
 
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, LineSegment2d, Point2d, Vector2d, length, normal, normalize, rotate, setLength, translateBy, vectorFrom, vectorTo)
+import World.Physics.Collision.Primitives.Geometry2d as Geometry2d exposing (Circle2d, LineSegment2d, Point2d, Vector2d, length, normal, normalize, rotate, setLength, translateBy, vectorFrom, vectorTo)
 
 
 type alias CollisionResultForPoint =

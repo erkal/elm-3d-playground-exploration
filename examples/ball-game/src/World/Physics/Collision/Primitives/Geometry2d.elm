@@ -1,4 +1,4 @@
-module Physics.Primitives.Geometry2d exposing (..)
+module World.Physics.Collision.Primitives.Geometry2d exposing (..)
 
 
 type alias Point2d =

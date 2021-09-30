@@ -1,8 +1,8 @@
-module Physics.World.Encode exposing (..)
+module World.Encode exposing (..)
 
 import Json.Encode as JE exposing (Value)
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d)
-import Physics.World exposing (World)
+import World exposing (World)
+import World.Physics.Collision.Primitives.Geometry2d exposing (Circle2d, Point2d)
 
 
 encode : World -> Value
@@ -11,7 +11,7 @@ encode world =
         [ ( "ball", encodeBall world.ball )
         , ( "polygons", JE.list encodePolygonBody world.polygons )
         , ( "coins", JE.list encodeCoin world.coins )
-        , ( "collisionPointsHistory", JE.list encodePhysicsPrimitivesGeometry2dPoint2d world.collisionPointsHistory )
+        , ( "collisionPointsHistory", JE.list encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d world.collisionPointsHistory )
         , ( "ballBouncedInLastTickToPolygonWithId", (Maybe.map JE.int >> Maybe.withDefault JE.null) world.ballBouncedInLastTickToPolygonWithId )
         ]
 
@@ -20,8 +20,8 @@ encode world =
 -- TODO: double-check generated code
 
 
-encodePhysicsPrimitivesGeometry2dPoint2d : Point2d -> Value
-encodePhysicsPrimitivesGeometry2dPoint2d point2d =
+encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d : Point2d -> Value
+encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d point2d =
     JE.object <|
         [ ( "x", JE.float point2d.x )
         , ( "y", JE.float point2d.y )
@@ -35,7 +35,7 @@ encodePhysicsPrimitivesGeometry2dPoint2d point2d =
 encodeCircle2d : Circle2d -> Value
 encodeCircle2d circle2d =
     JE.object <|
-        [ ( "center", encodePhysicsPrimitivesGeometry2dPoint2d circle2d.center )
+        [ ( "center", encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d circle2d.center )
         , ( "radius", JE.float circle2d.radius )
         ]
 
@@ -44,7 +44,7 @@ encodeCircle2d circle2d =
 -- TODO: double-check generated code
 
 
-encodeBall : Physics.World.Ball -> Value
+encodeBall : World.Ball -> Value
 encodeBall ball =
     JE.object <|
         [ ( "circle", encodeCircle2d ball.circle )
@@ -59,11 +59,11 @@ encodeBall ball =
 -- TODO: double-check generated code
 
 
-encodePolygonBody : Physics.World.PolygonBody -> Value
+encodePolygonBody : World.PolygonBody -> Value
 encodePolygonBody polygonBody =
     JE.object <|
         [ ( "id", JE.int polygonBody.id )
-        , ( "polygon", JE.list encodePhysicsPrimitivesGeometry2dPoint2d polygonBody.polygon )
+        , ( "polygon", JE.list encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d polygonBody.polygon )
         , ( "bounciness", JE.float polygonBody.bounciness )
         ]
 
@@ -72,9 +72,9 @@ encodePolygonBody polygonBody =
 -- TODO: double-check generated code
 
 
-encodeCoin : Physics.World.Coin -> Value
+encodeCoin : World.Coin -> Value
 encodeCoin coin =
     JE.object <|
-        [ ( "center", encodePhysicsPrimitivesGeometry2dPoint2d coin.center )
+        [ ( "center", encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d coin.center )
         , ( "isCollected", JE.bool coin.isCollected )
         ]
