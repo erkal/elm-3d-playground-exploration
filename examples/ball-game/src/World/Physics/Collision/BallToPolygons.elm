@@ -1,9 +1,9 @@
-module Physics.Collision.BallToPolygons exposing (collide)
+module World.Physics.Collision.BallToPolygons exposing (collide)
 
-import Physics.Primitives.CircleToPolygon as CircleToPolygon
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Vector2d, componentIn, length, scaleBy, subtract)
-import Physics.World exposing (PolygonBody, World)
 import Playground exposing (Computer)
+import World exposing (PolygonBody, World)
+import World.Physics.Collision.Primitives.CircleToPolygon as CircleToPolygon
+import World.Physics.Collision.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Vector2d, componentIn, length, scaleBy, subtract)
 
 
 type alias CollisionResult =

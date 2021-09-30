@@ -13,12 +13,8 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
-import LevelSelector as LS exposing (Levels)
+import LevelSelector exposing (Levels)
 import LuminousFlux
-import Physics.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
-import Physics.Tick as WorldUpdate
-import Physics.World as World exposing (World)
-import Physics.World.Decode
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground.Colors as Colors
 import Playground.Light as Light
@@ -28,6 +24,10 @@ import Scene3d.Light
 import Scene3d.Material as Material
 import Temperature
 import Triangulate
+import World exposing (World)
+import World.Decode
+import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
+import World.Physics.Tick
 
 
 main =
@@ -50,17 +50,19 @@ initialConfigurations =
     [ configBlock "View Options"
         True
         [ boolConfig "draw speed vector" False
-        , boolConfig "unlit" False
+        , boolConfig "draw ball trail" True
+        , boolConfig "unlit" True
         ]
     , configBlock "Camera"
         True
-        [ floatConfig "camera distance" ( 3, 60 ) 20
+        [ floatConfig "camera distance" ( 3, 60 ) 40
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.8
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 20, 60 ) 40
+        [ boolConfig "fix time steps" True
+        , floatConfig "gas force" ( 20, 60 ) 40
         , floatConfig "friction" ( 0, 1 ) 0.4
         , floatConfig "direction change speed" ( 1, 5 ) 3
         , floatConfig "jump speed" ( 1, 20 ) 8
@@ -74,7 +76,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton World.init
+    { levels = LevelSelector.singleton World.init
     , editor = Editor.init
     , camera =
         perspectiveWithOrbit
@@ -92,8 +94,15 @@ init computer =
 
 
 update : Computer -> Model -> Model
-update computer model =
+update computer_ model =
     let
+        computer =
+            if getBool "fix time steps" computer_ then
+                { computer_ | deltaTime = 0.016 }
+
+            else
+                computer_
+
         handleEditorInput =
             if model.editor.isOn then
                 handleDrawingPolygon computer
@@ -132,7 +141,7 @@ moveCamera : Computer -> Model -> Model
 moveCamera computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (LevelSelector.current model.levels).ball
     in
     { model
         | camera =
@@ -149,9 +158,9 @@ tickWorld : Computer -> Model -> Model
 tickWorld computer model =
     let
         newWorld =
-            LS.current model.levels |> WorldUpdate.tick computer
+            LevelSelector.current model.levels |> World.Physics.Tick.tick computer
     in
-    { model | levels = model.levels |> LS.mapCurrent (always newWorld) }
+    { model | levels = model.levels |> LevelSelector.mapCurrent (always newWorld) }
 
 
 
@@ -200,7 +209,8 @@ viewGame computer model =
         viewScene =
             if getBool "unlit" computer then
                 Scene.unlit
-                    { screen = computer.screen
+                    { devicePixelRatio = computer.devicePixelRatio
+                    , screen = computer.screen
                     , camera = model.camera
                     , clipDepth = 0.1
                     , background = rgb255 46 46 46
@@ -222,8 +232,10 @@ viewGame computer model =
     in
     viewScene
         [ drawAxes computer
-        , drawFloor computer
+
+        --, drawFloor computer
         , drawBall computer model
+        , drawBallTrail computer model
         , drawPolygons computer model
         , drawMouseOverXY computer model
         , drawPolygonBeingEdited computer model
@@ -258,7 +270,7 @@ drawFloor computer =
 
 drawMouseOverXY : Computer -> Model -> Shape
 drawMouseOverXY computer model =
-    sphere (material computer orange) 0.5
+    sphere (material computer red) 0.2
         |> moveX model.mouseOverXY.x
         |> moveY model.mouseOverXY.y
 
@@ -351,14 +363,14 @@ drawPolygons computer model =
                 ]
     in
     group
-        ((LS.current model.levels).polygons |> List.map drawPolygon)
+        ((LevelSelector.current model.levels).polygons |> List.map drawPolygon)
 
 
 drawBall : Computer -> Model -> Shape
 drawBall computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (LevelSelector.current model.levels).ball
 
         playerBall =
             group
@@ -395,6 +407,31 @@ drawBall computer model =
         |> moveY ball.circle.center.y
 
 
+miniTriangle : Computer -> Shape
+miniTriangle computer =
+    triangle (material computer blue)
+        ( Point 0 0 0
+        , Point 0.1 0 0
+        , Point 0 0.1 0
+        )
+
+
+drawBallTrail : Computer -> Model -> Shape
+drawBallTrail computer model =
+    if getBool "draw ball trail" computer then
+        let
+            ball =
+                (LevelSelector.current model.levels).ball
+        in
+        group
+            (ball.trail
+                |> List.map (\p -> miniTriangle computer |> moveX p.x |> moveY p.y)
+            )
+
+    else
+        group []
+
+
 
 --  EDITOR
 
@@ -428,14 +465,14 @@ updateFromEditor computer editorMsg model =
         ClickedButtonFinishDrawingPolygon points ->
             { model
                 | editor = model.editor |> Editor.finishDrawingPolygon
-                , levels = model.levels |> LS.mapCurrent (World.addPolygon points)
+                , levels = model.levels |> LevelSelector.mapCurrent (World.addPolygon points)
             }
 
         PressedPreviousLevelButton ->
             { model
                 | levels =
                     model.levels
-                        |> LS.goToPrevious
+                        |> LevelSelector.goToPrevious
                         |> Maybe.withDefault model.levels
             }
 
@@ -443,18 +480,18 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.levels
-                        |> LS.goToNext
+                        |> LevelSelector.goToNext
                         |> Maybe.withDefault model.levels
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add World.init }
+            { model | levels = model.levels |> LevelSelector.add World.init }
 
         PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
+            { model | levels = model.levels |> LevelSelector.removeCurrent }
 
         PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
+            { model | levels = model.levels |> LevelSelector.moveLevelOneUp }
 
         ClickedExportLevelsButton ->
             { model | editor = model.editor |> Editor.exportLevels model.levels }
@@ -463,7 +500,7 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder Physics.World.Decode.decoder)
+                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 
@@ -584,9 +621,9 @@ levelSelectionButtons computer model =
         , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
             text <|
                 String.concat
-                    [ String.fromInt (LS.currentIndex model.levels)
+                    [ String.fromInt (LevelSelector.currentIndex model.levels)
                     , " / "
-                    , String.fromInt (LS.size model.levels)
+                    , String.fromInt (LevelSelector.size model.levels)
                     ]
         , makeButton ">" PressedNextLevelButton
         ]

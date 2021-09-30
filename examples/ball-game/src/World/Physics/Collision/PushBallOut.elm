@@ -1,7 +1,7 @@
-module Physics.Collision.PushBallOut exposing (..)
+module World.Physics.Collision.PushBallOut exposing (..)
 
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, LineSegment2d, Point2d, Vector2d, translateBy, vectorTo)
-import Physics.World exposing (PolygonBody, World)
+import World exposing (PolygonBody, World)
+import World.Physics.Collision.Primitives.Geometry2d as Geometry2d exposing (Circle2d, LineSegment2d, Point2d, Vector2d, translateBy, vectorTo)
 
 
 {-| This is an extra trick to prevent bugs that happen because floating point precession errors, when the ball is sitting in a narrow angle.

@@ -2,9 +2,9 @@ module Editor exposing (..)
 
 import Json.Encode
 import LevelSelector exposing (Levels)
-import Physics.Primitives.Geometry2d exposing (Point2d, distance)
-import Physics.World as World exposing (World)
-import Physics.World.Encode
+import World exposing (World)
+import World.Encode
+import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, distance)
 
 
 type alias Editor =
@@ -90,5 +90,5 @@ exportLevels : Levels World -> Editor -> Editor
 exportLevels levels editor =
     { editor
         | jsonExportedLevels =
-            Json.Encode.encode 2 (LevelSelector.encode (World.reset >> Physics.World.Encode.encode) levels)
+            Json.Encode.encode 2 (LevelSelector.encode (World.reset >> World.Encode.encode) levels)
     }

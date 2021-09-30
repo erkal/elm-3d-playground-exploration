@@ -1,6 +1,7 @@
 module ModifiedFromScene3d.Scenes exposing
     ( customWithDevicePixelRatio
     , sunnyWithDevicePixelRatio
+    , unlitWithDevicePixelRatio
     )
 
 import Camera3d exposing (Camera3d)
@@ -8,9 +9,10 @@ import Direction3d exposing (Direction3d)
 import Html exposing (Html)
 import Illuminance
 import Length exposing (Length, Meters)
+import Luminance
 import Pixels exposing (Pixels)
 import Quantity exposing (Quantity)
-import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, noToneMapping, supersampling, threeLights)
+import Scene3d exposing (Antialiasing, Background, Entity, Exposure, Lights, ToneMapping, composite, custom, exposureValue, maxLuminance, noLights, noToneMapping, supersampling, threeLights)
 import Scene3d.Light as Light exposing (Chromaticity)
 
 
@@ -62,6 +64,30 @@ sunnyWithDevicePixelRatio arguments =
         , antialiasing = supersampling arguments.devicePixelRatio
         , dimensions = arguments.dimensions
         , background = arguments.background
+        , entities = arguments.entities
+        }
+
+
+unlitWithDevicePixelRatio :
+    { devicePixelRatio : Float
+    , dimensions : ( Quantity Int Pixels, Quantity Int Pixels )
+    , camera : Camera3d Meters coordinates
+    , clipDepth : Length
+    , background : Background coordinates
+    , entities : List (Entity coordinates)
+    }
+    -> Html msg
+unlitWithDevicePixelRatio arguments =
+    custom
+        { lights = noLights
+        , camera = arguments.camera
+        , clipDepth = arguments.clipDepth
+        , exposure = maxLuminance (Luminance.nits 80) -- sRGB standard monitor brightness
+        , whiteBalance = Light.daylight
+        , antialiasing = supersampling arguments.devicePixelRatio
+        , dimensions = arguments.dimensions
+        , background = arguments.background
+        , toneMapping = noToneMapping
         , entities = arguments.entities
         }
 

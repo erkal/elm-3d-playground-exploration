@@ -1,18 +1,18 @@
-module Physics.Tick exposing (..)
+module World.Physics.Tick exposing (..)
 
-import Physics.Collision.BallToPolygons
-import Physics.Collision.PushBallOut
-import Physics.Primitives.Geometry2d exposing (Vector2d, add, distance, dotProduct, scaleBy, translateBy)
-import Physics.World exposing (Ball, World, mapBall)
 import Playground exposing (Computer, getFloat, toX, toY)
+import World exposing (Ball, World, mapBall)
+import World.Physics.Collision.BallToPolygons as BallToPolygons
+import World.Physics.Collision.Primitives.Geometry2d exposing (Vector2d, add, distance, dotProduct, scaleBy, translateBy)
+import World.Physics.Collision.PushBallOut as PushBallOut
 
 
 tick : Computer -> World -> World
 tick computer world =
     world
-        |> Physics.Collision.BallToPolygons.collide computer
+        |> BallToPolygons.collide computer
         |> mapBall (moveBall computer)
-        |> Physics.Collision.PushBallOut.fromWalls
+        |> PushBallOut.fromWalls
         |> collectCollectables
 
 
@@ -23,6 +23,7 @@ moveBall computer ball =
         |> friction computer
         |> tickRotation computer
         |> physics computer
+        |> updateTrail
 
 
 handleArrowKeys : Computer -> Ball -> Ball
@@ -67,6 +68,23 @@ tickRotation : Computer -> Ball -> Ball
 tickRotation computer ball =
     { ball
         | rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
+    }
+
+
+updateTrail : Ball -> Ball
+updateTrail ball =
+    { ball
+        | trail =
+            case ball.trail of
+                p :: _ ->
+                    if distance p ball.circle.center > 1 then
+                        ball.circle.center :: ball.trail
+
+                    else
+                        ball.trail
+
+                [] ->
+                    [ ball.circle.center ]
     }
 
 

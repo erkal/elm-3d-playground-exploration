@@ -1,10 +1,10 @@
 module Triangulate exposing (..)
 
 import Length
-import Physics.Primitives.Geometry2d exposing (Point2d)
 import Point2d
 import Polygon2d
 import TriangularMesh
+import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d)
 
 
 triangulate : List Point2d -> List ( Point2d, Point2d, Point2d )

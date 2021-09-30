@@ -1,6 +1,6 @@
-module Physics.World exposing (..)
+module World exposing (..)
 
-import Physics.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Polygon2d, Vector2d, distance, translateBy)
+import World.Physics.Collision.Primitives.Geometry2d exposing (Circle2d, Point2d, Polygon2d, Vector2d, distance, pointInPolygon)
 
 
 type alias World =
@@ -27,6 +27,7 @@ type alias Ball =
     , directionFromXAxis : {- in radians -} Float
     , rotationSpeed : {- in radians per second -} Float
     , rotation : {- in radians -} Float
+    , trail : List Point2d
     }
 
 
@@ -45,7 +46,11 @@ init =
     , ballBouncedInLastTickToPolygonWithId = Nothing
     }
         -- TODO: Remove the next line[ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
-        |> addPolygon [ Point2d 6 0, Point2d 6 6, Point2d 0 6 ]
+        |> addPolygon
+            [ Point2d 6 0
+            , Point2d 6 6
+            , Point2d 0 6
+            ]
 
 
 initialBall : Ball
@@ -55,6 +60,7 @@ initialBall =
     , directionFromXAxis = 0
     , rotationSpeed = 0
     , rotation = 0
+    , trail = []
     }
 
 
@@ -113,12 +119,7 @@ removeCoins p world =
 
 removePolygons : Point2d -> World -> World
 removePolygons p world =
-    let
-        coversPoint polygon =
-            polygon
-                |> Geometry2d.pointInPolygon p
-    in
-    { world | polygons = world.polygons |> List.filter (.polygon >> coversPoint >> not) }
+    { world | polygons = world.polygons |> List.filter (.polygon >> pointInPolygon p >> not) }
 
 
 resetBall : World -> World
