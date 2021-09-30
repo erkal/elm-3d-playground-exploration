@@ -52,6 +52,7 @@ encodeBall ball =
         , ( "directionFromXAxis", JE.float ball.directionFromXAxis )
         , ( "rotationSpeed", JE.float ball.rotationSpeed )
         , ( "rotation", JE.float ball.rotation )
+        , ( "trail", JE.list encodeWorldPhysicsCollisionPrimitivesGeometry2dPoint2d ball.trail )
         ]
 
 

@@ -27,6 +27,7 @@ type alias Ball =
     , directionFromXAxis : {- in radians -} Float
     , rotationSpeed : {- in radians per second -} Float
     , rotation : {- in radians -} Float
+    , trail : List Point2d
     }
 
 
@@ -45,7 +46,11 @@ init =
     , ballBouncedInLastTickToPolygonWithId = Nothing
     }
         -- TODO: Remove the next line[ Point2d 0 0, Point2d 4 0, Point2d 4 4, Point2d 0 4 ]
-        |> addPolygon [ Point2d 6 0, Point2d 6 6, Point2d 0 6 ]
+        |> addPolygon
+            [ Point2d 6 0
+            , Point2d 6 6
+            , Point2d 0 6
+            ]
 
 
 initialBall : Ball
@@ -55,6 +60,7 @@ initialBall =
     , directionFromXAxis = 0
     , rotationSpeed = 0
     , rotation = 0
+    , trail = []
     }
 
 

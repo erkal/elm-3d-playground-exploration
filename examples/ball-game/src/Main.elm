@@ -50,6 +50,7 @@ initialConfigurations =
     [ configBlock "View Options"
         True
         [ boolConfig "draw speed vector" False
+        , boolConfig "draw ball trail" True
         , boolConfig "unlit" False
         ]
     , configBlock "Camera"
@@ -224,6 +225,7 @@ viewGame computer model =
         [ drawAxes computer
         , drawFloor computer
         , drawBall computer model
+        , drawBallTrail computer model
         , drawPolygons computer model
         , drawMouseOverXY computer model
         , drawPolygonBeingEdited computer model
@@ -393,6 +395,30 @@ drawBall computer model =
         |> moveZ 0.5
         |> moveX ball.circle.center.x
         |> moveY ball.circle.center.y
+
+
+miniTriangle computer =
+    triangle (material computer blue)
+        ( Point 0 0 0
+        , Point 0.1 0 0
+        , Point 0 0.1 0
+        )
+
+
+drawBallTrail : Computer -> Model -> Shape
+drawBallTrail computer model =
+    if getBool "draw ball trail" computer then
+        let
+            ball =
+                (LevelSelector.current model.levels).ball
+        in
+        group
+            (ball.trail
+                |> List.map (\p -> miniTriangle computer |> moveX p.x |> moveY p.y)
+            )
+
+    else
+        group []
 
 
 

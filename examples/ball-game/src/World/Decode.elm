@@ -50,6 +50,7 @@ ballDecoder =
         |> required "directionFromXAxis" JD.float
         |> required "rotationSpeed" JD.float
         |> required "rotation" JD.float
+        |> required "trail" (JD.list worldPhysicsCollisionPrimitivesGeometry2dPoint2dDecoder)
 
 
 

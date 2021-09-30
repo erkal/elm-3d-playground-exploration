@@ -23,6 +23,7 @@ moveBall computer ball =
         |> friction computer
         |> tickRotation computer
         |> physics computer
+        |> updateTrail
 
 
 handleArrowKeys : Computer -> Ball -> Ball
@@ -67,6 +68,23 @@ tickRotation : Computer -> Ball -> Ball
 tickRotation computer ball =
     { ball
         | rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
+    }
+
+
+updateTrail : Ball -> Ball
+updateTrail ball =
+    { ball
+        | trail =
+            case ball.trail of
+                p :: _ ->
+                    if distance p ball.circle.center > 1 then
+                        ball.circle.center :: ball.trail
+
+                    else
+                        ball.trail
+
+                [] ->
+                    [ ball.circle.center ]
     }
 
 
