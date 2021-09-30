@@ -51,7 +51,7 @@ initialConfigurations =
         True
         [ boolConfig "draw speed vector" False
         , boolConfig "draw ball trail" True
-        , boolConfig "unlit" False
+        , boolConfig "unlit" True
         ]
     , configBlock "Camera"
         True
@@ -61,7 +61,8 @@ initialConfigurations =
         ]
     , configBlock "Physics Parameters"
         True
-        [ floatConfig "gas force" ( 20, 60 ) 40
+        [ boolConfig "fix time steps" True
+        , floatConfig "gas force" ( 20, 60 ) 40
         , floatConfig "friction" ( 0, 1 ) 0.4
         , floatConfig "direction change speed" ( 1, 5 ) 3
         , floatConfig "jump speed" ( 1, 20 ) 8
@@ -93,8 +94,15 @@ init computer =
 
 
 update : Computer -> Model -> Model
-update computer model =
+update computer_ model =
     let
+        computer =
+            if getBool "fix time steps" computer_ then
+                { computer_ | deltaTime = 0.016 }
+
+            else
+                computer_
+
         handleEditorInput =
             if model.editor.isOn then
                 handleDrawingPolygon computer
@@ -224,7 +232,8 @@ viewGame computer model =
     in
     viewScene
         [ drawAxes computer
-        , drawFloor computer
+
+        --, drawFloor computer
         , drawBall computer model
         , drawBallTrail computer model
         , drawPolygons computer model
