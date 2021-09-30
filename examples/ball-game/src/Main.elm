@@ -55,9 +55,9 @@ initialConfigurations =
         ]
     , configBlock "Camera"
         True
-        [ floatConfig "camera distance" ( 3, 60 ) 20
+        [ floatConfig "camera distance" ( 3, 60 ) 40
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.8
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
         ]
     , configBlock "Physics Parameters"
         True
@@ -270,7 +270,7 @@ drawFloor computer =
 
 drawMouseOverXY : Computer -> Model -> Shape
 drawMouseOverXY computer model =
-    sphere (material computer orange) 0.5
+    sphere (material computer red) 0.2
         |> moveX model.mouseOverXY.x
         |> moveY model.mouseOverXY.y
 
