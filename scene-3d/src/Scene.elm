@@ -76,7 +76,8 @@ sunny arguments shapes =
 
 
 unlit :
-    { screen : { screen | width : Float, height : Float }
+    { devicePixelRatio : Float
+    , screen : { screen | width : Float, height : Float }
     , camera : Camera
     , clipDepth : Float
     , background : Color
@@ -84,8 +85,9 @@ unlit :
     -> List Shape
     -> Html Never
 unlit arguments shapes =
-    Scene3d.unlit
-        { dimensions =
+    ModifiedFromScene3d.Scenes.unlitWithDevicePixelRatio
+        { devicePixelRatio = arguments.devicePixelRatio
+        , dimensions =
             ( Pixels.int (round arguments.screen.width)
             , Pixels.int (round arguments.screen.height)
             )

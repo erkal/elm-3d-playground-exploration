@@ -201,7 +201,8 @@ viewGame computer model =
         viewScene =
             if getBool "unlit" computer then
                 Scene.unlit
-                    { screen = computer.screen
+                    { devicePixelRatio = computer.devicePixelRatio
+                    , screen = computer.screen
                     , camera = model.camera
                     , clipDepth = 0.1
                     , background = rgb255 46 46 46
@@ -397,6 +398,7 @@ drawBall computer model =
         |> moveY ball.circle.center.y
 
 
+miniTriangle : Computer -> Shape
 miniTriangle computer =
     triangle (material computer blue)
         ( Point 0 0 0
