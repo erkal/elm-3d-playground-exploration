@@ -16,62 +16,7 @@ main =
 
 
 type alias Model =
-    { numbers : Dict String ( Number, List NumberModification )
-    , numberArrays : Dict String ( NumberArray, List NumberArrayModification )
-    , picture : Picture
-    }
-
-
-
--- NUMBERS
-
-
-{-|
-
-    x =
-        1
-
-    y =
-        x + 1
-
--}
-type Number
-    = Num Float
-    | NumReference String
-
-
-type NumberModification
-    = AddTo Number
-    | MultiplyBy Number
-    | Sin
-    | Cos
-
-
-
--- NUMBER ARRAYS
-
-
-{-|
-
-    a =
-        [ 1, 2, 3, 4, 5 ]
-
-    b =
-        sin (a + 1)
-
-    c =
-        cos (b * [ 4, 3, 6, 1, 8 ])
-
--}
-type NumberArray
-    = NumArray (Array Number)
-    | NumArrayReference String
-
-
-type NumberArrayModification
-    = SingleNumAction NumberModification
-    | AddToNumArray NumberArray
-    | MultiplyByNumArray NumberArray
+    Picture
 
 
 
@@ -83,19 +28,33 @@ type Snap
     | CanvasTopLeft
     | LineStart String
     | LineEnd String
-    | LineOnRatio String Number
+    | LineOnRatio String Float
 
 
 type Picture
-    = PictureDrawing (Dict String ( Picture, List PictureModification ))
-    | PictureDrawingFromNumberArrayViaMap {- TODO -} ()
-    | PictureDrawingFromNumberArrayViaFold {- TODO -} ()
+    = Group (Dict String ( Picture, List PictureModification ))
+    | Number ( Float, List NumberModification )
+    | NumberArray ( Array Float, List NumberArrayModification )
     | LineDrawing ( Line, List LineModification )
     | CircleDrawing ( Circle, List CircleModification )
 
 
+type NumberArrayModification
+    = AddTo Float
+    | MultiplyBy Float
+    | Sin
+    | Cos
+
+
+type NumberModification
+    = AddTo Float
+    | MultiplyBy Float
+    | Sin
+    | Cos
+
+
 type PictureModification
-    = ScaleAroundCenter Number
+    = ScaleAroundCenter Numbers
 
 
 type Line
@@ -129,7 +88,7 @@ init : Computer -> Model
 init computer =
     { numbers = Dict.singleton "time" ( Num 0, [] )
     , numberArrays = Dict.empty
-    , picture = PictureDrawing "canvas" Dict.empty
+    , picture = Group Dict.empty
     }
 
 
