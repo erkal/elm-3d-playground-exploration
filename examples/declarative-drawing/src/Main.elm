@@ -1,9 +1,8 @@
 module Main exposing (main)
 
-import Array exposing (Array)
 import Camera exposing (Camera, perspective)
+import CodeGraph exposing (CodeGraph, NodeName)
 import Color exposing (blue, gray, green, red, rgb255)
-import Dict exposing (Dict)
 import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
@@ -16,68 +15,44 @@ main =
 
 
 type alias Model =
-    Picture
+    CodeGraph Node Link
 
 
+{-|
 
--- DRAWINGS
+    All the data will be on edges.
+    Nodes won't carry information.
 
-
-type Snap
-    = CanvasCenter
-    | CanvasTopLeft
-    | LineStart String
-    | LineEnd String
-    | LineOnRatio String Float
-
-
-type Picture
-    = Group (Dict String ( Picture, List PictureModification ))
-    | Number ( Float, List NumberModification )
-    | NumberArray ( Array Float, List NumberArrayModification )
-    | LineDrawing ( Line, List LineModification )
-    | CircleDrawing ( Circle, List CircleModification )
+-}
+type Node
+    = Variable VariableType
+    | Modification ModificationType
 
 
-type NumberArrayModification
-    = AddTo Float
-    | MultiplyBy Float
+type VariableType
+    = Reference
+    | Group
+    | Number Float
+    | Line
+    | Circle
+    | Rectangle
+
+
+type ModificationType
+    = AddTo
+    | RotateBy
+    | MultiplyBy
+    | ScaleAround
+    | SnapToRatioOnLine
     | Sin
     | Cos
 
 
-type NumberModification
-    = AddTo Float
-    | MultiplyBy Float
-    | Sin
-    | Cos
-
-
-type PictureModification
-    = ScaleAroundCenter Numbers
-
-
-type Line
-    = Line
-        { start : Snap
-        , end : Snap
-        }
-
-
-type LineModification
-    = ScaleAroundStartingPointBy Number
-    | RotateAroundStartingPointBy Number
-
-
-type Circle
-    = Circle
-        { center : Snap
-        , endOfRadiusLine : Snap
-        }
-
-
-type CircleModification
-    = ScaleAround Snap Number
+type Link
+    = Reference_To
+    | Group_ElementWithIndex Int
+    | Line_StartsAt
+    | Line_EndsAt
 
 
 
@@ -86,10 +61,7 @@ type CircleModification
 
 init : Computer -> Model
 init computer =
-    { numbers = Dict.singleton "time" ( Num 0, [] )
-    , numberArrays = Dict.empty
-    , picture = Group Dict.empty
-    }
+    CodeGraph.empty
 
 
 
@@ -104,7 +76,8 @@ update computer model =
 
 updateTime : Computer -> Model -> Model
 updateTime computer model =
-    { model | numbers = model.numbers |> Dict.insert "time" ( Num computer.time, [] ) }
+    -- TODO
+    model
 
 
 

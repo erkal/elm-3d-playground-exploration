@@ -96,7 +96,7 @@ initialConfigurations =
         , floatConfig "base vertex radius" ( 0.2, 2 ) 0.5
         , floatConfig "base edge width" ( 0.2, 1.5 ) 1
         ]
-    , configBlock "Player Graph"
+    , configBlock "Player CodeGraph"
         True
         [ colorConfig "player" white
         , floatConfig "player vertex radius" ( 0.1, 0.6 ) 0.35
