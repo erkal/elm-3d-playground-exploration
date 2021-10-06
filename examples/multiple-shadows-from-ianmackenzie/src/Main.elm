@@ -4,10 +4,10 @@ import Camera exposing (Camera, perspective)
 import Color exposing (blue, brown, gray, green, hsl, lightBlue, lightGreen, lightPurple, orange, red, white)
 import Html exposing (Html)
 import Illuminance
+import Light
 import LuminousFlux
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (spin, wave)
-import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light

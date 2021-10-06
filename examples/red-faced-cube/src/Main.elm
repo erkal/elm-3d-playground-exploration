@@ -9,11 +9,11 @@ import Geometry exposing (Point, Vector)
 import Html exposing (Html, br, div, h2, li, ol, p, span, text, ul)
 import Html.Attributes exposing (style)
 import Illuminance
+import Light
 import LuminousFlux
 import Path exposing (Path)
 import Playground exposing (..)
 import Playground.Animation exposing (wave)
-import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light

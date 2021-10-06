@@ -19,10 +19,10 @@ import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
 import Level.Decode
 import LevelSelector as LS exposing (Levels)
+import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground.Colors as Colors
-import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light

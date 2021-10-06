@@ -1,4 +1,4 @@
-module Playground.Light exposing
+module Light exposing
     ( directional
     , point
     , soft

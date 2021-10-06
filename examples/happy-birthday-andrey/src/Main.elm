@@ -4,10 +4,10 @@ import Camera as Camera exposing (Camera, perspective)
 import Color exposing (Color, black, yellow)
 import Html exposing (Html)
 import Illuminance
+import Light
 import LuminousFlux
 import Playground exposing (Computer, gameWithConfigurations)
 import Playground.Animation exposing (wave)
-import Playground.Light as Light
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light

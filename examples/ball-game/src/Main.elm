@@ -14,10 +14,10 @@ import Html.Attributes exposing (style)
 import Illuminance
 import Json.Decode
 import LevelSelector exposing (Levels)
+import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
 import Playground.Colors as Colors
-import Playground.Light as Light
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
