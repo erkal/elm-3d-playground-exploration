@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Camera exposing (Camera, perspectiveWithOrbit)
+import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
@@ -51,6 +51,7 @@ initialConfigurations =
         True
         [ boolConfig "draw speed vector" False
         , boolConfig "draw ball trail" True
+        , boolConfig "orthographic" True
         , boolConfig "unlit" True
         ]
     , configBlock "Camera"
@@ -65,7 +66,6 @@ initialConfigurations =
         , floatConfig "gas force" ( 20, 60 ) 40
         , floatConfig "friction" ( 0, 1 ) 0.4
         , floatConfig "direction change speed" ( 1, 5 ) 3
-        , floatConfig "jump speed" ( 1, 20 ) 8
         ]
     , configBlock "Color"
         True
@@ -78,15 +78,28 @@ init : Computer -> Model
 init computer =
     { levels = LevelSelector.singleton World.init
     , editor = Editor.init
-    , camera =
+    , camera = camera computer { x = 0, y = 0, z = 0 }
+    , mouseOverXY = Point2d 0 0
+    }
+
+
+camera : Computer -> Point -> Camera
+camera computer focalPoint =
+    if getBool "orthographic" computer then
+        orthographic
+            { focalPoint = focalPoint
+            , azimuth = getFloat "camera azimuth" computer
+            , elevation = getFloat "camera elevation" computer
+            , viewportHeight = getFloat "camera distance" computer
+            }
+
+    else
         perspectiveWithOrbit
-            { focalPoint = { x = 0, y = 0, z = 0 }
+            { focalPoint = focalPoint
             , azimuth = getFloat "camera azimuth" computer
             , elevation = getFloat "camera elevation" computer
             , distance = getFloat "camera distance" computer
             }
-    , mouseOverXY = Point2d 0 0
-    }
 
 
 
@@ -145,12 +158,7 @@ moveCamera computer model =
     in
     { model
         | camera =
-            perspectiveWithOrbit
-                { focalPoint = Point ball.circle.center.x ball.circle.center.y 0
-                , azimuth = getFloat "camera azimuth" computer
-                , elevation = getFloat "camera elevation" computer
-                , distance = getFloat "camera distance" computer
-                }
+            camera computer (Point ball.circle.center.x ball.circle.center.y 0)
     }
 
 
