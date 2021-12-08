@@ -75,7 +75,7 @@ axes =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block (matte gray) ( 1, 1, 1 )
+    block (matte blue) ( 1, 1, 1 )
         |> scale (wave 1 2 14 computer.time)
         |> rotateX (wave 1 10 30 computer.time)
         |> rotateY (wave 1 10 30 computer.time)
