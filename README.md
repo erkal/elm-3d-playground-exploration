@@ -4,28 +4,30 @@ A modification of [evancz/elm-playground](https://package.elm-lang.org/packages/
 
 # [Click here to see the examples](https://github.com/erkal/elm-3d-playground-exploration/blob/main/DEMOS.md)
 
+# For Development
 
-# For Development 
 First [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable) if you don't have it already.
 
 Clone the repository
+
 ```
 git clone https://github.com/erkal/elm-3d-playground-exploration.git
 ```
-and navigate into it:
+
+and navigate into an example:
+
 ```
-cd elm-3d-playground-exploration
+cd elm-3d-playground-exploration/examples/template
 ```
 
 To install all dependencies, type
+
 ```
-yarn install
+yarn
 ```
 
 To run a development server with hot-reloading, type
+
 ```
 yarn dev
 ```
-enter the number you are asked for and open the shown url in your browser.
-
-To create a new example, just duplicate one of the directories in `examples` directory.
