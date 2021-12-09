@@ -48,15 +48,6 @@ update computer model =
 -- VIEW
 
 
-camera : Camera
-camera =
-    perspective
-        { focalPoint = { x = 0, y = 3, z = 0 }
-        , eyePoint = { x = 5, y = 12, z = 15 }
-        , upDirection = { x = 0, y = 1, z = 0 }
-        }
-
-
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
