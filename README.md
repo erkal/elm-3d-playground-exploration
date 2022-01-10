@@ -6,7 +6,7 @@ A modification of [evancz/elm-playground](https://package.elm-lang.org/packages/
 
 # For Development
 
-First, [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable) if you don't have it already.
+If you don't have them already, [install nodejs](https://nodejs.org/en/download/) and [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
 
 Clone the repository
 
@@ -20,13 +20,13 @@ and navigate into an example, for example:
 cd elm-3d-playground-exploration/examples/red-faced-cube
 ```
 
-To install all dependencies, type
+install all dependencies, type
 
 ```
 yarn
 ```
 
-To run a development server with hot-reloading, type
+and run a development server with hot-reloading by typing type
 
 ```
 yarn dev
