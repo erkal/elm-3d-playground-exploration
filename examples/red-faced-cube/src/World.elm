@@ -71,8 +71,8 @@ type Rule
     | CannotCrossPath
 
 
-rollCubeTo : RollDirection -> World -> RollResult
-rollCubeTo rollDirection world =
+roll : RollDirection -> World -> RollResult
+roll rollDirection world =
     let
         ((Cube newCell newRedFaceDirection) as newCube) =
             Cube.roll rollDirection world.cube

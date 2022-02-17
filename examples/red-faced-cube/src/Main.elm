@@ -198,7 +198,7 @@ handleSwipeInput computer model =
 
 attemptRollTo : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollTo rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.rollCubeTo rollDirection of
+    case LevelSelector.current model.levels |> World.roll rollDirection of
         CannotRoll CannotCrossPath ->
             model
 
