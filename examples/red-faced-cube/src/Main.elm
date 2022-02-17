@@ -163,7 +163,7 @@ handleKeyboardInput ({ keyboard } as computer) model =
             model
 
         Just rollDirection ->
-            attemptRollTo rollDirection startCell computer model
+            attemptRoll rollDirection startCell computer model
 
 
 handleSwipeInput : Computer -> Model -> Model
@@ -193,11 +193,11 @@ handleSwipeInput computer model =
             model
 
         Just rollDirection ->
-            attemptRollTo rollDirection startCell computer model
+            attemptRoll rollDirection startCell computer model
 
 
-attemptRollTo : RollDirection -> Cell -> Computer -> Model -> Model
-attemptRollTo rollDirection startCell computer model =
+attemptRoll : RollDirection -> Cell -> Computer -> Model -> Model
+attemptRoll rollDirection startCell computer model =
     case LevelSelector.current model.levels |> World.roll rollDirection of
         CannotRoll CannotCrossPath ->
             model
