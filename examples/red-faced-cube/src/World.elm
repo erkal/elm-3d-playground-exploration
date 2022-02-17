@@ -12,12 +12,32 @@ type alias World =
     }
 
 
-init : { start : Cell } -> World
-init { start } =
+empty : World
+empty =
     World
-        (Cube start (RedFaceDirection Z Positive))
-        ( start, [] )
+        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
+        ( ( -4, 3 ), [] )
+        ( ( -4, 3 ), [] )
+
+
+levelFromBook : World
+levelFromBook =
+    World
+        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
+        ( ( -4, 3 ), [] )
         ( ( 3, 3 ), [ ( 2, 3 ), ( 1, 3 ), ( 0, 3 ), ( 0, 2 ), ( 1, 2 ), ( 1, 1 ), ( 2, 1 ), ( 2, 2 ), ( 3, 2 ), ( 3, 1 ), ( 3, 0 ), ( 3, -1 ), ( 3, -2 ), ( 3, -3 ), ( 3, -4 ), ( 2, -4 ), ( 2, -3 ), ( 1, -3 ), ( 1, -4 ), ( 0, -4 ), ( 0, -3 ), ( 0, -2 ), ( 1, -2 ), ( 2, -2 ), ( 2, -1 ), ( 2, 0 ), ( 1, 0 ), ( 1, -1 ), ( 0, -1 ), ( 0, 0 ), ( 0, 1 ), ( -1, 1 ), ( -1, 0 ), ( -1, -1 ), ( -2, -1 ), ( -2, 0 ), ( -3, 0 ), ( -3, -1 ), ( -3, -2 ), ( -2, -2 ), ( -1, -2 ), ( -1, -3 ), ( -1, -4 ), ( -2, -4 ), ( -2, -3 ), ( -3, -3 ), ( -3, -4 ), ( -4, -4 ), ( -4, -3 ), ( -4, -2 ), ( -4, -1 ), ( -4, 0 ), ( -4, 1 ), ( -4, 2 ), ( -3, 2 ), ( -3, 1 ), ( -2, 1 ), ( -2, 2 ), ( -1, 2 ), ( -1, 3 ), ( -2, 3 ), ( -3, 3 ), ( -4, 3 ) ] )
+
+
+reset : World -> World
+reset world =
+    let
+        start =
+            Path.firstCell world.solutionPath
+    in
+    { world
+        | cube = Cube start (RedFaceDirection Z Positive)
+        , playerPath = ( start, [] )
+    }
 
 
 

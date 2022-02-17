@@ -1,7 +1,6 @@
 module Path exposing (..)
 
 import Cell exposing (Cell)
-import Set
 import Wall exposing (Wall(..), WallDirection(..))
 
 
@@ -16,6 +15,14 @@ type alias PathSegment =
 length : Path -> Int
 length ( _, rest ) =
     1 + List.length rest
+
+
+firstCell : Path -> Cell
+firstCell ( last, rest ) =
+    rest
+        |> List.reverse
+        |> List.head
+        |> Maybe.withDefault last
 
 
 lastCell : Path -> Cell
