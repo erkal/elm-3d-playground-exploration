@@ -6,7 +6,7 @@ import Color exposing (hsl, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Geometry exposing (Point, Vector)
-import Html exposing (Html, br, div, h2, li, ol, p, span, text, ul)
+import Html exposing (Html, br, div, h2, p, span, text)
 import Html.Attributes exposing (style)
 import Illuminance
 import Light
