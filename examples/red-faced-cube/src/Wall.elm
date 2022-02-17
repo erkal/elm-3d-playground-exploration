@@ -1,6 +1,6 @@
 module Wall exposing (..)
 
-import Cell exposing (Cell)
+import Cell exposing (Cell, RollDirection(..))
 
 
 type Wall
@@ -9,4 +9,13 @@ type Wall
 
 type WallDirection
     = S
-    | W
+    | E
+
+
+wallsAround : Cell -> List Wall
+wallsAround cell =
+    [ Wall cell S
+    , Wall cell E
+    , Wall (Cell.neighbourTo Up cell) S
+    , Wall (Cell.neighbourTo Left cell) E
+    ]

@@ -438,32 +438,27 @@ viewShapes computer model =
         , antialiasing = Scene3d.multisampling
         , backgroundColor = getColor "background color" computer
         }
-        [ board computer
-        , drawCubes computer model
+        [ drawBoard computer model
+        , drawCube computer model
         , drawWalls computer model
         , drawPath computer model
         ]
 
 
-board : Computer -> Shape
-board computer =
+drawBoard : Computer -> Model -> Shape
+drawBoard computer model =
     let
-        wallWidth =
-            1 - getFloat "cubes side length" computer
-
-        rightWall =
-            block (matte (getColor "wall color" computer)) ( wallWidth, 8 + wallWidth, wallWidth )
-                |> moveX 4
+        drawCellOnPath ( x, y ) =
+            cube (matte (getColor "board color" computer)) 1
+                |> moveZ -0.495
+                |> moveX (toFloat x)
+                |> moveY (toFloat y)
     in
     group
-        [ block (matte (getColor "board color" computer)) ( 8.01, 8.01, 1 ) |> moveZ -0.5
-        , rightWall
-        , rightWall |> rotateZ (degrees 90)
-        , rightWall |> rotateZ (degrees 180)
-        , rightWall |> rotateZ (degrees 270)
-        ]
-        |> moveX -0.5
-        |> moveY -0.5
+        (model.world.solutionPath
+            |> Path.cells
+            |> List.map drawCellOnPath
+        )
 
 
 cartesianProduct : List a -> List b -> List ( b, a )
@@ -473,31 +468,6 @@ cartesianProduct columns =
             List.map (\j -> ( i, j )) columns
     in
     List.concatMap row
-
-
-allWalls : List Wall
-allWalls =
-    cartesianProduct (List.range -4 3) (List.range -4 3)
-        |> List.concatMap
-            (\(( x, y ) as cell) ->
-                if x == 3 && y == -4 then
-                    []
-
-                else if x == 3 then
-                    [ Wall cell S ]
-
-                else if y == -4 then
-                    [ Wall cell W ]
-
-                else
-                    [ Wall cell S, Wall cell W ]
-            )
-
-
-wallsNotCrossedBy : Path -> List Wall
-wallsNotCrossedBy path =
-    allWalls
-        |> List.filter (\wall -> not (Path.crosses wall path))
 
 
 drawWall : Computer -> Wall -> Shape
@@ -511,15 +481,15 @@ drawWall computer (Wall ( x, y ) wallDirection) =
                 ( 1 + wallWidth, wallWidth, wallWidth )
                 |> moveY -0.5
 
-        westWall =
+        eastWall =
             southWall |> rotateZ (degrees 90)
     in
     (case wallDirection of
         S ->
             southWall
 
-        W ->
-            westWall
+        E ->
+            eastWall
     )
         |> moveX (toFloat x)
         |> moveY (toFloat y)
@@ -528,7 +498,9 @@ drawWall computer (Wall ( x, y ) wallDirection) =
 drawWalls : Computer -> Model -> Shape
 drawWalls computer model =
     group
-        (wallsNotCrossedBy model.world.path
+        (model.world.solutionPath
+            |> Path.wallsWithDuplicates
+            |> List.filter (\wall -> not (Path.crosses wall model.world.playerPath))
             |> List.map (drawWall computer)
         )
 
@@ -563,14 +535,14 @@ drawPath computer model =
                 |> moveY (toFloat y)
     in
     group
-        (model.world.path
+        (model.world.playerPath
             |> Path.cells
             |> List.indexedMap drawCellOnPath
         )
 
 
-drawCubes : Computer -> Model -> Shape
-drawCubes computer model =
+drawCube : Computer -> Model -> Shape
+drawCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
             model.world.cube
