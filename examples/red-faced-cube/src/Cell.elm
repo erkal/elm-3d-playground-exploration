@@ -12,6 +12,12 @@ type RollDirection
     | Right
 
 
+areNeighbours : Cell -> Cell -> Bool
+areNeighbours cell1 cell2 =
+    [ Up, Down, Left, Right ]
+        |> List.any (\rollDirection -> cell2 == neighbourTo rollDirection cell1)
+
+
 neighbourTo : RollDirection -> Cell -> Cell
 neighbourTo rollDirection ( x, y ) =
     case rollDirection of

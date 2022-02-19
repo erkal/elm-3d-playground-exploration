@@ -2,18 +2,28 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
-import Color exposing (hsl, rgb255, white)
+import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
+import Editor exposing (Editor)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, px, row, scrollbarY, spacing, textColumn, width)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
+import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
-import Html exposing (Html, br, div, h2, li, ol, p, span, text, ul)
+import HardcodedLevels exposing (hardcodedLevels)
+import Html exposing (Html, br, div, h2, p, span, text)
 import Html.Attributes exposing (style)
 import Illuminance
+import Json.Decode
+import LevelSelector exposing (Levels)
 import Light
 import LuminousFlux
 import Path exposing (Path)
 import Playground exposing (..)
 import Playground.Animation exposing (wave)
+import Playground.Colors as Colors
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -22,6 +32,7 @@ import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
 import World exposing (RollResult(..), Rule(..), World)
+import World.Decode
 
 
 
@@ -33,12 +44,19 @@ import World exposing (RollResult(..), Rule(..), World)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    gameWithConfigurationsAndEditor view
+        update
+        initialConfigurations
+        init
+        viewEditor
+        updateFromEditor
 
 
 type alias Model =
     { state : State
-    , world : World
+    , levels : Levels World
+    , editor : Editor
+    , cellUnderPointer : Cell
     , swipe : Swipe
     }
 
@@ -95,7 +113,11 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { state = NoAnimation
-    , world = World.init { start = ( -4, 3 ) }
+    , levels =
+        --LevelSelector.singleton World.levelFromBook
+        hardcodedLevels
+    , editor = Editor.init
+    , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
     }
 
@@ -106,11 +128,49 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
-    model
-        |> updateSwipe computer
-        |> handleKeyboardInput computer
-        |> handleSwipeInput computer
-        |> stopAnimation computer
+    if model.editor.isOn then
+        model
+            |> updateCellUnderPointer computer
+            |> extendOrShortenASolutionInLevelEditor computer
+            |> updateSwipe computer
+            |> handleKeyboardInput computer
+            |> handleSwipeInput computer
+            |> stopAnimation computer
+
+    else
+        model
+            |> updateCellUnderPointer computer
+            |> updateSwipe computer
+            |> handleKeyboardInput computer
+            |> handleSwipeInput computer
+            |> stopAnimation computer
+
+
+extendOrShortenASolutionInLevelEditor : Computer -> Model -> Model
+extendOrShortenASolutionInLevelEditor computer model =
+    if computer.pointer.down then
+        { model
+            | levels =
+                model.levels
+                    |> LevelSelector.setCurrent
+                        (LevelSelector.current model.levels
+                            |> World.maybeExtendASolutionPathTo model.cellUnderPointer
+                            |> World.maybeShortenASolutionPathTo model.cellUnderPointer
+                        )
+        }
+
+    else
+        model
+
+
+updateCellUnderPointer : Computer -> Model -> Model
+updateCellUnderPointer computer model =
+    { model
+        | cellUnderPointer =
+            Camera.mouseOverXY (camera computer) computer.screen computer.pointer
+                |> Maybe.map (\{ x, y } -> ( round x, round y ))
+                |> Maybe.withDefault model.cellUnderPointer
+    }
 
 
 updateSwipe : Computer -> Model -> Model
@@ -122,7 +182,7 @@ handleKeyboardInput : Computer -> Model -> Model
 handleKeyboardInput ({ keyboard } as computer) model =
     let
         (Cube startCell _) =
-            model.world.cube
+            (LevelSelector.current model.levels).cube
 
         maybeRollDirection =
             case [ keyboard.up, keyboard.down, keyboard.left, keyboard.right ] of
@@ -146,14 +206,14 @@ handleKeyboardInput ({ keyboard } as computer) model =
             model
 
         Just rollDirection ->
-            attemptRollTo rollDirection startCell computer model
+            attemptRoll rollDirection startCell computer model
 
 
 handleSwipeInput : Computer -> Model -> Model
 handleSwipeInput computer model =
     let
         (Cube startCell _) =
-            model.world.cube
+            (LevelSelector.current model.levels).cube
 
         maybeRollDirection =
             if Swipe.swipedUp model.swipe then
@@ -176,12 +236,12 @@ handleSwipeInput computer model =
             model
 
         Just rollDirection ->
-            attemptRollTo rollDirection startCell computer model
+            attemptRoll rollDirection startCell computer model
 
 
-attemptRollTo : RollDirection -> Cell -> Computer -> Model -> Model
-attemptRollTo rollDirection startCell computer model =
-    case model.world |> World.rollCubeTo rollDirection of
+attemptRoll : RollDirection -> Cell -> Computer -> Model -> Model
+attemptRoll rollDirection startCell computer model =
+    case LevelSelector.current model.levels |> World.roll rollDirection of
         CannotRoll CannotCrossPath ->
             model
 
@@ -217,7 +277,7 @@ stopAnimation computer model =
 
                         else
                             NoAnimation
-                    , world = newWorld
+                    , levels = model.levels |> LevelSelector.setCurrent newWorld
                 }
 
             else
@@ -354,7 +414,7 @@ viewShapes : Computer -> Model -> Html Never
 viewShapes computer model =
     let
         (Cube ( x, y ) _) =
-            model.world.cube
+            (LevelSelector.current model.levels).cube
 
         ( cubeX, cubeY ) =
             -- This is only for the camera follow rolling cube smoothly
@@ -438,32 +498,55 @@ viewShapes computer model =
         , antialiasing = Scene3d.multisampling
         , backgroundColor = getColor "background color" computer
         }
-        [ board computer
-        , drawCubes computer model
-        , drawWalls computer model
-        , drawPath computer model
-        ]
+        (if model.editor.isOn then
+            [ drawBoard computer model
+            , drawCube computer model
+            , drawWalls computer model
+            , drawPath computer model
+            , drawPointer computer model
+            ]
+
+         else
+            [ drawBoard computer model
+            , drawCube computer model
+            , drawWalls computer model
+            , drawPath computer model
+            ]
+        )
 
 
-board : Computer -> Shape
-board computer =
+drawBoard : Computer -> Model -> Shape
+drawBoard computer model =
     let
-        wallWidth =
-            1 - getFloat "cubes side length" computer
-
-        rightWall =
-            block (matte (getColor "wall color" computer)) ( wallWidth, 8 + wallWidth, wallWidth )
-                |> moveX 4
+        drawCellOnPath ( x, y ) =
+            cube (matte (getColor "board color" computer)) 1
+                |> moveZ -0.495
+                |> moveX (toFloat x)
+                |> moveY (toFloat y)
     in
     group
-        [ block (matte (getColor "board color" computer)) ( 8.01, 8.01, 1 ) |> moveZ -0.5
-        , rightWall
-        , rightWall |> rotateZ (degrees 90)
-        , rightWall |> rotateZ (degrees 180)
-        , rightWall |> rotateZ (degrees 270)
-        ]
-        |> moveX -0.5
-        |> moveY -0.5
+        ((LevelSelector.current model.levels).solutionPath
+            |> Path.cells
+            |> List.map drawCellOnPath
+        )
+
+
+drawPointer : Computer -> Model -> Shape
+drawPointer computer model =
+    let
+        ( x, y ) =
+            model.cellUnderPointer
+
+        color =
+            if computer.pointer.down then
+                lightRed
+
+            else
+                darkRed
+    in
+    sphere (matte color) 0.2
+        |> moveX (toFloat x)
+        |> moveY (toFloat y)
 
 
 cartesianProduct : List a -> List b -> List ( b, a )
@@ -473,31 +556,6 @@ cartesianProduct columns =
             List.map (\j -> ( i, j )) columns
     in
     List.concatMap row
-
-
-allWalls : List Wall
-allWalls =
-    cartesianProduct (List.range -4 3) (List.range -4 3)
-        |> List.concatMap
-            (\(( x, y ) as cell) ->
-                if x == 3 && y == -4 then
-                    []
-
-                else if x == 3 then
-                    [ Wall cell S ]
-
-                else if y == -4 then
-                    [ Wall cell W ]
-
-                else
-                    [ Wall cell S, Wall cell W ]
-            )
-
-
-wallsNotCrossedBy : Path -> List Wall
-wallsNotCrossedBy path =
-    allWalls
-        |> List.filter (\wall -> not (Path.crosses wall path))
 
 
 drawWall : Computer -> Wall -> Shape
@@ -511,15 +569,15 @@ drawWall computer (Wall ( x, y ) wallDirection) =
                 ( 1 + wallWidth, wallWidth, wallWidth )
                 |> moveY -0.5
 
-        westWall =
+        eastWall =
             southWall |> rotateZ (degrees 90)
     in
     (case wallDirection of
         S ->
             southWall
 
-        W ->
-            westWall
+        E ->
+            eastWall
     )
         |> moveX (toFloat x)
         |> moveY (toFloat y)
@@ -527,8 +585,19 @@ drawWall computer (Wall ( x, y ) wallDirection) =
 
 drawWalls : Computer -> Model -> Shape
 drawWalls computer model =
+    let
+        removeWallsOnSolutionPathIfEditorIsOn =
+            if model.editor.isOn then
+                List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).solutionPath))
+
+            else
+                identity
+    in
     group
-        (wallsNotCrossedBy model.world.path
+        ((LevelSelector.current model.levels).solutionPath
+            |> Path.wallsWithDuplicates
+            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
+            |> removeWallsOnSolutionPathIfEditorIsOn
             |> List.map (drawWall computer)
         )
 
@@ -563,17 +632,17 @@ drawPath computer model =
                 |> moveY (toFloat y)
     in
     group
-        (model.world.path
+        ((LevelSelector.current model.levels).playerPath
             |> Path.cells
             |> List.indexedMap drawCellOnPath
         )
 
 
-drawCubes : Computer -> Model -> Shape
-drawCubes computer model =
+drawCube : Computer -> Model -> Shape
+drawCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            model.world.cube
+            (LevelSelector.current model.levels).cube
 
         s =
             getFloat "cubes side length" computer
@@ -699,3 +768,249 @@ rollingAnimation computer model pos =
 
         _ ->
             identity
+
+
+
+--  EDITOR
+
+
+type EditorMsg
+    = ClickedEditorOnOffButton Bool
+    | PressedPreviousLevelButton
+    | PressedNextLevelButton
+    | PressedAddLevelButton
+    | PressedRemoveLevelButton
+    | PressedMoveLevelOneUpButton
+    | ClickedExportLevelsButton
+    | ClickedImportLevelsButton
+    | EditedTextAreaForImportingLevels String
+
+
+updateFromEditor : Computer -> EditorMsg -> Model -> Model
+updateFromEditor computer editorMsg model =
+    case editorMsg of
+        ClickedEditorOnOffButton bool ->
+            { model
+                | editor =
+                    model.editor |> Editor.toggle bool
+            }
+
+        PressedPreviousLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.goToPrevious
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedNextLevelButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.goToNext
+                        |> Maybe.withDefault model.levels
+            }
+
+        PressedAddLevelButton ->
+            { model | levels = model.levels |> LevelSelector.add World.empty }
+
+        PressedRemoveLevelButton ->
+            { model | levels = model.levels |> LevelSelector.removeCurrent }
+
+        PressedMoveLevelOneUpButton ->
+            { model | levels = model.levels |> LevelSelector.moveLevelOneUp }
+
+        ClickedExportLevelsButton ->
+            { model | editor = model.editor |> Editor.exportLevels model.levels }
+
+        ClickedImportLevelsButton ->
+            { model
+                | levels =
+                    model.editor.jsonLevelsToImport
+                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decoder)
+                        |> Result.withDefault model.levels
+            }
+
+        EditedTextAreaForImportingLevels string ->
+            { model
+                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
+            }
+
+
+viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor computer model =
+    column
+        [ width fill
+        , height fill
+        ]
+        [ column
+            [ alignTop
+            , alignRight
+            , width (px 500)
+            , height fill
+            , padding 20
+            , spacing 20
+            , Font.color Colors.lightText
+            , Font.size 13
+            ]
+            (editorOnOffButton computer model
+                :: editorContent computer model
+            )
+        ]
+
+
+header : String -> Element EditorMsg
+header str =
+    el
+        [ width fill
+        , paddingXY 0 10
+        , Font.heavy
+        , Font.size 20
+        ]
+        (Element.text str)
+
+
+editorContent : Computer -> Model -> List (Element EditorMsg)
+editorContent computer model =
+    if model.editor.isOn then
+        [ viewLevelSelector computer model
+        , viewImportExportLevels computer model
+        , viewDebugger computer model
+        ]
+
+    else
+        []
+
+
+editorOnOffButton : Computer -> Model -> Element EditorMsg
+editorOnOffButton computer model =
+    checkbox []
+        { onChange = ClickedEditorOnOffButton
+        , icon = Input.defaultCheckbox
+        , checked = model.editor.isOn
+        , label = Input.labelLeft [] (Element.text "Editor")
+        }
+
+
+viewDebugger : Computer -> Model -> Element EditorMsg
+viewDebugger computer model =
+    textColumn [ alignBottom ]
+        [ header "Debugger"
+
+        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+        ]
+
+
+viewInstructions : Computer -> Model -> Element EditorMsg
+viewInstructions computer model =
+    column []
+        [ header "Editing a level"
+        , Element.text "Drag the last point on path to extend or shorten it."
+        ]
+
+
+viewLevelSelector : Computer -> Model -> Element EditorMsg
+viewLevelSelector computer model =
+    column []
+        [ header "Level Selector"
+        , row [ spacing 10 ]
+            [ levelSelectionButtons computer model
+            , makeButton "Add level" PressedAddLevelButton
+            , makeButton "Remove level" PressedRemoveLevelButton
+            , makeButton "Move level up" PressedMoveLevelOneUpButton
+            ]
+        ]
+
+
+levelSelectionButtons : Computer -> Model -> Element EditorMsg
+levelSelectionButtons computer model =
+    row [ spacing 10 ]
+        [ makeButton "<" PressedPreviousLevelButton
+        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+            Element.text <|
+                String.concat
+                    [ String.fromInt (LevelSelector.currentIndex model.levels)
+                    , " / "
+                    , String.fromInt (LevelSelector.size model.levels)
+                    ]
+        , makeButton ">" PressedNextLevelButton
+        ]
+
+
+makeButton : String -> EditorMsg -> Element EditorMsg
+makeButton buttonText editorMsg =
+    button
+        [ Font.color Colors.black
+        , paddingXY 10 6
+        , Background.color Colors.lightGray
+        , Border.rounded 8
+        ]
+        { onPress = Just editorMsg
+        , label = Element.text buttonText
+        }
+
+
+viewImportExportLevels : Computer -> Model -> Element EditorMsg
+viewImportExportLevels computer model =
+    column [ width fill, spacing 10 ]
+        [ header "Import/Export Levels"
+        , levelExporting computer model
+        , levelImporting computer model
+        ]
+
+
+levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting computer model =
+    column
+        [ spacing 10
+        , width fill
+        ]
+        [ makeButton "Export Levels" ClickedExportLevelsButton
+        , textAreaForExportedLevels model
+        ]
+
+
+textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels model =
+    el
+        [ width fill
+        , height (px 100)
+        , padding 10
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        (Element.text model.editor.jsonExportedLevels)
+
+
+levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting computer model =
+    column
+        [ spacing 10
+        , width fill
+        ]
+        [ makeButton "Import Levels" ClickedImportLevelsButton
+        , textAreaForLevelsToImport model
+        ]
+
+
+textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport model =
+    Input.text
+        [ width fill
+        , height (px 100)
+        , padding 10
+        , Background.color Colors.black
+        , Font.family [ Font.monospace ]
+        , scrollbarY
+        , htmlAttribute (style "user-select" "text")
+        , Border.rounded 10
+        ]
+        { onChange = EditedTextAreaForImportingLevels
+        , text = model.editor.jsonLevelsToImport
+        , placeholder = Nothing
+        , label = Input.labelHidden "Imported Levels"
+        }
