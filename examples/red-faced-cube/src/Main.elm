@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
-import Color exposing (hsl, rgb255, white)
+import Color exposing (hsl, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
@@ -55,6 +55,7 @@ type alias Model =
     { state : State
     , levels : Levels World
     , editor : Editor
+    , cellUnderPointer : Cell
     , swipe : Swipe
     }
 
@@ -113,6 +114,7 @@ init computer =
     { state = NoAnimation
     , levels = LevelSelector.singleton World.levelFromBook
     , editor = Editor.init
+    , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
     }
 
@@ -124,10 +126,25 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
+        |> updateCellUnderPointer computer
         |> updateSwipe computer
         |> handleKeyboardInput computer
         |> handleSwipeInput computer
         |> stopAnimation computer
+
+
+updateCellUnderPointer : Computer -> Model -> Model
+updateCellUnderPointer computer model =
+    { model
+        | cellUnderPointer =
+            if computer.pointer.down then
+                Camera.mouseOverXY (camera computer) computer.screen computer.pointer
+                    |> Maybe.map (\{ x, y } -> ( round x, round y ))
+                    |> Maybe.withDefault model.cellUnderPointer
+
+            else
+                model.cellUnderPointer
+    }
 
 
 updateSwipe : Computer -> Model -> Model
@@ -456,6 +473,7 @@ viewShapes computer model =
         , backgroundColor = getColor "background color" computer
         }
         [ drawBoard computer model
+        , drawCellUnderPointer computer model
         , drawCube computer model
         , drawWalls computer model
         , drawPath computer model
@@ -476,6 +494,13 @@ drawBoard computer model =
             |> Path.cells
             |> List.map drawCellOnPath
         )
+
+
+drawCellUnderPointer : Computer -> Model -> Shape
+drawCellUnderPointer computer model =
+    sphere (matte red) 0.2
+        |> moveX (toFloat (Tuple.first model.cellUnderPointer))
+        |> moveY (toFloat (Tuple.second model.cellUnderPointer))
 
 
 cartesianProduct : List a -> List b -> List ( b, a )
