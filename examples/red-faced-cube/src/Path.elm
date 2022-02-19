@@ -30,6 +30,11 @@ lastCell =
     Tuple.first
 
 
+contains : Cell -> Path -> Bool
+contains cell path =
+    List.member cell (cells path)
+
+
 cells : Path -> List Cell
 cells ( last, rest ) =
     last :: rest
@@ -61,3 +66,22 @@ wallsWithDuplicates path =
     path
         |> cells
         |> List.concatMap Wall.wallsAround
+
+
+extendTo : Cell -> Path -> Path
+extendTo cell ( last, rest ) =
+    ( cell, last :: rest )
+
+
+shortenTo : Cell -> Path -> Path
+shortenTo cell (( last, rest ) as path) =
+    case rest of
+        secondLast :: rest_ ->
+            if cell == secondLast then
+                ( secondLast, rest_ )
+
+            else
+                path
+
+        _ ->
+            path

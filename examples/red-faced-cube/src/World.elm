@@ -55,7 +55,7 @@ redFaceIsOnTop redFaceDirection =
 
 
 
--- ACTION
+-- UPDATE FROM PLAYER
 
 
 type RollResult
@@ -123,3 +123,27 @@ roll rollDirection world =
                         | cube = newCube
                         , playerPath = ( newCell, [ last ] )
                     }
+
+
+
+-- UPDATE FROM EDITOR
+
+
+extensibleTo : Cell -> Path -> Bool
+extensibleTo cell path =
+    Cell.areNeighbours cell (Path.lastCell path)
+        && not (Path.contains cell path)
+
+
+maybeExtendASolutionPathTo : Cell -> World -> World
+maybeExtendASolutionPathTo cell world =
+    if extensibleTo cell world.solutionPath then
+        { world | solutionPath = world.solutionPath |> Path.extendTo cell }
+
+    else
+        world
+
+
+maybeShortenASolutionPathTo : Cell -> World -> World
+maybeShortenASolutionPathTo cell ({ solutionPath } as level) =
+    { level | solutionPath = level.solutionPath |> Path.shortenTo cell }

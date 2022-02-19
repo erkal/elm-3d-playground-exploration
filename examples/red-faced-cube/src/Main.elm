@@ -4,6 +4,7 @@ import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
 import Color exposing (hsl, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
+import Dict
 import Ease
 import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, px, row, scrollbarY, spacing, textColumn, width)
@@ -127,23 +128,37 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> updateCellUnderPointer computer
+        |> extendOrShortenASolutionInLevelEditor computer
         |> updateSwipe computer
         |> handleKeyboardInput computer
         |> handleSwipeInput computer
         |> stopAnimation computer
 
 
+extendOrShortenASolutionInLevelEditor : Computer -> Model -> Model
+extendOrShortenASolutionInLevelEditor computer model =
+    if computer.pointer.down then
+        { model
+            | levels =
+                model.levels
+                    |> LevelSelector.setCurrent
+                        (LevelSelector.current model.levels
+                            |> World.maybeExtendASolutionPathTo model.cellUnderPointer
+                            |> World.maybeShortenASolutionPathTo model.cellUnderPointer
+                        )
+        }
+
+    else
+        model
+
+
 updateCellUnderPointer : Computer -> Model -> Model
 updateCellUnderPointer computer model =
     { model
         | cellUnderPointer =
-            if computer.pointer.down then
-                Camera.mouseOverXY (camera computer) computer.screen computer.pointer
-                    |> Maybe.map (\{ x, y } -> ( round x, round y ))
-                    |> Maybe.withDefault model.cellUnderPointer
-
-            else
-                model.cellUnderPointer
+            Camera.mouseOverXY (camera computer) computer.screen computer.pointer
+                |> Maybe.map (\{ x, y } -> ( round x, round y ))
+                |> Maybe.withDefault model.cellUnderPointer
     }
 
 
@@ -539,10 +554,19 @@ drawWall computer (Wall ( x, y ) wallDirection) =
 
 drawWalls : Computer -> Model -> Shape
 drawWalls computer model =
+    let
+        removeWallsOnSolutionPathIfEditorIsOn =
+            if model.editor.isOn then
+                List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).solutionPath))
+
+            else
+                identity
+    in
     group
         ((LevelSelector.current model.levels).solutionPath
             |> Path.wallsWithDuplicates
             |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
+            |> removeWallsOnSolutionPathIfEditorIsOn
             |> List.map (drawWall computer)
         )
 
