@@ -873,7 +873,8 @@ header str =
 editorContent : Computer -> Model -> List (Element EditorMsg)
 editorContent computer model =
     if model.editor.isOn then
-        [ viewLevelSelector computer model
+        [ viewInstructions computer model
+        , viewLevelSelector computer model
         , viewImportExportLevels computer model
         , viewDebugger computer model
         ]
