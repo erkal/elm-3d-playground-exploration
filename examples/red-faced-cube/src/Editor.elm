@@ -16,7 +16,7 @@ type alias Editor =
 
 init : Editor
 init =
-    { isOn = True
+    { isOn = False
     , state = Idle
     , jsonExportedLevels = ""
     , jsonLevelsToImport = ""

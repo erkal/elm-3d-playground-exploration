@@ -2,9 +2,8 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
-import Color exposing (hsl, red, rgb255, white)
+import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
-import Dict
 import Ease
 import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, px, row, scrollbarY, spacing, textColumn, width)
@@ -13,6 +12,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
+import HardcodedLevels exposing (hardcodedLevels)
 import Html exposing (Html, br, div, h2, p, span, text)
 import Html.Attributes exposing (style)
 import Illuminance
@@ -113,7 +113,9 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { state = NoAnimation
-    , levels = LevelSelector.singleton World.levelFromBook
+    , levels =
+        --LevelSelector.singleton World.levelFromBook
+        hardcodedLevels
     , editor = Editor.init
     , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
@@ -126,13 +128,22 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
-    model
-        |> updateCellUnderPointer computer
-        |> extendOrShortenASolutionInLevelEditor computer
-        |> updateSwipe computer
-        |> handleKeyboardInput computer
-        |> handleSwipeInput computer
-        |> stopAnimation computer
+    if model.editor.isOn then
+        model
+            |> updateCellUnderPointer computer
+            |> extendOrShortenASolutionInLevelEditor computer
+            |> updateSwipe computer
+            |> handleKeyboardInput computer
+            |> handleSwipeInput computer
+            |> stopAnimation computer
+
+    else
+        model
+            |> updateCellUnderPointer computer
+            |> updateSwipe computer
+            |> handleKeyboardInput computer
+            |> handleSwipeInput computer
+            |> stopAnimation computer
 
 
 extendOrShortenASolutionInLevelEditor : Computer -> Model -> Model
@@ -487,12 +498,21 @@ viewShapes computer model =
         , antialiasing = Scene3d.multisampling
         , backgroundColor = getColor "background color" computer
         }
-        [ drawBoard computer model
-        , drawCellUnderPointer computer model
-        , drawCube computer model
-        , drawWalls computer model
-        , drawPath computer model
-        ]
+        (if model.editor.isOn then
+            [ drawBoard computer model
+            , drawCube computer model
+            , drawWalls computer model
+            , drawPath computer model
+            , drawPointer computer model
+            ]
+
+         else
+            [ drawBoard computer model
+            , drawCube computer model
+            , drawWalls computer model
+            , drawPath computer model
+            ]
+        )
 
 
 drawBoard : Computer -> Model -> Shape
@@ -511,11 +531,22 @@ drawBoard computer model =
         )
 
 
-drawCellUnderPointer : Computer -> Model -> Shape
-drawCellUnderPointer computer model =
-    sphere (matte red) 0.2
-        |> moveX (toFloat (Tuple.first model.cellUnderPointer))
-        |> moveY (toFloat (Tuple.second model.cellUnderPointer))
+drawPointer : Computer -> Model -> Shape
+drawPointer computer model =
+    let
+        ( x, y ) =
+            model.cellUnderPointer
+
+        color =
+            if computer.pointer.down then
+                lightRed
+
+            else
+                darkRed
+    in
+    sphere (matte color) 0.2
+        |> moveX (toFloat x)
+        |> moveY (toFloat y)
 
 
 cartesianProduct : List a -> List b -> List ( b, a )
@@ -868,6 +899,14 @@ viewDebugger computer model =
 
         --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
         --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+        ]
+
+
+viewInstructions : Computer -> Model -> Element EditorMsg
+viewInstructions computer model =
+    column []
+        [ header "Editing a level"
+        , Element.text "Drag the last point on path to extend or shorten it."
         ]
 
 
