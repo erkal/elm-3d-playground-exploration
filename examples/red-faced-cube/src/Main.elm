@@ -843,7 +843,11 @@ updateFromEditor computer editorMsg model =
         ClickedEditorOnOffButton bool ->
             { model
                 | editor =
-                    model.editor |> Editor.toggle bool
+                    model.editor
+                        |> Editor.toggle bool
+                , levels =
+                    model.levels
+                        |> LevelSelector.map World.reset
             }
 
         PressedPreviousLevelButton ->
@@ -863,7 +867,11 @@ updateFromEditor computer editorMsg model =
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LevelSelector.add World.empty }
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.add World.empty
+            }
 
         PressedRemoveLevelButton ->
             { model | levels = model.levels |> LevelSelector.removeCurrent }
