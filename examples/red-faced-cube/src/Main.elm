@@ -128,21 +128,44 @@ init computer =
 
 update : Computer -> Model -> Model
 update computer model =
-    if model.editor.isOn then
-        model
-            |> updateCellUnderPointer computer
-            |> updateSwipe computer
-            |> handleKeyboardInput computer
-            |> handleSwipeInput computer
-            |> stopAnimation computer
+    let
+        (Cube startCell _) =
+            (LevelSelector.current model.levels).playerCube
 
-    else
-        model
-            |> updateCellUnderPointer computer
-            |> updateSwipe computer
-            |> handleKeyboardInput computer
-            |> handleSwipeInput computer
-            |> stopAnimation computer
+        handleUserInput =
+            case inputToRollDirection computer model of
+                Nothing ->
+                    identity
+
+                Just rollDirection ->
+                    if model.editor.isOn then
+                        identity
+
+                    else
+                        attemptRollForPlayer rollDirection startCell computer
+    in
+    model
+        |> updateSwipe computer
+        |> updateCellUnderPointer computer
+        |> handleUserInput
+        |> stopAnimation computer
+
+
+inputToRollDirection : Computer -> Model -> Maybe RollDirection
+inputToRollDirection computer model =
+    case
+        ( swipeInputToRollDirection model.swipe
+        , keyboardInputToRollDirection computer.keyboard
+        )
+    of
+        ( Just r1, _ ) ->
+            Just r1
+
+        ( _, Just r2 ) ->
+            Just r2
+
+        _ ->
+            Nothing
 
 
 updateCellUnderPointer : Computer -> Model -> Model
@@ -160,69 +183,45 @@ updateSwipe computer model =
     { model | swipe = Swipe.update computer { threshold = 20 } model.swipe }
 
 
-handleKeyboardInput : Computer -> Model -> Model
-handleKeyboardInput ({ keyboard } as computer) model =
-    let
-        (Cube startCell _) =
-            (LevelSelector.current model.levels).cube
+keyboardInputToRollDirection : Keyboard -> Maybe RollDirection
+keyboardInputToRollDirection keyboard =
+    case [ keyboard.up, keyboard.down, keyboard.left, keyboard.right ] of
+        [ True, False, False, False ] ->
+            Just Up
 
-        maybeRollDirection =
-            case [ keyboard.up, keyboard.down, keyboard.left, keyboard.right ] of
-                [ True, False, False, False ] ->
-                    Just Up
+        [ False, True, False, False ] ->
+            Just Down
 
-                [ False, True, False, False ] ->
-                    Just Down
+        [ False, False, True, False ] ->
+            Just Left
 
-                [ False, False, True, False ] ->
-                    Just Left
+        [ False, False, False, True ] ->
+            Just Right
 
-                [ False, False, False, True ] ->
-                    Just Right
-
-                _ ->
-                    Nothing
-    in
-    case maybeRollDirection of
-        Nothing ->
-            model
-
-        Just rollDirection ->
-            attemptRoll rollDirection startCell computer model
+        _ ->
+            Nothing
 
 
-handleSwipeInput : Computer -> Model -> Model
-handleSwipeInput computer model =
-    let
-        (Cube startCell _) =
-            (LevelSelector.current model.levels).cube
+swipeInputToRollDirection : Swipe -> Maybe RollDirection
+swipeInputToRollDirection swipe =
+    if Swipe.swipedUp swipe then
+        Just Up
 
-        maybeRollDirection =
-            if Swipe.swipedUp model.swipe then
-                Just Up
+    else if Swipe.swipedDown swipe then
+        Just Down
 
-            else if Swipe.swipedDown model.swipe then
-                Just Down
+    else if Swipe.swipedLeft swipe then
+        Just Left
 
-            else if Swipe.swipedLeft model.swipe then
-                Just Left
+    else if Swipe.swipedRight swipe then
+        Just Right
 
-            else if Swipe.swipedRight model.swipe then
-                Just Right
-
-            else
-                Nothing
-    in
-    case maybeRollDirection of
-        Nothing ->
-            model
-
-        Just rollDirection ->
-            attemptRoll rollDirection startCell computer model
+    else
+        Nothing
 
 
-attemptRoll : RollDirection -> Cell -> Computer -> Model -> Model
-attemptRoll rollDirection startCell computer model =
+attemptRollForPlayer : RollDirection -> Cell -> Computer -> Model -> Model
+attemptRollForPlayer rollDirection startCell computer model =
     case LevelSelector.current model.levels |> World.rollForPlayerInput rollDirection of
         ViolatesRule CannotCrossPath ->
             model
@@ -396,7 +395,7 @@ viewShapes : Computer -> Model -> Html Never
 viewShapes computer model =
     let
         (Cube ( x, y ) _) =
-            (LevelSelector.current model.levels).cube
+            (LevelSelector.current model.levels).playerCube
 
         ( cubeX, cubeY ) =
             -- This is only for the camera follow rolling cube smoothly
@@ -507,7 +506,7 @@ drawBoard computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LevelSelector.current model.levels).solutionPath
+        ((LevelSelector.current model.levels).levelPath
             |> Path.cells
             |> List.map drawCellOnPath
         )
@@ -570,13 +569,13 @@ drawWalls computer model =
     let
         removeWallsOnSolutionPathIfEditorIsOn =
             if model.editor.isOn then
-                List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).solutionPath))
+                List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).levelPath))
 
             else
                 identity
     in
     group
-        ((LevelSelector.current model.levels).solutionPath
+        ((LevelSelector.current model.levels).levelPath
             |> Path.wallsWithDuplicates
             |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
             |> removeWallsOnSolutionPathIfEditorIsOn
@@ -624,7 +623,7 @@ drawCube : Computer -> Model -> Shape
 drawCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            (LevelSelector.current model.levels).cube
+            (LevelSelector.current model.levels).playerCube
 
         s =
             getFloat "cubes side length" computer

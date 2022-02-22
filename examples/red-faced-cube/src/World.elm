@@ -6,9 +6,10 @@ import Path exposing (Path)
 
 
 type alias World =
-    { cube : Cube
+    { playerCube : Cube
     , playerPath : Path
-    , solutionPath : Path
+    , levelCube : Cube
+    , levelPath : Path
     }
 
 
@@ -17,6 +18,7 @@ empty =
     World
         (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
         (Path ( -4, 3 ) [])
+        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
         (Path ( -4, 3 ) [])
 
 
@@ -25,6 +27,7 @@ levelFromBook =
     World
         (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
         (Path ( -4, 3 ) [])
+        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
         (Path ( 3, 3 ) [ ( 2, 3 ), ( 1, 3 ), ( 0, 3 ), ( 0, 2 ), ( 1, 2 ), ( 1, 1 ), ( 2, 1 ), ( 2, 2 ), ( 3, 2 ), ( 3, 1 ), ( 3, 0 ), ( 3, -1 ), ( 3, -2 ), ( 3, -3 ), ( 3, -4 ), ( 2, -4 ), ( 2, -3 ), ( 1, -3 ), ( 1, -4 ), ( 0, -4 ), ( 0, -3 ), ( 0, -2 ), ( 1, -2 ), ( 2, -2 ), ( 2, -1 ), ( 2, 0 ), ( 1, 0 ), ( 1, -1 ), ( 0, -1 ), ( 0, 0 ), ( 0, 1 ), ( -1, 1 ), ( -1, 0 ), ( -1, -1 ), ( -2, -1 ), ( -2, 0 ), ( -3, 0 ), ( -3, -1 ), ( -3, -2 ), ( -2, -2 ), ( -1, -2 ), ( -1, -3 ), ( -1, -4 ), ( -2, -4 ), ( -2, -3 ), ( -3, -3 ), ( -3, -4 ), ( -4, -4 ), ( -4, -3 ), ( -4, -2 ), ( -4, -1 ), ( -4, 0 ), ( -4, 1 ), ( -4, 2 ), ( -3, 2 ), ( -3, 1 ), ( -2, 1 ), ( -2, 2 ), ( -1, 2 ), ( -1, 3 ), ( -2, 3 ), ( -3, 3 ), ( -4, 3 ) ])
 
 
@@ -32,10 +35,10 @@ reset : World -> World
 reset world =
     let
         start =
-            Path.firstCell world.solutionPath
+            Path.firstCell world.levelPath
     in
     { world
-        | cube = Cube start (RedFaceDirection Z Positive)
+        | playerCube = Cube start (RedFaceDirection Z Positive)
         , playerPath = Path start []
     }
 
@@ -75,61 +78,7 @@ rollForPlayerInput : RollDirection -> World -> RollResult
 rollForPlayerInput rollDirection world =
     let
         ((Cube newCell newRedFaceDirection) as newCube) =
-            Cube.roll rollDirection world.cube
-    in
-    case world.playerPath.rest of
-        beforeLast :: rest ->
-            if beforeLast == newCell then
-                Roll
-                    { world
-                        | cube = newCube
-                        , playerPath = Path beforeLast rest
-                    }
-
-            else if not (isOnPath newCell world.solutionPath) then
-                ViolatesRule MustBeInsideBoard
-
-            else if isOnPath newCell world.playerPath then
-                ViolatesRule CannotCrossPath
-
-            else
-                let
-                    newWorld =
-                        { world
-                            | cube = newCube
-                            , playerPath = Path newCell (world.playerPath.last :: beforeLast :: rest)
-                        }
-                in
-                if newCell == world.solutionPath.last then
-                    if Path.length newWorld.playerPath == 64 && redFaceIsOnTop newRedFaceDirection then
-                        RollAndSolve newWorld
-
-                    else
-                        ViolatesRule MustVisitEachCellBeforeReachingFinishCell
-
-                else if redFaceIsOnTop newRedFaceDirection then
-                    ViolatesRule TopFaceCannotBeRed
-
-                else
-                    Roll newWorld
-
-        [] ->
-            if not (isOnPath newCell world.solutionPath) then
-                ViolatesRule MustBeInsideBoard
-
-            else
-                Roll
-                    { world
-                        | cube = newCube
-                        , playerPath = Path newCell [ world.playerPath.last ]
-                    }
-
-
-rollForLevelEditing : RollDirection -> World -> RollResult
-rollForLevelEditing rollDirection world =
-    let
-        ((Cube newCell newRedFaceDirection) as newCube) =
-            Cube.roll rollDirection world.cube
+            Cube.roll rollDirection world.playerCube
     in
     case world.playerPath.rest of
         beforeLast :: rest ->
@@ -137,12 +86,11 @@ rollForLevelEditing rollDirection world =
                 -- roll back
                 Roll
                     { world
-                        | cube = newCube
+                        | playerCube = newCube
                         , playerPath = Path beforeLast rest
-                        , solutionPath = Path beforeLast rest
                     }
 
-            else if not (isOnPath newCell world.solutionPath) then
+            else if not (isOnPath newCell world.levelPath) then
                 ViolatesRule MustBeInsideBoard
 
             else if isOnPath newCell world.playerPath then
@@ -152,11 +100,11 @@ rollForLevelEditing rollDirection world =
                 let
                     newWorld =
                         { world
-                            | cube = newCube
+                            | playerCube = newCube
                             , playerPath = Path newCell (world.playerPath.last :: beforeLast :: rest)
                         }
                 in
-                if newCell == world.solutionPath.last then
+                if newCell == world.levelPath.last then
                     if Path.length newWorld.playerPath == 64 && redFaceIsOnTop newRedFaceDirection then
                         RollAndSolve newWorld
 
@@ -170,12 +118,12 @@ rollForLevelEditing rollDirection world =
                     Roll newWorld
 
         [] ->
-            if not (isOnPath newCell world.solutionPath) then
+            if not (isOnPath newCell world.levelPath) then
                 ViolatesRule MustBeInsideBoard
 
             else
                 Roll
                     { world
-                        | cube = newCube
+                        | playerCube = newCube
                         , playerPath = Path newCell [ world.playerPath.last ]
                     }

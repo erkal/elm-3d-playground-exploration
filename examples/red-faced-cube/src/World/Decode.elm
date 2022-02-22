@@ -10,11 +10,12 @@ import World exposing (World)
 
 {- Generated with <https://dkodaj.github.io/decgen/> with the following input
 
-   type alias World =
-       { cube : Cube
-       , playerPath : Path
-       , solutionPath : Path
-       }
+    type alias World =
+        { playerCube : Cube
+        , playerPath : Path
+        , levelCube : Cube
+        , levelPath : Path
+        }
 
 
    type alias Path =
@@ -131,8 +132,9 @@ decodeSign =
 
 decodeWorld : Decoder World
 decodeWorld =
-    Decode.map3
+    Decode.map4
         World
-        (Decode.field "cube" decodeCube)
+        (Decode.field "playerCube" decodeCube)
         (Decode.field "playerPath" decodePath)
-        (Decode.field "solutionPath" decodePath)
+        (Decode.field "levelCube" decodeCube)
+        (Decode.field "levelPath" decodePath)
