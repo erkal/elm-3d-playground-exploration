@@ -13,8 +13,8 @@ import World exposing (World)
     type alias World =
         { playerCube : Cube
         , playerPath : Path
-        , levelCube : Cube
-        , levelPath : Path
+        , levelEditingCube : Cube
+        , levelEditingPath : Path
         }
 
 
@@ -123,6 +123,6 @@ encodeWorld a =
     Encode.object
         [ ( "playerCube", encodeCube a.playerCube )
         , ( "playerPath", encodePath a.playerPath )
-        , ( "levelCube", encodeCube a.levelCube )
-        , ( "levelPath", encodePath a.levelPath )
+        , ( "levelEditingCube", encodeCube a.levelEditingCube )
+        , ( "levelEditingPath", encodePath a.levelEditingPath )
         ]

@@ -8,18 +8,18 @@ import Path exposing (Path)
 type alias World =
     { playerCube : Cube
     , playerPath : Path
-    , levelCube : Cube
-    , levelPath : Path
+    , levelEditingCube : Cube
+    , levelEditingPath : Path
     }
 
 
 empty : World
 empty =
     World
-        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
-        (Path ( -4, 3 ) [])
-        (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
-        (Path ( -4, 3 ) [])
+        (Cube ( 0, 0 ) (RedFaceDirection Z Positive))
+        (Path ( 0, 0 ) [])
+        (Cube ( 0, 0 ) (RedFaceDirection Z Positive))
+        (Path ( 0, 0 ) [])
 
 
 levelFromBook : World
@@ -35,7 +35,7 @@ reset : World -> World
 reset world =
     let
         start =
-            Path.firstCell world.levelPath
+            Path.firstCell world.levelEditingPath
     in
     { world
         | playerCube = Cube start (RedFaceDirection Z Positive)
@@ -61,7 +61,7 @@ redFaceIsOnTop redFaceDirection =
 -- UPDATE FROM PLAYER
 
 
-type RollResult
+type RollResultForPlayer
     = ViolatesRule Rule
     | Roll World
     | RollAndSolve World
@@ -74,56 +74,104 @@ type Rule
     | CannotCrossPath
 
 
-rollForPlayerInput : RollDirection -> World -> RollResult
+type RollResultForLevelEditing
+    = CannotRoll_LevelFinishedBecauseTopFaceIsRed
+    | CannotRoll_CannotCrossPath
+    | RollAndEditLevelPath World
+
+
+rollForPlayerInput : RollDirection -> World -> RollResultForPlayer
 rollForPlayerInput rollDirection world =
     let
-        ((Cube newCell newRedFaceDirection) as newCube) =
+        ((Cube targetCell targetRedFaceDirection) as targetCube) =
             Cube.roll rollDirection world.playerCube
     in
     case world.playerPath.rest of
         beforeLast :: rest ->
-            if beforeLast == newCell then
+            if beforeLast == targetCell then
                 -- roll back
                 Roll
                     { world
-                        | playerCube = newCube
+                        | playerCube = targetCube
                         , playerPath = Path beforeLast rest
                     }
 
-            else if not (isOnPath newCell world.levelPath) then
+            else if not (isOnPath targetCell world.levelEditingPath) then
                 ViolatesRule MustBeInsideBoard
 
-            else if isOnPath newCell world.playerPath then
+            else if isOnPath targetCell world.playerPath then
                 ViolatesRule CannotCrossPath
 
             else
                 let
                     newWorld =
                         { world
-                            | playerCube = newCube
-                            , playerPath = Path newCell (world.playerPath.last :: beforeLast :: rest)
+                            | playerCube = targetCube
+                            , playerPath = Path targetCell (world.playerPath.last :: beforeLast :: rest)
                         }
                 in
-                if newCell == world.levelPath.last then
-                    if Path.length newWorld.playerPath == 64 && redFaceIsOnTop newRedFaceDirection then
+                if targetCell == world.levelEditingPath.last then
+                    if Path.length newWorld.playerPath == 64 && redFaceIsOnTop targetRedFaceDirection then
                         RollAndSolve newWorld
 
                     else
                         ViolatesRule MustVisitEachCellBeforeReachingFinishCell
 
-                else if redFaceIsOnTop newRedFaceDirection then
+                else if redFaceIsOnTop targetRedFaceDirection then
                     ViolatesRule TopFaceCannotBeRed
 
                 else
                     Roll newWorld
 
         [] ->
-            if not (isOnPath newCell world.levelPath) then
+            if not (isOnPath targetCell world.levelEditingPath) then
                 ViolatesRule MustBeInsideBoard
 
             else
                 Roll
                     { world
-                        | playerCube = newCube
-                        , playerPath = Path newCell [ world.playerPath.last ]
+                        | playerCube = targetCube
+                        , playerPath = Path targetCell [ world.playerPath.last ]
                     }
+
+
+rollForLevelEditing : RollDirection -> World -> RollResultForLevelEditing
+rollForLevelEditing rollDirection world =
+    let
+        (Cube _ lastRedFaceDirection) =
+            world.levelEditingCube
+
+        ((Cube targetCell _) as targetCube) =
+            Cube.roll rollDirection world.levelEditingCube
+    in
+    case world.levelEditingPath.rest of
+        beforeLast :: rest ->
+            if beforeLast == targetCell then
+                -- roll back
+                RollAndEditLevelPath
+                    { world
+                        | levelEditingCube = targetCube
+                        , levelEditingPath = Path beforeLast rest
+                    }
+
+            else if redFaceIsOnTop lastRedFaceDirection then
+                CannotRoll_LevelFinishedBecauseTopFaceIsRed
+
+            else if isOnPath targetCell world.levelEditingPath then
+                CannotRoll_CannotCrossPath
+
+            else
+                -- roll forward
+                RollAndEditLevelPath
+                    { world
+                        | levelEditingCube = targetCube
+                        , levelEditingPath = Path targetCell (world.levelEditingPath.last :: beforeLast :: rest)
+                    }
+
+        [] ->
+            -- roll forward
+            RollAndEditLevelPath
+                { world
+                    | levelEditingCube = targetCube
+                    , levelEditingPath = Path targetCell [ world.levelEditingPath.last ]
+                }

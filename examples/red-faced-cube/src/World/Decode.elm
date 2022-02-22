@@ -13,8 +13,8 @@ import World exposing (World)
     type alias World =
         { playerCube : Cube
         , playerPath : Path
-        , levelCube : Cube
-        , levelPath : Path
+        , levelEditingCube : Cube
+        , levelEditingPath : Path
         }
 
 
@@ -136,5 +136,5 @@ decodeWorld =
         World
         (Decode.field "playerCube" decodeCube)
         (Decode.field "playerPath" decodePath)
-        (Decode.field "levelCube" decodeCube)
-        (Decode.field "levelPath" decodePath)
+        (Decode.field "levelEditingCube" decodeCube)
+        (Decode.field "levelEditingPath" decodePath)

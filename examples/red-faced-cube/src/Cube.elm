@@ -22,6 +22,16 @@ type Axis
     | Z
 
 
+getCell : Cube -> Cell
+getCell (Cube cell _) =
+    cell
+
+
+getRedFaceDirection : Cube -> RedFaceDirection
+getRedFaceDirection (Cube _ redFaceDirection) =
+    redFaceDirection
+
+
 roll : RollDirection -> Cube -> Cube
 roll rollDirection (Cube cell redFaceDirection) =
     Cube

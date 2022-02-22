@@ -31,7 +31,7 @@ import Scene3d.Material exposing (matte)
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
-import World exposing (RollResult(..), Rule(..), World)
+import World exposing (RollResultForLevelEditing(..), RollResultForPlayer(..), Rule(..), World)
 import World.Decode
 
 
@@ -129,8 +129,11 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     let
-        (Cube startCell _) =
+        playerCube =
             (LevelSelector.current model.levels).playerCube
+
+        levelEditingCube =
+            (LevelSelector.current model.levels).levelEditingCube
 
         handleUserInput =
             case inputToRollDirection computer model of
@@ -139,10 +142,10 @@ update computer model =
 
                 Just rollDirection ->
                     if model.editor.isOn then
-                        identity
+                        attemptRollForLevelEditing rollDirection (Cube.getCell levelEditingCube) computer
 
                     else
-                        attemptRollForPlayer rollDirection startCell computer
+                        attemptRollForPlayer rollDirection (Cube.getCell playerCube) computer
     in
     model
         |> updateSwipe computer
@@ -244,6 +247,20 @@ attemptRollForPlayer rollDirection startCell computer model =
         RollAndSolve newWorld ->
             model
                 |> startRollAnimation computer startCell rollDirection True newWorld
+
+
+attemptRollForLevelEditing : RollDirection -> Cell -> Computer -> Model -> Model
+attemptRollForLevelEditing rollDirection startCell computer model =
+    case LevelSelector.current model.levels |> World.rollForLevelEditing rollDirection of
+        CannotRoll_LevelFinishedBecauseTopFaceIsRed ->
+            model
+
+        CannotRoll_CannotCrossPath ->
+            model
+
+        RollAndEditLevelPath newWorld ->
+            model
+                |> startRollAnimation computer startCell rollDirection False newWorld
 
 
 stopAnimation : Computer -> Model -> Model
@@ -481,17 +498,16 @@ viewShapes computer model =
         }
         (if model.editor.isOn then
             [ drawBoard computer model
-            , drawCube computer model
-            , drawWalls computer model
-            , drawPath computer model
+            , drawLevelEditingCube computer model
+            , drawWallsForLevelEditingPath computer model
             , drawPointer computer model
             ]
 
          else
             [ drawBoard computer model
-            , drawCube computer model
-            , drawWalls computer model
-            , drawPath computer model
+            , drawPlayerCube computer model
+            , drawWallsForPlayerPath computer model
+            , drawPlayerPath computer model
             ]
         )
 
@@ -506,7 +522,7 @@ drawBoard computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LevelSelector.current model.levels).levelPath
+        ((LevelSelector.current model.levels).levelEditingPath
             |> Path.cells
             |> List.map drawCellOnPath
         )
@@ -564,27 +580,28 @@ drawWall computer (Wall ( x, y ) wallDirection) =
         |> moveY (toFloat y)
 
 
-drawWalls : Computer -> Model -> Shape
-drawWalls computer model =
-    let
-        removeWallsOnSolutionPathIfEditorIsOn =
-            if model.editor.isOn then
-                List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).levelPath))
-
-            else
-                identity
-    in
+drawWallsForLevelEditingPath : Computer -> Model -> Shape
+drawWallsForLevelEditingPath computer model =
     group
-        ((LevelSelector.current model.levels).levelPath
+        ((LevelSelector.current model.levels).levelEditingPath
             |> Path.wallsWithDuplicates
-            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
-            |> removeWallsOnSolutionPathIfEditorIsOn
+            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).levelEditingPath))
             |> List.map (drawWall computer)
         )
 
 
-drawPath : Computer -> Model -> Shape
-drawPath computer model =
+drawWallsForPlayerPath : Computer -> Model -> Shape
+drawWallsForPlayerPath computer model =
+    group
+        ((LevelSelector.current model.levels).levelEditingPath
+            |> Path.wallsWithDuplicates
+            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
+            |> List.map (drawWall computer)
+        )
+
+
+drawPlayerPath : Computer -> Model -> Shape
+drawPlayerPath computer model =
     let
         color i =
             case model.state of
@@ -619,11 +636,64 @@ drawPath computer model =
         )
 
 
-drawCube : Computer -> Model -> Shape
-drawCube computer model =
+drawPlayerCube : Computer -> Model -> Shape
+drawPlayerCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
             (LevelSelector.current model.levels).playerCube
+
+        s =
+            getFloat "cubes side length" computer
+
+        color1 =
+            getColor "color 1" computer
+
+        color2 =
+            getColor "color 2" computer
+
+        redHalf =
+            block (matte color1) ( s, s, s / 2 ) |> moveZ (s / 4)
+
+        yellowHalf =
+            --block color2 ( s, s, excitedSideLength / 2 ) |> moveZ -(excitedSideLength / 4)
+            block (matte color2) ( s, s, s / 2 ) |> moveZ -(s / 4)
+
+        positionWithRedFaceDirection =
+            case redFaceDirection of
+                RedFaceDirection Z Positive ->
+                    identity
+
+                RedFaceDirection Z Negative ->
+                    rotateX (degrees 180)
+
+                RedFaceDirection Y Positive ->
+                    rotateX -(degrees 90)
+
+                RedFaceDirection Y Negative ->
+                    rotateX (degrees 90)
+
+                RedFaceDirection X Positive ->
+                    rotateY (degrees 90)
+
+                RedFaceDirection X Negative ->
+                    rotateY -(degrees 90)
+    in
+    group
+        [ redHalf
+        , yellowHalf
+        ]
+        |> positionWithRedFaceDirection
+        |> rollingAnimation computer model ( x, y )
+        |> moveZ (s / 2)
+        |> moveX (toFloat x)
+        |> moveY (toFloat y)
+
+
+drawLevelEditingCube : Computer -> Model -> Shape
+drawLevelEditingCube computer model =
+    let
+        (Cube ( x, y ) redFaceDirection) =
+            (LevelSelector.current model.levels).levelEditingCube
 
         s =
             getFloat "cubes side length" computer
@@ -854,14 +924,22 @@ header str =
 editorContent : Computer -> Model -> List (Element EditorMsg)
 editorContent computer model =
     if model.editor.isOn then
-        [ viewInstructions computer model
-        , viewLevelSelector computer model
+        [ --viewInstructions computer model ,
+          viewLevelSelector computer model
         , viewImportExportLevels computer model
         , viewDebugger computer model
         ]
 
     else
         []
+
+
+viewInstructions : Computer -> Model -> Element EditorMsg
+viewInstructions computer model =
+    column []
+        [ header "Editing a level"
+        , Element.text "Drag the last point on path to extend or shorten it."
+        ]
 
 
 editorOnOffButton : Computer -> Model -> Element EditorMsg
@@ -881,14 +959,6 @@ viewDebugger computer model =
 
         --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
         --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
-        ]
-
-
-viewInstructions : Computer -> Model -> Element EditorMsg
-viewInstructions computer model =
-    column []
-        [ header "Editing a level"
-        , Element.text "Drag the last point on path to extend or shorten it."
         ]
 
 
