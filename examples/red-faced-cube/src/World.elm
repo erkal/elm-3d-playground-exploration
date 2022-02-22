@@ -59,7 +59,7 @@ redFaceIsOnTop redFaceDirection =
 
 
 type RollResult
-    = CannotRoll Rule
+    = ViolatesRule Rule
     | Roll World
     | RollAndSolve World
 
@@ -71,8 +71,8 @@ type Rule
     | CannotCrossPath
 
 
-roll : RollDirection -> World -> RollResult
-roll rollDirection world =
+rollForPlayerInput : RollDirection -> World -> RollResult
+rollForPlayerInput rollDirection world =
     let
         ((Cube newCell newRedFaceDirection) as newCube) =
             Cube.roll rollDirection world.cube
@@ -87,10 +87,10 @@ roll rollDirection world =
                     }
 
             else if not (isOnPath newCell world.solutionPath) then
-                CannotRoll MustBeInsideBoard
+                ViolatesRule MustBeInsideBoard
 
             else if isOnPath newCell world.playerPath then
-                CannotRoll CannotCrossPath
+                ViolatesRule CannotCrossPath
 
             else
                 let
@@ -105,17 +105,73 @@ roll rollDirection world =
                         RollAndSolve newWorld
 
                     else
-                        CannotRoll MustVisitEachCellBeforeReachingFinishCell
+                        ViolatesRule MustVisitEachCellBeforeReachingFinishCell
 
                 else if redFaceIsOnTop newRedFaceDirection then
-                    CannotRoll TopFaceCannotBeRed
+                    ViolatesRule TopFaceCannotBeRed
 
                 else
                     Roll newWorld
 
         [] ->
             if not (isOnPath newCell world.solutionPath) then
-                CannotRoll MustBeInsideBoard
+                ViolatesRule MustBeInsideBoard
+
+            else
+                Roll
+                    { world
+                        | cube = newCube
+                        , playerPath = Path newCell [ world.playerPath.last ]
+                    }
+
+
+rollForLevelEditing : RollDirection -> World -> RollResult
+rollForLevelEditing rollDirection world =
+    let
+        ((Cube newCell newRedFaceDirection) as newCube) =
+            Cube.roll rollDirection world.cube
+    in
+    case world.playerPath.rest of
+        beforeLast :: rest ->
+            if beforeLast == newCell then
+                -- roll back
+                Roll
+                    { world
+                        | cube = newCube
+                        , playerPath = Path beforeLast rest
+                        , solutionPath = Path beforeLast rest
+                    }
+
+            else if not (isOnPath newCell world.solutionPath) then
+                ViolatesRule MustBeInsideBoard
+
+            else if isOnPath newCell world.playerPath then
+                ViolatesRule CannotCrossPath
+
+            else
+                let
+                    newWorld =
+                        { world
+                            | cube = newCube
+                            , playerPath = Path newCell (world.playerPath.last :: beforeLast :: rest)
+                        }
+                in
+                if newCell == world.solutionPath.last then
+                    if Path.length newWorld.playerPath == 64 && redFaceIsOnTop newRedFaceDirection then
+                        RollAndSolve newWorld
+
+                    else
+                        ViolatesRule MustVisitEachCellBeforeReachingFinishCell
+
+                else if redFaceIsOnTop newRedFaceDirection then
+                    ViolatesRule TopFaceCannotBeRed
+
+                else
+                    Roll newWorld
+
+        [] ->
+            if not (isOnPath newCell world.solutionPath) then
+                ViolatesRule MustBeInsideBoard
 
             else
                 Roll

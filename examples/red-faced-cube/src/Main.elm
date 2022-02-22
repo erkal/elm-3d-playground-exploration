@@ -223,18 +223,18 @@ handleSwipeInput computer model =
 
 attemptRoll : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRoll rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.roll rollDirection of
-        CannotRoll CannotCrossPath ->
+    case LevelSelector.current model.levels |> World.rollForPlayerInput rollDirection of
+        ViolatesRule CannotCrossPath ->
             model
 
-        CannotRoll MustBeInsideBoard ->
+        ViolatesRule MustBeInsideBoard ->
             model
 
-        CannotRoll TopFaceCannotBeRed ->
+        ViolatesRule TopFaceCannotBeRed ->
             model
                 |> startMistakeAnimation computer TopFaceCannotBeRed startCell rollDirection
 
-        CannotRoll MustVisitEachCellBeforeReachingFinishCell ->
+        ViolatesRule MustVisitEachCellBeforeReachingFinishCell ->
             model
                 |> startMistakeAnimation computer MustVisitEachCellBeforeReachingFinishCell startCell rollDirection
 
