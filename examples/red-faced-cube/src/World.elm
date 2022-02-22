@@ -16,16 +16,16 @@ empty : World
 empty =
     World
         (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
-        ( ( -4, 3 ), [] )
-        ( ( -4, 3 ), [] )
+        (Path ( -4, 3 ) [])
+        (Path ( -4, 3 ) [])
 
 
 levelFromBook : World
 levelFromBook =
     World
         (Cube ( -4, 3 ) (RedFaceDirection Z Positive))
-        ( ( -4, 3 ), [] )
-        ( ( 3, 3 ), [ ( 2, 3 ), ( 1, 3 ), ( 0, 3 ), ( 0, 2 ), ( 1, 2 ), ( 1, 1 ), ( 2, 1 ), ( 2, 2 ), ( 3, 2 ), ( 3, 1 ), ( 3, 0 ), ( 3, -1 ), ( 3, -2 ), ( 3, -3 ), ( 3, -4 ), ( 2, -4 ), ( 2, -3 ), ( 1, -3 ), ( 1, -4 ), ( 0, -4 ), ( 0, -3 ), ( 0, -2 ), ( 1, -2 ), ( 2, -2 ), ( 2, -1 ), ( 2, 0 ), ( 1, 0 ), ( 1, -1 ), ( 0, -1 ), ( 0, 0 ), ( 0, 1 ), ( -1, 1 ), ( -1, 0 ), ( -1, -1 ), ( -2, -1 ), ( -2, 0 ), ( -3, 0 ), ( -3, -1 ), ( -3, -2 ), ( -2, -2 ), ( -1, -2 ), ( -1, -3 ), ( -1, -4 ), ( -2, -4 ), ( -2, -3 ), ( -3, -3 ), ( -3, -4 ), ( -4, -4 ), ( -4, -3 ), ( -4, -2 ), ( -4, -1 ), ( -4, 0 ), ( -4, 1 ), ( -4, 2 ), ( -3, 2 ), ( -3, 1 ), ( -2, 1 ), ( -2, 2 ), ( -1, 2 ), ( -1, 3 ), ( -2, 3 ), ( -3, 3 ), ( -4, 3 ) ] )
+        (Path ( -4, 3 ) [])
+        (Path ( 3, 3 ) [ ( 2, 3 ), ( 1, 3 ), ( 0, 3 ), ( 0, 2 ), ( 1, 2 ), ( 1, 1 ), ( 2, 1 ), ( 2, 2 ), ( 3, 2 ), ( 3, 1 ), ( 3, 0 ), ( 3, -1 ), ( 3, -2 ), ( 3, -3 ), ( 3, -4 ), ( 2, -4 ), ( 2, -3 ), ( 1, -3 ), ( 1, -4 ), ( 0, -4 ), ( 0, -3 ), ( 0, -2 ), ( 1, -2 ), ( 2, -2 ), ( 2, -1 ), ( 2, 0 ), ( 1, 0 ), ( 1, -1 ), ( 0, -1 ), ( 0, 0 ), ( 0, 1 ), ( -1, 1 ), ( -1, 0 ), ( -1, -1 ), ( -2, -1 ), ( -2, 0 ), ( -3, 0 ), ( -3, -1 ), ( -3, -2 ), ( -2, -2 ), ( -1, -2 ), ( -1, -3 ), ( -1, -4 ), ( -2, -4 ), ( -2, -3 ), ( -3, -3 ), ( -3, -4 ), ( -4, -4 ), ( -4, -3 ), ( -4, -2 ), ( -4, -1 ), ( -4, 0 ), ( -4, 1 ), ( -4, 2 ), ( -3, 2 ), ( -3, 1 ), ( -2, 1 ), ( -2, 2 ), ( -1, 2 ), ( -1, 3 ), ( -2, 3 ), ( -3, 3 ), ( -4, 3 ) ])
 
 
 reset : World -> World
@@ -36,7 +36,7 @@ reset world =
     in
     { world
         | cube = Cube start (RedFaceDirection Z Positive)
-        , playerPath = ( start, [] )
+        , playerPath = Path start []
     }
 
 
@@ -45,7 +45,7 @@ reset world =
 
 
 isOnPath : Cell -> Path -> Bool
-isOnPath xy ( last, rest ) =
+isOnPath xy { last, rest } =
     List.member xy (last :: rest)
 
 
@@ -77,13 +77,13 @@ roll rollDirection world =
         ((Cube newCell newRedFaceDirection) as newCube) =
             Cube.roll rollDirection world.cube
     in
-    case world.playerPath of
-        ( last, beforeLast :: rest ) ->
+    case world.playerPath.rest of
+        beforeLast :: rest ->
             if beforeLast == newCell then
                 Roll
                     { world
                         | cube = newCube
-                        , playerPath = ( beforeLast, rest )
+                        , playerPath = Path beforeLast rest
                     }
 
             else if not (isOnPath newCell world.solutionPath) then
@@ -97,10 +97,10 @@ roll rollDirection world =
                     newWorld =
                         { world
                             | cube = newCube
-                            , playerPath = ( newCell, last :: beforeLast :: rest )
+                            , playerPath = Path newCell (world.playerPath.last :: beforeLast :: rest)
                         }
                 in
-                if newCell == Path.lastCell world.solutionPath then
+                if newCell == world.solutionPath.last then
                     if Path.length newWorld.playerPath == 64 && redFaceIsOnTop newRedFaceDirection then
                         RollAndSolve newWorld
 
@@ -113,7 +113,7 @@ roll rollDirection world =
                 else
                     Roll newWorld
 
-        ( last, [] ) ->
+        [] ->
             if not (isOnPath newCell world.solutionPath) then
                 CannotRoll MustBeInsideBoardBorders
 
@@ -121,7 +121,7 @@ roll rollDirection world =
                 Roll
                     { world
                         | cube = newCube
-                        , playerPath = ( newCell, [ last ] )
+                        , playerPath = Path newCell [ world.playerPath.last ]
                     }
 
 
@@ -131,14 +131,18 @@ roll rollDirection world =
 
 extensibleTo : Cell -> Path -> Bool
 extensibleTo cell path =
-    Cell.areNeighbours cell (Path.lastCell path)
-        && not (Path.contains cell path)
+    List.all identity
+        [ Cell.areNeighbours cell path.last
+        , not (Path.contains cell path)
+        ]
 
 
 maybeExtendASolutionPathTo : Cell -> World -> World
 maybeExtendASolutionPathTo cell world =
     if extensibleTo cell world.solutionPath then
-        { world | solutionPath = world.solutionPath |> Path.extendTo cell }
+        { world
+            | solutionPath = world.solutionPath |> Path.extendTo cell
+        }
 
     else
         world

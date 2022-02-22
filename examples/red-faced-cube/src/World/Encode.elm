@@ -1,19 +1,55 @@
-module World.Encode exposing (..)
+module World.Encode exposing (encodeWorld)
 
 import Cell exposing (Cell)
-import Cube exposing (Axis(..), Cube(..), RedFaceDirection, Sign(..))
+import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Json.Encode as Encode exposing (Value)
 import Path exposing (Path, PathSegment)
 import World exposing (World)
 
 
-encode : World -> Value
-encode a =
-    Encode.object
-        [ ( "cube", encodeCube a.cube )
-        , ( "playerPath", encodePath a.playerPath )
-        , ( "solutionPath", encodePath a.solutionPath )
-        ]
+
+{- Generated with <https://dkodaj.github.io/decgen/> with the following input
+
+   type alias World =
+       { cube : Cube
+       , playerPath : Path
+       , solutionPath : Path
+       }
+
+
+   type alias Path =
+       { last : Cell
+       , rest : List Cell
+       }
+
+
+   type alias PathSegment =
+       ( Cell, Cell )
+
+
+   type Cube
+       = Cube Cell RedFaceDirection
+
+
+   type RedFaceDirection
+       = RedFaceDirection Axis Sign
+
+
+   type Sign
+       = Positive
+       | Negative
+
+
+   type alias Cell =
+       ( Int, Int )
+
+
+   type Axis
+       = X
+       | Y
+       | Z
+
+-}
 
 
 encodeAxis : Axis -> Value
@@ -47,10 +83,10 @@ encodeCube (Cube a1 a2) =
 
 
 encodePath : Path -> Value
-encodePath ( a1, a2 ) =
+encodePath a =
     Encode.object
-        [ ( "A1", encodeCell a1 )
-        , ( "A2", Encode.list encodeCell a2 )
+        [ ( "last", encodeCell a.last )
+        , ( "rest", Encode.list encodeCell a.rest )
         ]
 
 
@@ -63,7 +99,7 @@ encodePathSegment ( a1, a2 ) =
 
 
 encodeRedFaceDirection : RedFaceDirection -> Value
-encodeRedFaceDirection (Cube.RedFaceDirection a1 a2) =
+encodeRedFaceDirection (RedFaceDirection a1 a2) =
     Encode.object
         [ ( "A1", encodeAxis a1 )
         , ( "A2", encodeSign a2 )
@@ -79,3 +115,12 @@ encodeSign a =
 
             Negative ->
                 "Negative"
+
+
+encodeWorld : World -> Value
+encodeWorld a =
+    Encode.object
+        [ ( "cube", encodeCube a.cube )
+        , ( "playerPath", encodePath a.playerPath )
+        , ( "solutionPath", encodePath a.solutionPath )
+        ]

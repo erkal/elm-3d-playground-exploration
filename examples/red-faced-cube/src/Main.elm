@@ -827,7 +827,7 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decoder)
+                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decodeWorld)
                         |> Result.withDefault model.levels
             }
 

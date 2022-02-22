@@ -1,19 +1,55 @@
-module World.Decode exposing (..)
+module World.Decode exposing (decodeWorld)
 
 import Cell exposing (Cell)
-import Cube as Cubde exposing (Axis(..), Cube(..), RedFaceDirection, Sign(..))
+import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Json.Decode as Decode exposing (Decoder)
 import Path exposing (Path, PathSegment)
 import World exposing (World)
 
 
-decoder : Decoder World
-decoder =
-    Decode.map3
-        World
-        (Decode.field "cube" decodeCube)
-        (Decode.field "playerPath" decodePath)
-        (Decode.field "solutionPath" decodePath)
+
+{- Generated with <https://dkodaj.github.io/decgen/> with the following input
+
+   type alias World =
+       { cube : Cube
+       , playerPath : Path
+       , solutionPath : Path
+       }
+
+
+   type alias Path =
+       { last : Cell
+       , rest : List Cell
+       }
+
+
+   type alias PathSegment =
+       ( Cell, Cell )
+
+
+   type Cube
+       = Cube Cell RedFaceDirection
+
+
+   type RedFaceDirection
+       = RedFaceDirection Axis Sign
+
+
+   type Sign
+       = Positive
+       | Negative
+
+
+   type alias Cell =
+       ( Int, Int )
+
+
+   type Axis
+       = X
+       | Y
+       | Z
+
+-}
 
 
 decodeAxis : Decoder Axis
@@ -55,9 +91,9 @@ decodeCube =
 decodePath : Decoder Path
 decodePath =
     Decode.map2
-        (\a1 a2 -> ( a1, a2 ))
-        (Decode.field "A1" decodeCell)
-        (Decode.field "A2" (Decode.list decodeCell))
+        Path
+        (Decode.field "last" decodeCell)
+        (Decode.field "rest" (Decode.list decodeCell))
 
 
 decodePathSegment : Decoder PathSegment
@@ -71,7 +107,7 @@ decodePathSegment =
 decodeRedFaceDirection : Decoder RedFaceDirection
 decodeRedFaceDirection =
     Decode.map2
-        Cubde.RedFaceDirection
+        RedFaceDirection
         (Decode.field "A1" decodeAxis)
         (Decode.field "A2" decodeSign)
 
@@ -91,3 +127,12 @@ decodeSign =
                     Decode.fail <| "Unknown constructor for type Sign: " ++ other
     in
     Decode.string |> Decode.andThen recover
+
+
+decodeWorld : Decoder World
+decodeWorld =
+    Decode.map3
+        World
+        (Decode.field "cube" decodeCube)
+        (Decode.field "playerPath" decodePath)
+        (Decode.field "solutionPath" decodePath)

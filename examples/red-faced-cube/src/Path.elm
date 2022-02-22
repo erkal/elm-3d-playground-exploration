@@ -5,7 +5,9 @@ import Wall exposing (Wall(..), WallDirection(..))
 
 
 type alias Path =
-    ( Cell, List Cell )
+    { last : Cell
+    , rest : List Cell
+    }
 
 
 type alias PathSegment =
@@ -13,21 +15,16 @@ type alias PathSegment =
 
 
 length : Path -> Int
-length ( _, rest ) =
+length { rest } =
     1 + List.length rest
 
 
 firstCell : Path -> Cell
-firstCell ( last, rest ) =
+firstCell { last, rest } =
     rest
         |> List.reverse
         |> List.head
         |> Maybe.withDefault last
-
-
-lastCell : Path -> Cell
-lastCell =
-    Tuple.first
 
 
 contains : Cell -> Path -> Bool
@@ -36,12 +33,12 @@ contains cell path =
 
 
 cells : Path -> List Cell
-cells ( last, rest ) =
+cells { last, rest } =
     last :: rest
 
 
 pathSegments : Path -> List PathSegment
-pathSegments ( last, rest ) =
+pathSegments { last, rest } =
     List.map2 Tuple.pair (last :: rest) rest
 
 
@@ -69,16 +66,16 @@ wallsWithDuplicates path =
 
 
 extendTo : Cell -> Path -> Path
-extendTo cell ( last, rest ) =
-    ( cell, last :: rest )
+extendTo cell { last, rest } =
+    Path cell (last :: rest)
 
 
 shortenTo : Cell -> Path -> Path
-shortenTo cell (( last, rest ) as path) =
+shortenTo cell ({ last, rest } as path) =
     case rest of
         secondLast :: rest_ ->
             if cell == secondLast then
-                ( secondLast, rest_ )
+                Path secondLast rest_
 
             else
                 path

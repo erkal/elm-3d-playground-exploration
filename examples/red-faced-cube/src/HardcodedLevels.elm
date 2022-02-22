@@ -8,7 +8,7 @@ import World.Decode
 
 hardcodedLevels =
     hardcodedLevelsAsJson
-        |> Json.Decode.decodeString (LS.decoder World.Decode.decoder)
+        |> Json.Decode.decodeString (LS.decoder World.Decode.decodeWorld)
         |> Result.withDefault (LS.singleton World.empty)
 
 

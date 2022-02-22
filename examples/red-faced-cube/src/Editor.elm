@@ -47,5 +47,5 @@ exportLevels : Levels World -> Editor -> Editor
 exportLevels levels editor =
     { editor
         | jsonExportedLevels =
-            Json.Encode.encode 2 (LevelSelector.encode (World.reset >> World.Encode.encode) levels)
+            Json.Encode.encode 2 (LevelSelector.encode (World.reset >> World.Encode.encodeWorld) levels)
     }
