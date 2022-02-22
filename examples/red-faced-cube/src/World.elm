@@ -65,9 +65,9 @@ type RollResult
 
 
 type Rule
-    = MustVisitEachCellBeforeReachingNorthEastCorner
+    = MustVisitEachCellBeforeReachingFinishCell
     | TopFaceCannotBeRed
-    | MustBeInsideBoardBorders
+    | MustBeInsideBoard
     | CannotCrossPath
 
 
@@ -87,7 +87,7 @@ roll rollDirection world =
                     }
 
             else if not (isOnPath newCell world.solutionPath) then
-                CannotRoll MustBeInsideBoardBorders
+                CannotRoll MustBeInsideBoard
 
             else if isOnPath newCell world.playerPath then
                 CannotRoll CannotCrossPath
@@ -105,7 +105,7 @@ roll rollDirection world =
                         RollAndSolve newWorld
 
                     else
-                        CannotRoll MustVisitEachCellBeforeReachingNorthEastCorner
+                        CannotRoll MustVisitEachCellBeforeReachingFinishCell
 
                 else if redFaceIsOnTop newRedFaceDirection then
                     CannotRoll TopFaceCannotBeRed
@@ -115,7 +115,7 @@ roll rollDirection world =
 
         [] ->
             if not (isOnPath newCell world.solutionPath) then
-                CannotRoll MustBeInsideBoardBorders
+                CannotRoll MustBeInsideBoard
 
             else
                 Roll
@@ -123,31 +123,3 @@ roll rollDirection world =
                         | cube = newCube
                         , playerPath = Path newCell [ world.playerPath.last ]
                     }
-
-
-
--- UPDATE FROM EDITOR
-
-
-extensibleTo : Cell -> Path -> Bool
-extensibleTo cell path =
-    List.all identity
-        [ Cell.areNeighbours cell path.last
-        , not (Path.contains cell path)
-        ]
-
-
-maybeExtendASolutionPathTo : Cell -> World -> World
-maybeExtendASolutionPathTo cell world =
-    if extensibleTo cell world.solutionPath then
-        { world
-            | solutionPath = world.solutionPath |> Path.extendTo cell
-        }
-
-    else
-        world
-
-
-maybeShortenASolutionPathTo : Cell -> World -> World
-maybeShortenASolutionPathTo cell ({ solutionPath } as level) =
-    { level | solutionPath = level.solutionPath |> Path.shortenTo cell }

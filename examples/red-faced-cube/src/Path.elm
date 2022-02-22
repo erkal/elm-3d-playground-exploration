@@ -63,22 +63,3 @@ wallsWithDuplicates path =
     path
         |> cells
         |> List.concatMap Wall.wallsAround
-
-
-extendTo : Cell -> Path -> Path
-extendTo cell { last, rest } =
-    Path cell (last :: rest)
-
-
-shortenTo : Cell -> Path -> Path
-shortenTo cell ({ last, rest } as path) =
-    case rest of
-        secondLast :: rest_ ->
-            if cell == secondLast then
-                Path secondLast rest_
-
-            else
-                path
-
-        _ ->
-            path

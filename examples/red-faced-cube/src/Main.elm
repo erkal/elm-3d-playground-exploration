@@ -131,7 +131,6 @@ update computer model =
     if model.editor.isOn then
         model
             |> updateCellUnderPointer computer
-            |> extendOrShortenASolutionInLevelEditor computer
             |> updateSwipe computer
             |> handleKeyboardInput computer
             |> handleSwipeInput computer
@@ -144,23 +143,6 @@ update computer model =
             |> handleKeyboardInput computer
             |> handleSwipeInput computer
             |> stopAnimation computer
-
-
-extendOrShortenASolutionInLevelEditor : Computer -> Model -> Model
-extendOrShortenASolutionInLevelEditor computer model =
-    if computer.pointer.down then
-        { model
-            | levels =
-                model.levels
-                    |> LevelSelector.setCurrent
-                        (LevelSelector.current model.levels
-                            |> World.maybeExtendASolutionPathTo model.cellUnderPointer
-                            |> World.maybeShortenASolutionPathTo model.cellUnderPointer
-                        )
-        }
-
-    else
-        model
 
 
 updateCellUnderPointer : Computer -> Model -> Model
@@ -245,16 +227,16 @@ attemptRoll rollDirection startCell computer model =
         CannotRoll CannotCrossPath ->
             model
 
-        CannotRoll MustBeInsideBoardBorders ->
+        CannotRoll MustBeInsideBoard ->
             model
 
         CannotRoll TopFaceCannotBeRed ->
             model
                 |> startMistakeAnimation computer TopFaceCannotBeRed startCell rollDirection
 
-        CannotRoll MustVisitEachCellBeforeReachingNorthEastCorner ->
+        CannotRoll MustVisitEachCellBeforeReachingFinishCell ->
             model
-                |> startMistakeAnimation computer MustVisitEachCellBeforeReachingNorthEastCorner startCell rollDirection
+                |> startMistakeAnimation computer MustVisitEachCellBeforeReachingFinishCell startCell rollDirection
 
         Roll newWorld ->
             model
@@ -364,7 +346,7 @@ explanationText ({ time } as computer) model =
                 (case model.state of
                     AnimatingMistake { startedAt, violatedRule } ->
                         case violatedRule of
-                            MustVisitEachCellBeforeReachingNorthEastCorner ->
+                            MustVisitEachCellBeforeReachingFinishCell ->
                                 [ style "background-color" "red" ]
 
                             _ ->
