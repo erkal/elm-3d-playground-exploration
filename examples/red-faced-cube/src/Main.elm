@@ -9,6 +9,7 @@ import Editor exposing (Editor)
 import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, px, row, scrollbarY, spacing, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
@@ -832,6 +833,7 @@ rollingAnimation computer model pos =
 type EditorMsg
     = ClickedEditorOnOffButton Bool
     | PressedCalculateSolutionsButton
+    | MouseClickOnSolution Path
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -868,6 +870,14 @@ updateFromEditor computer editorMsg model =
                                         LevelSelector.current model.levels |> World.calculateSolutionsForNoFixedEndPoint
                                 }
                             )
+            }
+
+        MouseClickOnSolution p ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.mapCurrent
+                            (\world -> { world | levelEditingPath = p })
             }
 
         PressedPreviousLevelButton ->
@@ -929,7 +939,7 @@ viewEditor computer model =
             , height fill
             , padding 20
             , spacing 20
-            , Font.color Colors.lightText
+            , Font.color Colors.darkText
             , Font.size 13
             ]
             (editorOnOffButton computer model
@@ -1010,10 +1020,17 @@ viewSolutions computer model =
         [ header "Solutions"
         , column [ spacing 10 ]
             [ makeButton "Calculate solutions for NO FIXED END POINT" PressedCalculateSolutionsButton
-            , column []
+            , column [ spacing 4 ]
                 (LevelSelector.current model.levels
                     |> .calculatedSolutions
-                    |> List.map (Debug.toString >> Element.text >> el [])
+                    |> List.map
+                        (\p ->
+                            el
+                                [ Element.Events.onClick (MouseClickOnSolution p)
+                                , Element.pointer
+                                ]
+                                (Element.text (Debug.toString p))
+                        )
                 )
             ]
         ]
@@ -1023,7 +1040,7 @@ levelSelectionButtons : Computer -> Model -> Element EditorMsg
 levelSelectionButtons computer model =
     row [ spacing 10 ]
         [ makeButton "<" PressedPreviousLevelButton
-        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+        , el [ Font.size 22, Font.heavy ] <|
             Element.text <|
                 String.concat
                     [ String.fromInt (LevelSelector.currentIndex model.levels)
