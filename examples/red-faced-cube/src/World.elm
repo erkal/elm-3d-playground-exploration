@@ -1,6 +1,6 @@
 module World exposing (..)
 
-import Cell exposing (Cell, RollDirection)
+import Cell exposing (Cell, RollDirection(..))
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Path exposing (Path)
 
@@ -175,3 +175,43 @@ rollForLevelEditing rollDirection world =
                     | levelEditingCube = targetCube
                     , levelEditingPath = Path targetCell [ world.levelEditingPath.last ]
                 }
+
+
+solutions : World -> List World
+solutions world =
+    let
+        go i finished new =
+            if i < 1 then
+                finished
+
+            else if i == 1 then
+                -- we do this to prevent unnecessary calculation of `new` in the last step
+                finished ++ new
+
+            else
+                go
+                    (i - 1)
+                    (finished ++ new)
+                    (new
+                        |> List.concatMap
+                            (\world_ ->
+                                [ Up, Down, Left, Right ]
+                                    |> List.filterMap
+                                        (\rollDirection ->
+                                            case rollForPlayerInput rollDirection world_ of
+                                                ViolatesRule _ ->
+                                                    Nothing
+
+                                                Roll w ->
+                                                    Just w
+
+                                                RollAndSolve w ->
+                                                    Just w
+                                        )
+                            )
+                    )
+    in
+    go
+        (Path.length world.levelEditingPath)
+        []
+        [ reset world ]

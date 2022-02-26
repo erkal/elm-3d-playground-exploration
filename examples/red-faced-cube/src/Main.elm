@@ -114,8 +114,8 @@ init : Computer -> Model
 init computer =
     { state = NoAnimation
     , levels =
-        --hardcodedLevels
-        LevelSelector.singleton World.levelFromBook
+        --LevelSelector.singleton World.levelFromBook
+        hardcodedLevels
     , editor = Editor.init
     , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
@@ -848,6 +848,8 @@ updateFromEditor computer editorMsg model =
                 , levels =
                     model.levels
                         |> LevelSelector.map World.reset
+                , state =
+                    NoAnimation
             }
 
         PressedPreviousLevelButton ->
