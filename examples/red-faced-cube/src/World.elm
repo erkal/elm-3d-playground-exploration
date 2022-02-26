@@ -10,6 +10,7 @@ type alias World =
     , playerPath : Path
     , levelEditingCube : Cube
     , levelEditingPath : Path
+    , calculatedSolutions : List Path
     }
 
 
@@ -20,6 +21,7 @@ empty =
         (Path ( 0, 0 ) [])
         (Cube ( 0, 0 ) (RedFaceDirection Z Positive))
         (Path ( 0, 0 ) [])
+        []
 
 
 levelFromBook : World
@@ -29,6 +31,7 @@ levelFromBook =
         (Path ( -4, 3 ) [])
         (Cube ( 3, 3 ) (RedFaceDirection Z Positive))
         (Path ( 3, 3 ) [ ( 2, 3 ), ( 1, 3 ), ( 0, 3 ), ( 0, 2 ), ( 1, 2 ), ( 1, 1 ), ( 2, 1 ), ( 2, 2 ), ( 3, 2 ), ( 3, 1 ), ( 3, 0 ), ( 3, -1 ), ( 3, -2 ), ( 3, -3 ), ( 3, -4 ), ( 2, -4 ), ( 2, -3 ), ( 1, -3 ), ( 1, -4 ), ( 0, -4 ), ( 0, -3 ), ( 0, -2 ), ( 1, -2 ), ( 2, -2 ), ( 2, -1 ), ( 2, 0 ), ( 1, 0 ), ( 1, -1 ), ( 0, -1 ), ( 0, 0 ), ( 0, 1 ), ( -1, 1 ), ( -1, 0 ), ( -1, -1 ), ( -2, -1 ), ( -2, 0 ), ( -3, 0 ), ( -3, -1 ), ( -3, -2 ), ( -2, -2 ), ( -1, -2 ), ( -1, -3 ), ( -1, -4 ), ( -2, -4 ), ( -2, -3 ), ( -3, -3 ), ( -3, -4 ), ( -4, -4 ), ( -4, -3 ), ( -4, -2 ), ( -4, -1 ), ( -4, 0 ), ( -4, 1 ), ( -4, 2 ), ( -3, 2 ), ( -3, 1 ), ( -2, 1 ), ( -2, 2 ), ( -1, 2 ), ( -1, 3 ), ( -2, 3 ), ( -3, 3 ), ( -4, 3 ) ])
+        []
 
 
 reset : World -> World
@@ -63,7 +66,8 @@ redFaceIsOnTop redFaceDirection =
 
 type RollResultForPlayer
     = ViolatesRule Rule
-    | Roll World
+    | RollBack World
+    | RollForward World
     | RollAndSolve World
 
 
@@ -90,7 +94,7 @@ rollForPlayerInput rollDirection world =
         beforeLast :: rest ->
             if beforeLast == targetCell then
                 -- roll back
-                Roll
+                RollBack
                     { world
                         | playerCube = targetCube
                         , playerPath = Path beforeLast rest
@@ -121,14 +125,14 @@ rollForPlayerInput rollDirection world =
                     ViolatesRule TopFaceCannotBeRed
 
                 else
-                    Roll newWorld
+                    RollForward newWorld
 
         [] ->
             if not (isOnPath targetCell world.levelEditingPath) then
                 ViolatesRule MustBeInsideBoard
 
             else
-                Roll
+                RollForward
                     { world
                         | playerCube = targetCube
                         , playerPath = Path targetCell [ world.playerPath.last ]
@@ -177,8 +181,8 @@ rollForLevelEditing rollDirection world =
                 }
 
 
-solutions : World -> List World
-solutions world =
+calculateSolutionsForNoFixedEndPoint : World -> List Path
+calculateSolutionsForNoFixedEndPoint world =
     let
         go i finished new =
             if i < 1 then
@@ -202,7 +206,10 @@ solutions world =
                                                 ViolatesRule _ ->
                                                     Nothing
 
-                                                Roll w ->
+                                                RollBack _ ->
+                                                    Nothing
+
+                                                RollForward w ->
                                                     Just w
 
                                                 RollAndSolve w ->
@@ -211,7 +218,6 @@ solutions world =
                             )
                     )
     in
-    go
-        (Path.length world.levelEditingPath)
-        []
-        [ reset world ]
+    go (Path.length world.levelEditingPath) [] [ reset world ]
+        |> List.map .playerPath
+        |> List.filter (\p -> Path.length p == Path.length world.levelEditingPath)

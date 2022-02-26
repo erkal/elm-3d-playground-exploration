@@ -240,7 +240,11 @@ attemptRollForPlayer rollDirection startCell computer model =
             model
                 |> startMistakeAnimation computer MustVisitEachCellBeforeReachingFinishCell startCell rollDirection
 
-        Roll newWorld ->
+        RollForward newWorld ->
+            model
+                |> startRollAnimation computer startCell rollDirection False newWorld
+
+        RollBack newWorld ->
             model
                 |> startRollAnimation computer startCell rollDirection False newWorld
 
@@ -827,6 +831,7 @@ rollingAnimation computer model pos =
 
 type EditorMsg
     = ClickedEditorOnOffButton Bool
+    | PressedCalculateSolutionsButton
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -850,6 +855,19 @@ updateFromEditor computer editorMsg model =
                         |> LevelSelector.map World.reset
                 , state =
                     NoAnimation
+            }
+
+        PressedCalculateSolutionsButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.mapCurrent
+                            (\world ->
+                                { world
+                                    | calculatedSolutions =
+                                        LevelSelector.current model.levels |> World.calculateSolutionsForNoFixedEndPoint
+                                }
+                            )
             }
 
         PressedPreviousLevelButton ->
@@ -936,6 +954,7 @@ editorContent computer model =
     if model.editor.isOn then
         [ --viewInstructions computer model ,
           viewLevelSelector computer model
+        , viewSolutions computer model
         , viewImportExportLevels computer model
         , viewDebugger computer model
         ]
@@ -981,6 +1000,21 @@ viewLevelSelector computer model =
             , makeButton "Add level" PressedAddLevelButton
             , makeButton "Remove level" PressedRemoveLevelButton
             , makeButton "Move level up" PressedMoveLevelOneUpButton
+            ]
+        ]
+
+
+viewSolutions : Computer -> Model -> Element EditorMsg
+viewSolutions computer model =
+    column []
+        [ header "Solutions"
+        , column [ spacing 10 ]
+            [ makeButton "Calculate solutions for NO FIXED END POINT" PressedCalculateSolutionsButton
+            , column []
+                (LevelSelector.current model.levels
+                    |> .calculatedSolutions
+                    |> List.map (Debug.toString >> Element.text >> el [])
+                )
             ]
         ]
 

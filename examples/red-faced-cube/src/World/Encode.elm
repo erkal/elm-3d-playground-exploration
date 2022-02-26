@@ -15,6 +15,7 @@ import World exposing (World)
         , playerPath : Path
         , levelEditingCube : Cube
         , levelEditingPath : Path
+        , calculatedSolutions : List Path
         }
 
 
@@ -125,4 +126,5 @@ encodeWorld a =
         , ( "playerPath", encodePath a.playerPath )
         , ( "levelEditingCube", encodeCube a.levelEditingCube )
         , ( "levelEditingPath", encodePath a.levelEditingPath )
+        , ( "calculatedSolutions", Encode.list encodePath a.calculatedSolutions )
         ]

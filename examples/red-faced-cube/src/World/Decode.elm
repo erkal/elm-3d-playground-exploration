@@ -15,6 +15,7 @@ import World exposing (World)
         , playerPath : Path
         , levelEditingCube : Cube
         , levelEditingPath : Path
+        , calculatedSolutions : List Path
         }
 
 
@@ -132,9 +133,10 @@ decodeSign =
 
 decodeWorld : Decoder World
 decodeWorld =
-    Decode.map4
+    Decode.map5
         World
         (Decode.field "playerCube" decodeCube)
         (Decode.field "playerPath" decodePath)
         (Decode.field "levelEditingCube" decodeCube)
         (Decode.field "levelEditingPath" decodePath)
+        (Decode.field "calculatedSolutions" (Decode.list decodePath))
