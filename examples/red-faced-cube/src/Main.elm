@@ -114,7 +114,7 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { state = NoAnimation
-    , levels = hardcodedLevels |> LevelSelector.add World.levelFromBook
+    , levels = hardcodedLevels
     , editor = Editor.init
     , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
