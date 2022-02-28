@@ -6,9 +6,10 @@ import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, px, row, scrollbarY, spacing, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, mouseOver, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events
 import Element.Font as Font
 import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
@@ -113,9 +114,7 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { state = NoAnimation
-    , levels =
-        --hardcodedLevels
-        LevelSelector.singleton World.levelFromBook
+    , levels = hardcodedLevels
     , editor = Editor.init
     , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
@@ -240,7 +239,11 @@ attemptRollForPlayer rollDirection startCell computer model =
             model
                 |> startMistakeAnimation computer MustVisitEachCellBeforeReachingFinishCell startCell rollDirection
 
-        Roll newWorld ->
+        RollForward newWorld ->
+            model
+                |> startRollAnimation computer startCell rollDirection False newWorld
+
+        RollBack newWorld ->
             model
                 |> startRollAnimation computer startCell rollDirection False newWorld
 
@@ -582,10 +585,15 @@ drawWall computer (Wall ( x, y ) wallDirection) =
 
 drawWallsForLevelEditingPath : Computer -> Model -> Shape
 drawWallsForLevelEditingPath computer model =
+    let
+        pathToDraw =
+            model.editor.mouseOveredSolution
+                |> Maybe.withDefault (LevelSelector.current model.levels).levelEditingPath
+    in
     group
-        ((LevelSelector.current model.levels).levelEditingPath
+        (pathToDraw
             |> Path.wallsWithDuplicates
-            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).levelEditingPath))
+            |> List.filter (\wall -> not (Path.crosses wall pathToDraw))
             |> List.map (drawWall computer)
         )
 
@@ -827,6 +835,9 @@ rollingAnimation computer model pos =
 
 type EditorMsg
     = ClickedEditorOnOffButton Bool
+    | PressedCalculateSolutionsButton
+    | MouseEnterSolution Path
+    | MouseLeftSolution
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -838,7 +849,7 @@ type EditorMsg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
-updateFromEditor computer editorMsg model =
+updateFromEditor computer editorMsg ({ editor } as model) =
     case editorMsg of
         ClickedEditorOnOffButton bool ->
             { model
@@ -848,6 +859,33 @@ updateFromEditor computer editorMsg model =
                 , levels =
                     model.levels
                         |> LevelSelector.map World.reset
+                , state =
+                    NoAnimation
+            }
+
+        PressedCalculateSolutionsButton ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.mapCurrent
+                            (\world ->
+                                { world
+                                    | calculatedSolutions =
+                                        LevelSelector.current model.levels |> World.calculateSolutionsForNoFixedEndPoint
+                                }
+                            )
+            }
+
+        MouseEnterSolution p ->
+            { model
+                | editor =
+                    { editor | mouseOveredSolution = Just p }
+            }
+
+        MouseLeftSolution ->
+            { model
+                | editor =
+                    { editor | mouseOveredSolution = Nothing }
             }
 
         PressedPreviousLevelButton ->
@@ -909,7 +947,7 @@ viewEditor computer model =
             , height fill
             , padding 20
             , spacing 20
-            , Font.color Colors.lightText
+            , Font.color Colors.darkText
             , Font.size 13
             ]
             (editorOnOffButton computer model
@@ -934,6 +972,7 @@ editorContent computer model =
     if model.editor.isOn then
         [ --viewInstructions computer model ,
           viewLevelSelector computer model
+        , viewSolutions computer model
         , viewImportExportLevels computer model
         , viewDebugger computer model
         ]
@@ -965,7 +1004,7 @@ viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
 
-        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
+        --, paragraph [] [ Element.text <| "Editor state: " ++ Debug.toString model.editor.mouseOveredSolution ]
         --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
@@ -983,11 +1022,37 @@ viewLevelSelector computer model =
         ]
 
 
+viewSolutions : Computer -> Model -> Element EditorMsg
+viewSolutions computer model =
+    column []
+        [ header "Solutions"
+        , column [ spacing 10 ]
+            [ makeButton "Calculate solutions for NO FIXED END POINT" PressedCalculateSolutionsButton
+            , column [ spacing 4 ]
+                (LevelSelector.current model.levels
+                    |> .calculatedSolutions
+                    |> List.indexedMap
+                        (\i p ->
+                            el
+                                [ Element.Events.onMouseEnter (MouseEnterSolution p)
+                                , Element.Events.onMouseLeave MouseLeftSolution
+                                , Background.color Colors.gray
+                                , mouseOver [ Background.color Colors.black, Font.color Colors.lightText ]
+                                , Element.pointer
+                                , padding 10
+                                ]
+                                (Element.text ("Solution " ++ String.fromInt i))
+                        )
+                )
+            ]
+        ]
+
+
 levelSelectionButtons : Computer -> Model -> Element EditorMsg
 levelSelectionButtons computer model =
     row [ spacing 10 ]
         [ makeButton "<" PressedPreviousLevelButton
-        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
+        , el [ Font.size 22, Font.heavy ] <|
             Element.text <|
                 String.concat
                     [ String.fromInt (LevelSelector.currentIndex model.levels)
@@ -1001,9 +1066,9 @@ levelSelectionButtons computer model =
 makeButton : String -> EditorMsg -> Element EditorMsg
 makeButton buttonText editorMsg =
     button
-        [ Font.color Colors.black
+        [ Font.color Colors.white
         , paddingXY 10 6
-        , Background.color Colors.lightGray
+        , Background.color Colors.blue
         , Border.rounded 8
         ]
         { onPress = Just editorMsg
@@ -1038,6 +1103,7 @@ textAreaForExportedLevels model =
         , height (px 100)
         , padding 10
         , Background.color Colors.black
+        , Font.color Colors.lightText
         , Font.family [ Font.monospace ]
         , scrollbarY
         , htmlAttribute (style "user-select" "text")
@@ -1064,6 +1130,7 @@ textAreaForLevelsToImport model =
         , height (px 100)
         , padding 10
         , Background.color Colors.black
+        , Font.color Colors.lightText
         , Font.family [ Font.monospace ]
         , scrollbarY
         , htmlAttribute (style "user-select" "text")
