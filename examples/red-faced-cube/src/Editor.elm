@@ -2,6 +2,7 @@ module Editor exposing (..)
 
 import Json.Encode
 import LevelSelector exposing (Levels)
+import Path exposing (Path)
 import World exposing (World)
 import World.Encode
 
@@ -9,6 +10,7 @@ import World.Encode
 type alias Editor =
     { isOn : Bool
     , state : EditorState
+    , mouseOveredSolution : Maybe Path
     , jsonExportedLevels : String
     , jsonLevelsToImport : String
     }
@@ -18,6 +20,7 @@ init : Editor
 init =
     { isOn = False
     , state = Idle
+    , mouseOveredSolution = Nothing
     , jsonExportedLevels = ""
     , jsonLevelsToImport = ""
     }
