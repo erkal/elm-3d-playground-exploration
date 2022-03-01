@@ -189,7 +189,7 @@ moveLevelOneUp (L p) =
         next :: rest ->
             L
                 { p
-                    | before = p.before ++ [ next ]
+                    | before = next :: p.before
                     , after = rest
                 }
 
@@ -197,7 +197,7 @@ moveLevelOneUp (L p) =
             L
                 { p
                     | before = []
-                    , after = p.before
+                    , after = List.reverse p.before
                 }
 
 
