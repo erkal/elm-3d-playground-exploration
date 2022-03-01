@@ -176,7 +176,7 @@ updateCellUnderPointer : Computer -> Model -> Model
 updateCellUnderPointer computer model =
     { model
         | cellUnderPointer =
-            Camera.mouseOverXY (camera computer) computer.screen computer.pointer
+            Camera.mouseOverXY (camera computer model) computer.screen computer.pointer
                 |> Maybe.map (\{ x, y } -> ( round x, round y ))
                 |> Maybe.withDefault model.cellUnderPointer
     }
@@ -403,10 +403,15 @@ explanationText ({ time } as computer) model =
         ]
 
 
-camera : Computer -> Camera
-camera computer =
+camera : Computer -> Model -> Camera
+camera computer model =
     perspectiveWithOrbit
-        { focalPoint = { x = -0.5, y = 0.7, z = 0 }
+        { focalPoint =
+            let
+                center =
+                    World.center (LevelSelector.current model.levels)
+            in
+            { x = center.x, y = center.y, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
         , distance = getFloat "camera distance" computer
@@ -487,7 +492,7 @@ viewShapes computer model =
     Scene.custom
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera = camera computer
+        , camera = camera computer model
         , lights =
             Scene3d.fourLights
                 firstLight

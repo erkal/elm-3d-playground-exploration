@@ -47,6 +47,24 @@ reset world =
     }
 
 
+center : World -> { x : Float, y : Float }
+center world =
+    let
+        cells =
+            Path.cells world.levelEditingPath
+
+        { minX, maxX, minY, maxY } =
+            { minX = List.minimum (List.map (Tuple.first >> toFloat) cells) |> Maybe.withDefault 0
+            , maxX = List.maximum (List.map (Tuple.first >> toFloat) cells) |> Maybe.withDefault 0
+            , minY = List.minimum (List.map (Tuple.second >> toFloat) cells) |> Maybe.withDefault 0
+            , maxY = List.maximum (List.map (Tuple.second >> toFloat) cells) |> Maybe.withDefault 0
+            }
+    in
+    { x = 0.5 * (minX + maxX)
+    , y = 0.5 * (minY + maxY)
+    }
+
+
 
 -- QUERY
 
