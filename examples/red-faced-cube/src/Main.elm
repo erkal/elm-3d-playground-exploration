@@ -378,7 +378,7 @@ explanationText ({ time } as computer) model =
                 )
                 [ text " Visit each cell exactly once." ]
             , br [] []
-            , span [] [ text "End with the cube red side up in the top-right corner." ]
+            , span [] [ text "End with the cube red side up on the (marked) finish cell." ]
             , br [] []
             , span
                 (case model.state of
