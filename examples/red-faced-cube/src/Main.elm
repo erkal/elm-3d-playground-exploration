@@ -107,6 +107,7 @@ initialConfigurations =
         , colorConfig "color 2" (rgb255 255 200 40)
         , colorConfig "path color" (rgb255 244 88 67)
         , colorConfig "board color" (rgb255 165 166 169)
+        , colorConfig "finish mark color" (rgb255 150 215 106)
         , colorConfig "wall color" (rgb255 38 48 64)
         ]
     ]
@@ -510,10 +511,24 @@ viewShapes computer model =
          else
             [ drawBoard computer model
             , drawPlayerCube computer model
+            , drawMarkForFinishCell computer model
             , drawWallsForPlayerPath computer model
             , drawPlayerPath computer model
             ]
         )
+
+
+drawMarkForFinishCell : Computer -> Model -> Shape
+drawMarkForFinishCell computer model =
+    let
+        ( x, y ) =
+            (LevelSelector.current model.levels).levelEditingPath.last
+    in
+    cylinder (matte (getColor "finish mark color" computer)) 0.3 1
+        |> rotateX (degrees 90)
+        |> moveZ (wave -0.3 -0.4 0.5 computer.time)
+        |> moveX (toFloat x)
+        |> moveY (toFloat y)
 
 
 drawBoard : Computer -> Model -> Shape
