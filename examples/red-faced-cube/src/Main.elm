@@ -1062,8 +1062,11 @@ viewLevelSelector computer model =
                 ]
                 (Element.el [ centerX, centerY ] (Element.text (String.fromInt (i + 1))))
     in
-    column [ spacing 20 ]
+    column [ spacing 10 ]
         [ header "Level Selector"
+        , wrappedRow
+            [ spacing 10 ]
+            (model.levels |> LevelSelector.asList |> List.indexedMap showLevelBox)
         , row [ spacing 10 ]
             [ makeButton "Add level" PressedAddLevelButton
             , makeButton "Remove level" PressedRemoveLevelButton
@@ -1071,9 +1074,6 @@ viewLevelSelector computer model =
             ]
 
         --, levelSelectionButtons computer model
-        , wrappedRow
-            [ spacing 10 ]
-            (model.levels |> LevelSelector.asList |> List.indexedMap showLevelBox)
         ]
 
 
