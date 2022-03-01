@@ -29,6 +29,7 @@ import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
+import Set
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
@@ -978,7 +979,8 @@ editorContent computer model =
         ]
 
     else
-        []
+        [ viewDebugger computer model
+        ]
 
 
 viewInstructions : Computer -> Model -> Element EditorMsg
@@ -1003,6 +1005,22 @@ viewDebugger : Computer -> Model -> Element EditorMsg
 viewDebugger computer model =
     textColumn [ alignBottom ]
         [ header "Debugger"
+        , paragraph []
+            [ Element.text <|
+                "player path disconnects the board: "
+                    ++ (let
+                            world =
+                                LevelSelector.current model.levels
+
+                            boardCellsNotOnPlayerPath =
+                                Set.diff
+                                    (Set.fromList (Path.cells world.levelEditingPath))
+                                    (Set.fromList (Path.cells world.playerPath))
+                        in
+                        Debug.toString
+                            (Cell.isDisconnected boardCellsNotOnPlayerPath)
+                       )
+            ]
 
         --, paragraph [] [ Element.text <| "Editor state: " ++ Debug.toString model.editor.mouseOveredSolution ]
         --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]

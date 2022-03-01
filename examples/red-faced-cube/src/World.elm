@@ -3,6 +3,7 @@ module World exposing (..)
 import Cell exposing (Cell, RollDirection(..))
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Path exposing (Path)
+import Set exposing (Set)
 
 
 type alias World =

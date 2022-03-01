@@ -1,5 +1,7 @@
 module Cell exposing (..)
 
+import Set exposing (Set)
+
 
 type alias Cell =
     ( Int, Int )
@@ -12,10 +14,11 @@ type RollDirection
     | Right
 
 
-areNeighbours : Cell -> Cell -> Bool
-areNeighbours cell1 cell2 =
+neighboursIn : Set Cell -> Cell -> List Cell
+neighboursIn allCells cell =
     [ Up, Down, Left, Right ]
-        |> List.any (\rollDirection -> cell2 == neighbourTo rollDirection cell1)
+        |> List.map (\rollDirection -> neighbourTo rollDirection cell)
+        |> List.filter (\n -> Set.member n allCells)
 
 
 neighbourTo : RollDirection -> Cell -> Cell
@@ -32,3 +35,39 @@ neighbourTo rollDirection ( x, y ) =
 
         Right ->
             ( x + 1, y )
+
+
+connectedComponentOf : Cell -> Set Cell -> Set Cell
+connectedComponentOf startCell allCells =
+    let
+        go finished discovered =
+            case discovered of
+                [] ->
+                    finished
+
+                next :: rest ->
+                    let
+                        discoveredAsNeighbourOfNext =
+                            next
+                                |> neighboursIn allCells
+                                |> List.filter
+                                    (\n ->
+                                        not (List.member n (discovered |> Debug.log "") || Set.member n finished)
+                                    )
+                    in
+                    go (Set.insert next finished) (rest ++ discoveredAsNeighbourOfNext)
+    in
+    go Set.empty [ startCell ]
+
+
+isDisconnected : Set Cell -> Bool
+isDisconnected cells =
+    let
+        n =
+            Set.size cells
+    in
+    cells
+        |> Set.toList
+        |> List.head
+        |> Maybe.map (\cell -> Set.size (connectedComponentOf cell cells) < n)
+        |> Maybe.withDefault False
