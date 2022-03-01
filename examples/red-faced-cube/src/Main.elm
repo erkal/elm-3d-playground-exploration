@@ -893,7 +893,7 @@ updateFromEditor computer editorMsg ({ editor } as model) =
                             (\world ->
                                 { world
                                     | calculatedSolutions =
-                                        LevelSelector.current model.levels |> World.calculateSolutionsForNoFixedEndPoint
+                                        LevelSelector.current model.levels |> World.calculateSolutions
                                 }
                             )
             }
@@ -1087,7 +1087,7 @@ viewSolutions computer model =
     column []
         [ header "Solutions"
         , column [ spacing 10 ]
-            [ makeButton "Calculate solutions for NO FIXED END POINT" PressedCalculateSolutionsButton
+            [ makeButton "Calculate all solutions" PressedCalculateSolutionsButton
             , column [ spacing 4 ]
                 (LevelSelector.current model.levels
                     |> .calculatedSolutions

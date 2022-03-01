@@ -209,8 +209,8 @@ playerPathDisconnectsBoard world =
         )
 
 
-calculateSolutionsForNoFixedEndPoint : World -> List Path
-calculateSolutionsForNoFixedEndPoint world =
+calculateSolutions : World -> List Path
+calculateSolutions world =
     let
         go i finished new =
             if i <= 1 then
