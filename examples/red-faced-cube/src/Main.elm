@@ -106,7 +106,7 @@ initialConfigurations =
         , colorConfig "color 1" (rgb255 244 88 67)
         , colorConfig "color 2" (rgb255 255 200 40)
         , colorConfig "path color" (rgb255 244 88 67)
-        , colorConfig "board color" (rgb255 165 166 169)
+        , colorConfig "board color" (rgb255 200 170 170)
         , colorConfig "finish mark color" (rgb255 150 215 106)
         , colorConfig "wall color" (rgb255 38 48 64)
         ]
