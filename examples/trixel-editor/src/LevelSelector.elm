@@ -196,7 +196,7 @@ moveLevelOneUp (L p) =
             L
                 { p
                     | before = []
-                    , after = List.reverse p.before
+                    , after = p.before
                 }
 
 
