@@ -1008,18 +1008,7 @@ viewDebugger computer model =
         , paragraph []
             [ Element.text <|
                 "player path disconnects the board: "
-                    ++ (let
-                            world =
-                                LevelSelector.current model.levels
-
-                            boardCellsNotOnPlayerPath =
-                                Set.diff
-                                    (Set.fromList (Path.cells world.levelEditingPath))
-                                    (Set.fromList (Path.cells world.playerPath))
-                        in
-                        Debug.toString
-                            (Cell.isDisconnected boardCellsNotOnPlayerPath)
-                       )
+                    ++ Debug.toString (World.playerPathDisconnectsBoard (LevelSelector.current model.levels))
             ]
 
         --, paragraph [] [ Element.text <| "Editor state: " ++ Debug.toString model.editor.mouseOveredSolution ]

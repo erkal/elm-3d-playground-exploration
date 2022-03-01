@@ -182,6 +182,15 @@ rollForLevelEditing rollDirection world =
                 }
 
 
+playerPathDisconnectsBoard : World -> Bool
+playerPathDisconnectsBoard world =
+    Cell.isDisconnected
+        (Set.diff
+            (Set.fromList (Path.cells world.levelEditingPath))
+            (Set.fromList (Path.cells world.playerPath))
+        )
+
+
 calculateSolutionsForNoFixedEndPoint : World -> List Path
 calculateSolutionsForNoFixedEndPoint world =
     let
@@ -196,22 +205,27 @@ calculateSolutionsForNoFixedEndPoint world =
                     (new
                         |> List.concatMap
                             (\world_ ->
-                                [ Up, Down, Left, Right ]
-                                    |> List.filterMap
-                                        (\rollDirection ->
-                                            case rollForPlayerInput rollDirection world_ of
-                                                ViolatesRule _ ->
-                                                    Nothing
+                                if playerPathDisconnectsBoard world_ then
+                                    -- optimization! We prune the search tree here
+                                    []
 
-                                                RollBack _ ->
-                                                    Nothing
+                                else
+                                    [ Up, Down, Left, Right ]
+                                        |> List.filterMap
+                                            (\rollDirection ->
+                                                case rollForPlayerInput rollDirection world_ of
+                                                    ViolatesRule _ ->
+                                                        Nothing
 
-                                                RollForward w ->
-                                                    Just w
+                                                    RollBack _ ->
+                                                        Nothing
 
-                                                RollAndSolve w ->
-                                                    Just w
-                                        )
+                                                    RollForward w ->
+                                                        Just w
+
+                                                    RollAndSolve w ->
+                                                        Just w
+                                            )
                             )
                     )
     in

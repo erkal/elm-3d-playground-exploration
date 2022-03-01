@@ -52,7 +52,7 @@ connectedComponentOf startCell allCells =
                                 |> neighboursIn allCells
                                 |> List.filter
                                     (\n ->
-                                        not (List.member n (discovered |> Debug.log "") || Set.member n finished)
+                                        not (List.member n discovered || Set.member n finished)
                                     )
                     in
                     go (Set.insert next finished) (rest ++ discoveredAsNeighbourOfNext)
