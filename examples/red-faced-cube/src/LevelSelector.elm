@@ -1,12 +1,14 @@
 module LevelSelector exposing
     ( Levels
     , add
+    , asList
     , current
     , currentIndex
     , decoder
     , encode
     , fromFirstAndRest
     , fromHardCoded
+    , goTo
     , goToNext
     , goToPrevious
     , map
@@ -110,6 +112,11 @@ size (L p) =
         + List.length p.after
 
 
+asList : Levels level -> List level
+asList (L p) =
+    List.reverse p.before ++ [ p.current ] ++ p.after
+
+
 
 -- SETTERS and MAPPERS
 
@@ -135,6 +142,27 @@ map up (L p) =
 
 
 -- OPERATIONS
+
+
+goTo : Int -> Levels level -> Levels level
+goTo i (L p) =
+    let
+        l =
+            asList (L p)
+
+        i_ =
+            i |> modBy (List.length l + 1)
+    in
+    case List.drop (i_ - 1) l of
+        head :: tail ->
+            L
+                { before = List.take (i_ - 1) l
+                , current = head
+                , after = tail
+                }
+
+        [] ->
+            L p
 
 
 goToNext : Levels level -> Maybe (Levels level)

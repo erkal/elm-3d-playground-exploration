@@ -6,7 +6,7 @@ import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, mouseOver, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events
@@ -854,6 +854,7 @@ type EditorMsg
     | PressedCalculateSolutionsButton
     | MouseEnterSolution Path
     | MouseLeftSolution
+    | PressedLevelBox Int
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -902,6 +903,13 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | editor =
                     { editor | mouseOveredSolution = Nothing }
+            }
+
+        PressedLevelBox i ->
+            { model
+                | levels =
+                    model.levels
+                        |> LevelSelector.goTo i
             }
 
         PressedPreviousLevelButton ->
@@ -1033,14 +1041,39 @@ viewDebugger computer model =
 
 viewLevelSelector : Computer -> Model -> Element EditorMsg
 viewLevelSelector computer model =
-    column []
+    let
+        showLevelBox i _ =
+            Element.el
+                [ width (px 30)
+                , height (px 30)
+                , Font.size 20
+                , Element.Events.onClick (PressedLevelBox (i + 1))
+                , Background.color Colors.darkGray
+                , pointer
+                , Border.rounded 6
+                , Border.color Colors.black
+                , Border.width
+                    (if LevelSelector.currentIndex model.levels == i + 1 then
+                        4
+
+                     else
+                        0
+                    )
+                ]
+                (Element.el [ centerX, centerY ] (Element.text (String.fromInt (i + 1))))
+    in
+    column [ spacing 20 ]
         [ header "Level Selector"
         , row [ spacing 10 ]
-            [ levelSelectionButtons computer model
-            , makeButton "Add level" PressedAddLevelButton
+            [ makeButton "Add level" PressedAddLevelButton
             , makeButton "Remove level" PressedRemoveLevelButton
             , makeButton "Move level up" PressedMoveLevelOneUpButton
             ]
+
+        --, levelSelectionButtons computer model
+        , wrappedRow
+            [ spacing 10 ]
+            (model.levels |> LevelSelector.asList |> List.indexedMap showLevelBox)
         ]
 
 
@@ -1072,16 +1105,18 @@ viewSolutions computer model =
 
 levelSelectionButtons : Computer -> Model -> Element EditorMsg
 levelSelectionButtons computer model =
-    row [ spacing 10 ]
-        [ makeButton "<" PressedPreviousLevelButton
-        , el [ Font.size 22, Font.heavy ] <|
-            Element.text <|
-                String.concat
-                    [ String.fromInt (LevelSelector.currentIndex model.levels)
-                    , " / "
-                    , String.fromInt (LevelSelector.size model.levels)
-                    ]
-        , makeButton ">" PressedNextLevelButton
+    column []
+        [ row [ spacing 10 ]
+            [ makeButton "<" PressedPreviousLevelButton
+            , el [ Font.size 22, Font.heavy ] <|
+                Element.text <|
+                    String.concat
+                        [ String.fromInt (LevelSelector.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LevelSelector.size model.levels)
+                        ]
+            , makeButton ">" PressedNextLevelButton
+            ]
         ]
 
 
