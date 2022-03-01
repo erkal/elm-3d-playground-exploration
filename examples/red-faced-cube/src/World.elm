@@ -186,11 +186,7 @@ calculateSolutionsForNoFixedEndPoint : World -> List Path
 calculateSolutionsForNoFixedEndPoint world =
     let
         go i finished new =
-            if i < 1 then
-                finished
-
-            else if i == 1 then
-                -- we do this to prevent unnecessary calculation of `new` in the last step
+            if i <= 1 then
                 finished ++ new
 
             else
