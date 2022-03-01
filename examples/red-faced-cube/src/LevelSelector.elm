@@ -156,7 +156,7 @@ goTo i (L p) =
     case List.drop (i_ - 1) l of
         head :: tail ->
             L
-                { before = List.take (i_ - 1) l
+                { before = List.reverse (List.take (i_ - 1) l)
                 , current = head
                 , after = tail
                 }
