@@ -213,7 +213,7 @@ calculateSolutions : World -> List Path
 calculateSolutions world =
     let
         {- This is very much like breadth first search.
-           The i`th step discovers the paths of length i
+           In the i`th step, `finished` is the list of paths of length i
         -}
         go : List World -> List World -> List World
         go finished discovered =
