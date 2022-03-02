@@ -33,7 +33,7 @@ import Set
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
-import World exposing (RollResultForLevelEditing(..), RollResultForPlayer(..), Rule(..), World)
+import World exposing (RollResultForLevelEditing(..), Rule(..), StepResult(..), World)
 import World.Decode
 
 
@@ -226,7 +226,7 @@ swipeInputToRollDirection swipe =
 
 attemptRollForPlayer : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForPlayer rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.rollForPlayerInput rollDirection of
+    case LevelSelector.current model.levels |> World.step rollDirection of
         ViolatesRule CannotCrossPath ->
             model
 
@@ -256,7 +256,7 @@ attemptRollForPlayer rollDirection startCell computer model =
 
 attemptRollForLevelEditing : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForLevelEditing rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.rollForLevelEditing rollDirection of
+    case LevelSelector.current model.levels |> World.stepForLevelEditing rollDirection of
         CannotRoll_LevelFinishedBecauseTopFaceIsRed ->
             model
 

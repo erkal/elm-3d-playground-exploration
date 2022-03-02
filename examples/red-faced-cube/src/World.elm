@@ -83,7 +83,7 @@ redFaceIsOnTop redFaceDirection =
 -- UPDATE FROM PLAYER
 
 
-type RollResultForPlayer
+type StepResult
     = ViolatesRule Rule
     | RollBack World
     | RollForward World
@@ -97,14 +97,8 @@ type Rule
     | CannotCrossPath
 
 
-type RollResultForLevelEditing
-    = CannotRoll_LevelFinishedBecauseTopFaceIsRed
-    | CannotRoll_CannotCrossPath
-    | RollAndEditLevelPath World
-
-
-rollForPlayerInput : RollDirection -> World -> RollResultForPlayer
-rollForPlayerInput rollDirection world =
+step : RollDirection -> World -> StepResult
+step rollDirection world =
     let
         ((Cube targetCell targetRedFaceDirection) as targetCube) =
             Cube.roll rollDirection world.playerCube
@@ -158,8 +152,14 @@ rollForPlayerInput rollDirection world =
                     }
 
 
-rollForLevelEditing : RollDirection -> World -> RollResultForLevelEditing
-rollForLevelEditing rollDirection world =
+type RollResultForLevelEditing
+    = CannotRoll_LevelFinishedBecauseTopFaceIsRed
+    | CannotRoll_CannotCrossPath
+    | RollAndEditLevelPath World
+
+
+stepForLevelEditing : RollDirection -> World -> RollResultForLevelEditing
+stepForLevelEditing rollDirection world =
     let
         (Cube _ lastRedFaceDirection) =
             world.levelEditingCube
@@ -212,16 +212,18 @@ playerPathDisconnectsBoard world =
 calculateSolutions : World -> List Path
 calculateSolutions world =
     let
-        go : Int -> List World -> List World -> List World
-        go i finished new =
-            if i <= 1 then
-                finished ++ new
+        {- This is very much like breadth first search.
+           The i`th step discovers the paths of length i
+        -}
+        go : List World -> List World -> List World
+        go finished discovered =
+            if List.isEmpty discovered then
+                finished
 
             else
                 go
-                    (i - 1)
-                    (finished ++ new)
-                    (new
+                    (finished ++ discovered)
+                    (discovered
                         |> List.concatMap
                             (\world_ ->
                                 if playerPathDisconnectsBoard world_ then
@@ -232,7 +234,7 @@ calculateSolutions world =
                                     [ Up, Down, Left, Right ]
                                         |> List.filterMap
                                             (\rollDirection ->
-                                                case rollForPlayerInput rollDirection world_ of
+                                                case step rollDirection world_ of
                                                     ViolatesRule _ ->
                                                         Nothing
 
@@ -248,6 +250,6 @@ calculateSolutions world =
                             )
                     )
     in
-    go (Path.length world.levelEditingPath) [] [ reset world ]
+    go [] [ reset world ]
         |> List.map .playerPath
         |> List.filter (\p -> Path.length p == Path.length world.levelEditingPath)
