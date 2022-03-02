@@ -3,7 +3,7 @@ module World.Encode exposing (encodeWorld)
 import Cell exposing (Cell)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Json.Encode as Encode exposing (Value)
-import Path exposing (Path, PathSegment)
+import Path exposing (Path)
 import World exposing (World)
 
 
@@ -25,8 +25,8 @@ import World exposing (World)
        }
 
 
-   type alias PathSegment =
-       ( Cell, Cell )
+   type alias Cell =
+       ( Int, Int )
 
 
    type Cube
@@ -40,10 +40,6 @@ import World exposing (World)
    type Sign
        = Positive
        | Negative
-
-
-   type alias Cell =
-       ( Int, Int )
 
 
    type Axis
@@ -89,14 +85,6 @@ encodePath a =
     Encode.object
         [ ( "last", encodeCell a.last )
         , ( "rest", Encode.list encodeCell a.rest )
-        ]
-
-
-encodePathSegment : PathSegment -> Value
-encodePathSegment ( a1, a2 ) =
-    Encode.object
-        [ ( "A1", encodeCell a1 )
-        , ( "A2", encodeCell a2 )
         ]
 
 

@@ -3,14 +3,14 @@ module World.Decode exposing (decodeWorld)
 import Cell exposing (Cell)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Json.Decode as Decode exposing (Decoder)
-import Path exposing (Path, PathSegment)
+import Path exposing (Path)
 import World exposing (World)
 
 
 
 {- Generated with <https://dkodaj.github.io/decgen/> with the following input
 
-    type alias World =
+   type alias World =
         { playerCube : Cube
         , playerPath : Path
         , levelEditingCube : Cube
@@ -25,8 +25,8 @@ import World exposing (World)
        }
 
 
-   type alias PathSegment =
-       ( Cell, Cell )
+   type alias Cell =
+       ( Int, Int )
 
 
    type Cube
@@ -40,10 +40,6 @@ import World exposing (World)
    type Sign
        = Positive
        | Negative
-
-
-   type alias Cell =
-       ( Int, Int )
 
 
    type Axis
@@ -96,14 +92,6 @@ decodePath =
         Path
         (Decode.field "last" decodeCell)
         (Decode.field "rest" (Decode.list decodeCell))
-
-
-decodePathSegment : Decoder PathSegment
-decodePathSegment =
-    Decode.map2
-        (\a1 a2 -> ( a1, a2 ))
-        (Decode.field "A1" decodeCell)
-        (Decode.field "A2" decodeCell)
 
 
 decodeRedFaceDirection : Decoder RedFaceDirection
