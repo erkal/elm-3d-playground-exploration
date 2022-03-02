@@ -632,9 +632,7 @@ drawPlayerPath computer model =
         color i =
             case model.state of
                 CongratulationsAnimation { startedAt } ->
-                    hsl (wave 0 1 6 (computer.time + 0.03 * toFloat i))
-                        1
-                        0.8
+                    hsl (wave 0 1 6 (computer.time + 0.03 * toFloat i)) 1 0.8
 
                 _ ->
                     white
