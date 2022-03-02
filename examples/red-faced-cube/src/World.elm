@@ -212,7 +212,7 @@ playerPathDisconnectsBoard world =
 calculateSolutions : World -> List Path
 calculateSolutions world =
     let
-        go : number -> List World -> List World -> List World
+        go : Int -> List World -> List World -> List World
         go i finished new =
             if i <= 1 then
                 finished ++ new
