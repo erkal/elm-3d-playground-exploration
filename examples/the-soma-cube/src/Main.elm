@@ -106,7 +106,8 @@ explanationText ({ time } as computer) model =
         --    [ text "..." ]
         , p
             [ style "margin" "10px 20px 10px 20px" ]
-            [ div [] [ text "Space Key to chose the next piece" ]
+            [ div [ style "color" "red" ] [ text "The following control are not implemented yet" ]
+            , div [] [ text "Space Key to chose the next piece" ]
             , div [] [ text "Arrow keys to rotate the cube" ]
             , div [] [ text "WASDQE to move the cube" ]
             , div [] [ text "Shift + Arrow Keys to rotate the camera" ]
