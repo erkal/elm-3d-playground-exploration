@@ -78,7 +78,7 @@ type State
         , startPosition : ( Int, Int )
         , rollDirection : RollDirection
         }
-    | CongratulationsAnimation { startedAt : Float }
+    | CongratulationsAnimation
 
 
 
@@ -276,7 +276,7 @@ stopAnimation computer model =
                 { model
                     | state =
                         if willBeSolved then
-                            CongratulationsAnimation { startedAt = computer.time }
+                            CongratulationsAnimation
 
                         else
                             NoAnimation
@@ -631,7 +631,7 @@ drawPlayerPath computer model =
     let
         color i =
             case model.state of
-                CongratulationsAnimation { startedAt } ->
+                CongratulationsAnimation ->
                     hsl (wave 0 1 6 (computer.time + 0.03 * toFloat i)) 1 0.8
 
                 _ ->
@@ -639,7 +639,7 @@ drawPlayerPath computer model =
 
         animateHeight i =
             case model.state of
-                CongratulationsAnimation { startedAt } ->
+                CongratulationsAnimation ->
                     scale 0.9
                         >> moveZ (wave 0.1 0.7 6 (computer.time + 0.3 * toFloat i))
 
