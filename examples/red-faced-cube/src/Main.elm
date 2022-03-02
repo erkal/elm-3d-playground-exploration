@@ -494,11 +494,8 @@ viewShapes computer model =
         , screen = computer.screen
         , camera = camera computer model
         , lights =
-            Scene3d.fourLights
-                firstLight
-                secondLight
-                thirdLight
-                fourthLight
+            --Scene3d.fourLights firstLight secondLight thirdLight fourthLight
+            Scene3d.twoLights firstLight secondLight
         , clipDepth = 0.1
         , exposure = Scene3d.exposureValue 6
         , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
