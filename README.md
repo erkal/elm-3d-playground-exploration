@@ -6,7 +6,7 @@ A modification of [evancz/elm-playground](https://package.elm-lang.org/packages/
 
 # For Development
 
-If you don't have them already, [install nodejs](https://nodejs.org/en/download/) and [install yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
+If you don't have them already, [install nodejs](https://nodejs.org/en/download/) and [install yarn](https://yarnpkg.com/).
 
 Clone the repository
 
@@ -14,19 +14,19 @@ Clone the repository
 git clone https://github.com/erkal/elm-3d-playground-exploration.git
 ```
 
-and navigate into an example, for example:
+and navigate into an example:
 
 ```
 cd elm-3d-playground-exploration/examples/red-faced-cube
 ```
 
-install all dependencies, type
+install all dependencies:
 
 ```
 yarn
 ```
 
-and run a development server with hot-reloading by typing type
+and run a development server:
 
 ```
 yarn dev
