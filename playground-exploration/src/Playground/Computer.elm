@@ -315,6 +315,7 @@ If someone is pressing the UP and RIGHT arrows, you will see a value like this:
     , space = False
     , enter = False
     , shift = False
+    , alt = False
     , backspace = False
     , keys = Set.fromList [ "ArrowUp", "ArrowRight" ]
     }
@@ -350,6 +351,7 @@ type alias Keyboard =
     , space : Bool
     , enter : Bool
     , shift : Bool
+    , alt : Bool
     , backspace : Bool
     , keys : Set.Set String
     }
@@ -500,6 +502,7 @@ emptyKeyboard =
     , space = False
     , enter = False
     , shift = False
+    , alt = False
     , backspace = False
     , keys = Set.empty
     }
@@ -524,6 +527,9 @@ updateKeyboard isDown key keyboard =
 
         "Shift" ->
             { keyboard | keys = keys, shift = isDown }
+
+        "Alt" ->
+            { keyboard | keys = keys, alt = isDown }
 
         "Backspace" ->
             { keyboard | keys = keys, backspace = isDown }
