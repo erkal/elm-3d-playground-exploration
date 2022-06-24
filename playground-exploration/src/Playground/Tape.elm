@@ -116,6 +116,8 @@ tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
                     pastCurrentFuture.current
 
                 newComputer =
+                    -- Here, we trick the computer.clock.
+                    -- It ticks only when recording (This is subject to change)
                     { inputs | clock = lastComputer.clock + inputs.dt }
                         |> Computer.assignConfigurations lastComputer.configurations
 
