@@ -167,6 +167,9 @@ const sendInputsToElmApp = (app) => {
   });
 
   window.addEventListener("pointerdown", (e) => {
+    inputs.pointer.x = -0.5 * inputs.screen.width + e.pageX;
+    inputs.pointer.y = 0.5 * inputs.screen.height - e.pageY;
+
     if (isLeftMouseButton(e)) {
       inputs.pointer.down = true;
       inputs.pointer.isDown = true;
