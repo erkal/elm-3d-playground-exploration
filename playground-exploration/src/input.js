@@ -1,6 +1,6 @@
-export { sendInputsToElmApp, initialInputs };
+export { sendInputsToElmApp, inputs };
 
-const initialInputs =
+const inputs =
   /* 
     initial inputs 
   */
@@ -45,8 +45,6 @@ const initialInputs =
   };
 
 const sendInputsToElmApp = (app) => {
-  var inputs = initialInputs;
-
   /* 
     helper functions for getting information out of events 
   */
@@ -54,10 +52,10 @@ const sendInputsToElmApp = (app) => {
     ["ControlLeft", "ControlRight", "MetaLeft", "MetaRight"].includes(e.code);
   const isAltKey = (e) => ["AltLeft", "AltRight"].includes(e.code);
   const isShiftKey = (e) => ["ShiftLeft", "ShiftRight"].includes(e.code);
-  const isArrowLeftKey = (e) => e == "ArrowLeft";
-  const isArrowRightKey = (e) => e == "ArrowRight";
-  const isArrowUpKey = (e) => e == "ArrowUp";
-  const isArrowDownKey = (e) => e == "ArrowDown";
+  const isArrowLeftKey = (e) => e.code == "ArrowLeft";
+  const isArrowRightKey = (e) => e.code == "ArrowRight";
+  const isArrowUpKey = (e) => e.code == "ArrowUp";
+  const isArrowDownKey = (e) => e.code == "ArrowDown";
 
   const isLeftMouseButton = (e) => e.button == 0;
   const isRightMouseButton = (e) => e.button == 2;
@@ -108,6 +106,7 @@ const sendInputsToElmApp = (app) => {
       }
 
       if (isShiftKey(e)) {
+        console.log("yo");
         inputs.keyboard.shift = true;
       }
 
@@ -124,6 +123,7 @@ const sendInputsToElmApp = (app) => {
       }
 
       if (isArrowDownKey(e)) {
+        console.log("yey");
         inputs.keyboard.down = true;
       }
     }
