@@ -32,14 +32,9 @@ type Tape gameModel
 
 
 type State
-    = Recording RecordStepType
+    = Recording
     | Paused
     | Playing { tapeClock : Float }
-
-
-type RecordStepType
-    = WithResetComputer
-    | Usual
 
 
 
@@ -49,7 +44,7 @@ type RecordStepType
 init : Computer -> (Computer -> gameModel) -> Tape gameModel
 init initialComputer initGameModel =
     Tape
-        (Recording Usual)
+        Recording
         { pastReversed = []
         , current = ( initialComputer, initGameModel initialComputer )
         , future = []
@@ -114,7 +109,7 @@ tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
                         identity
                    )
 
-        Recording recordStepType ->
+        Recording ->
             let
                 ( lastComputer, lastGameModel ) =
                     pastCurrentFuture.current
@@ -126,7 +121,7 @@ tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
                     lastGameModel |> updateGameModel newComputer
             in
             Tape
-                (Recording Usual)
+                Recording
                 { pastReversed = pastCurrentFuture.current :: pastCurrentFuture.pastReversed
                 , current = ( newComputer, newGameModel )
                 , future = []
@@ -171,7 +166,7 @@ pause (Tape _ pastCurrentFuture) =
 
 startRecording : Tape gameModel -> Tape gameModel
 startRecording (Tape _ pastCurrentFuture) =
-    Tape (Recording WithResetComputer) pastCurrentFuture
+    Tape Recording pastCurrentFuture
 
 
 startPlaying : Tape gameModel -> Tape gameModel
@@ -280,7 +275,7 @@ viewClock ((Tape state _) as tape) =
     let
         conditionalStyling =
             case state of
-                Recording _ ->
+                Recording ->
                     [ Font.color Colors.red
                     ]
 
@@ -307,7 +302,7 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
         []
         [ el [ width (px 40) ] <|
             case state of
-                Recording _ ->
+                Recording ->
                     recButton PressedPauseButton Colors.red
 
                 Paused ->
@@ -317,7 +312,7 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
                     none
         , el [ width (px 28) ] <|
             case state of
-                Recording _ ->
+                Recording ->
                     none
 
                 Paused ->
