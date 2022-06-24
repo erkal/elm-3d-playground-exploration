@@ -41,14 +41,14 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Html exposing (Html)
-import Html.Attributes as HA
+import Html exposing (Html, p, pre)
+import Html.Attributes as HA exposing (style)
 import Playground.Colors as Colors
-import Playground.Computer as Computer exposing (Computer, Inputs, Msg(..), Wheel)
+import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
-import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
+import Playground.Tape as Tape exposing (Tape, getComputer, getGameModel)
 
 
 
@@ -228,9 +228,9 @@ type Mode
 type Msg levelEditorMsg
     = NoOp
     | ClickOnDistractionFreeButton
-    | ToComputer Computer.Msg
     | Tick Inputs
     | SelectMode Mode
+    | FromConfigurationsEditor Configurations.Msg
     | FromLevelEditor levelEditorMsg
     | FromTape Tape.Msg
 
@@ -246,9 +246,6 @@ gameUpdate updateGameModel updateFromEditor msg model =
         NoOp ->
             model
 
-        ToComputer computerMsg ->
-            { model | tape = model.tape |> Tape.updateCurrentComputer computerMsg }
-
         ClickOnDistractionFreeButton ->
             { model | distractionFree = not model.distractionFree }
 
@@ -257,6 +254,9 @@ gameUpdate updateGameModel updateFromEditor msg model =
 
         SelectMode mode ->
             { model | activeMode = mode }
+
+        FromConfigurationsEditor computerMsg ->
+            { model | tape = model.tape |> Tape.updateConfigurations computerMsg }
 
         FromLevelEditor levelEditorMsg ->
             { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
@@ -283,10 +283,10 @@ view :
 view viewGameModel viewLevelEditor model =
     let
         computer =
-            currentComputer model.tape
+            getComputer model.tape
 
         gameModel =
-            currentGameModel model.tape
+            getGameModel model.tape
     in
     layoutWith
         { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
@@ -300,8 +300,27 @@ view viewGameModel viewLevelEditor model =
         --
         , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
         , inFront (viewGUI model)
+        , inFront (html (debugView computer))
         ]
         (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+
+
+debugView : Computer -> Html msg
+debugView computer =
+    pre
+        [ style "position" "fixed"
+        , style "top" "100px"
+        , style "left" "100px"
+        , style "font-size" "20px"
+        , style "color" "gray"
+        ]
+        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
+        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
+        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
+        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
+        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
+        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
+        ]
 
 
 viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
@@ -409,7 +428,7 @@ leftStripe activeMode =
 leftBar : Mode -> Tape gameModel -> Element (Msg levelEditorMsg)
 leftBar activeMode tape =
     column
-        [ if (tape |> currentComputer |> .screen |> .width) > 600 then
+        [ if (tape |> getComputer |> .screen |> .width) > 600 then
             Background.color Colors.menuBackground
 
           else
@@ -469,6 +488,6 @@ viewConfigurations tape =
              --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
              --    }
             ]
-        , Element.map (FromConfigurationsEditor >> ToComputer)
-            (ConfigurationsGUI.view (currentComputer tape).configurations)
+        , Element.map FromConfigurationsEditor
+            (ConfigurationsGUI.view (getComputer tape).configurations)
         ]
