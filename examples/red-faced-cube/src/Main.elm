@@ -348,7 +348,7 @@ view computer model =
 
 
 explanationText : Computer -> Model -> Html Never
-explanationText ({ time } as computer) model =
+explanationText computer model =
     div
         [ style "position" "fixed"
         , style "width" "100%"
