@@ -6,7 +6,7 @@ module Playground.Tape exposing
     , init
     , tick
     , update
-    , updateCurrentComputer
+    , updateConfigurations
     , updateCurrentGameModelWithEditorMsg
     , view
     )
@@ -18,6 +18,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Playground.Colors as Colors
 import Playground.Computer as Computer exposing (Computer, Inputs)
+import Playground.Configurations as Configurations
 import Playground.Icons as Icons
 import Round
 
@@ -83,13 +84,13 @@ updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg (Tape state 
         }
 
 
-updateCurrentComputer : Computer.Msg -> Tape gameModel -> Tape gameModel
-updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
+updateConfigurations : Configurations.Msg -> Tape gameModel -> Tape gameModel
+updateConfigurations configurationsMsg (Tape state pastCurrentFuture) =
     Tape state
         { pastCurrentFuture
             | current =
                 pastCurrentFuture.current
-                    |> Tuple.mapFirst (Computer.update computerMsg)
+                    |> Tuple.mapFirst (Computer.updateConfigurations configurationsMsg)
         }
 
 

@@ -72,10 +72,6 @@ type alias Screen =
     }
 
 
-type Msg
-    = FromConfigurationsEditor Configurations.Msg
-
-
 assignConfigurations : Configurations -> Inputs -> Computer
 assignConfigurations initialConfigurations inputs =
     { dt = inputs.dt
@@ -89,13 +85,11 @@ assignConfigurations initialConfigurations inputs =
     }
 
 
-update : Msg -> Computer -> Computer
-update msg computer =
-    case msg of
-        FromConfigurationsEditor configurationsMsg ->
-            { computer
-                | configurations = computer.configurations |> Configurations.update configurationsMsg
-            }
+updateConfigurations : Configurations.Msg -> Computer -> Computer
+updateConfigurations configurationsMsg computer =
+    { computer
+        | configurations = computer.configurations |> Configurations.update configurationsMsg
+    }
 
 
 
