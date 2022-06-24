@@ -267,7 +267,7 @@ playerVertexOnTheNearestBaseVertex computer model =
 
 startDraggingBaseEdge : Computer -> Model -> Model
 startDraggingBaseEdge computer model =
-    if computer.keyboard.shift && not computer.keyboard.space && computer.pointer.down then
+    if computer.keyboard.shift && not computer.keyboard.alt && computer.pointer.down then
         case
             ( model.editorState
             , nearestBaseVertex computer model
@@ -309,7 +309,7 @@ insertBaseEdge computer model =
 
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
-    if computer.pointer.down && computer.keyboard.space then
+    if computer.pointer.down && computer.keyboard.alt then
         case ( model.editorState, nearestBaseVertex computer model ) of
             ( EditorIdle, Just vertexId ) ->
                 if
@@ -336,7 +336,13 @@ distanceXY p q =
 
 startDraggingPlayerVertex : Computer -> Model -> Model
 startDraggingPlayerVertex computer model =
-    if (not (Dict.isEmpty computer.touches) || computer.pointer.down) && not computer.keyboard.shift then
+    if
+        (computer.pointer.down
+         -- TODO
+         --|| not (Dict.isEmpty computer.touches)
+        )
+            && not computer.keyboard.shift
+    then
         case ( model.gameState, playerVertexOnTheNearestBaseVertex computer model ) of
             ( Idle, Just vertexId ) ->
                 if
@@ -407,7 +413,11 @@ tickBaseVertices computer model =
 
 endDraggingPlayerVertex : Computer -> Model -> Model
 endDraggingPlayerVertex computer model =
-    if Dict.isEmpty computer.touches && not computer.pointer.down then
+    if
+        not computer.pointer.down
+        -- TODO
+        --&& Dict.isEmpty computer.touches
+    then
         case model.gameState of
             DraggingPlayerVertex dragData ->
                 case dragData.maybeTargetIdOnBaseGraph of
@@ -932,7 +942,7 @@ explanationsForEditor : Computer -> Model -> Element EditorMsg
 explanationsForEditor computer model =
     textColumn []
         [ header "Editing the selected level"
-        , paragraph [] [ text "- Hold shift + space & Press mouse to add vertex" ]
+        , paragraph [] [ text "- Hold shift + alt & Press mouse to add vertex" ]
         , paragraph [] [ text "- To move vertices drag them with mouse" ]
         , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
         ]

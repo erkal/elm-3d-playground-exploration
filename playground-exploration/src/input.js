@@ -178,8 +178,8 @@ const sendInputsToElmApp = (app) => {
 
   window.addEventListener("pointermove", (e) => {
     inputs.pointer.move = true;
-    inputs.pointer.x = e.pageX;
-    inputs.pointer.y = e.pageY;
+    inputs.pointer.x = -0.5 * inputs.screen.width + e.pageX;
+    inputs.pointer.y = 0.5 * inputs.screen.height - e.pageY;
   });
 
   window.addEventListener("pointerup", (e) => {
