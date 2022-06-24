@@ -119,7 +119,7 @@ camera computer =
         { focalPoint = { x = 0, y = 0, z = 0 }
         , eyePoint =
             { x = 10
-            , y = wave -20 20 20 computer.time
+            , y = wave -20 20 20 computer.clock
             , z = 60
             }
         , upDirection = { x = 0, y = 1, z = 0 }
@@ -138,7 +138,7 @@ yellowBlocks computer =
             0.1 * toFloat i
 
         wavy i =
-            wave 0 1 4 (computer.time + delay i)
+            wave 0 1 4 (computer.clock + delay i)
 
         oneBlock i =
             block (matte (hsl (wavy i) 0.6 0.8)) ( 1, 3, 1 )

@@ -46,10 +46,10 @@ andreysBrithDayCubes =
 
 update : Computer -> Model -> Model
 update computer model =
-    if computer.keyboard.shift && computer.mouse.down then
+    if computer.keyboard.shift && computer.pointer.isDown then
         removeCube computer model
 
-    else if computer.mouse.down then
+    else if computer.pointer.isDown then
         insertCube computer model
 
     else
@@ -58,7 +58,7 @@ update computer model =
 
 removeCube : Computer -> Model -> Model
 removeCube computer model =
-    case Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
+    case Camera.mouseOverXY (camera computer) computer.screen computer.pointer of
         Just p ->
             { model | cubes = Set.remove ( round p.x, round p.y ) model.cubes }
 
@@ -68,7 +68,7 @@ removeCube computer model =
 
 insertCube : Computer -> Model -> Model
 insertCube computer model =
-    case Camera.mouseOverXY (camera computer) computer.screen computer.mouse of
+    case Camera.mouseOverXY (camera computer) computer.screen computer.pointer of
         Just p ->
             --let
             --    e =
@@ -87,7 +87,7 @@ insertCube computer model =
 camera computer =
     perspective
         { focalPoint = { x = 0, y = 0, z = 0 }
-        , eyePoint = { x = 1 + wave -5 5 7 computer.time, y = 1, z = 20 }
+        , eyePoint = { x = 1 + wave -5 5 7 computer.clock, y = 1, z = 20 }
         , upDirection = { x = 0, y = 1, z = 0 }
         }
 
@@ -155,7 +155,7 @@ cubes computer model =
                     toFloat (x + y) * 0.1
 
                 wavyRotation =
-                    wave -pi pi 14 (computer.time + delay)
+                    wave -pi pi 14 (computer.clock + delay)
             in
             cube (matte yellow) 1
                 |> rotateY wavyRotation
@@ -167,4 +167,4 @@ cubes computer model =
     in
     group
         (model.cubes |> Set.toList |> List.map oneCube)
-        |> moveY (wave -0.5 0.5 7 computer.time)
+        |> moveY (wave -0.5 0.5 7 computer.clock)

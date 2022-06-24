@@ -111,7 +111,7 @@ update computer_ model =
     let
         computer =
             if getBool "fix time steps" computer_ then
-                { computer_ | deltaTime = 0.016 }
+                { computer_ | dt = 0.016 }
 
             else
                 computer_

@@ -80,7 +80,7 @@ helper : Computer -> Int -> Shape
 helper computer i =
     let
         angle =
-            degrees (spin 8 computer.time) / 4
+            degrees (spin 8 computer.clock) / 4
 
         scaling =
             0.707 / cos (pi / 4 - angle)

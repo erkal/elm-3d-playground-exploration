@@ -1,7 +1,7 @@
 port module Playground exposing
     ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
     , getColor, getFloat, getBool
-    , Computer, Mouse, Screen, Keyboard, toX, toY, toXY
+    , Computer, Pointer, Screen, Keyboard, toX, toY, toXY
     , boolConfig, colorConfig, configBlock, floatConfig, getInt, intConfig
     )
 
@@ -30,44 +30,32 @@ port module Playground exposing
 
 # Computer
 
-@docs Computer, Mouse, Screen, Keyboard, toX, toY, toXY
+@docs Computer, Pointer, Screen, Keyboard, toX, toY, toXY
 
 -}
 
 import Browser
-import Browser.Dom as Dom
 import Browser.Events as E
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Html exposing (Html)
-import Html.Attributes as HA
-import Json.Decode as D
+import Html exposing (Html, p, pre)
+import Html.Attributes as HA exposing (style)
 import Playground.Colors as Colors
-import Playground.Computer as Computer exposing (Computer, Msg(..), TouchEvent, init)
+import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
 import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
-import Task
 
 
 
 -- PORTS
 
 
-port touchStart : (List TouchEvent -> msg) -> Sub msg
-
-
-port touchMove : (List TouchEvent -> msg) -> Sub msg
-
-
-port touchEnd : (List TouchEvent -> msg) -> Sub msg
-
-
-port touchCancel : (List TouchEvent -> msg) -> Sub msg
+port tick : (Inputs -> msg) -> Sub msg
 
 
 
@@ -78,8 +66,8 @@ type alias Computer =
     Computer.Computer
 
 
-type alias Mouse =
-    Computer.Mouse
+type alias Pointer =
+    Computer.Pointer
 
 
 type alias Screen =
@@ -107,19 +95,19 @@ configBlock =
 
 
 boolConfig key value =
-    ( key, Configurations.Bool value )
+    ( key, Configurations.BoolConfig value )
 
 
 intConfig key ( min, max ) value =
-    ( key, Configurations.Int ( min, max ) value )
+    ( key, Configurations.IntConfig ( min, max ) value )
 
 
 floatConfig key ( min, max ) value =
-    ( key, Configurations.Float ( min, max ) value )
+    ( key, Configurations.FloatConfig ( min, max ) value )
 
 
 colorConfig key value =
-    ( key, Configurations.Color value )
+    ( key, Configurations.ColorConfig value )
 
 
 getBool =
@@ -143,7 +131,7 @@ getFloat =
 
 
 type alias Flags =
-    { devicePixelRatio : Float }
+    { inputs : Inputs }
 
 
 
@@ -192,14 +180,14 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         init flags =
             let
                 initialComputer =
-                    Computer.init flags initialConfigurations
+                    flags.inputs |> Computer.assignConfigurations initialConfigurations
             in
             ( { activeMode = ConfigurationsMode
               , tape = Tape.init initialComputer initGameModel
               , distractionFree = True
               , visibility = E.Visible
               }
-            , Task.perform (GotViewport >> ToComputer) Dom.getViewport
+            , Cmd.none
             )
 
         update msg model =
@@ -221,27 +209,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
 
 subscriptions : Model gameModel -> Sub (Msg levelEditorMsg)
 subscriptions { visibility } =
-    case visibility of
-        E.Hidden ->
-            E.onVisibilityChange VisibilityChanged
-                |> Sub.map ToComputer
-
-        E.Visible ->
-            Sub.batch <|
-                E.onAnimationFrameDelta ((*) 0.001 >> Tick)
-                    :: List.map (Sub.map ToComputer)
-                        [ E.onResize Resized
-                        , E.onKeyUp (D.map (KeyChanged False) (D.field "key" D.string))
-                        , E.onKeyDown (D.map (KeyChanged True) (D.field "key" D.string))
-                        , E.onVisibilityChange VisibilityChanged
-                        , E.onMouseDown (D.succeed MouseDown)
-                        , E.onMouseUp (D.succeed MouseUp)
-                        , E.onMouseMove (D.map2 MouseMove (D.field "pageX" D.float) (D.field "pageY" D.float))
-                        , touchStart TouchStart
-                        , touchMove TouchMove
-                        , touchEnd TouchEnd
-                        , touchCancel TouchCancel
-                        ]
+    tick Tick
 
 
 type alias Model gameModel =
@@ -260,11 +228,11 @@ type Mode
 type Msg levelEditorMsg
     = NoOp
     | ClickOnDistractionFreeButton
-    | ToComputer Computer.Msg
-    | Tick Float
+    | Tick Inputs
     | SelectMode Mode
-    | LevelEditorMsg levelEditorMsg
-    | TapeMsg Tape.Msg
+    | FromConfigurationsEditor Configurations.Msg
+    | FromLevelEditor levelEditorMsg
+    | FromTape Tape.Msg
 
 
 gameUpdate :
@@ -278,31 +246,22 @@ gameUpdate updateGameModel updateFromEditor msg model =
         NoOp ->
             model
 
-        ToComputer computerMsg ->
-            { model
-                | distractionFree =
-                    case computerMsg of
-                        GotViewport { scene } ->
-                            scene.width <= 600
-
-                        _ ->
-                            model.distractionFree
-                , tape = model.tape |> Tape.updateCurrentComputer computerMsg
-            }
-
         ClickOnDistractionFreeButton ->
             { model | distractionFree = not model.distractionFree }
 
-        Tick deltaTimeInSeconds ->
-            { model | tape = model.tape |> Tape.tick updateGameModel deltaTimeInSeconds }
+        Tick inputs ->
+            { model | tape = model.tape |> Tape.tick updateGameModel inputs }
 
         SelectMode mode ->
             { model | activeMode = mode }
 
-        LevelEditorMsg levelEditorMsg ->
+        FromConfigurationsEditor computerMsg ->
+            { model | tape = model.tape |> Tape.updateConfigurations computerMsg }
+
+        FromLevelEditor levelEditorMsg ->
             { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
 
-        TapeMsg tapeMsg ->
+        FromTape tapeMsg ->
             { model | tape = model.tape |> Tape.update tapeMsg }
 
 
@@ -339,10 +298,31 @@ view viewGameModel viewLevelEditor model =
         , htmlAttribute (HA.style "user-select" "none")
 
         --
-        , inFront (Element.map LevelEditorMsg (viewLevelEditor computer gameModel))
+        , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
         , inFront (viewGUI model)
+
+        --, inFront (html (debugView computer))
         ]
         (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+
+
+
+--debugView : Computer -> Html msg
+--debugView computer =
+--    pre
+--        [ style "position" "fixed"
+--        , style "top" "100px"
+--        , style "left" "100px"
+--        , style "font-size" "20px"
+--        , style "color" "gray"
+--        ]
+--        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
+--        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
+--        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
+--        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
+--        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
+--        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
+--        ]
 
 
 viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
@@ -487,7 +467,7 @@ viewTape tape =
         , Border.color Colors.menuBorder
         ]
         [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Time Travel")
-        , Element.map TapeMsg (Tape.view tape)
+        , Element.map FromTape (Tape.view tape)
         ]
 
 
@@ -510,6 +490,6 @@ viewConfigurations tape =
              --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
              --    }
             ]
-        , Element.map (FromConfigurationsEditor >> ToComputer)
+        , Element.map FromConfigurationsEditor
             (ConfigurationsGUI.view (currentComputer tape).configurations)
         ]

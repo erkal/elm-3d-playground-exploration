@@ -82,8 +82,7 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
-        |> handleMouseInput computer
-        |> handleTouchInput computer
+        |> handlePointerInput computer
         |> stopRollingAnimation computer
 
 
@@ -105,36 +104,15 @@ handlePointerInputAt { x, y } computer model =
                 |> startRollAnimation computer startPosition rollDirection newWorld
 
 
-handleTouchInput : Computer -> Model -> Model
-handleTouchInput computer model =
-    case computer.touches |> Dict.values |> List.head of
-        Just xyOfTouch ->
-            case
-                Camera.mouseOverXYAtZ
-                    (getFloat "cubes side length" computer)
-                    (camera computer)
-                    computer.screen
-                    xyOfTouch
-            of
-                Nothing ->
-                    model
-
-                Just xy ->
-                    handlePointerInputAt xy computer model
-
-        Nothing ->
-            model
-
-
-handleMouseInput : Computer -> Model -> Model
-handleMouseInput computer model =
-    if computer.mouse.down then
+handlePointerInput : Computer -> Model -> Model
+handlePointerInput computer model =
+    if computer.pointer.isDown then
         case
             Camera.mouseOverXYAtZ
                 (getFloat "cubes side length" computer)
                 (camera computer)
                 computer.screen
-                computer.mouse
+                computer.pointer
         of
             Nothing ->
                 model
@@ -153,7 +131,7 @@ stopRollingAnimation computer model =
             model
 
         AnimatingRoll { startedAt, newWorld } ->
-            if computer.time - startedAt > getFloat "duration of rolling animation" computer then
+            if computer.clock - startedAt > getFloat "duration of rolling animation" computer then
                 { model
                     | state = NoAnimation
                     , world = newWorld
@@ -170,7 +148,7 @@ startRollAnimation computer startPosition rollDirection newWorld model =
             { model
                 | state =
                     AnimatingRoll
-                        { startedAt = computer.time
+                        { startedAt = computer.clock
                         , startPosition = startPosition
                         , rollDirection = rollDirection
                         , newWorld = newWorld
@@ -341,7 +319,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of rolling animation" computer
 
                     passedDurationRatio =
-                        (computer.time - startedAt) / duration
+                        (computer.clock - startedAt) / duration
 
                     easedDurationRatio =
                         --Ease.inOutSine

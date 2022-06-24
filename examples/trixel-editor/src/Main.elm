@@ -90,14 +90,13 @@ update : Computer -> Model -> Model
 update computer model =
     model
         |> updateMouseOverUV computer
-        |> insertTrixelOnMouseDown computer
-        |> insertTrixelOnTouch computer
+        |> insertTrixelOnPointerDown computer
         |> removeTrixelOnShiftMouseDown computer
 
 
-insertTrixelOnMouseDown : Computer -> Model -> Model
-insertTrixelOnMouseDown computer model =
-    if computer.mouse.down then
+insertTrixelOnPointerDown : Computer -> Model -> Model
+insertTrixelOnPointerDown computer model =
+    if computer.pointer.isDown then
         model
             |> mapCurrentWorld
                 (World.insert
@@ -109,34 +108,9 @@ insertTrixelOnMouseDown computer model =
         model
 
 
-insertTrixelOnTouch : Computer -> Model -> Model
-insertTrixelOnTouch computer model =
-    computer.touches
-        |> Dict.foldl
-            (\_ xy ->
-                case Camera.mouseOverXY (camera computer) computer.screen xy of
-                    Nothing ->
-                        identity
-
-                    Just p ->
-                        mapCurrentWorld
-                            (World.insert
-                                (Face.at
-                                    (fromWorldCoordinates
-                                        { x = p.x
-                                        , y = p.y
-                                        }
-                                    )
-                                )
-                                model.selectedColorIndex
-                            )
-            )
-            model
-
-
 removeTrixelOnShiftMouseDown : Computer -> Model -> Model
 removeTrixelOnShiftMouseDown computer model =
-    if computer.keyboard.shift && computer.mouse.down then
+    if computer.keyboard.shift && computer.pointer.isDown then
         model
             |> mapCurrentWorld
                 (World.remove (Face.at model.mouseOveredUV))
@@ -151,7 +125,7 @@ updateMouseOverUV computer model =
         Camera.mouseOverXY
             (camera computer)
             computer.screen
-            computer.mouse
+            computer.pointer
     of
         Nothing ->
             model
@@ -279,7 +253,7 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
             { x = c.x, y = c.y, z = 0 }
 
         rotationDegree =
-            wave minRot maxRot duration computer.time
+            wave minRot maxRot duration computer.clock
 
         rotation =
             identity

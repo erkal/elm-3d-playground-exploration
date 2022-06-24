@@ -55,7 +55,7 @@ viewBlock block =
 viewConfig : String -> Config -> Element Msg
 viewConfig key config =
     case config of
-        Bool value ->
+        BoolConfig value ->
             checkbox []
                 { onChange = SetBool key
                 , icon = Input.defaultCheckbox
@@ -63,7 +63,7 @@ viewConfig key config =
                 , label = Input.labelRight [] (text key)
                 }
 
-        Float ( min, max ) value ->
+        FloatConfig ( min, max ) value ->
             sliderInput
                 { labelText = key
                 , value = value
@@ -73,7 +73,7 @@ viewConfig key config =
                 , onChange = SetFloat key
                 }
 
-        Int ( min, max ) value ->
+        IntConfig ( min, max ) value ->
             sliderInput
                 { labelText = key
                 , value = toFloat value
@@ -83,7 +83,7 @@ viewConfig key config =
                 , onChange = round >> SetInt key
                 }
 
-        Color value ->
+        ColorConfig value ->
             el [ width fill ] <|
                 html <|
                     Html.div []

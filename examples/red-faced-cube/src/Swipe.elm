@@ -24,6 +24,12 @@ type alias PixelCoordinates =
     }
 
 
+pointerPosition computer =
+    { x = computer.pointer.x
+    , y = computer.pointer.y
+    }
+
+
 type SwipeDirection
     = Left
     | Right
@@ -94,19 +100,18 @@ startSwiping computer swipe =
             swipe
 
         _ ->
-            case Dict.values computer.touches of
-                firstTouch :: _ ->
-                    SwipingStartedAt firstTouch
+            if computer.pointer.isDown then
+                SwipingStartedAt (pointerPosition computer)
 
-                _ ->
-                    Idle
+            else
+                Idle
 
 
 fireGesture : Computer -> { threshold : Float } -> Swipe -> Swipe
 fireGesture computer { threshold } swipe =
-    case ( swipe, Dict.values computer.touches ) of
-        ( SwipingStartedAt startCoordinates, firstTouch :: _ ) ->
-            case maybeSwipeTo threshold startCoordinates firstTouch of
+    case ( swipe, computer.pointer.isDown ) of
+        ( SwipingStartedAt startCoordinates, True ) ->
+            case maybeSwipeTo threshold startCoordinates (pointerPosition computer) of
                 Just swipeDirection ->
                     Swiped swipeDirection
 
@@ -119,7 +124,7 @@ fireGesture computer { threshold } swipe =
 
 finishSwiping : Computer -> Swipe -> Swipe
 finishSwiping computer swipe =
-    if List.isEmpty (Dict.values computer.touches) then
+    if not computer.pointer.isDown then
         Idle
 
     else

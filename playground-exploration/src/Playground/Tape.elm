@@ -6,7 +6,7 @@ module Playground.Tape exposing
     , init
     , tick
     , update
-    , updateCurrentComputer
+    , updateConfigurations
     , updateCurrentGameModelWithEditorMsg
     , view
     )
@@ -17,7 +17,8 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Playground.Colors as Colors
-import Playground.Computer as Computer exposing (Computer)
+import Playground.Computer as Computer exposing (Computer, Inputs)
+import Playground.Configurations as Configurations
 import Playground.Icons as Icons
 import Round
 
@@ -32,14 +33,9 @@ type Tape gameModel
 
 
 type State
-    = Recording RecordStepType
+    = Recording
     | Paused
     | Playing { tapeClock : Float }
-
-
-type RecordStepType
-    = WithResetComputer
-    | Usual
 
 
 
@@ -49,7 +45,7 @@ type RecordStepType
 init : Computer -> (Computer -> gameModel) -> Tape gameModel
 init initialComputer initGameModel =
     Tape
-        (Recording Usual)
+        Recording
         { pastReversed = []
         , current = ( initialComputer, initGameModel initialComputer )
         , future = []
@@ -88,25 +84,25 @@ updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg (Tape state 
         }
 
 
-updateCurrentComputer : Computer.Msg -> Tape gameModel -> Tape gameModel
-updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
+updateConfigurations : Configurations.Msg -> Tape gameModel -> Tape gameModel
+updateConfigurations configurationsMsg (Tape state pastCurrentFuture) =
     Tape state
         { pastCurrentFuture
             | current =
                 pastCurrentFuture.current
-                    |> Tuple.mapFirst (Computer.update computerMsg)
+                    |> Tuple.mapFirst (Computer.updateConfigurations configurationsMsg)
         }
 
 
-tick : (Computer -> gameModel -> gameModel) -> Float -> Tape gameModel -> Tape gameModel
-tick updateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape) =
+tick : (Computer -> gameModel -> gameModel) -> Inputs -> Tape gameModel -> Tape gameModel
+tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
     case state of
         Paused ->
             tape
 
         Playing { tapeClock } ->
-            Tape (Playing { tapeClock = tapeClock + deltaTimeInSeconds }) pastCurrentFuture
-                |> (if tapeClock + deltaTimeInSeconds > (currentComputer tape).time then
+            Tape (Playing { tapeClock = tapeClock + inputs.dt }) pastCurrentFuture
+                |> (if tapeClock + inputs.dt > (currentComputer tape).clock then
                         goToNext
                             >> Maybe.withDefault (Tape Paused pastCurrentFuture)
 
@@ -114,27 +110,22 @@ tick updateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
                         identity
                    )
 
-        Recording recordStepType ->
+        Recording ->
             let
                 ( lastComputer, lastGameModel ) =
                     pastCurrentFuture.current
 
                 newComputer =
-                    lastComputer
-                        |> Computer.tickTime deltaTimeInSeconds
-                        |> (case recordStepType of
-                                WithResetComputer ->
-                                    Computer.resetInput
-
-                                Usual ->
-                                    identity
-                           )
+                    -- Here, we trick the computer.clock.
+                    -- It ticks only when recording (This is subject to change)
+                    { inputs | clock = lastComputer.clock + inputs.dt }
+                        |> Computer.assignConfigurations lastComputer.configurations
 
                 newGameModel =
                     lastGameModel |> updateGameModel newComputer
             in
             Tape
-                (Recording Usual)
+                Recording
                 { pastReversed = pastCurrentFuture.current :: pastCurrentFuture.pastReversed
                 , current = ( newComputer, newGameModel )
                 , future = []
@@ -179,13 +170,13 @@ pause (Tape _ pastCurrentFuture) =
 
 startRecording : Tape gameModel -> Tape gameModel
 startRecording (Tape _ pastCurrentFuture) =
-    Tape (Recording WithResetComputer) pastCurrentFuture
+    Tape Recording pastCurrentFuture
 
 
 startPlaying : Tape gameModel -> Tape gameModel
 startPlaying ((Tape _ pastCurrentFuture) as tape) =
     Tape
-        (Playing { tapeClock = (currentComputer tape).time })
+        (Playing { tapeClock = (currentComputer tape).clock })
         pastCurrentFuture
 
 
@@ -264,8 +255,8 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
     pastReversed
         |> List.drop 59
         |> List.head
-        |> Maybe.map (Tuple.first >> .time)
-        |> Maybe.map (\t -> round (60 / ((currentComputer tape).time - t)))
+        |> Maybe.map (Tuple.first >> .clock)
+        |> Maybe.map (\t -> round (60 / ((currentComputer tape).clock - t)))
 
 
 viewFpsMeter : Tape gameModel -> Element Msg
@@ -288,7 +279,7 @@ viewClock ((Tape state _) as tape) =
     let
         conditionalStyling =
             case state of
-                Recording _ ->
+                Recording ->
                     [ Font.color Colors.red
                     ]
 
@@ -305,7 +296,7 @@ viewClock ((Tape state _) as tape) =
                ]
         )
         (text
-            ((currentComputer tape).time |> Round.round 3)
+            ((currentComputer tape).clock |> Round.round 3)
         )
 
 
@@ -315,7 +306,7 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
         []
         [ el [ width (px 40) ] <|
             case state of
-                Recording _ ->
+                Recording ->
                     recButton PressedPauseButton Colors.red
 
                 Paused ->
@@ -325,7 +316,7 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
                     none
         , el [ width (px 28) ] <|
             case state of
-                Recording _ ->
+                Recording ->
                     none
 
                 Paused ->

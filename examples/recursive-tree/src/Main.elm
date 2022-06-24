@@ -72,7 +72,7 @@ shapes computer model =
         [ floor
         , recursiveTree computer 2 2 (getFloat "s" computer) (getFloat "t" computer) 5
         ]
-        |> rotateY (spin 1000 computer.time)
+        |> rotateY (spin 1000 computer.clock)
     ]
 
 
@@ -108,7 +108,7 @@ recursiveTree computer w h s t n =
             )
 
         wavyColor i =
-            hsl (wave (toFloat i / 6) 1 10 computer.time) 0.6 0.6
+            hsl (wave (toFloat i / 6) 1 10 computer.clock) 0.6 0.6
 
         baseRect =
             block (matte (wavyColor n)) ( w, h, h )
@@ -120,7 +120,7 @@ recursiveTree computer w h s t n =
             else
                 [ recursiveTree computer w h s t (n - 1)
                     |> scale 0.86
-                    |> rotateY (wave -2 2 8 computer.time)
+                    |> rotateY (wave -2 2 8 computer.clock)
                     |> moveX (w / 2)
                     |> moveY (h / 2)
                     |> rotateZ (atan2 t s)
@@ -129,7 +129,7 @@ recursiveTree computer w h s t n =
                     |> moveY (h / 2)
                 , recursiveTree computer w h s t (n - 1)
                     |> scale 0.86
-                    |> rotateY (wave 2 -2 8 (pi + computer.time))
+                    |> rotateY (wave 2 -2 8 (pi + computer.clock))
                     |> moveX -(w / 2)
                     |> moveY (h / 2)
                     |> rotateZ -(atan2 t (w - s))

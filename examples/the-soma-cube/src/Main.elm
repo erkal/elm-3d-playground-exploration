@@ -89,7 +89,7 @@ view computer model =
 
 
 explanationText : Computer -> Model -> Html Never
-explanationText ({ time } as computer) model =
+explanationText computer model =
     div
         [ style "min-width" "320px"
         , style "max-width" "500px"
@@ -139,7 +139,7 @@ drawBigCube computer =
         color =
             --getColor "edge color" computer
             hsl
-                (wave 0 1 7 computer.time)
+                (wave 0 1 7 computer.clock)
                 (getFloat "saturation" computer)
                 (getFloat "lightning" computer)
 

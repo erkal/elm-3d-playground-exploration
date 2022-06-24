@@ -272,7 +272,7 @@ stopAnimation : Computer -> Model -> Model
 stopAnimation computer model =
     case model.state of
         AnimatingRoll { startedAt, newWorld, willBeSolved } ->
-            if computer.time - startedAt > getFloat "duration of step animation" computer then
+            if computer.clock - startedAt > getFloat "duration of step animation" computer then
                 { model
                     | state =
                         if willBeSolved then
@@ -287,7 +287,7 @@ stopAnimation computer model =
                 model
 
         AnimatingMistake { startedAt } ->
-            if computer.time - startedAt > getFloat "duration of mistake animation" computer then
+            if computer.clock - startedAt > getFloat "duration of mistake animation" computer then
                 { model | state = NoAnimation }
 
             else
@@ -304,7 +304,7 @@ startMistakeAnimation computer violatedRule startPosition rollDirection model =
             { model
                 | state =
                     AnimatingMistake
-                        { startedAt = computer.time
+                        { startedAt = computer.clock
                         , violatedRule = violatedRule
                         , startPosition = startPosition
                         , rollDirection = rollDirection
@@ -322,7 +322,7 @@ startRollAnimation computer startPosition rollDirection willBeSolved newWorld mo
             { model
                 | state =
                     AnimatingRoll
-                        { startedAt = computer.time
+                        { startedAt = computer.clock
                         , startPosition = startPosition
                         , rollDirection = rollDirection
                         , willBeSolved = willBeSolved
@@ -348,7 +348,7 @@ view computer model =
 
 
 explanationText : Computer -> Model -> Html Never
-explanationText ({ time } as computer) model =
+explanationText computer model =
     div
         [ style "position" "fixed"
         , style "width" "100%"
@@ -433,7 +433,7 @@ viewShapes computer model =
                             getFloat "duration of step animation" computer
 
                         passedDurationRatio =
-                            (computer.time - startedAt) / duration
+                            (computer.clock - startedAt) / duration
 
                         ( cameraShiftX, cameraShiftY ) =
                             case rollDirection of
@@ -528,7 +528,7 @@ drawMarkForFinishCell computer model =
     in
     cylinder (matte (getColor "finish mark color" computer)) 0.3 1
         |> rotateX (degrees 90)
-        |> moveZ (wave -0.3 -0.4 0.5 computer.time)
+        |> moveZ (wave -0.3 -0.4 0.5 computer.clock)
         |> moveX (toFloat x)
         |> moveY (toFloat y)
 
@@ -556,7 +556,7 @@ drawPointer computer model =
             model.cellUnderPointer
 
         color =
-            if computer.pointer.down then
+            if computer.pointer.isDown then
                 lightRed
 
             else
@@ -632,7 +632,7 @@ drawPlayerPath computer model =
         color i =
             case model.state of
                 CongratulationsAnimation ->
-                    hsl (wave 0 1 6 (computer.time + 0.03 * toFloat i)) 1 0.8
+                    hsl (wave 0 1 6 (computer.clock + 0.03 * toFloat i)) 1 0.8
 
                 _ ->
                     white
@@ -641,7 +641,7 @@ drawPlayerPath computer model =
             case model.state of
                 CongratulationsAnimation ->
                     scale 0.9
-                        >> moveZ (wave 0.1 0.7 6 (computer.time + 0.3 * toFloat i))
+                        >> moveZ (wave 0.1 0.7 6 (computer.clock + 0.3 * toFloat i))
 
                 _ ->
                     identity
@@ -776,7 +776,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of step animation" computer
 
                     passedDurationRatio =
-                        (computer.time - startedAt) / duration
+                        (computer.clock - startedAt) / duration
 
                     easedDurationRatio =
                         Ease.inQuad
@@ -812,7 +812,7 @@ rollingAnimation computer model pos =
                         getFloat "duration of mistake animation" computer
 
                     passedDurationRatio =
-                        (computer.time - startedAt) / duration
+                        (computer.clock - startedAt) / duration
 
                     easedDurationRatio =
                         sin
@@ -998,12 +998,10 @@ editorContent computer model =
           viewLevelSelector computer model
         , viewSolutions computer model
         , viewImportExportLevels computer model
-        , viewDebugger computer model
         ]
 
     else
-        [ viewDebugger computer model
-        ]
+        []
 
 
 viewInstructions : Computer -> Model -> Element EditorMsg
@@ -1022,21 +1020,6 @@ editorOnOffButton computer model =
         , checked = model.editor.isOn
         , label = Input.labelLeft [] (Element.text "Editor")
         }
-
-
-viewDebugger : Computer -> Model -> Element EditorMsg
-viewDebugger computer model =
-    textColumn [ alignBottom ]
-        [ header "Debugger"
-        , paragraph []
-            [ Element.text <|
-                "player path disconnects the board: "
-                    ++ Debug.toString (World.playerPathDisconnectsBoard (LevelSelector.current model.levels))
-            ]
-
-        --, paragraph [] [ Element.text <| "Editor state: " ++ Debug.toString model.editor.mouseOveredSolution ]
-        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
-        ]
 
 
 viewLevelSelector : Computer -> Model -> Element EditorMsg
