@@ -17,7 +17,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Playground.Colors as Colors
-import Playground.Computer as Computer exposing (Computer)
+import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Icons as Icons
 import Round
 
@@ -98,15 +98,15 @@ updateCurrentComputer computerMsg (Tape state pastCurrentFuture) =
         }
 
 
-tick : (Computer -> gameModel -> gameModel) -> Float -> Tape gameModel -> Tape gameModel
-tick updateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape) =
+tick : (Computer -> gameModel -> gameModel) -> Inputs -> Tape gameModel -> Tape gameModel
+tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
     case state of
         Paused ->
             tape
 
         Playing { tapeClock } ->
-            Tape (Playing { tapeClock = tapeClock + deltaTimeInSeconds }) pastCurrentFuture
-                |> (if tapeClock + deltaTimeInSeconds > (currentComputer tape).time then
+            Tape (Playing { tapeClock = tapeClock + inputs.dt }) pastCurrentFuture
+                |> (if tapeClock + inputs.dt > (currentComputer tape).clock then
                         goToNext
                             >> Maybe.withDefault (Tape Paused pastCurrentFuture)
 
@@ -120,15 +120,7 @@ tick updateGameModel deltaTimeInSeconds ((Tape state pastCurrentFuture) as tape)
                     pastCurrentFuture.current
 
                 newComputer =
-                    lastComputer
-                        |> Computer.tickTime deltaTimeInSeconds
-                        |> (case recordStepType of
-                                WithResetComputer ->
-                                    Computer.resetInput
-
-                                Usual ->
-                                    identity
-                           )
+                    inputs |> Computer.assignConfigurations lastComputer.configurations
 
                 newGameModel =
                     lastGameModel |> updateGameModel newComputer
@@ -185,7 +177,7 @@ startRecording (Tape _ pastCurrentFuture) =
 startPlaying : Tape gameModel -> Tape gameModel
 startPlaying ((Tape _ pastCurrentFuture) as tape) =
     Tape
-        (Playing { tapeClock = (currentComputer tape).time })
+        (Playing { tapeClock = (currentComputer tape).clock })
         pastCurrentFuture
 
 
@@ -264,8 +256,8 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
     pastReversed
         |> List.drop 59
         |> List.head
-        |> Maybe.map (Tuple.first >> .time)
-        |> Maybe.map (\t -> round (60 / ((currentComputer tape).time - t)))
+        |> Maybe.map (Tuple.first >> .clock)
+        |> Maybe.map (\t -> round (60 / ((currentComputer tape).clock - t)))
 
 
 viewFpsMeter : Tape gameModel -> Element Msg
@@ -305,7 +297,7 @@ viewClock ((Tape state _) as tape) =
                ]
         )
         (text
-            ((currentComputer tape).time |> Round.round 3)
+            ((currentComputer tape).clock |> Round.round 3)
         )
 
 

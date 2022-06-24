@@ -17,10 +17,10 @@ type alias Block =
 
 
 type Config
-    = Float ( Float, Float ) Float
-    | Int ( Int, Int ) Int
-    | Color Color
-    | Bool Bool
+    = FloatConfig ( Float, Float ) Float
+    | IntConfig ( Int, Int ) Int
+    | ColorConfig Color
+    | BoolConfig Bool
 
 
 configBlock : String -> Bool -> List ( String, Config ) -> Block
@@ -47,7 +47,7 @@ getBoolFromBlock key block =
         |> Maybe.map
             (\config ->
                 case config of
-                    Bool value ->
+                    BoolConfig value ->
                         value
 
                     _ ->
@@ -70,7 +70,7 @@ getIntFromBlock key block =
         |> Maybe.map
             (\config ->
                 case config of
-                    Int _ value ->
+                    IntConfig _ value ->
                         value
 
                     _ ->
@@ -93,7 +93,7 @@ getFloatFromBlock key block =
         |> Maybe.map
             (\config ->
                 case config of
-                    Float _ value ->
+                    FloatConfig _ value ->
                         value
 
                     _ ->
@@ -116,7 +116,7 @@ getColorFromBlock key block =
         |> Maybe.map
             (\config ->
                 case config of
-                    Color value ->
+                    ColorConfig value ->
                         value
 
                     _ ->
@@ -158,8 +158,8 @@ updateConfigs msg =
                 (Maybe.map
                     (\config ->
                         case config of
-                            Int ( min, max ) _ ->
-                                Int ( min, max ) newValue
+                            IntConfig ( min, max ) _ ->
+                                IntConfig ( min, max ) newValue
 
                             _ ->
                                 config
@@ -171,8 +171,8 @@ updateConfigs msg =
                 (Maybe.map
                     (\config ->
                         case config of
-                            Float ( min, max ) _ ->
-                                Float ( min, max ) (roundFloatValue min max newValue)
+                            FloatConfig ( min, max ) _ ->
+                                FloatConfig ( min, max ) (roundFloatValue min max newValue)
 
                             _ ->
                                 config
@@ -184,8 +184,8 @@ updateConfigs msg =
                 (Maybe.map
                     (\config ->
                         case config of
-                            Bool _ ->
-                                Bool newValue
+                            BoolConfig _ ->
+                                BoolConfig newValue
 
                             _ ->
                                 config
@@ -197,8 +197,8 @@ updateConfigs msg =
                 (Maybe.map
                     (\config ->
                         case config of
-                            Color _ ->
-                                Color newValue
+                            ColorConfig _ ->
+                                ColorConfig newValue
 
                             _ ->
                                 config

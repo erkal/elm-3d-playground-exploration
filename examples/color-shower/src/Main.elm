@@ -102,7 +102,7 @@ sphereWithIndex : Computer -> Int -> Shape
 sphereWithIndex computer i =
     let
         timeWithDelay =
-            computer.time + toFloat i * getFloat "delay per index" computer
+            computer.clock + toFloat i * getFloat "delay per index" computer
 
         n =
             getInt "number of spheres" computer
