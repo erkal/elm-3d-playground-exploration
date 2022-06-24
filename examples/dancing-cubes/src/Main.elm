@@ -123,7 +123,7 @@ cubes computer =
                         -waveHeight
                         waveHeight
                         cycleDuration
-                        (computer.time + delay)
+                        (computer.clock + delay)
                     )
                 |> rotateY (degrees 360 * ratio)
     in

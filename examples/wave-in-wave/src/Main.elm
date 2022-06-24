@@ -123,7 +123,7 @@ camera computer =
         { focalPoint = { x = 0, y = 0, z = 0 }
         , eyePoint =
             { x = 10
-            , y = wave -20 20 20 computer.time
+            , y = wave -20 20 20 computer.clock
             , z = 145
             }
         , upDirection = { x = 0, y = 1, z = 0 }
@@ -138,7 +138,7 @@ shapes computer model =
 
 
 wavingBlocks : Computer -> Shape
-wavingBlocks ({ time } as computer) =
+wavingBlocks computer =
     let
         n =
             getInt "number of blocks" computer
@@ -147,7 +147,7 @@ wavingBlocks ({ time } as computer) =
             0.004 * period * toFloat i
 
         color i =
-            hsl (wave 0 1 3 (time + delayForColor i)) 0.65 0.7
+            hsl (wave 0 1 3 (computer.clock + delayForColor i)) 0.65 0.7
 
         dist =
             80 / toFloat n
@@ -169,7 +169,7 @@ wavingBlocks ({ time } as computer) =
             frequency * toFloat i / toFloat n
 
         xzWaving i =
-            wave minWidth maxWidth period (time + delayForXzWaving i)
+            wave minWidth maxWidth period (computer.clock + delayForXzWaving i)
 
         ithBlock i =
             block (matte (color i))

@@ -36,14 +36,14 @@ handleArrowKeys computer ball =
             getFloat "gas force" computer
 
         giveGas =
-            add (scaleBy (computer.deltaTime * gasForce * toY computer.keyboard) direction)
+            add (scaleBy (computer.dt * gasForce * toY computer.keyboard) direction)
     in
     { ball
         | directionFromXAxis =
             ball.directionFromXAxis
                 - (toX computer.keyboard
                     * getFloat "direction change speed" computer
-                    * computer.deltaTime
+                    * computer.dt
                   )
         , rotationSpeed =
             if toY computer.keyboard == 0 then
@@ -51,7 +51,7 @@ handleArrowKeys computer ball =
                 dotProduct ball.velocity direction
 
             else
-                ball.rotationSpeed + computer.deltaTime * 1000 * toY computer.keyboard |> clamp -14 14
+                ball.rotationSpeed + computer.dt * 1000 * toY computer.keyboard |> clamp -14 14
         , velocity =
             ball.velocity |> giveGas
     }
@@ -60,14 +60,14 @@ handleArrowKeys computer ball =
 friction : Computer -> Ball -> Ball
 friction computer ball =
     { ball
-        | velocity = ball.velocity |> scaleBy (1 - computer.deltaTime * 5 * getFloat "friction" computer)
+        | velocity = ball.velocity |> scaleBy (1 - computer.dt * 5 * getFloat "friction" computer)
     }
 
 
 tickRotation : Computer -> Ball -> Ball
 tickRotation computer ball =
     { ball
-        | rotation = ball.rotation + computer.deltaTime * ball.rotationSpeed
+        | rotation = ball.rotation + computer.dt * ball.rotationSpeed
     }
 
 
@@ -91,7 +91,7 @@ updateTrail ball =
 physics : Computer -> Ball -> Ball
 physics computer ({ circle } as ball) =
     { ball
-        | circle = { circle | center = ball.circle.center |> translateBy (scaleBy computer.deltaTime ball.velocity) }
+        | circle = { circle | center = ball.circle.center |> translateBy (scaleBy computer.dt ball.velocity) }
     }
 
 

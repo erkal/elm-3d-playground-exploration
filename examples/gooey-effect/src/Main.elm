@@ -62,7 +62,7 @@ view computer model =
         [ WebGL.entity vertexShader
             fragmentShader
             mesh
-            { time = computer.time
+            { time = computer.clock
             , resolution = vec2 w h
             , ballRadius = getFloat "ball radius" computer
             }

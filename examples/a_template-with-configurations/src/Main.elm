@@ -86,4 +86,4 @@ view computer model =
 wavingCube : Computer -> Shape
 wavingCube computer =
     block (matte (getColor "cube color" computer)) ( 1, 1, 1 )
-        |> scale (wave 1 1.1 (getFloat "period" computer) computer.time)
+        |> scale (wave 1 1.1 (getFloat "period" computer) computer.clock)

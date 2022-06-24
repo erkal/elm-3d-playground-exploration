@@ -81,7 +81,7 @@ makeUnit computer ( x, y ) =
 
         bouncyRotate shape =
             shape
-                |> rotateX (wave 0 rotDegree duration computer.time)
+                |> rotateX (wave 0 rotDegree duration computer.clock)
 
         twoBlock =
             group
@@ -120,11 +120,11 @@ makeUnit computer ( x, y ) =
         , squareBlockOnRight
         , squareBlockOnLeft
         ]
-        |> rotateX (wave 0 rotDegree duration computer.time)
-        |> rotateY (wave 0 rotDegree duration computer.time)
+        |> rotateX (wave 0 rotDegree duration computer.clock)
+        |> rotateY (wave 0 rotDegree duration computer.clock)
         |> moveX (toFloat x * (3 + sqrt 3))
         |> moveY (toFloat y * (1 + sqrt 3))
-        |> moveZ (wave -1 1 7 computer.time)
+        |> moveZ (wave -1 1 7 computer.clock)
 
 
 allShapes : Computer -> Shape
@@ -154,7 +154,7 @@ squareBlock computer =
 material computer =
     matte
         (hsl
-            (wave 0 1 7 computer.time)
+            (wave 0 1 7 computer.clock)
             0.8
             0.8
         )

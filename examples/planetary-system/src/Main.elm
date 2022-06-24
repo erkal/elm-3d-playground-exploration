@@ -108,7 +108,7 @@ earthAndMoon computer =
         moon =
             sphere (matte white) 0.04
                 |> moveX 0.2
-                |> rotateY (degrees (spin 3 computer.time))
+                |> rotateY (degrees (spin 3 computer.clock))
                 |> rotateZ (degrees 20)
     in
     group
@@ -117,4 +117,4 @@ earthAndMoon computer =
         , orbitDisc
         ]
         |> moveX 1
-        |> rotateY (degrees (spin 10 computer.time))
+        |> rotateY (degrees (spin 10 computer.clock))

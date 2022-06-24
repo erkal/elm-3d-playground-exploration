@@ -88,12 +88,12 @@ makeCube : Computer -> Int -> Shape
 makeCube computer i =
     let
         w =
-            wave 0.2 0.8 10 computer.time
+            wave 0.2 0.8 10 computer.clock
     in
     block (matte (hsl w 0.5 0.5)) ( toFloat i, 1, toFloat i )
         |> moveY (toFloat i * 1.1)
         |> rotateY (0.1 * toFloat i)
-        |> rotateY (spin 1000 computer.time)
+        |> rotateY (spin 1000 computer.clock)
 
 
 cubes : Computer -> Shape

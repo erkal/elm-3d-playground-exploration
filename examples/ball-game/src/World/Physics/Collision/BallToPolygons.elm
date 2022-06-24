@@ -27,7 +27,7 @@ collide : Computer -> World -> World
 collide computer world =
     let
         circleTranslation =
-            world.ball.velocity |> scaleBy computer.deltaTime
+            world.ball.velocity |> scaleBy computer.dt
 
         collideToPolygon polygonBody =
             polygonBody.polygon

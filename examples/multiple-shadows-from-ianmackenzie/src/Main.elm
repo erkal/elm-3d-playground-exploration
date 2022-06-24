@@ -181,7 +181,7 @@ floor computer =
                     )
             )
         ]
-        |> rotateY (spin 1000 computer.time)
+        |> rotateY (spin 1000 computer.clock)
 
 
 spheres : Computer -> Shape
@@ -191,9 +191,9 @@ spheres computer =
             [ sphere (matte lightBlue) 0.5 |> moveX -0.02
             , sphere (matte lightGreen) 0.5 |> moveX 0.02
             ]
-            |> rotateZ (spin 100 computer.time)
+            |> rotateZ (spin 100 computer.clock)
             |> moveZ 3.5
-            |> rotateY -(spin 640 computer.time)
+            |> rotateY -(spin 640 computer.clock)
         ]
 
 
@@ -202,9 +202,9 @@ cubes computer =
     let
         spinIt s =
             s
-                |> rotateX (spin 300 computer.time)
-                |> rotateY (spin 300 computer.time)
-                |> rotateZ (spin 300 computer.time)
+                |> rotateX (spin 300 computer.clock)
+                |> rotateY (spin 300 computer.clock)
+                |> rotateZ (spin 300 computer.clock)
     in
     group
         [ cube (matte lightGreen) 1
@@ -255,11 +255,11 @@ tree computer =
                     0.25
 
                 wavyColor =
-                    hsl (wave (toFloat i / toFloat n) 1 10 computer.time) 0.6 0.6
+                    hsl (wave (toFloat i / toFloat n) 1 10 computer.clock) 0.6 0.6
             in
             block (matte wavyColor) ( width, height, width )
                 |> moveY (toFloat i * 1.2 * height)
-                |> rotateY (getFloat "turning speed of the tree" computer * toFloat i * wave 3 5 10 computer.time)
+                |> rotateY (getFloat "turning speed of the tree" computer * toFloat i * wave 3 5 10 computer.clock)
     in
     group
         [ block (matte brown) ( 0.2, 8, 0.2 )
@@ -278,14 +278,14 @@ orbitingCubes computer =
             |> List.map
                 (\i ->
                     cube (matte orange) 0.3
-                        |> rotateZ (spin 300 computer.time)
-                        |> rotateX (spin 600 computer.time)
-                        |> moveY (wave -1 1 10 computer.time)
+                        |> rotateZ (spin 300 computer.clock)
+                        |> rotateX (spin 600 computer.clock)
+                        |> moveY (wave -1 1 10 computer.clock)
                         |> moveX 1.3
                         |> rotateY -(toFloat i / n * degrees 360)
-                        |> rotateY -(spin 200 computer.time)
-                        |> rotateX (spin 1000 computer.time)
-                        |> rotateZ (spin 1000 computer.time)
+                        |> rotateY -(spin 200 computer.clock)
+                        |> rotateX (spin 1000 computer.clock)
+                        |> rotateZ (spin 1000 computer.clock)
                         |> moveY 4
                 )
         )
