@@ -48,7 +48,7 @@ import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
-import Playground.Tape as Tape exposing (Tape, getComputer, getGameModel)
+import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
 
 
 
@@ -283,10 +283,10 @@ view :
 view viewGameModel viewLevelEditor model =
     let
         computer =
-            getComputer model.tape
+            currentComputer model.tape
 
         gameModel =
-            getGameModel model.tape
+            currentGameModel model.tape
     in
     layoutWith
         { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
@@ -428,7 +428,7 @@ leftStripe activeMode =
 leftBar : Mode -> Tape gameModel -> Element (Msg levelEditorMsg)
 leftBar activeMode tape =
     column
-        [ if (tape |> getComputer |> .screen |> .width) > 600 then
+        [ if (tape |> currentComputer |> .screen |> .width) > 600 then
             Background.color Colors.menuBackground
 
           else
@@ -489,5 +489,5 @@ viewConfigurations tape =
              --    }
             ]
         , Element.map FromConfigurationsEditor
-            (ConfigurationsGUI.view (getComputer tape).configurations)
+            (ConfigurationsGUI.view (currentComputer tape).configurations)
         ]
