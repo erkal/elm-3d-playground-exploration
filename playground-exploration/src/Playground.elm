@@ -300,27 +300,29 @@ view viewGameModel viewLevelEditor model =
         --
         , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
         , inFront (viewGUI model)
-        , inFront (html (debugView computer))
+
+        --, inFront (html (debugView computer))
         ]
         (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
 
 
-debugView : Computer -> Html msg
-debugView computer =
-    pre
-        [ style "position" "fixed"
-        , style "top" "100px"
-        , style "left" "100px"
-        , style "font-size" "20px"
-        , style "color" "gray"
-        ]
-        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
-        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
-        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
-        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
-        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
-        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
-        ]
+
+--debugView : Computer -> Html msg
+--debugView computer =
+--    pre
+--        [ style "position" "fixed"
+--        , style "top" "100px"
+--        , style "left" "100px"
+--        , style "font-size" "20px"
+--        , style "color" "gray"
+--        ]
+--        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
+--        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
+--        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
+--        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
+--        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
+--        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
+--        ]
 
 
 viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
