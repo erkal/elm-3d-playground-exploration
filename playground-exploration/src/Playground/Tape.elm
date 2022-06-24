@@ -115,7 +115,8 @@ tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
                     pastCurrentFuture.current
 
                 newComputer =
-                    inputs |> Computer.assignConfigurations lastComputer.configurations
+                    { inputs | clock = lastComputer.clock + inputs.dt }
+                        |> Computer.assignConfigurations lastComputer.configurations
 
                 newGameModel =
                     lastGameModel |> updateGameModel newComputer
