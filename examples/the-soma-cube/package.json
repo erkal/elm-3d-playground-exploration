@@ -9,7 +9,7 @@
     "dev": "vite",
     "prebuild": "elm-tooling install",
     "build": "vite build",
-    "serve": "vite preview"
+    "preview": "vite build && vite preview --host"
   },
   "devDependencies": {
     "elm-tooling": "^1.0.2",
