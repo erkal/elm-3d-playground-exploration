@@ -998,12 +998,10 @@ editorContent computer model =
           viewLevelSelector computer model
         , viewSolutions computer model
         , viewImportExportLevels computer model
-        , viewDebugger computer model
         ]
 
     else
-        [ viewDebugger computer model
-        ]
+        []
 
 
 viewInstructions : Computer -> Model -> Element EditorMsg
@@ -1022,21 +1020,6 @@ editorOnOffButton computer model =
         , checked = model.editor.isOn
         , label = Input.labelLeft [] (Element.text "Editor")
         }
-
-
-viewDebugger : Computer -> Model -> Element EditorMsg
-viewDebugger computer model =
-    textColumn [ alignBottom ]
-        [ header "Debugger"
-        , paragraph []
-            [ Element.text <|
-                "player path disconnects the board: "
-                    ++ Debug.toString (World.playerPathDisconnectsBoard (LevelSelector.current model.levels))
-            ]
-
-        --, paragraph [] [ Element.text <| "Editor state: " ++ Debug.toString model.editor.mouseOveredSolution ]
-        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
-        ]
 
 
 viewLevelSelector : Computer -> Model -> Element EditorMsg
