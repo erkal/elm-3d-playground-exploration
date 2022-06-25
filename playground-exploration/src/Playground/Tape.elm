@@ -12,8 +12,10 @@ module Playground.Tape exposing
     )
 
 import Html exposing (Html, div, text)
+import Html.Attributes exposing (class)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
+import Round
 
 
 type Tape gameModel
@@ -231,6 +233,7 @@ view tape =
     div []
         [ Html.text "HELLO! I AM TAPE"
         , viewFpsMeter tape
+        , viewClock tape
         ]
 
 
@@ -245,12 +248,31 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
 
 viewFpsMeter : Tape gameModel -> Html Msg
 viewFpsMeter tape =
-    case fpsMeter tape of
-        Nothing ->
-            div [] []
+    div [] <|
+        case fpsMeter tape of
+            Nothing ->
+                [ text "... Fps" ]
 
-        Just fps ->
-            div [] [ text (String.fromInt fps ++ " FPS") ]
+            Just fps ->
+                [ text (String.fromInt fps ++ " Fps") ]
+
+
+viewClock : Tape gameModel -> Html Msg
+viewClock ((Tape state _) as tape) =
+    let
+        conditionalStyling =
+            case state of
+                Recording ->
+                    "text-white"
+
+                _ ->
+                    "text-black"
+    in
+    div
+        [ class conditionalStyling ]
+        [ text
+            ((currentComputer tape).clock |> Round.round 3)
+        ]
 
 
 
