@@ -262,6 +262,7 @@ view viewGameModel viewLevelEditor model =
         [ class "bg-black40"
         , class "select-none"
         , class "antialiased"
+        , class "font-mono"
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
@@ -276,7 +277,7 @@ view viewGameModel viewLevelEditor model =
 debugView : Computer -> Html msg
 debugView computer =
     pre
-        [ class "fixed w-[300px] top-12 right-20 text-xs text-white80"
+        [ class "fixed p-4 w-[300px] top-0 right-0 bg-black20 text-xs text-white80"
         ]
         [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
         , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
@@ -303,24 +304,24 @@ viewGUI model =
                 ]
                 [ Icons.draw Icons.icons.yinAndYang ]
 
-        githubLink =
-            div []
-                [ a
-                    [ class "fill-githubCat40 hover:fill-githubCat"
-                    , href "https://github.com/erkal/elm-3d-playground-exploration"
-                    , target "_blank"
-                    ]
-                    [ Icons.draw Icons.icons.githubCat ]
-                ]
-
         twitterLink =
-            div []
+            div [ class "absolute w-8 bottom-12" ]
                 [ a
                     [ class "fill-twitterBlue40 hover:fill-twitterBlue"
                     , href "https://twitter.com/AzizErkalSelman"
                     , target "_blank"
                     ]
                     [ Icons.draw Icons.icons.twitter ]
+                ]
+
+        githubLink =
+            div [ class "absolute w-8 bottom-2" ]
+                [ a
+                    [ class "fill-githubCat40 hover:fill-githubCat"
+                    , href "https://github.com/erkal/elm-3d-playground-exploration"
+                    , target "_blank"
+                    ]
+                    [ Icons.draw Icons.icons.githubCat ]
                 ]
     in
     if model.distractionFree then
@@ -338,7 +339,5 @@ viewGUI model =
             , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] bg-black20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
-            , div [ class "absolute left-[300px] w-[400px] bg-black20" ]
-                [ Html.map FromTape (Tape.view model.tape)
-                ]
+            , Html.map FromTape (Tape.view model.tape)
             ]

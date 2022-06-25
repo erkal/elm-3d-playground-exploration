@@ -233,7 +233,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div []
+    div [ class "absolute p-4 left-[260px] w-[600px] h-16 bg-black20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
@@ -243,29 +243,28 @@ view tape =
 
 viewSlider : Tape gameModel -> Html Msg
 viewSlider tape =
-    div []
-        [ input
-            [ type_ "range"
-            , HA.min (String.fromInt 0)
-            , HA.max (String.fromInt (totalSize tape - 1))
-            , HA.value (String.fromInt (lengthOfPast tape))
-            , HA.step (String.fromInt 1)
-            , Html.Events.onInput (String.toFloat >> Maybe.withDefault 42 >> round >> SliderMovedTo)
-            ]
-            []
+    input
+        [ class "absolute left-[100px] w-[490px]"
+        , type_ "range"
+        , HA.min (String.fromInt 0)
+        , HA.max (String.fromInt (totalSize tape - 1))
+        , HA.value (String.fromInt (lengthOfPast tape))
+        , HA.step (String.fromInt 1)
+        , Html.Events.onInput (String.toFloat >> Maybe.withDefault 42 >> round >> SliderMovedTo)
         ]
+        []
 
 
 viewTapeButtons : Tape gameModel -> Html Msg
-viewTapeButtons (Tape state { pastReversed, current, future }) =
+viewTapeButtons (Tape state { future }) =
     div
         []
         [ case state of
             Recording ->
-                recButton PressedPauseButton red
+                recButton PressedPauseButton "text-red-500 font-bold"
 
             Paused ->
-                recButton PressedRecordButton lightGray
+                recButton PressedRecordButton "text-white80 font-bold"
 
             Playing _ ->
                 div [] []
@@ -285,10 +284,11 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
         ]
 
 
-recButton : Msg -> Color -> Html Msg
-recButton msg color =
+recButton : Msg -> String -> Html Msg
+recButton msg conditionalStyle =
     button
-        [ class "text-white"
+        [ class "px-2 bg-black40"
+        , class conditionalStyle
         , onClick msg
         ]
         [ text "REC" ]
@@ -297,9 +297,10 @@ recButton msg color =
 tapeButtonWithIcon : String -> msg -> Html msg
 tapeButtonWithIcon iconD msg =
     button
-        [ onClick msg
+        [ class "absolute left-[60px] mx-1 px-1 bg-black40"
+        , onClick msg
         ]
-        [ div [] [ Icons.draw iconD ] ]
+        [ div [ class "w-4 h-6 fill-white80" ] [ Icons.draw iconD ] ]
 
 
 fpsMeter : Tape gameModel -> Maybe Int
@@ -313,7 +314,7 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
 
 viewFpsMeter : Tape gameModel -> Html Msg
 viewFpsMeter tape =
-    div [] <|
+    div [ class "absolute bottom-2 right-4 text-sm text-white40" ] <|
         case fpsMeter tape of
             Nothing ->
                 [ text "... Fps" ]
@@ -323,18 +324,10 @@ viewFpsMeter tape =
 
 
 viewClock : Tape gameModel -> Html Msg
-viewClock ((Tape state _) as tape) =
-    let
-        conditionalStyling =
-            case state of
-                Recording ->
-                    "text-white"
-
-                _ ->
-                    "text-black"
-    in
+viewClock tape =
     div
-        [ class conditionalStyling ]
+        [ class "absolute left-[104px] bottom-2 text-sm text-white40"
+        ]
         [ text
             ((currentComputer tape).clock |> Round.round 3)
         ]
