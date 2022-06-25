@@ -3,6 +3,7 @@ export { preventEvents };
 const preventEvents = () => {
   prevent("pointerdown");
   prevent("wheel");
+  prevent("keydown");
 };
 
 const prevent = (eventType) => {

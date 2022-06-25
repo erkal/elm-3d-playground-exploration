@@ -45,7 +45,7 @@ viewConfig key config =
                 , value = value
                 , min = min
                 , max = max
-                , step = 0.001 * (max - min)
+                , step = 0.01 * (max - min)
                 , onChange = SetFloat key
                 }
 
