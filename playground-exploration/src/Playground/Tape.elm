@@ -11,16 +11,9 @@ module Playground.Tape exposing
     , view
     )
 
-import Element exposing (..)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
-import Element.Input as Input
-import Playground.Colors as Colors
+import Html exposing (Html, div, text)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
-import Playground.Icons as Icons
-import Round
 
 
 type Tape gameModel
@@ -233,20 +226,11 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 -- VIEW
 
 
-view : Tape gameModel -> Element Msg
+view : Tape gameModel -> Html Msg
 view tape =
-    column [ width fill ]
-        [ slider tape
-        , row
-            [ width fill
-            , spacing 14
-            , paddingXY 0 6
-            , centerY
-            ]
-            [ viewTapeButtons tape
-            , viewFpsMeter tape
-            , viewClock tape
-            ]
+    div []
+        [ Html.text "HELLO! I AM TAPE"
+        , viewFpsMeter tape
         ]
 
 
@@ -259,163 +243,194 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
         |> Maybe.map (\t -> round (60 / ((currentComputer tape).clock - t)))
 
 
-viewFpsMeter : Tape gameModel -> Element Msg
+viewFpsMeter : Tape gameModel -> Html Msg
 viewFpsMeter tape =
     case fpsMeter tape of
         Nothing ->
-            none
+            div [] []
 
         Just fps ->
-            el
-                [ Font.size 14
-                , Font.color Colors.lightText
-                , Font.family [ Font.monospace ]
-                ]
-                (text (String.fromInt fps ++ " FPS"))
+            div [] [ text (String.fromInt fps ++ " FPS") ]
 
 
-viewClock : Tape gameModel -> Element Msg
-viewClock ((Tape state _) as tape) =
-    let
-        conditionalStyling =
-            case state of
-                Recording ->
-                    [ Font.color Colors.red
-                    ]
 
-                _ ->
-                    [ Font.color Colors.lightGray
-                    ]
-    in
-    el
-        (conditionalStyling
-            ++ [ Font.size 14
-               , alignRight
-               , Font.alignRight
-               , Font.family [ Font.monospace ]
-               ]
-        )
-        (text
-            ((currentComputer tape).clock |> Round.round 3)
-        )
-
-
-viewTapeButtons : Tape gameModel -> Element Msg
-viewTapeButtons (Tape state { pastReversed, current, future }) =
-    row
-        []
-        [ el [ width (px 40) ] <|
-            case state of
-                Recording ->
-                    recButton PressedPauseButton Colors.red
-
-                Paused ->
-                    recButton PressedRecordButton Colors.lightGray
-
-                Playing _ ->
-                    none
-        , el [ width (px 28) ] <|
-            case state of
-                Recording ->
-                    none
-
-                Paused ->
-                    if List.isEmpty future then
-                        none
-
-                    else
-                        tapeButtonWithIcon Icons.icons.play PressedPlayButton Colors.lightGray
-
-                _ ->
-                    tapeButtonWithIcon Icons.icons.pause PressedPauseButton Colors.lightGray
-        ]
-
-
-recButton : Msg -> Color -> Element Msg
-recButton msg color =
-    Input.button []
-        { onPress = Just msg
-        , label =
-            el
-                [ width (px 36)
-                , padding 3
-                , Font.color color
-                , Font.center
-                , Font.size 12
-                , Font.bold
-                , Border.color color
-                , Border.width 1
-                , Border.rounded 4
-                ]
-                (text "REC")
-        }
-
-
-slider : Tape gameModel -> Element Msg
-slider tape =
-    let
-        ( value, max ) =
-            ( lengthOfPast tape
-            , totalSize tape - 1
-            )
-    in
-    el
-        [ width fill
-        , centerY
-        ]
-    <|
-        Input.slider
-            [ behindContent
-                (row
-                    [ width fill
-                    , height (px 4)
-                    , centerY
-                    , Background.color Colors.inputBackground
-                    , Border.rounded 2
-                    ]
-                    [ el
-                        [ width (fillPortion value)
-                        , height fill
-                        , Background.color Colors.red
-                        , Border.rounded 2
-                        ]
-                        none
-                    , el
-                        [ width (fillPortion (max - value))
-                        ]
-                        none
-                    ]
-                )
-            ]
-            { onChange = round >> SliderMovedTo
-            , label = Input.labelHidden ""
-            , min = 0
-            , max = toFloat max
-            , step = Just 1
-            , value = toFloat value
-            , thumb =
-                Input.thumb
-                    [ width (px 12)
-                    , height (px 12)
-                    , Border.rounded 6
-                    , Background.color Colors.red
-                    ]
-            }
-
-
-tapeButtonWithIcon : String -> msg -> Color -> Element msg
-tapeButtonWithIcon iconD msg color =
-    Input.button []
-        { onPress = Just msg
-        , label = html (Icons.draw 20 color iconD)
-        }
-
-
-totalSize : Tape gameModel -> Int
-totalSize (Tape _ { pastReversed, current, future }) =
-    List.length pastReversed + 1 + List.length future
-
-
-lengthOfPast : Tape gameModel -> Int
-lengthOfPast (Tape _ { pastReversed }) =
-    List.length pastReversed
+--
+--
+--viewOLD : Tape gameModel -> Element Msg
+--viewOLD tape =
+--    column [ width fill ]
+--        [ slider tape
+--        , row
+--            [ width fill
+--            , spacing 14
+--            , paddingXY 0 6
+--            , centerY
+--            ]
+--            [ viewTapeButtons tape
+--            , viewFpsMeter tape
+--            , viewClock tape
+--            ]
+--        ]
+--
+--
+--
+--viewFpsMeter : Tape gameModel -> Element Msg
+--viewFpsMeter tape =
+--    case fpsMeter tape of
+--        Nothing ->
+--            none
+--
+--        Just fps ->
+--            el
+--                [ Font.size 14
+--                , Font.color Colors.lightText
+--                , Font.family [ Font.monospace ]
+--                ]
+--                (text (String.fromInt fps ++ " FPS"))
+--
+--
+--viewClock : Tape gameModel -> Element Msg
+--viewClock ((Tape state _) as tape) =
+--    let
+--        conditionalStyling =
+--            case state of
+--                Recording ->
+--                    [ Font.color Colors.red
+--                    ]
+--
+--                _ ->
+--                    [ Font.color Colors.lightGray
+--                    ]
+--    in
+--    el
+--        (conditionalStyling
+--            ++ [ Font.size 14
+--               , alignRight
+--               , Font.alignRight
+--               , Font.family [ Font.monospace ]
+--               ]
+--        )
+--        (text
+--            ((currentComputer tape).clock |> Round.round 3)
+--        )
+--
+--
+--viewTapeButtons : Tape gameModel -> Element Msg
+--viewTapeButtons (Tape state { pastReversed, current, future }) =
+--    row
+--        []
+--        [ el [ width (px 40) ] <|
+--            case state of
+--                Recording ->
+--                    recButton PressedPauseButton Colors.red
+--
+--                Paused ->
+--                    recButton PressedRecordButton Colors.lightGray
+--
+--                Playing _ ->
+--                    none
+--        , el [ width (px 28) ] <|
+--            case state of
+--                Recording ->
+--                    none
+--
+--                Paused ->
+--                    if List.isEmpty future then
+--                        none
+--
+--                    else
+--                        tapeButtonWithIcon Icons.icons.play PressedPlayButton
+--
+--                _ ->
+--                    tapeButtonWithIcon Icons.icons.pause PressedPauseButton
+--        ]
+--
+--
+--recButton : Msg -> Color -> Element Msg
+--recButton msg color =
+--    Input.button []
+--        { onPress = Just msg
+--        , label =
+--            el
+--                [ width (px 36)
+--                , padding 3
+--                , Font.color color
+--                , Font.center
+--                , Font.size 12
+--                , Font.bold
+--                , Border.color color
+--                , Border.width 1
+--                , Border.rounded 4
+--                ]
+--                (text "REC")
+--        }
+--
+--
+--slider : Tape gameModel -> Element Msg
+--slider tape =
+--    let
+--        ( value, max ) =
+--            ( lengthOfPast tape
+--            , totalSize tape - 1
+--            )
+--    in
+--    el
+--        [ width fill
+--        , centerY
+--        ]
+--    <|
+--        Input.slider
+--            [ behindContent
+--                (row
+--                    [ width fill
+--                    , height (px 4)
+--                    , centerY
+--                    , Background.color Colors.inputBackground
+--                    , Border.rounded 2
+--                    ]
+--                    [ el
+--                        [ width (fillPortion value)
+--                        , height fill
+--                        , Background.color Colors.red
+--                        , Border.rounded 2
+--                        ]
+--                        none
+--                    , el
+--                        [ width (fillPortion (max - value))
+--                        ]
+--                        none
+--                    ]
+--                )
+--            ]
+--            { onChange = round >> SliderMovedTo
+--            , label = Input.labelHidden ""
+--            , min = 0
+--            , max = toFloat max
+--            , step = Just 1
+--            , value = toFloat value
+--            , thumb =
+--                Input.thumb
+--                    [ width (px 12)
+--                    , height (px 12)
+--                    , Border.rounded 6
+--                    , Background.color Colors.red
+--                    ]
+--            }
+--
+--
+--tapeButtonWithIcon : String -> msg -> Element msg
+--tapeButtonWithIcon iconD msg =
+--    Input.button []
+--        { onPress = Just msg
+--        , label = html (Icons.draw iconD)
+--        }
+--
+--
+--totalSize : Tape gameModel -> Int
+--totalSize (Tape _ { pastReversed, current, future }) =
+--    List.length pastReversed + 1 + List.length future
+--
+--
+--lengthOfPast : Tape gameModel -> Int
+--lengthOfPast (Tape _ { pastReversed }) =
+--    List.length pastReversed

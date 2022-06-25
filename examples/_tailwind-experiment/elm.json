@@ -20,7 +20,6 @@
             "ianmackenzie/elm-3d-scene": "1.0.1",
             "ianmackenzie/elm-geometry": "3.9.0",
             "ianmackenzie/elm-units": "2.7.0",
-            "mdgriffith/elm-ui": "1.1.8",
             "myrho/elm-round": "1.0.4",
             "noahzgordon/elm-color-extra": "1.0.2"
         },

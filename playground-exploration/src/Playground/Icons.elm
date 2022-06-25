@@ -3,22 +3,20 @@ module Playground.Icons exposing
     , icons
     )
 
-import Element exposing (Color)
-import Playground.Colors as Colors
+import Html.Attributes exposing (style)
 import Svg exposing (Svg, path, svg)
 import Svg.Attributes as SA
 
 
-draw : Int -> Color -> String -> Svg msg
-draw sizeInPx color d =
+draw : String -> Svg msg
+draw d =
     svg
         [ SA.viewBox "0 0 100 100"
-        , SA.width (String.fromInt sizeInPx)
-        , SA.height (String.fromInt sizeInPx)
+        , style "width" "100%"
+        , style "height" "100%"
         ]
         [ path
             [ SA.d d
-            , SA.fill (Colors.toString color)
             ]
             []
         ]

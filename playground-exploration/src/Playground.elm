@@ -35,15 +35,9 @@ port module Playground exposing
 -}
 
 import Browser
-import Browser.Events as E
-import Element exposing (..)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Events exposing (onClick)
-import Element.Font as Font
-import Html exposing (Html, div, p, pre)
-import Html.Attributes as HA exposing (class, id, style)
-import Playground.Colors as Colors
+import Html exposing (Html, a, button, div, p, pre)
+import Html.Attributes as HA exposing (class, href, id, style, target)
+import Html.Events
 import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
 import Playground.ConfigurationsGUI as ConfigurationsGUI
@@ -163,7 +157,7 @@ gameWithConfigurations viewGameModel updateGameModel initialConfigurations initG
         updateGameModel
         initialConfigurations
         initGameModel
-        (\_ _ -> none)
+        (\_ _ -> div [] [])
         (\_ _ gameModel -> gameModel)
 
 
@@ -172,7 +166,7 @@ gameWithConfigurationsAndEditor :
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
     -> (Computer -> gameModel)
-    -> (Computer -> gameModel -> Element levelEditorMsg)
+    -> (Computer -> gameModel -> Html levelEditorMsg)
     -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
     -> Program Flags (Model gameModel) (Msg levelEditorMsg)
 gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
@@ -182,10 +176,8 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                 initialComputer =
                     flags.inputs |> Computer.assignConfigurations initialConfigurations
             in
-            ( { activeMode = ConfigurationsMode
-              , tape = Tape.init initialComputer initGameModel
-              , distractionFree = True
-              , visibility = E.Visible
+            ( { tape = Tape.init initialComputer initGameModel
+              , distractionFree = False
               }
             , Cmd.none
             )
@@ -199,7 +191,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
         { init = init
         , view = view viewGameModel viewEditor
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = always (tick Tick)
         }
 
 
@@ -207,29 +199,16 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model gameModel -> Sub (Msg levelEditorMsg)
-subscriptions { visibility } =
-    tick Tick
-
-
 type alias Model gameModel =
-    { activeMode : Mode
-    , tape : Tape gameModel
+    { tape : Tape gameModel
     , distractionFree : Bool
-    , visibility : E.Visibility
     }
-
-
-type Mode
-    = ConfigurationsMode
-    | Thanks
 
 
 type Msg levelEditorMsg
     = NoOp
     | ClickOnDistractionFreeButton
     | Tick Inputs
-    | SelectMode Mode
     | FromConfigurationsEditor Configurations.Msg
     | FromLevelEditor levelEditorMsg
     | FromTape Tape.Msg
@@ -251,9 +230,6 @@ gameUpdate updateGameModel updateFromEditor msg model =
 
         Tick inputs ->
             { model | tape = model.tape |> Tape.tick updateGameModel inputs }
-
-        SelectMode mode ->
-            { model | activeMode = mode }
 
         FromConfigurationsEditor computerMsg ->
             { model | tape = model.tape |> Tape.updateConfigurations computerMsg }
@@ -277,7 +253,7 @@ layoutParams =
 
 view :
     (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> Element levelEditorMsg)
+    -> (Computer -> gameModel -> Html levelEditorMsg)
     -> Model gameModel
     -> Html (Msg levelEditorMsg)
 view viewGameModel viewLevelEditor model =
@@ -288,215 +264,98 @@ view viewGameModel viewLevelEditor model =
         gameModel =
             currentGameModel model.tape
     in
-    --layoutWith
-    --    { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
-    --    [ width (px (ceiling computer.screen.width))
-    --    , height (px (ceiling computer.screen.height))
-    --    , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
-    --    , htmlAttribute (HA.style "pointer-events" "none")
-    --    , htmlAttribute (HA.style "touch-action" "none")
-    --    , htmlAttribute (HA.style "user-select" "none")
-    --
-    --    --
-    --    , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
-    --    , inFront (viewGUI model)
-    --
-    --    --, inFront (html (debugView computer))
-    --    ]
-    --    (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
     div
-        [ class "bg-black40 pointer-events-none select-none touch-none"
+        [ class "bg-black40"
+
+        --, class "pointer-events-none select-none touch-none"
         , class "antialiased font-mono text-base"
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
-        [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
+        [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
+        , viewGUI model
+
+        --, Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+        , debugView computer
+        ]
 
 
-
---debugView : Computer -> Html msg
---debugView computer =
---    pre
---        [ style "position" "fixed"
---        , style "top" "100px"
---        , style "left" "100px"
---        , style "font-size" "20px"
---        , style "color" "gray"
---        ]
---        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
---        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
---        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
---        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
---        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
---        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
---        ]
+debugView : Computer -> Html msg
+debugView computer =
+    pre
+        [ class "fixed w-[300px] top-12 right-20 text-xs text-white80"
+        ]
+        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
+        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
+        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
+        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
+        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
+        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
+        ]
 
 
-viewGUI : Model gameModel -> Element (Msg levelEditorMsg)
+viewGUI : Model gameModel -> Html (Msg levelEditorMsg)
 viewGUI model =
     let
-        yingYangInDistractionFree =
-            el
-                [ width (px layoutParams.leftStripeWidth)
-                , alignTop
-                , padding 4
-                , onClick ClickOnDistractionFreeButton
-                , pointer
-                , htmlAttribute (HA.title "Deactivate Distraction Free Mode (A)")
-                ]
-                (html (Icons.draw 46 Colors.black Icons.icons.yinAndYang))
-    in
-    if model.distractionFree then
-        yingYangInDistractionFree
-
-    else
-        row
-            [ width (px (layoutParams.leftStripeWidth + layoutParams.leftBarWidth))
-            , height fill
-            ]
-            [ leftStripe model.activeMode
-            , leftBar model.activeMode model.tape
-            ]
-
-
-leftStripe : Mode -> Element (Msg levelEditorMsg)
-leftStripe activeMode =
-    let
-        distractionFreeButton =
-            el
-                [ width (px layoutParams.leftStripeWidth)
-                , padding 4
-                , onClick ClickOnDistractionFreeButton
-                , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
-                , Border.color Colors.menuBorder
-                , pointer
-                , htmlAttribute (HA.title "Activate Distraction Free Mode")
-                ]
-                (html (Icons.draw 46 Colors.white Icons.icons.yinAndYang))
-
-        modeButton title mode iconPath =
-            let
-                color =
-                    if mode == activeMode then
-                        Colors.white
+        yingYangButton =
+            button
+                [ class "m-1"
+                , class <|
+                    if model.distractionFree then
+                        "fill-black20 hover:fill-black80"
 
                     else
-                        Colors.leftStripeIconSelected
-            in
-            el
-                [ htmlAttribute (HA.title title)
-                , onClick (SelectMode mode)
-                , pointer
-                , padding 7
+                        "fill-white40 hover:fill-white80"
+                , Html.Events.onClick ClickOnDistractionFreeButton
+                , HA.title "Distraction Free Mode"
                 ]
-                (html (Icons.draw 40 color iconPath))
+                [ Icons.draw Icons.icons.yinAndYang ]
 
-        radioButtonsForMode =
-            column
-                [ alignTop
-                ]
-                [ modeButton "Configurations" ConfigurationsMode Icons.icons.sliders
-
-                --, modeButton "Thanks" Thanks Icons.icons.heart
-                ]
-
-        githubButton =
-            column []
-                [ newTabLink
-                    [ htmlAttribute (HA.title "Twitter")
-                    , alignBottom
-                    , pointer
-                    , padding 7
+        githubLink =
+            div [ class "m-1" ]
+                [ a
+                    [ class "fill-githubCat40 hover:fill-githubCat"
+                    , href "https://github.com/erkal/elm-3d-playground-exploration"
+                    , target "_blank"
                     ]
-                    { url = "https://twitter.com/AzizErkalSelman"
-                    , label = html (Icons.draw 40 Colors.twitterBlue Icons.icons.twitter)
-                    }
-                , newTabLink
-                    [ htmlAttribute (HA.title "Source Code")
-                    , alignBottom
-                    , pointer
-                    , padding 7
+                    [ Icons.draw Icons.icons.githubCat ]
+                ]
+
+        twitterLink =
+            div [ class "m-1" ]
+                [ a
+                    [ class "fill-twitterBlue40 hover:fill-twitterBlue"
+                    , href "https://twitter.com/AzizErkalSelman"
+                    , target "_blank"
                     ]
-                    { url = "https://github.com/erkal/elm-3d-playground-exploration"
-                    , label = html (Icons.draw 40 Colors.githubCatColor Icons.icons.githubCat)
-                    }
+                    [ Icons.draw Icons.icons.twitter ]
                 ]
     in
-    column
-        [ width (px layoutParams.leftStripeWidth)
-        , height fill
-        , scrollbarY
-        , Background.color Colors.black
-        ]
-        [ distractionFreeButton
-        , radioButtonsForMode
-        , githubButton
-        ]
+    if model.distractionFree then
+        div [ class "fixed w-10 h-10 p-1" ]
+            [ yingYangButton
+            ]
+
+    else
+        div []
+            [ div [ class "absolute h-full w-10 p-1 bg-black80" ]
+                [ yingYangButton
+                , twitterLink
+                , githubLink
+                ]
+            , div [ class "absolute left-10 h-full w-[240px] p-2 bg-black20" ]
+                [ viewTape model.tape
+                , viewConfigurations model.tape
+                ]
+            ]
 
 
-leftBar : Mode -> Tape gameModel -> Element (Msg levelEditorMsg)
-leftBar activeMode tape =
-    column
-        [ if (tape |> currentComputer |> .screen |> .width) > 600 then
-            Background.color Colors.menuBackground
-
-          else
-            Background.color Colors.transparent
-        , Border.widthEach { bottom = 0, left = 0, right = 1, top = 0 }
-        , Border.color Colors.menuBorder
-        , width (px layoutParams.leftBarWidth)
-        , height fill
-        ]
-        [ case activeMode of
-            ConfigurationsMode ->
-                column
-                    [ width fill
-                    , height fill
-                    , padding 14
-                    , spacing 14
-                    ]
-                    [ viewTape tape
-                    , viewConfigurations tape
-                    ]
-
-            Thanks ->
-                none
-        ]
-
-
-viewTape : Tape gameModel -> Element (Msg levelEditorMsg)
+viewTape : Tape gameModel -> Html (Msg levelEditorMsg)
 viewTape tape =
-    column
-        [ width fill
-        , spacing 14
-        , paddingEach { bottom = 20, left = 0, right = 0, top = 0 }
-        , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
-        , Border.color Colors.menuBorder
-        ]
-        [ el [ Font.size 16, Font.bold, Font.color Colors.lightText ] (text "Time Travel")
-        , Element.map FromTape (Tape.view tape)
-        ]
+    Html.map FromTape (Tape.view tape)
 
 
-viewConfigurations : Tape gameModel -> Element (Msg levelEditorMsg)
+viewConfigurations : Tape gameModel -> Html (Msg levelEditorMsg)
 viewConfigurations tape =
-    column
-        [ width fill
-        , height fill
-        ]
-        [ row
-            [ spacing 14
-            , width fill
-            ]
-            [--, Input.button [ alignRight ]
-             --    { onPress = Nothing
-             --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.download)
-             --    }
-             --, Input.button [ alignRight ]
-             --    { onPress = Nothing
-             --    , label = html (Icons.draw 20 Colors.lightGray Icons.icons.upload)
-             --    }
-            ]
-        , Element.map FromConfigurationsEditor
-            (ConfigurationsGUI.view (currentComputer tape).configurations)
-        ]
+    Html.map FromConfigurationsEditor
+        (ConfigurationsGUI.view (currentComputer tape).configurations)
