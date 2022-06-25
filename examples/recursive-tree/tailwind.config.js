@@ -2,7 +2,7 @@ module.exports = {
   content: [
     "./index.html",
     "./main.js",
-    "./src/*.elm",
+    "./**/*.elm",
     "../../playground-exploration/**/*.elm",
   ],
   theme: {

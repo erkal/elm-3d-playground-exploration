@@ -383,8 +383,7 @@ viewEditor computer model =
 buttonForSettingBackgroundColor : Html EditorMsg
 buttonForSettingBackgroundColor =
     button
-        [ style "margin" "10px"
-        , onClick PressedButtonForSettingBackgroundColor
+        [ onClick PressedButtonForSettingBackgroundColor
         ]
         [ text "Set selected color as background color" ]
 
