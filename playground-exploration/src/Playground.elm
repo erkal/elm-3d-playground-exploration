@@ -245,12 +245,6 @@ gameUpdate updateGameModel updateFromEditor msg model =
 -- VIEW
 
 
-layoutParams =
-    { leftStripeWidth = 54
-    , leftBarWidth = 260
-    }
-
-
 view :
     (Computer -> gameModel -> Html Never)
     -> (Computer -> gameModel -> Html levelEditorMsg)
