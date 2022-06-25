@@ -1,9 +1,8 @@
 module Main exposing (main)
 
-import Camera exposing (Camera, perspective)
+import Camera exposing (perspective)
 import Color exposing (hsl, lightBlue, rgba, white, yellow)
-import Html exposing (Html, div)
-import Html.Attributes exposing (class)
+import Html exposing (Html)
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)

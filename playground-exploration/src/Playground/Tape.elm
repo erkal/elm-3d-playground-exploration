@@ -238,7 +238,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div [ class "absolute p-4 top-0 right-[300px] w-[600px] h-16 border-[0.5px] border-white20 bg-black20" ]
+    div [ class "absolute pl-4 py-4 top-0 right-[300px] w-[600px] h-16 border-[0.5px] border-white20 bg-black20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
@@ -263,7 +263,7 @@ viewSlider tape =
 viewTapeButtons : Tape gameModel -> Html Msg
 viewTapeButtons (Tape state { future }) =
     div
-        []
+        [ class "py-1" ]
         [ case state of
             Recording ->
                 recButton PressedPauseButton "text-red-500 font-bold"
