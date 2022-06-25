@@ -274,28 +274,44 @@ view viewGameModel viewLevelEditor model =
         ]
 
 
-viewComputer : Computer -> Html msg
-viewComputer computer =
-    pre
-        [ class "fixed p-2 w-[300px] top-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
-        ]
-        [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
-        , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
-        , p []
-            [ Html.text
-                ("pointer is down: "
-                    ++ (if computer.pointer.isDown then
-                            "yes"
+viewComputer : Computer -> Model gameModel -> Html msg
+viewComputer computer model =
+    let
+        viewPointer =
+            if Tape.isRecording model.tape then
+                div [] []
 
-                        else
-                            "no"
-                       )
-                )
+            else
+                div
+                    [ class "absolute pointer-events-none w-8 h-8"
+                    , style "left" (String.fromFloat (computer.pointer.x + 0.5 * computer.screen.width) ++ "px")
+                    , style "top" (String.fromFloat (-computer.pointer.y + 0.5 * computer.screen.height) ++ "px")
+                    ]
+                    [ div [ class "fill-white60" ] [ Icons.draw Icons.icons.pointer ] ]
+    in
+    div []
+        [ viewPointer
+        , pre
+            [ class "fixed p-2 w-[300px] top-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
             ]
-        , p [] [ Html.text ("pointer.x: " ++ Round.round 2 computer.pointer.x) ]
-        , p [] [ Html.text ("pointer.y: " ++ Round.round 2 computer.pointer.y) ]
-        , p [] [ Html.text ("wheel deltaX: " ++ String.fromFloat computer.wheel.deltaX) ]
-        , p [] [ Html.text ("wheel deltaY: " ++ String.fromFloat computer.wheel.deltaY) ]
+            [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
+            , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
+            , p []
+                [ Html.text
+                    ("pointer is down: "
+                        ++ (if computer.pointer.isDown then
+                                "yes"
+
+                            else
+                                "no"
+                           )
+                    )
+                ]
+            , p [] [ Html.text ("pointer.x: " ++ Round.round 2 computer.pointer.x) ]
+            , p [] [ Html.text ("pointer.y: " ++ Round.round 2 computer.pointer.y) ]
+            , p [] [ Html.text ("wheel deltaX: " ++ String.fromFloat computer.wheel.deltaX) ]
+            , p [] [ Html.text ("wheel deltaY: " ++ String.fromFloat computer.wheel.deltaY) ]
+            ]
         ]
 
 
@@ -351,5 +367,5 @@ viewGUI computer model =
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , Html.map FromTape (Tape.view model.tape)
-            , viewComputer computer
+            , viewComputer computer model
             ]

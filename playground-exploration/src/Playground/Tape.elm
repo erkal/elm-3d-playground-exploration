@@ -4,6 +4,7 @@ module Playground.Tape exposing
     , currentComputer
     , currentGameModel
     , init
+    , isRecording
     , tick
     , update
     , updateConfigurations
@@ -62,6 +63,11 @@ currentComputer (Tape _ { current }) =
 currentGameModel : Tape gameModel -> gameModel
 currentGameModel (Tape _ { current }) =
     Tuple.second current
+
+
+isRecording : Tape gameModel -> Bool
+isRecording (Tape state _) =
+    state == Recording
 
 
 
@@ -333,8 +339,9 @@ viewClock tape =
     div
         [ class "absolute left-[104px] bottom-2 text-sm text-white40"
         ]
-        [ text
-            ((currentComputer tape).clock |> Round.round 3)
+        [ text <|
+            "clock: "
+                ++ ((currentComputer tape).clock |> Round.round 3)
         ]
 
 
