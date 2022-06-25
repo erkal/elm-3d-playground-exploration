@@ -287,7 +287,16 @@ viewComputer computer model =
                     , style "left" (String.fromFloat (computer.pointer.x + 0.5 * computer.screen.width) ++ "px")
                     , style "top" (String.fromFloat (-computer.pointer.y + 0.5 * computer.screen.height) ++ "px")
                     ]
-                    [ div [ class "fill-white60" ] [ Icons.draw Icons.icons.pointer ] ]
+                    [ div
+                        [ class <|
+                            if computer.pointer.isDown then
+                                "fill-black80"
+
+                            else
+                                "fill-white40"
+                        ]
+                        [ Icons.draw Icons.icons.pointer ]
+                    ]
     in
     div []
         [ viewPointer
