@@ -268,7 +268,7 @@ view viewGameModel viewLevelEditor model =
         [ class "bg-black40"
 
         --, class "pointer-events-none select-none touch-none"
-        , class "antialiased font-mono text-base"
+        , class "antialiased"
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
@@ -299,8 +299,7 @@ viewGUI model =
     let
         yingYangButton =
             button
-                [ class "m-1"
-                , class <|
+                [ class <|
                     if model.distractionFree then
                         "fill-black20 hover:fill-black80"
 
@@ -312,7 +311,7 @@ viewGUI model =
                 [ Icons.draw Icons.icons.yinAndYang ]
 
         githubLink =
-            div [ class "m-1" ]
+            div []
                 [ a
                     [ class "fill-githubCat40 hover:fill-githubCat"
                     , href "https://github.com/erkal/elm-3d-playground-exploration"
@@ -322,7 +321,7 @@ viewGUI model =
                 ]
 
         twitterLink =
-            div [ class "m-1" ]
+            div []
                 [ a
                     [ class "fill-twitterBlue40 hover:fill-twitterBlue"
                     , href "https://twitter.com/AzizErkalSelman"
@@ -343,19 +342,8 @@ viewGUI model =
                 , twitterLink
                 , githubLink
                 ]
-            , div [ class "absolute left-10 h-full w-[240px] p-2 bg-black20" ]
-                [ viewTape model.tape
-                , viewConfigurations model.tape
+            , div [ class "absolute left-10 h-full w-[240px] p-4 bg-black20" ]
+                [ Html.map FromTape (Tape.view model.tape)
+                , Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             ]
-
-
-viewTape : Tape gameModel -> Html (Msg levelEditorMsg)
-viewTape tape =
-    Html.map FromTape (Tape.view tape)
-
-
-viewConfigurations : Tape gameModel -> Html (Msg levelEditorMsg)
-viewConfigurations tape =
-    Html.map FromConfigurationsEditor
-        (ConfigurationsGUI.view (currentComputer tape).configurations)

@@ -1,10 +1,10 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspective)
-import Color exposing (hsl, rgba, white)
+import Color exposing (hsl, lightBlue, rgba, white, yellow)
 import Html exposing (Html, div)
 import Html.Attributes exposing (class)
-import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
+import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
 import Scene3d.Material exposing (matte)
@@ -78,10 +78,15 @@ initialConfigurations =
         , floatConfig "cycle duration" ( 1, 10 ) 5
         , floatConfig "wave height" ( 0.5, 6 ) 1.5
         ]
-    , configBlock "Colors and light"
+    , configBlock "Light"
         True
         [ floatConfig "saturation" ( 0, 1 ) 0.8
         , floatConfig "lightness" ( 0, 1 ) 0.7
+        ]
+    , configBlock "Colors"
+        True
+        [ colorConfig "color 1" yellow
+        , colorConfig "color 2" lightBlue
         ]
     ]
 

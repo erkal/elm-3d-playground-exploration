@@ -1,7 +1,9 @@
 module Playground.ConfigurationsGUI exposing (..)
 
+import Color exposing (black)
+import Color.Convert exposing (colorToHex, hexToColor)
 import Dict
-import Html exposing (Html, div, h1, input, label)
+import Html exposing (Html, div, input, label)
 import Html.Attributes as HA exposing (class, for, id, name, type_)
 import Html.Events
 import Playground.Configurations exposing (..)
@@ -48,18 +50,30 @@ viewConfig key config =
                 }
 
         ColorConfig value ->
-            div [] []
+            div []
+                [ Html.div [ HA.style "margin-bottom" "6px" ] [ Html.label [ HA.for key ] [ Html.text key ] ]
+                , Html.input
+                    [ HA.type_ "color"
+                    , HA.style "width" "100%"
+                    , HA.style "height" "26px"
+                    , HA.style "padding" "0px"
+                    , HA.id key
+                    , HA.name key
+                    , Html.Events.onInput
+                        (\newValue ->
+                            SetColor key
+                                (newValue
+                                    |> hexToColor
+                                    |> Result.withDefault black
+                                )
+                        )
+                    , HA.value (colorToHex value)
+                    ]
+                    []
+                ]
 
 
-sliderInput :
-    { labelText : String
-    , value : Float
-    , min : Float
-    , max : Float
-    , step : Float
-    , onChange : Float -> Msg
-    }
-    -> Html Msg
+sliderInput : { labelText : String, value : Float, min : Float, max : Float, step : Float, onChange : Float -> Msg } -> Html Msg
 sliderInput { labelText, value, min, max, step, onChange } =
     div []
         [ label
