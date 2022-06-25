@@ -43,6 +43,7 @@ import Playground.Configurations as Configurations exposing (Block, Config(..), 
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
 import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
+import Round
 
 
 
@@ -177,7 +178,7 @@ gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurati
                     flags.inputs |> Computer.assignConfigurations initialConfigurations
             in
             ( { tape = Tape.init initialComputer initGameModel
-              , distractionFree = False
+              , distractionFree = flags.inputs.screen.width < 500
               }
             , Cmd.none
             )
@@ -267,31 +268,39 @@ view viewGameModel viewLevelEditor model =
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
         [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
-        , div [ id "gui" ] [ viewGUI model ]
+        , div [ id "gui" ] [ viewGUI computer model ]
 
         --, Html.map FromLevelEditor (viewLevelEditor computer gameModel)
-        , debugView computer
         ]
 
 
-debugView : Computer -> Html msg
-debugView computer =
+viewComputer : Computer -> Html msg
+viewComputer computer =
     pre
-        [ class "fixed p-4 w-[300px] top-0 right-0 bg-black20 text-xs text-white80"
+        [ class "fixed p-2 w-[300px] top-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
         ]
-        [ p [] [ Html.text ("keyboard.down: " ++ Debug.toString computer.keyboard.down) ]
-        , p [] [ Html.text ("keyboard.up: " ++ Debug.toString computer.keyboard.up) ]
-        , p [] [ Html.text ("keyboard.left: " ++ Debug.toString computer.keyboard.left) ]
-        , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
-        , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
-        , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
-        , p [] [ Html.text ("pointer.isDown: " ++ Debug.toString computer.pointer.isDown) ]
-        , p [] [ Html.text ("wheel: " ++ Debug.toString computer.wheel) ]
+        [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
+        , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
+        , p []
+            [ Html.text
+                ("pointer is down: "
+                    ++ (if computer.pointer.isDown then
+                            "yes"
+
+                        else
+                            "no"
+                       )
+                )
+            ]
+        , p [] [ Html.text ("pointer.x: " ++ Round.round 2 computer.pointer.x) ]
+        , p [] [ Html.text ("pointer.y: " ++ Round.round 2 computer.pointer.y) ]
+        , p [] [ Html.text ("wheel deltaX: " ++ String.fromFloat computer.wheel.deltaX) ]
+        , p [] [ Html.text ("wheel deltaY: " ++ String.fromFloat computer.wheel.deltaY) ]
         ]
 
 
-viewGUI : Model gameModel -> Html (Msg levelEditorMsg)
-viewGUI model =
+viewGUI : Computer -> Model gameModel -> Html (Msg levelEditorMsg)
+viewGUI computer model =
     let
         yingYangButton =
             button
@@ -333,7 +342,7 @@ viewGUI model =
 
     else
         div []
-            [ div [ class "absolute h-full w-10 p-1 bg-black80" ]
+            [ div [ class "absolute h-full w-10 p-1 border-r-[0.5px] border-white20 bg-black80" ]
                 [ yingYangButton
                 , twitterLink
                 , githubLink
@@ -342,4 +351,5 @@ viewGUI model =
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , Html.map FromTape (Tape.view model.tape)
+            , viewComputer computer
             ]

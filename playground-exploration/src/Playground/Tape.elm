@@ -96,7 +96,12 @@ tick : (Computer -> gameModel -> gameModel) -> Inputs -> Tape gameModel -> Tape 
 tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
     case state of
         Paused ->
-            tape
+            if inputs.pointer.down then
+                tape
+                    |> startRecording
+
+            else
+                tape
 
         Playing { tapeClock } ->
             Tape (Playing { tapeClock = tapeClock + inputs.dt }) pastCurrentFuture
@@ -233,7 +238,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div [ class "absolute p-4 left-[260px] w-[600px] h-16 bg-black20" ]
+    div [ class "absolute p-4 top-0 right-[300px] w-[600px] h-16 border-[0.5px] border-white20 bg-black20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
