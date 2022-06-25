@@ -41,8 +41,8 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Html exposing (Html, p, pre)
-import Html.Attributes as HA exposing (style)
+import Html exposing (Html, div, p, pre)
+import Html.Attributes as HA exposing (class, id, style)
 import Playground.Colors as Colors
 import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)
@@ -288,22 +288,29 @@ view viewGameModel viewLevelEditor model =
         gameModel =
             currentGameModel model.tape
     in
-    layoutWith
-        { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
-        [ width (px (ceiling computer.screen.width))
-        , height (px (ceiling computer.screen.height))
-        , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
-        , htmlAttribute (HA.style "pointer-events" "none")
-        , htmlAttribute (HA.style "touch-action" "none")
-        , htmlAttribute (HA.style "user-select" "none")
-
-        --
-        , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
-        , inFront (viewGUI model)
-
-        --, inFront (html (debugView computer))
+    --layoutWith
+    --    { options = [ focusStyle { borderColor = Nothing, backgroundColor = Nothing, shadow = Nothing } ] }
+    --    [ width (px (ceiling computer.screen.width))
+    --    , height (px (ceiling computer.screen.height))
+    --    , htmlAttribute (HA.style "-webkit-font-smoothing" "antialiased")
+    --    , htmlAttribute (HA.style "pointer-events" "none")
+    --    , htmlAttribute (HA.style "touch-action" "none")
+    --    , htmlAttribute (HA.style "user-select" "none")
+    --
+    --    --
+    --    , inFront (Element.map FromLevelEditor (viewLevelEditor computer gameModel))
+    --    , inFront (viewGUI model)
+    --
+    --    --, inFront (html (debugView computer))
+    --    ]
+    --    (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+    div
+        [ class "bg-black40 pointer-events-none select-none touch-none"
+        , class "antialiased font-mono text-base"
+        , style "width" (String.fromFloat computer.screen.width ++ "px")
+        , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
-        (html (Html.map (always NoOp) (viewGameModel computer gameModel)))
+        [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
 
 
 
