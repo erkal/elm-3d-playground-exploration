@@ -11,11 +11,8 @@ import Playground.Configurations exposing (..)
 
 view : Configurations -> Html Msg
 view configurations =
-    div [ class "h-full overflow-y-auto" ]
-        [ div
-            [ class "p-4" ]
-            (List.map viewBlock configurations)
-        ]
+    div []
+        (List.map viewBlock configurations)
 
 
 viewBlock : Block -> Html Msg
