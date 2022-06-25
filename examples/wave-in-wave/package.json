@@ -1,8 +1,8 @@
 {
-  "name": "vite-elm-template",
-  "author": "Lindsay Wardell",
-  "description": "A staring template for building Elm apps with Vite",
-  "version": "1.0.1",
+  "name": "elm-3d-playground-exploration",
+  "author": "",
+  "description": "",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "postinstall": "elm-tooling install",
@@ -12,8 +12,12 @@
     "preview": "vite build && vite preview --host"
   },
   "devDependencies": {
-    "elm-tooling": "^1.0.2",
-    "vite": "^2.5.1",
+    "autoprefixer": "^10.4.7",
+    "elm-tooling": "^1.8.0",
+    "postcss": "^8.4.14",
+    "prettier": "^2.7.1",
+    "tailwindcss": "^3.1.4",
+    "vite": "^2.9.12",
     "vite-plugin-elm": "^2.4.3"
   },
   "dependencies": {}

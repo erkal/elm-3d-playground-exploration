@@ -1,11 +1,11 @@
 module Main exposing (main)
 
 import Camera as Camera exposing (Camera, perspective, perspectiveWithOrbit)
-import Color exposing (rgb255)
+import Color exposing (rgb255, rgba)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import Dict
 import Html exposing (Html, br, div, p, text)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Scene as Scene exposing (..)
 import Scene3d.Material exposing (matte)
@@ -61,7 +61,6 @@ initialConfigurations =
         [ colorConfig "color 1" (rgb255 244 88 67)
         , colorConfig "color 2" (rgb255 47 41 43)
         , colorConfig "board color" (rgb255 223 224 226)
-        , colorConfig "background color" (rgb255 165 166 169)
         , floatConfig "sunlight azimuth" ( -pi, pi ) 2
         , floatConfig "sunlight elevation" ( -pi, 0 ) -2
         ]
@@ -173,17 +172,15 @@ view computer model =
 
 header =
     div
-        [ style "position" "absolute"
-        , style "width" "100%"
-        , style "font-size" "20px"
-        , style "text-align" "center"
+        [ class "absolute w-full text-center"
         ]
-        [ p []
+        [ div [ class "font-bold pt-2 text-lg" ]
             [ text "Eight Rolling Cubes Puzzle"
             , br [] []
             , text "by John Harris"
             ]
-        , p [] [ text "Can you make all the red faces look down with the center cell vacant?" ]
+        , p [] [ text "Can you make all the red faces look down" ]
+        , p [] [ text " with the center cell vacant?" ]
         ]
 
 
@@ -203,7 +200,7 @@ viewShapes computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = getColor "background color" computer
+        , backgroundColor = rgba 0 0 0 0
         , sunlightAzimuth = getFloat "sunlight azimuth" computer
         , sunlightElevation = getFloat "sunlight elevation" computer
         }

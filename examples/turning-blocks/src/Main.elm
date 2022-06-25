@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspective)
-import Color exposing (gray, hsl)
+import Color exposing (gray, hsl, rgba)
 import Html exposing (Html)
 import Illuminance
 import Light
@@ -108,7 +108,7 @@ view computer model =
         , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
         , whiteBalance = Scene3d.Light.fluorescent
         , antialiasing = Scene3d.multisampling
-        , backgroundColor = gray
+        , backgroundColor = rgba 0 0 0 0.7
         }
         (shapes computer model)
 

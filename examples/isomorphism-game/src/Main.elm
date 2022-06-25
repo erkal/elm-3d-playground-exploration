@@ -4,7 +4,7 @@ import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white, yellow)
 import Dict
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -865,35 +865,24 @@ updateFromEditor computer editorMsg model =
             }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    column
-        [ width fill
-        , height fill
-        ]
-        [ column
+    layout [ width fill ]
+        (column
             [ alignTop
             , alignRight
+            , width fill
+            , height (px 500)
             , padding 20
             , spacing 20
-            , width (px 600)
-            , height fill
             , Font.color Colors.lightText
             , Font.size 13
+            , scrollbarY
             ]
             [ editorOnOffButton computer model
             , editorContent computer model
-            , viewDebugger computer model
             ]
-        , row
-            [ alignBottom
-            , centerX
-            , Font.size 30
-            , Font.bold
-            , padding 20
-            ]
-            [ levelSelectionButtons computer model ]
-        ]
+        )
 
 
 editorContent : Computer -> Model -> Element EditorMsg
@@ -905,6 +894,14 @@ editorContent computer model =
             , spacing 20
             ]
             [ explanationsForEditor computer model
+            , row
+                [ alignBottom
+                , centerX
+                , Font.size 30
+                , Font.bold
+                , padding 20
+                ]
+                [ levelSelectionButtons computer model ]
             , viewLevelsEditor computer model
             ]
 
@@ -930,21 +927,11 @@ editorOnOffButton computer model =
 
 explanationsForEditor : Computer -> Model -> Element EditorMsg
 explanationsForEditor computer model =
-    textColumn []
+    textColumn [ width fill ]
         [ header "Editing the selected level"
         , paragraph [] [ text "- Hold shift + alt & Press mouse to add vertex" ]
         , paragraph [] [ text "- To move vertices drag them with mouse" ]
         , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
-        ]
-
-
-viewDebugger : Computer -> Model -> Element EditorMsg
-viewDebugger computer model =
-    textColumn [ alignBottom ]
-        [ header "Debugger"
-
-        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
-        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
         ]
 
 
@@ -960,7 +947,7 @@ viewLevelsEditor computer model =
 
 levelManipulationButtons : Computer -> Model -> Element EditorMsg
 levelManipulationButtons computer model =
-    row [ spacing 10 ]
+    column [ spacing 10 ]
         [ makeButton "Add level" PressedAddLevelButton
         , makeButton "Remove current level" PressedRemoveLevelButton
         , makeButton "Move level one up" PressedMoveLevelOneUpButton

@@ -268,9 +268,14 @@ view viewGameModel viewLevelEditor model =
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
         [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
-        , div [ id "gui" ] [ viewGUI computer model ]
-
-        --, Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+        , div [ id "gui" ]
+            [ viewGUI computer model
+            , div
+                [ class "fixed w-[300px] top-0 right-0 border-[0.5px] border-white20 text-xs text-white60"
+                ]
+                [ Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+                ]
+            ]
         ]
 
 
@@ -301,7 +306,7 @@ viewComputer computer model =
     div []
         [ viewPointer
         , pre
-            [ class "fixed p-2 w-[300px] top-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
+            [ class "fixed p-2 w-[300px] h-[130px] bottom-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
             ]
             [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
             , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
@@ -372,7 +377,7 @@ viewGUI computer model =
                 , twitterLink
                 , githubLink
                 ]
-            , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] bg-black20" ]
+            , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] bg-black20 border-x-[0.5px] border-white20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , Html.map FromTape (Tape.view model.tape)

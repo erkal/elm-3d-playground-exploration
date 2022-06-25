@@ -48,16 +48,15 @@ update computer model =
 view : Computer -> Model -> Html Never
 view computer model =
     let
+        -- TODO: use computer.devicePixelRatio for better resolution (but how?)
         ( w, h ) =
-            ( computer.screen.width * computer.devicePixelRatio
-            , computer.screen.height * computer.devicePixelRatio
+            ( computer.screen.width
+            , computer.screen.height
             )
     in
     WebGL.toHtml
         [ width (round w)
         , height (round h)
-        , style "width" (String.fromFloat computer.screen.width)
-        , style "height" (String.fromFloat computer.screen.height)
         ]
         [ WebGL.entity vertexShader
             fragmentShader

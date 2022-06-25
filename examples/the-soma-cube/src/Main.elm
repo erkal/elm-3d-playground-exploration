@@ -1,9 +1,9 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
-import Color exposing (Color, black, hsl, white)
+import Color exposing (Color, black, hsl, rgba, white)
 import Html exposing (Html, div, h2, p, text)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Palette
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (wave)
@@ -95,18 +95,16 @@ explanationText computer model =
         , style "max-width" "500px"
         , style "margin" "0 auto"
         ]
-        [ h2
-            [ style "margin" "10px"
-            , style "text-align" "center"
-            ]
+        [ div
+            [ class "m-2 text-center" ]
             [ text "The Soma Cube" ]
 
         --, p
         --    [ style "margin" "10px", style "text-align" "center", style "font-weight" "bold" ]
         --    [ text "..." ]
         , p
-            [ style "margin" "10px 20px 10px 20px" ]
-            [ div [ style "color" "red" ] [ text "The following control are not implemented yet" ]
+            [ class "p-2 text-xs" ]
+            [ div [ style "color" "darkred" ] [ text "Following controls are not implemented yet" ]
             , div [] [ text "Space Key to chose the next piece" ]
             , div [] [ text "Arrow keys to rotate the cube" ]
             , div [] [ text "WASDQE to move the cube" ]
@@ -121,7 +119,7 @@ viewShapes computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
+        , backgroundColor = rgba 0 0 0 0
         , sunlightAzimuth = getFloat "sunlight azimuth" computer
         , sunlightElevation = getFloat "sunlight elevation" computer
         }

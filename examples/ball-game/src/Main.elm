@@ -3,7 +3,7 @@ module Main exposing (main)
 import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
+import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, layout, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -518,26 +518,28 @@ updateFromEditor computer editorMsg model =
             }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    column
-        [ width fill
-        , height fill
-        ]
-        [ column
-            [ alignTop
-            , alignRight
-            , width (px 500)
+    layout []
+        (column
+            [ width fill
             , height fill
-            , padding 20
-            , spacing 20
-            , Font.color Colors.lightText
-            , Font.size 13
             ]
-            (editorOnOffButton computer model
-                :: editorContent computer model
-            )
-        ]
+            [ column
+                [ alignTop
+                , alignRight
+                , width fill
+                , height fill
+                , padding 20
+                , spacing 20
+                , Font.color Colors.lightText
+                , Font.size 13
+                ]
+                (editorOnOffButton computer model
+                    :: editorContent computer model
+                )
+            ]
+        )
 
 
 header : String -> Element EditorMsg

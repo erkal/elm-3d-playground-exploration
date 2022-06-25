@@ -6,7 +6,7 @@ import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
+import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, layout, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events
@@ -15,7 +15,7 @@ import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
 import HardcodedLevels exposing (hardcodedLevels)
 import Html exposing (Html, br, div, h2, p, span, text)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Illuminance
 import Json.Decode
 import LevelSelector exposing (Levels)
@@ -102,7 +102,7 @@ initialConfigurations =
     , configBlock "Colors and light"
         True
         [ floatConfig "lumens of following lights" ( 40000, 120000 ) 100000
-        , colorConfig "background color" (rgb255 223 224 226)
+        , colorConfig "background color" (rgb255 150 150 150)
         , colorConfig "color 1" (rgb255 244 88 67)
         , colorConfig "color 2" (rgb255 255 200 40)
         , colorConfig "path color" (rgb255 244 88 67)
@@ -355,14 +355,16 @@ explanationText computer model =
         , style "text-align" "center"
         , style "font-size" "14px"
         ]
-        [ h2
-            []
+        [ div
+            [ class "text-lg font-bold" ]
             [ text "The Red-Faced Cube" ]
         , p
-            [ style "font-weight" "bold" ]
-            [ text "A puzzle from Martin Gardner's book Mathematical Carnival (1975)" ]
+            [ class "font-bold italic" ]
+            [ p [] [ text "A puzzle from the book Mathematical Carnival" ]
+            , p [] [ text "(1975, Martin Gardner)" ]
+            ]
         , p
-            []
+            [ class "text-xs" ]
             [ span
                 (case model.state of
                     AnimatingMistake { startedAt, violatedRule } ->
@@ -958,24 +960,30 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    column
-        [ width fill
-        , height fill
-        ]
-        [ column
-            [ alignTop
-            , alignRight
-            , width (px 500)
-            , height fill
-            , padding 20
-            , spacing 20
-            , Font.color Colors.darkText
-            , Font.size 13
-            ]
-            (editorOnOffButton computer model
-                :: editorContent computer model
+    div [ class "bg-black20" ]
+        [ layout
+            []
+            (column
+                [ width fill
+                , height (px 400)
+                ]
+                [ column
+                    [ alignTop
+                    , alignRight
+                    , width (px 300)
+                    , height fill
+                    , padding 20
+                    , spacing 20
+                    , Font.color Colors.darkText
+                    , Font.size 13
+                    , scrollbarY
+                    ]
+                    (editorOnOffButton computer model
+                        :: editorContent computer model
+                    )
+                ]
             )
         ]
 
@@ -994,22 +1002,13 @@ header str =
 editorContent : Computer -> Model -> List (Element EditorMsg)
 editorContent computer model =
     if model.editor.isOn then
-        [ --viewInstructions computer model ,
-          viewLevelSelector computer model
+        [ viewLevelSelector computer model
         , viewSolutions computer model
         , viewImportExportLevels computer model
         ]
 
     else
         []
-
-
-viewInstructions : Computer -> Model -> Element EditorMsg
-viewInstructions computer model =
-    column []
-        [ header "Editing a level"
-        , Element.text "Drag the last point on path to extend or shorten it."
-        ]
 
 
 editorOnOffButton : Computer -> Model -> Element EditorMsg
@@ -1027,9 +1026,9 @@ viewLevelSelector computer model =
     let
         showLevelBox i _ =
             Element.el
-                [ width (px 30)
-                , height (px 30)
-                , Font.size 20
+                [ width (px 24)
+                , height (px 24)
+                , Font.size 16
                 , Element.Events.onClick (PressedLevelBox (i + 1))
                 , Background.color Colors.darkGray
                 , pointer
@@ -1050,7 +1049,7 @@ viewLevelSelector computer model =
         , wrappedRow
             [ spacing 10 ]
             (model.levels |> LevelSelector.asList |> List.indexedMap showLevelBox)
-        , row [ spacing 10 ]
+        , column [ spacing 10 ]
             [ makeButton "Add level" PressedAddLevelButton
             , makeButton "Remove level" PressedRemoveLevelButton
             , makeButton "Move level up" PressedMoveLevelOneUpButton

@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspective)
-import Color exposing (hsl, white)
+import Color exposing (hsl, rgba, white)
 import Html exposing (Html)
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
@@ -54,7 +54,7 @@ view computer model =
                     }
                 , upDirection = { x = 0, y = 1, z = 0 }
                 }
-        , backgroundColor = white
+        , backgroundColor = rgba 0 0 0 0
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }

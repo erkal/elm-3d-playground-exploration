@@ -11,7 +11,7 @@ import Dict.Any as AnyDict exposing (AnyDict)
 import Element exposing (Element, html)
 import Geometry exposing (Point)
 import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
-import Html.Attributes exposing (style, value)
+import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
@@ -362,32 +362,22 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    html <|
-        div
-            [ style "position" "absolute"
-            , style "height" "100%"
-            , style "width" "260px"
-            , style "right" "0px"
-            , style "margin" "40px"
-            , style "font-size" "12px"
-            , style "overflow" "scroll"
-            ]
-            [ h2 [] [ text "Editing the selected level" ]
-            , div [] [ text "Press mouse to add trixel" ]
-            , div [] [ text "Hold shift and press mouse to remove trixel" ]
-            , hr [] []
-            , h2 [] [ text "Color Palette" ]
-            , div [] [ selectColorPalette model ]
-            , div [] [ buttonForSettingBackgroundColor ]
-            , div [] [ text (String.fromInt model.selectedColorIndex) ]
-            , div [] [ viewColorPalette model ]
-            , hr [] []
-            , levelSelection model
-            , hr [] []
-            , h2 [] [ text "What More?" ]
-            ]
+    div
+        [ class "absolute overscroll-behavior-y p-4 text-xs bg-black20"
+        , style "height" (String.fromFloat (computer.screen.height - 128) ++ "px")
+        ]
+        [ div [ class "text-lg pt-4" ] [ text "Editing the selected level" ]
+        , p [ class "pl-2" ] [ text "- Press mouse to add trixel" ]
+        , p [ class "pl-2" ] [ text "- Hold shift and press mouse to remove trixel" ]
+        , div [ class "text-lg pt-4" ] [ text "Color Palette" ]
+        , div [] [ selectColorPalette model ]
+        , div [] [ buttonForSettingBackgroundColor ]
+        , div [] [ text (String.fromInt model.selectedColorIndex) ]
+        , div [] [ viewColorPalette model ]
+        , levelSelection model
+        ]
 
 
 buttonForSettingBackgroundColor : Html EditorMsg
