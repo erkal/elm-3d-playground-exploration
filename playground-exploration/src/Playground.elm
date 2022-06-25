@@ -260,8 +260,7 @@ view viewGameModel viewLevelEditor model =
     in
     div
         [ class "bg-black40"
-
-        --, class "pointer-events-none select-none touch-none"
+        , class "select-none"
         , class "antialiased"
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")

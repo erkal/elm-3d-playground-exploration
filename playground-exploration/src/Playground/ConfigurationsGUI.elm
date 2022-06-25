@@ -11,7 +11,7 @@ import Playground.Configurations exposing (..)
 
 view : Configurations -> Html Msg
 view configurations =
-    div []
+    div [ class "text-xs" ]
         (List.map viewBlock configurations)
 
 
