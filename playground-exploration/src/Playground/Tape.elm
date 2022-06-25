@@ -234,8 +234,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 view : Tape gameModel -> Html Msg
 view tape =
     div []
-        [ Html.text "HELLO! I AM TAPE"
-        , viewSlider tape
+        [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
         , viewClock tape
@@ -294,8 +293,10 @@ recButton msg color =
 
 tapeButtonWithIcon : String -> msg -> Html msg
 tapeButtonWithIcon iconD msg =
-    button [ onClick msg ]
-        [ Icons.draw iconD ]
+    button
+        [ onClick msg
+        ]
+        [ div [] [ Icons.draw iconD ] ]
 
 
 fpsMeter : Tape gameModel -> Maybe Int

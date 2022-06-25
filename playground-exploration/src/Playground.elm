@@ -336,8 +336,10 @@ viewGUI model =
                 , twitterLink
                 , githubLink
                 ]
-            , div [ class "absolute left-10 h-full w-[240px] p-4 bg-black20" ]
+            , div [ class "absolute left-10 h-full w-[220px] bg-black20" ]
+                [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
+                ]
+            , div [ class "absolute left-[300px] w-[400px] bg-black20" ]
                 [ Html.map FromTape (Tape.view model.tape)
-                , Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             ]
