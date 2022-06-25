@@ -267,7 +267,7 @@ view viewGameModel viewLevelEditor model =
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
         [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
-        , viewGUI model
+        , div [ id "gui" ] [ viewGUI model ]
 
         --, Html.map FromLevelEditor (viewLevelEditor computer gameModel)
         , debugView computer
@@ -285,6 +285,8 @@ debugView computer =
         , p [] [ Html.text ("keyboard.right: " ++ Debug.toString computer.keyboard.right) ]
         , p [] [ Html.text ("keyboard.pressedKeys: " ++ Debug.toString computer.keyboard.pressedKeys) ]
         , p [] [ Html.text ("keyboard.shift: " ++ Debug.toString computer.keyboard.shift) ]
+        , p [] [ Html.text ("pointer.isDown: " ++ Debug.toString computer.pointer.isDown) ]
+        , p [] [ Html.text ("wheel: " ++ Debug.toString computer.wheel) ]
         ]
 
 
