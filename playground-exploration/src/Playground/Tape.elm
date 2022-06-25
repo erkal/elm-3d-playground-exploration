@@ -287,7 +287,10 @@ viewTapeButtons (Tape state { pastReversed, current, future }) =
 
 recButton : Msg -> Color -> Html Msg
 recButton msg color =
-    button [ onClick msg ]
+    button
+        [ class "text-white"
+        , onClick msg
+        ]
         [ text "REC" ]
 
 

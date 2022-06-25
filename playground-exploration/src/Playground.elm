@@ -335,7 +335,7 @@ viewGUI model =
                 , twitterLink
                 , githubLink
                 ]
-            , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] p-2 bg-black20" ]
+            , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] bg-black20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , div [ class "absolute left-[300px] w-[400px] bg-black20" ]

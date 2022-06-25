@@ -11,15 +11,15 @@ import Playground.Configurations exposing (..)
 
 view : Configurations -> Html Msg
 view configurations =
-    div [ class "text-xs" ]
+    div [ class "text-xs text-white60 font-mono" ]
         (List.map viewBlock configurations)
 
 
 viewBlock : Block -> Html Msg
 viewBlock block =
-    div []
-        [ div [] [ Html.text block.name ]
-        , div [] (block.configs |> Dict.map viewConfig |> Dict.values)
+    div [ class "p-4 border-b border-white60" ]
+        [ div [ class "text-lg pb-2" ] [ Html.text block.name ]
+        , div [ class "pl-2" ] (block.configs |> Dict.map viewConfig |> Dict.values)
         ]
 
 
@@ -89,12 +89,13 @@ sliderInput { labelText, value, min, max, step, onChange } =
         [ label
             [ for labelText ]
             [ div [ class "relative w-full" ]
-                [ div [ class "" ] [ text labelText ]
-                , div [ class "absolute" ] [ text (String.fromFloat value) ]
+                [ div [ class "inline-block" ] [ text labelText ]
+                , div [ class "inline-block float-right" ] [ text (String.fromFloat value) ]
                 ]
             ]
         , input
             [ type_ "range"
+            , style "width" "100%"
             , id labelText
             , name labelText
             , HA.min (String.fromFloat min)
