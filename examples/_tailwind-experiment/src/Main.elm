@@ -4,7 +4,7 @@ import Camera exposing (Camera, perspective)
 import Color exposing (hsl, lightBlue, rgba, white, yellow)
 import Html exposing (Html, div)
 import Html.Attributes exposing (class)
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
+import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
 import Playground.Animation exposing (wave)
 import Scene as Scene exposing (..)
 import Scene3d.Material exposing (matte)
@@ -65,7 +65,8 @@ view computer model =
 initialConfigurations =
     [ configBlock "Camera"
         True
-        [ floatConfig "camera x" ( 0, 16 ) 8
+        [ boolConfig "my checkbox" True
+        , floatConfig "camera x" ( 0, 16 ) 8
         , floatConfig "camera y" ( 0, 10 ) 0
         , floatConfig "camera z" ( 0, 16 ) 6
         ]
