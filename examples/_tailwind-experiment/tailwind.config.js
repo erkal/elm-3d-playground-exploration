@@ -3,8 +3,7 @@ module.exports = {
     "./index.html",
     "./main.js",
     "./src/*.elm",
-    "../../playground-exploration/src/Playground/*.elm",
-    "../../playground-exploration/src/*.elm",
+    "../../playground-exploration/**/*.elm",
   ],
   theme: {
     fontFamily: {

@@ -14,6 +14,8 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
     # DO THINGS HERE:
     # START
     
+    # remove the directories node_modules and elm-stuff
+
     
     # END
     
