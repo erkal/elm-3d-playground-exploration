@@ -17,6 +17,7 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
     # remove the directories node_modules and elm-stuff
 #    rm -rf node_modules/
 #    rm -rf elm-stuff/
+    rm -rf yarn.lock
 
     # copy elm-tooling.json, index.html, main.js, package.json, postcss.config.js, style.css, tailwind.config.js, vite.config.js
 #    cp -fr ../a_template/elm-tooling.json ./
