@@ -5,6 +5,7 @@ module.exports = {
     "./style.css",
     "./src/**/*.elm",
     "../../playground-exploration/**/*.elm",
+    "../../playground-exploration/**/*.js",
   ],
   theme: {
     fontFamily: {
