@@ -3,21 +3,16 @@ module Main exposing (main)
 import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
-import Element exposing (Element, alignBottom, alignRight, alignTop, column, el, fill, height, htmlAttribute, layout, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
-import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
-import Html exposing (Html)
-import Html.Attributes exposing (style)
+import Html exposing (Html, div, p, pre, span, textarea)
+import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
+import Html.Events
 import Illuminance
 import Json.Decode
-import LevelSelector exposing (Levels)
+import LevelSelector as LS exposing (Levels)
 import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
-import Playground.Colors as Colors
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -76,7 +71,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LevelSelector.singleton World.init
+    { levels = LS.singleton World.init
     , editor = Editor.init
     , camera = camera computer { x = 0, y = 0, z = 0 }
     , mouseOverXY = Point2d 0 0
@@ -154,7 +149,7 @@ moveCamera : Computer -> Model -> Model
 moveCamera computer model =
     let
         ball =
-            (LevelSelector.current model.levels).ball
+            (LS.current model.levels).ball
     in
     { model
         | camera =
@@ -166,9 +161,9 @@ tickWorld : Computer -> Model -> Model
 tickWorld computer model =
     let
         newWorld =
-            LevelSelector.current model.levels |> World.Physics.Tick.tick computer
+            LS.current model.levels |> World.Physics.Tick.tick computer
     in
-    { model | levels = model.levels |> LevelSelector.mapCurrent (always newWorld) }
+    { model | levels = model.levels |> LS.mapCurrent (always newWorld) }
 
 
 
@@ -371,14 +366,14 @@ drawPolygons computer model =
                 ]
     in
     group
-        ((LevelSelector.current model.levels).polygons |> List.map drawPolygon)
+        ((LS.current model.levels).polygons |> List.map drawPolygon)
 
 
 drawBall : Computer -> Model -> Shape
 drawBall computer model =
     let
         ball =
-            (LevelSelector.current model.levels).ball
+            (LS.current model.levels).ball
 
         playerBall =
             group
@@ -429,7 +424,7 @@ drawBallTrail computer model =
     if getBool "draw ball trail" computer then
         let
             ball =
-                (LevelSelector.current model.levels).ball
+                (LS.current model.levels).ball
         in
         group
             (ball.trail
@@ -473,14 +468,14 @@ updateFromEditor computer editorMsg model =
         ClickedButtonFinishDrawingPolygon points ->
             { model
                 | editor = model.editor |> Editor.finishDrawingPolygon
-                , levels = model.levels |> LevelSelector.mapCurrent (World.addPolygon points)
+                , levels = model.levels |> LS.mapCurrent (World.addPolygon points)
             }
 
         PressedPreviousLevelButton ->
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.goToPrevious
+                        |> LS.goToPrevious
                         |> Maybe.withDefault model.levels
             }
 
@@ -488,18 +483,18 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.goToNext
+                        |> LS.goToNext
                         |> Maybe.withDefault model.levels
             }
 
         PressedAddLevelButton ->
-            { model | levels = model.levels |> LevelSelector.add World.init }
+            { model | levels = model.levels |> LS.add World.init }
 
         PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LevelSelector.removeCurrent }
+            { model | levels = model.levels |> LS.removeCurrent }
 
         PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LevelSelector.moveLevelOneUp }
+            { model | levels = model.levels |> LS.moveLevelOneUp }
 
         ClickedExportLevelsButton ->
             { model | editor = model.editor |> Editor.exportLevels model.levels }
@@ -508,7 +503,7 @@ updateFromEditor computer editorMsg model =
             { model
                 | levels =
                     model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decoder)
+                        |> Json.Decode.decodeString (LS.decoder World.Decode.decoder)
                         |> Result.withDefault model.levels
             }
 
@@ -520,198 +515,133 @@ updateFromEditor computer editorMsg model =
 
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    layout []
-        (column
-            [ width fill
-            , height fill
-            ]
-            [ column
-                [ alignTop
-                , alignRight
-                , width fill
-                , height fill
-                , padding 20
-                , spacing 20
-                , Font.color Colors.lightText
-                , Font.size 13
-                ]
-                (editorOnOffButton computer model
-                    :: editorContent computer model
-                )
-            ]
-        )
-
-
-header : String -> Element EditorMsg
-header str =
-    el
-        [ width fill
-        , paddingXY 0 10
-        , Font.heavy
-        , Font.size 20
+    div
+        [ class "w-[300px] overflow-y-scroll text-xs bg-black20"
+        , style "height" (String.fromFloat (computer.screen.height - 140) ++ "px")
         ]
-        (text str)
+        [ div [ class "m-4" ]
+            [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
+        , editorContent computer model
+        ]
 
 
-editorContent : Computer -> Model -> List (Element EditorMsg)
+editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editor.isOn then
-        [ viewPolygonEditor computer model
-        , viewLevelSelector computer model
-        , viewImportExportLevels computer model
-        , viewDebugger computer model
-        ]
+        div
+            []
+            [ div [ class "p-4" ]
+                [ viewPolygonEditor computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelSelection model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelExporting computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelImporting computer model ]
+            ]
 
     else
-        []
+        div [] []
 
 
-editorOnOffButton : Computer -> Model -> Element EditorMsg
-editorOnOffButton computer model =
-    checkbox []
-        { onChange = ClickedEditorOnOffButton
-        , icon = Input.defaultCheckbox
-        , checked = model.editor.isOn
-        , label = Input.labelLeft [] (text "Editor")
-        }
-
-
-viewDebugger : Computer -> Model -> Element EditorMsg
-viewDebugger computer model =
-    textColumn [ alignBottom ]
-        [ header "Debugger"
-
-        --, paragraph [] [ text <| "Editor state: " ++ Debug.toString model.editorState ]
-        --, paragraph [] [ text <| "Game state: " ++ Debug.toString model.gameState ]
+makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
+makeCheckBox msg isChecked string_ =
+    div []
+        [ Html.input
+            [ class "align-bottom"
+            , type_ "checkbox"
+            , id string_
+            , name string_
+            , Html.Events.onCheck msg
+            , checked isChecked
+            ]
+            []
+        , Html.label [ class "pl-2 font-bold", for string_ ] [ Html.text string_ ]
         ]
 
 
-viewPolygonEditor : Computer -> Model -> Element EditorMsg
+makeButton : msg -> String -> Html msg
+makeButton msg string =
+    Html.button
+        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        , Html.Events.onClick msg
+        ]
+        [ Html.text string ]
+
+
+levelSelection : Model -> Html EditorMsg
+levelSelection model =
+    div []
+        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
+        , p []
+            [ makeButton PressedPreviousLevelButton "<"
+            , span [ style "margin" "10px" ]
+                [ Html.text <|
+                    String.concat
+                        [ String.fromInt (LS.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LS.size model.levels)
+                        ]
+                ]
+            , makeButton PressedNextLevelButton ">"
+            ]
+        , makeButton PressedAddLevelButton "Add level"
+        , makeButton PressedRemoveLevelButton "Remove current level"
+        , makeButton PressedMoveLevelOneUpButton "Move level one up"
+        ]
+
+
+viewPolygonEditor : Computer -> Model -> Html EditorMsg
 viewPolygonEditor computer model =
-    column []
-        [ header "Polygon editor"
-        , case model.editor.state of
-            DrawingPolygon points ->
-                column [ spacing 10 ]
-                    [ paragraph
-                        [ width fill
-                        , padding 16
-                        , Font.color Colors.red
-                        , Font.size 16
-                        , Background.color Colors.black
+    div []
+        [ div [ class "h-40" ]
+            [ div [ class "text-lg" ] [ Html.text "Polygon editor" ]
+            , case model.editor.state of
+                DrawingPolygon points ->
+                    div [ class "p-2" ]
+                        [ div [] [ Html.text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. " ]
+                        , div [] [ Html.text "After you are finished drawing, click the button below." ]
+                        , makeButton (ClickedButtonFinishDrawingPolygon points) "Finish drawing polygon"
                         ]
-                        [ text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. "
-                        , text "After you are finished drawing, click the button below."
-                        ]
-                    , makeButton "Finish drawing polygon" (ClickedButtonFinishDrawingPolygon points)
-                    ]
 
-            _ ->
-                makeButton "Start drawing a polygon" ClickedButtonStartDrawingPolygon
-        ]
-
-
-viewLevelSelector : Computer -> Model -> Element EditorMsg
-viewLevelSelector computer model =
-    column []
-        [ header "Level Selector"
-        , row [ spacing 10 ]
-            [ levelSelectionButtons computer model
-            , makeButton "Add level" PressedAddLevelButton
-            , makeButton "Remove level" PressedRemoveLevelButton
-            , makeButton "Move level up" PressedMoveLevelOneUpButton
+                _ ->
+                    makeButton ClickedButtonStartDrawingPolygon "Start drawing a polygon"
             ]
         ]
 
 
-levelSelectionButtons : Computer -> Model -> Element EditorMsg
-levelSelectionButtons computer model =
-    row [ spacing 10 ]
-        [ makeButton "<" PressedPreviousLevelButton
-        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
-            text <|
-                String.concat
-                    [ String.fromInt (LevelSelector.currentIndex model.levels)
-                    , " / "
-                    , String.fromInt (LevelSelector.size model.levels)
-                    ]
-        , makeButton ">" PressedNextLevelButton
-        ]
-
-
-makeButton : String -> EditorMsg -> Element EditorMsg
-makeButton buttonText editorMsg =
-    button
-        [ Font.color Colors.black
-        , paddingXY 10 6
-        , Background.color Colors.lightGray
-        , Border.rounded 8
-        ]
-        { onPress = Just editorMsg
-        , label = text buttonText
-        }
-
-
-viewImportExportLevels : Computer -> Model -> Element EditorMsg
-viewImportExportLevels computer model =
-    column [ width fill, spacing 10 ]
-        [ header "Import/Export Levels"
-        , levelExporting computer model
-        , levelImporting computer model
-        ]
-
-
-levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting : Computer -> Model -> Html EditorMsg
 levelExporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Export Levels" ClickedExportLevelsButton
+    div []
+        [ makeButton ClickedExportLevelsButton "Export Levels"
         , textAreaForExportedLevels model
         ]
 
 
-textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels : Model -> Html EditorMsg
 textAreaForExportedLevels model =
-    el
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    pre
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
         ]
-        (text model.editor.jsonExportedLevels)
+        [ Html.text model.editor.jsonExportedLevels ]
 
 
-levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting : Computer -> Model -> Html EditorMsg
 levelImporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Import Levels" ClickedImportLevelsButton
+    div
+        []
+        [ makeButton ClickedImportLevelsButton "Import Levels"
         , textAreaForLevelsToImport model
         ]
 
 
-textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport : Model -> Html EditorMsg
 textAreaForLevelsToImport model =
-    Input.text
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    textarea
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
+        , rows 150
+        , cols 10
+        , Html.Events.onInput EditedTextAreaForImportingLevels
+        , value model.editor.jsonLevelsToImport
         ]
-        { onChange = EditedTextAreaForImportingLevels
-        , text = model.editor.jsonLevelsToImport
-        , placeholder = Nothing
-        , label = Input.labelHidden "Imported Levels"
-        }
+        [ Html.text "todo" ]
