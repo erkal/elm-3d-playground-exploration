@@ -1,19 +1,14 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
-import Color exposing (black, blue, darkGray, darkGreen, gray, green, lightBlue, lightGray, orange, red, rgb255, white, yellow)
-import Dict
+import Color exposing (blue, green, lightBlue, red, rgb255, white, yellow)
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, column, el, fill, height, htmlAttribute, layout, none, padding, paddingXY, paragraph, px, row, scrollbarY, spacing, text, textColumn, width)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
-import Element.Input as Input exposing (button, checkbox)
 import GeometryHelpers exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import HardcodedLevels exposing (hardcodedLevels)
-import Html exposing (Html)
-import Html.Attributes exposing (style)
+import Html exposing (Html, div, input, p, pre, span, textarea)
+import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
+import Html.Events
 import Illuminance
 import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
@@ -22,7 +17,6 @@ import LevelSelector as LS exposing (Levels)
 import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
-import Playground.Colors as Colors
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -310,10 +304,21 @@ insertBaseEdge computer model =
 insertVertex : Computer -> Model -> Model
 insertVertex computer model =
     if computer.pointer.isDown && computer.keyboard.alt then
-        case ( model.editorState, nearestBaseVertex computer model ) of
-            ( EditorIdle, Just vertexId ) ->
+        case model.editorState of
+            EditorIdle ->
+                let
+                    positionOfNearestVertex : Point
+                    positionOfNearestVertex =
+                        case nearestBaseVertex computer model of
+                            Nothing ->
+                                Point 0 0 0
+
+                            Just vertexId ->
+                                Graph.getPosition vertexId (LS.current model.levels).baseGraph
+                                    |> Debug.log "yeey"
+                in
                 if
-                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
+                    distanceXY positionOfNearestVertex model.pointerXY
                         > getFloat "pointer reach" computer
                 then
                     model
@@ -867,172 +872,126 @@ updateFromEditor computer editorMsg model =
 
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    layout [ width fill ]
-        (column
-            [ alignTop
-            , alignRight
-            , width fill
-            , height (px 500)
-            , padding 20
-            , spacing 20
-            , Font.color Colors.lightText
-            , Font.size 13
-            , scrollbarY
-            ]
-            [ editorOnOffButton computer model
-            , editorContent computer model
-            ]
-        )
+    div
+        [ class "w-[300px] overflow-y-scroll text-xs bg-black20"
+        , style "height" (String.fromFloat (computer.screen.height - 140) ++ "px")
+        ]
+        [ div [ class "m-4" ]
+            [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
+        , editorContent computer model
+        ]
 
 
-editorContent : Computer -> Model -> Element EditorMsg
+levelSelection : Model -> Html EditorMsg
+levelSelection model =
+    div []
+        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
+        , p []
+            [ makeButton PressedPreviousLevelButton "<"
+            , span [ style "margin" "10px" ]
+                [ Html.text <|
+                    String.concat
+                        [ String.fromInt (LS.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LS.size model.levels)
+                        ]
+                ]
+            , makeButton PressedNextLevelButton ">"
+            ]
+        , makeButton PressedAddLevelButton "Add level"
+        , makeButton PressedRemoveLevelButton "Remove current level"
+        , makeButton PressedMoveLevelOneUpButton "Move level one up"
+        ]
+
+
+makeButton : msg -> String -> Html msg
+makeButton msg string =
+    Html.button
+        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        , Html.Events.onClick msg
+        ]
+        [ Html.text string ]
+
+
+editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editor.isOn then
-        column
-            [ width fill
-            , height fill
-            , spacing 20
-            ]
-            [ explanationsForEditor computer model
-            , row
-                [ alignBottom
-                , centerX
-                , Font.size 30
-                , Font.bold
-                , padding 20
-                ]
-                [ levelSelectionButtons computer model ]
-            , viewLevelsEditor computer model
+        div
+            []
+            [ div [ class "p-4" ]
+                [ explanationsForEditor computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelSelection model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ makeButton PressedResetPlayerGraphButton "Reset player graph" ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelExporting computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelImporting computer model ]
             ]
 
     else
-        none
+        div [] []
 
 
-header : String -> Element EditorMsg
-header str =
-    el [ width fill, paddingXY 0 10, Font.heavy, Font.size 16 ]
-        (text str)
+makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
+makeCheckBox msg isChecked string_ =
+    div []
+        [ Html.input
+            [ class "align-bottom"
+            , type_ "checkbox"
+            , id string_
+            , name string_
+            , Html.Events.onCheck msg
+            , checked isChecked
+            ]
+            []
+        , Html.label [ class "pl-2 font-bold", for string_ ] [ Html.text string_ ]
+        ]
 
 
-editorOnOffButton : Computer -> Model -> Element EditorMsg
-editorOnOffButton computer model =
-    checkbox []
-        { onChange = ClickedEditorOnOffButton
-        , icon = Input.defaultCheckbox
-        , checked = model.editor.isOn
-        , label = Input.labelLeft [] (text "Editor")
-        }
-
-
-explanationsForEditor : Computer -> Model -> Element EditorMsg
+explanationsForEditor : Computer -> Model -> Html EditorMsg
 explanationsForEditor computer model =
-    textColumn [ width fill ]
-        [ header "Editing the selected level"
-        , paragraph [] [ text "- Hold shift + alt & Press mouse to add vertex" ]
-        , paragraph [] [ text "- To move vertices drag them with mouse" ]
-        , paragraph [] [ text "- Hold shift and drag with mouse to draw an edge" ]
+    div []
+        [ div [ class "py-4 text-lg" ] [ Html.text "Editing level" ]
+        , div [ class "text-xs" ] [ Html.text "- Hold shift + alt & Press mouse to add vertex" ]
+        , div [ class "text-xs" ] [ Html.text "- To move vertices drag them with mouse" ]
+        , div [ class "text-xs" ] [ Html.text "- Hold shift and drag with mouse to draw an edge" ]
         ]
 
 
-viewLevelsEditor : Computer -> Model -> Element EditorMsg
-viewLevelsEditor computer model =
-    column [ spacing 10 ]
-        [ levelManipulationButtons computer model
-        , makeButton "Reset player graph" PressedResetPlayerGraphButton
-        , levelExporting computer model
-        , levelImporting computer model
-        ]
-
-
-levelManipulationButtons : Computer -> Model -> Element EditorMsg
-levelManipulationButtons computer model =
-    column [ spacing 10 ]
-        [ makeButton "Add level" PressedAddLevelButton
-        , makeButton "Remove current level" PressedRemoveLevelButton
-        , makeButton "Move level one up" PressedMoveLevelOneUpButton
-        ]
-
-
-levelSelectionButtons : Computer -> Model -> Element EditorMsg
-levelSelectionButtons computer model =
-    row [ spacing 10 ]
-        [ makeButton "<" PressedPreviousLevelButton
-        , el [ Font.size 22, Font.heavy, Font.color Colors.white ] <|
-            text <|
-                String.concat
-                    [ String.fromInt (LS.currentIndex model.levels)
-                    , " / "
-                    , String.fromInt (LS.size model.levels)
-                    ]
-        , makeButton ">" PressedNextLevelButton
-        ]
-
-
-makeButton : String -> EditorMsg -> Element EditorMsg
-makeButton buttonText editorMsg =
-    button
-        [ Font.color Colors.black
-        , paddingXY 10 6
-        , Background.color Colors.lightGray
-        , Border.rounded 8
-        ]
-        { onPress = Just editorMsg
-        , label = text buttonText
-        }
-
-
-levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting : Computer -> Model -> Html EditorMsg
 levelExporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Export Levels" ClickedExportLevelsButton
+    div []
+        [ makeButton ClickedExportLevelsButton "Export Levels"
         , textAreaForExportedLevels model
         ]
 
 
-textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels : Model -> Html EditorMsg
 textAreaForExportedLevels model =
-    el
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    pre
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
         ]
-        (text model.editor.jsonExportedLevels)
+        [ Html.text model.editor.jsonExportedLevels ]
 
 
-levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting : Computer -> Model -> Html EditorMsg
 levelImporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Import Levels" ClickedImportLevelsButton
+    div
+        []
+        [ makeButton ClickedImportLevelsButton "Import Levels"
         , textAreaForLevelsToImport model
         ]
 
 
-textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport : Model -> Html EditorMsg
 textAreaForLevelsToImport model =
-    Input.text
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    textarea
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
+        , rows 150
+        , cols 10
+        , Html.Events.onInput EditedTextAreaForImportingLevels
+        , value model.editor.jsonLevelsToImport
         ]
-        { onChange = EditedTextAreaForImportingLevels
-        , text = model.editor.jsonLevelsToImport
-        , placeholder = Nothing
-        , label = Input.labelHidden "Imported Levels"
-        }
+        [ Html.text "todo" ]
