@@ -6,7 +6,7 @@ import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, layout, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
+import Element exposing (Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, layout, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events
@@ -24,12 +24,10 @@ import LuminousFlux
 import Path exposing (Path)
 import Playground exposing (..)
 import Playground.Animation exposing (wave)
-import Playground.Colors as Colors
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
-import Set
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
@@ -976,7 +974,6 @@ viewEditor computer model =
                     , height fill
                     , padding 20
                     , spacing 20
-                    , Font.color Colors.darkText
                     , Font.size 13
                     , scrollbarY
                     ]
@@ -1030,10 +1027,8 @@ viewLevelSelector computer model =
                 , height (px 24)
                 , Font.size 16
                 , Element.Events.onClick (PressedLevelBox (i + 1))
-                , Background.color Colors.darkGray
                 , pointer
                 , Border.rounded 6
-                , Border.color Colors.black
                 , Border.width
                     (if LevelSelector.currentIndex model.levels == i + 1 then
                         4
@@ -1073,8 +1068,6 @@ viewSolutions computer model =
                             el
                                 [ Element.Events.onMouseEnter (MouseEnterSolution p)
                                 , Element.Events.onMouseLeave MouseLeftSolution
-                                , Background.color Colors.gray
-                                , mouseOver [ Background.color Colors.black, Font.color Colors.lightText ]
                                 , Element.pointer
                                 , padding 10
                                 ]
@@ -1105,9 +1098,7 @@ levelSelectionButtons computer model =
 makeButton : String -> EditorMsg -> Element EditorMsg
 makeButton buttonText editorMsg =
     button
-        [ Font.color Colors.white
-        , paddingXY 10 6
-        , Background.color Colors.blue
+        [ paddingXY 10 6
         , Border.rounded 8
         ]
         { onPress = Just editorMsg
@@ -1141,8 +1132,6 @@ textAreaForExportedLevels model =
         [ width fill
         , height (px 100)
         , padding 10
-        , Background.color Colors.black
-        , Font.color Colors.lightText
         , Font.family [ Font.monospace ]
         , scrollbarY
         , htmlAttribute (style "user-select" "text")
@@ -1168,8 +1157,6 @@ textAreaForLevelsToImport model =
         [ width fill
         , height (px 100)
         , padding 10
-        , Background.color Colors.black
-        , Font.color Colors.lightText
         , Font.family [ Font.monospace ]
         , scrollbarY
         , htmlAttribute (style "user-select" "text")
