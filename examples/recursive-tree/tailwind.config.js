@@ -1,5 +1,11 @@
 module.exports = {
-  content: ["./**/*.*", "../../playground-exploration/**/*.*"],
+  content: [
+    "./index.html",
+    "./main.js",
+    "./**/*.elm",
+    "../../playground-exploration/**/*.elm",
+    "../../playground-exploration/**/*.js",
+  ],
   theme: {
     fontFamily: {
       sans: [
