@@ -2,9 +2,9 @@ module.exports = {
   content: [
     "./index.html",
     "./main.js",
-    "./**/*.elm",
+    "./style.css",
+    "./src/**/*.elm",
     "../../playground-exploration/**/*.elm",
-    "../../playground-exploration/**/*.js",
   ],
   theme: {
     fontFamily: {
