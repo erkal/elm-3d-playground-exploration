@@ -519,8 +519,7 @@ viewEditor computer model =
         [ class "w-[300px] overflow-y-scroll text-xs bg-black20"
         , style "height" (String.fromFloat (computer.screen.height - 140) ++ "px")
         ]
-        [ div [ class "m-4" ]
-            [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
+        [ div [ class "m-4" ] [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
         , editorContent computer model
         ]
 
@@ -542,6 +541,25 @@ editorContent computer model =
 
     else
         div [] []
+
+
+viewPolygonEditor : Computer -> Model -> Html EditorMsg
+viewPolygonEditor computer model =
+    div []
+        [ div [ class "h-40" ]
+            [ div [ class "text-lg" ] [ Html.text "Polygon editor" ]
+            , case model.editor.state of
+                DrawingPolygon points ->
+                    div [ class "p-2" ]
+                        [ div [] [ Html.text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. " ]
+                        , div [] [ Html.text "After you are finished drawing, click the button below." ]
+                        , makeButton (ClickedButtonFinishDrawingPolygon points) "Finish drawing polygon"
+                        ]
+
+                _ ->
+                    makeButton ClickedButtonStartDrawingPolygon "Start drawing a polygon"
+            ]
+        ]
 
 
 makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
@@ -588,25 +606,6 @@ levelSelection model =
         , makeButton PressedAddLevelButton "Add level"
         , makeButton PressedRemoveLevelButton "Remove current level"
         , makeButton PressedMoveLevelOneUpButton "Move level one up"
-        ]
-
-
-viewPolygonEditor : Computer -> Model -> Html EditorMsg
-viewPolygonEditor computer model =
-    div []
-        [ div [ class "h-40" ]
-            [ div [ class "text-lg" ] [ Html.text "Polygon editor" ]
-            , case model.editor.state of
-                DrawingPolygon points ->
-                    div [ class "p-2" ]
-                        [ div [] [ Html.text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. " ]
-                        , div [] [ Html.text "After you are finished drawing, click the button below." ]
-                        , makeButton (ClickedButtonFinishDrawingPolygon points) "Finish drawing polygon"
-                        ]
-
-                _ ->
-                    makeButton ClickedButtonStartDrawingPolygon "Start drawing a polygon"
-            ]
         ]
 
 
