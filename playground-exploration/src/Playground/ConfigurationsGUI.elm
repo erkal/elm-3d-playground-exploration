@@ -17,7 +17,7 @@ view configurations =
 
 viewBlock : Block -> Html Msg
 viewBlock block =
-    div [ class "p-6 border-y-[0.5px] border-white20" ]
+    div [ class "p-4 border-y-[0.5px] border-white20" ]
         [ div [ class "text-lg pb-2" ] [ Html.text block.name ]
         , div [ class "pl-2 pr-2" ] (block.configs |> Dict.map viewConfig |> Dict.values)
         ]

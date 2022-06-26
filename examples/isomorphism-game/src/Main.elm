@@ -873,8 +873,11 @@ updateFromEditor computer editorMsg model =
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        [ class "w-[300px] overflow-y-scroll text-xs bg-black20"
-        , style "height" (String.fromFloat (computer.screen.height - 140) ++ "px")
+        [ class "fixed w-[300px] h-full top-0 right-0"
+        , class "bg-black20"
+        , class "border-[0.5px] border-white20"
+        , class "overflow-y-scroll"
+        , class "text-xs text-white60"
         ]
         [ div [ class "m-4" ]
             [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]

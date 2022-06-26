@@ -270,11 +270,7 @@ view viewGameModel viewLevelEditor model =
         [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
         , div [ id "gui" ]
             [ viewGUI computer model
-            , div
-                [ class "fixed w-[300px] top-0 right-0 border-[0.5px] border-white20 text-xs text-white60"
-                ]
-                [ Html.map FromLevelEditor (viewLevelEditor computer gameModel)
-                ]
+            , Html.map FromLevelEditor (viewLevelEditor computer gameModel)
             ]
         ]
 
@@ -372,14 +368,15 @@ viewGUI computer model =
 
     else
         div []
-            [ div [ class "absolute h-full w-10 p-1 border-r-[0.5px] border-white20 bg-black80" ]
+            [ div [ class "absolute h-full w-[40px] p-1 border-r-[0.5px] border-white20 bg-black80" ]
                 [ yingYangButton
                 , twitterLink
                 , githubLink
                 ]
-            , div [ class "absolute overflow-y-auto left-10 h-full w-[220px] bg-black20 border-x-[0.5px] border-white20" ]
+            , div [ class "absolute overflow-y-auto left-10 h-full w-[260px] bg-black20 border-x-[0.5px] border-white20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , Html.map FromTape (Tape.view model.tape)
-            , viewComputer computer model
+
+            --, viewComputer computer model
             ]
