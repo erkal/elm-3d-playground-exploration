@@ -30,7 +30,6 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
 #
 #    npm install
 #    npm run build
-    elm-json uninstall mdgriffith/elm-ui
 
     #################################################################
 
