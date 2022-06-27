@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspective)
 import Carousel exposing (Carousel)
-import Color exposing (blue, gray, green, red, rgb255)
+import Color exposing (Color, black, blue, charcoal, darkBlue, darkGray, gray, green, lightBlue, lightBrown, lightGray, orange, purple, red, rgb255)
 import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
@@ -15,7 +15,7 @@ main =
 
 
 type alias Model =
-    Carousel Int
+    Carousel Color
 
 
 
@@ -24,7 +24,7 @@ type alias Model =
 
 init : Computer -> Model
 init computer =
-    Carousel.init 1 [ 2, 3, 4, 5, 6, 7 ]
+    Carousel.init lightBrown [ purple, charcoal, darkBlue, lightBlue, gray, orange ]
 
 
 
@@ -84,7 +84,7 @@ axes =
         ]
 
 
-drawCarousel : Computer -> Carousel Int -> Shape
+drawCarousel : Computer -> Carousel Color -> Shape
 drawCarousel computer carousel =
     let
         selectedCardWithDataForEfficientDrawing =
@@ -111,9 +111,9 @@ drawCarousel computer carousel =
         )
 
 
-drawCard : Computer -> Int -> Shape
-drawCard computer card =
-    block (matte blue) ( 0.2, 0.3, 0.3 )
+drawCard : Computer -> Color -> Shape
+drawCard computer color =
+    block (matte color) ( 0.2, 0.3, 0.3 )
 
 
 
