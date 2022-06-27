@@ -301,27 +301,28 @@ viewComputer computer model =
     in
     div []
         [ viewPointer
-        , pre
-            [ class "fixed p-2 w-[300px] h-[130px] bottom-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
-            ]
-            [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
-            , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
-            , p []
-                [ Html.text
-                    ("pointer is down: "
-                        ++ (if computer.pointer.isDown then
-                                "yes"
 
-                            else
-                                "no"
-                           )
-                    )
-                ]
-            , p [] [ Html.text ("pointer.x: " ++ Round.round 2 computer.pointer.x) ]
-            , p [] [ Html.text ("pointer.y: " ++ Round.round 2 computer.pointer.y) ]
-            , p [] [ Html.text ("wheel deltaX: " ++ String.fromFloat computer.wheel.deltaX) ]
-            , p [] [ Html.text ("wheel deltaY: " ++ String.fromFloat computer.wheel.deltaY) ]
-            ]
+        --, pre
+        --    [ class "fixed p-2 w-[300px] h-[130px] bottom-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
+        --    ]
+        --    [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
+        --    , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
+        --    , p []
+        --        [ Html.text
+        --            ("pointer is down: "
+        --                ++ (if computer.pointer.isDown then
+        --                        "yes"
+        --
+        --                    else
+        --                        "no"
+        --                   )
+        --            )
+        --        ]
+        --    , p [] [ Html.text ("pointer.x: " ++ Round.round 2 computer.pointer.x) ]
+        --    , p [] [ Html.text ("pointer.y: " ++ Round.round 2 computer.pointer.y) ]
+        --    , p [] [ Html.text ("wheel deltaX: " ++ String.fromFloat computer.wheel.deltaX) ]
+        --    , p [] [ Html.text ("wheel deltaY: " ++ String.fromFloat computer.wheel.deltaY) ]
+        --    ]
         ]
 
 
@@ -369,14 +370,10 @@ viewGUI computer model =
     else
         div []
             [ div [ class "absolute h-full w-[40px] p-1 border-r-[0.5px] border-white20 bg-black80" ]
-                [ yingYangButton
-                , twitterLink
-                , githubLink
-                ]
+                [ yingYangButton, twitterLink, githubLink ]
             , div [ class "absolute overflow-y-auto left-10 h-full w-[260px] bg-black20 border-x-[0.5px] border-white20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
-            , Html.map FromTape (Tape.view model.tape)
-
-            --, viewComputer computer model
+            , div [ class "absolute bottom-0 left-[300px] w-[600px] h-16" ] [ Html.map FromTape (Tape.view model.tape) ]
+            , viewComputer computer model
             ]

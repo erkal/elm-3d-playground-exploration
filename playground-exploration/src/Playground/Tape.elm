@@ -244,7 +244,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div [ class "absolute pl-4 py-4 bottom-0 right-[300px] w-[600px] h-16 border-[0.5px] border-white20 bg-black20" ]
+    div [ class "pl-4 py-4 border-[0.5px] border-white20 bg-black20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
