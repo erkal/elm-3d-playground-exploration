@@ -12,7 +12,6 @@ module Carousel exposing
     )
 
 import Array exposing (Array)
-import Html exposing (Html)
 import Playground exposing (Computer)
 
 
@@ -244,7 +243,7 @@ moveRail : Float -> Float -> Float -> Carousel card -> Carousel card
 moveRail deltaTime targetX railVx (Carousel carousel) =
     if abs (targetX - carousel.railX) < 0.5 * constants.distanceBetweenCardCenters then
         -- lerp to targetX if it is too near
-        Carousel { carousel | railX = carousel.railX + (0.4 * (targetX - carousel.railX)) }
+        Carousel { carousel | railX = carousel.railX + (0.1 * (targetX - carousel.railX)) }
 
     else
         -- move with railVx otherwise
