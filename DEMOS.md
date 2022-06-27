@@ -1,5 +1,6 @@
 # Demos
 
+- _carousel: [demo](https://erkal.github.io/elm-3d-playground-exploration/_carousel), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/_carousel/src)
 - a_template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template-with-configurations/src)
 - a_template: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template/src)
 - ball-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/ball-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/ball-game/src)
