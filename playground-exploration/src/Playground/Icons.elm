@@ -3,22 +3,20 @@ module Playground.Icons exposing
     , icons
     )
 
-import Element exposing (Color)
-import Playground.Colors as Colors
+import Html.Attributes exposing (style)
 import Svg exposing (Svg, path, svg)
 import Svg.Attributes as SA
 
 
-draw : Int -> Color -> String -> Svg msg
-draw sizeInPx color d =
+draw : String -> Svg msg
+draw d =
     svg
         [ SA.viewBox "0 0 100 100"
-        , SA.width (String.fromInt sizeInPx)
-        , SA.height (String.fromInt sizeInPx)
+        , style "width" "100%"
+        , style "height" "100%"
         ]
         [ path
             [ SA.d d
-            , SA.fill (Colors.toString color)
             ]
             []
         ]
@@ -40,6 +38,7 @@ icons =
     , download = "M79.1666 37.5H62.4999V12.5H37.4999V37.5H20.8333L49.9999 66.6667L79.1666 37.5ZM20.8333 75V83.3333H79.1666V75H20.8333Z"
 
     --
+    , pointer = "M0.308493 76.0121L0.407318 0.129349L65.1231 39.7534L38.4184 37.6527L64.5556 84.3746L38.6298 98.8781L12.4925 52.1562L0.308493 76.0121Z"
     , play = "M33.3334 20.8334V79.1667L79.1667 50L33.3334 20.8334Z"
     , pause = "M25 79.1667H41.6667V20.8334H25V79.1667ZM58.3333 20.8334V79.1667H75V20.8334H58.3333Z"
     , record = "M50 83.3333C68.4094 83.3333 83.3333 68.4094 83.3333 50C83.3333 31.5905 68.4094 16.6666 50 16.6666C31.5905 16.6666 16.6666 31.5905 16.6666 50C16.6666 68.4094 31.5905 83.3333 50 83.3333Z"

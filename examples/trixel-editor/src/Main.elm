@@ -6,12 +6,10 @@ module Main exposing (main)
 import Camera exposing (Camera, perspective)
 import Color exposing (Color, black, blue, green, red, white)
 import ColorPalette exposing (Palette(..))
-import Dict
 import Dict.Any as AnyDict exposing (AnyDict)
-import Element exposing (Element, html)
 import Geometry exposing (Point)
 import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
-import Html.Attributes exposing (style, value)
+import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
 import LevelSelector as LS exposing (Levels)
@@ -362,49 +360,49 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> LS.moveLevelOneUp }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    html <|
-        div
-            [ style "position" "absolute"
-            , style "height" "100%"
-            , style "width" "260px"
-            , style "right" "0px"
-            , style "margin" "40px"
-            , style "font-size" "12px"
-            , style "overflow" "scroll"
-            ]
-            [ h2 [] [ text "Editing the selected level" ]
-            , div [] [ text "Press mouse to add trixel" ]
-            , div [] [ text "Hold shift and press mouse to remove trixel" ]
-            , hr [] []
-            , h2 [] [ text "Color Palette" ]
-            , div [] [ selectColorPalette model ]
-            , div [] [ buttonForSettingBackgroundColor ]
-            , div [] [ text (String.fromInt model.selectedColorIndex) ]
-            , div [] [ viewColorPalette model ]
-            , hr [] []
-            , levelSelection model
-            , hr [] []
-            , h2 [] [ text "What More?" ]
-            ]
-
-
-buttonForSettingBackgroundColor : Html EditorMsg
-buttonForSettingBackgroundColor =
-    button
-        [ style "margin" "10px"
-        , onClick PressedButtonForSettingBackgroundColor
+    div
+        [ class "fixed w-[300px] h-full top-0 right-0"
+        , class "bg-black20"
+        , class "border-[0.5px] border-white20"
+        , class "overflow-y-scroll"
+        , class "text-xs text-white60"
         ]
-        [ text "Set selected color as background color" ]
+        [ div [ class "relative" ]
+            [ viewInstructions
+            , viewColorSelection model
+            , levelSelection model
+            ]
+        ]
+
+
+viewInstructions : Html EditorMsg
+viewInstructions =
+    div [ class "p-4 border-[0.5px] border-white20" ]
+        [ div [ class "text-lg" ] [ text "Instructions" ]
+        , div [ class "pl-2" ] [ text "- Press mouse to add trixel" ]
+        , div [ class "pl-2" ] [ text "- Hold shift and press mouse to remove trixel" ]
+        ]
+
+
+viewColorSelection : Model -> Html EditorMsg
+viewColorSelection model =
+    div [ class "p-4 border-[0.5px] border-white20" ]
+        [ div [ class "text-lg" ] [ text "Color Palette" ]
+        , selectColorPalette model
+        , makeButton PressedButtonForSettingBackgroundColor "Set selected as background"
+        , div [] [ text (String.fromInt model.selectedColorIndex) ]
+        , viewColorPalette model
+        ]
 
 
 levelSelection : Model -> Html EditorMsg
 levelSelection model =
-    div []
-        [ h2 [] [ text "LevelOld Selection" ]
+    div [ class "p-4 border-[0.5px] border-white20" ]
+        [ div [ class "text-lg" ] [ text "Level Selection" ]
         , p []
-            [ button [ onClick PressedPreviousLevelButton ] [ text "<" ]
+            [ makeButton PressedPreviousLevelButton "<"
             , span [ style "margin" "10px" ]
                 [ text <|
                     String.concat
@@ -413,12 +411,20 @@ levelSelection model =
                         , String.fromInt (LS.size model.levels)
                         ]
                 ]
-            , button [ onClick PressedNextLevelButton ] [ text ">" ]
+            , makeButton PressedNextLevelButton ">"
             ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedAddLevelButton ] [ text "Add level" ] ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedRemoveLevelButton ] [ text "Remove current level" ] ]
-        , div [ style "margin-top" "10px" ] [ button [ onClick PressedMoveLevelOneUoButton ] [ text "Move level one up" ] ]
+        , makeButton PressedAddLevelButton "Add level"
+        , makeButton PressedRemoveLevelButton "Remove current level"
+        , makeButton PressedMoveLevelOneUoButton "Move level one up"
         ]
+
+
+makeButton msg string =
+    button
+        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        , onClick msg
+        ]
+        [ text string ]
 
 
 optionWith : Palette -> Html EditorMsg
@@ -430,10 +436,11 @@ optionWith palette =
 
 selectColorPalette : Model -> Html EditorMsg
 selectColorPalette model =
-    div [ style "margin" "5px" ]
-        [ text "Choose a palette:"
+    div [ class "p-2" ]
+        [ span [ class "p-2" ] [ text "Choose a palette:" ]
         , select
-            [ onChange (ColorPalette.fromString >> SelectPalette)
+            [ class "p-2 text-white80 bg-black20"
+            , onChange (ColorPalette.fromString >> SelectPalette)
             , value (ColorPalette.toString (currentPalette model))
             ]
             (List.map optionWith [ Parula, Inferno, Magma, Plasma, Viridis ])
@@ -495,9 +502,7 @@ viewColorPalette model =
                 []
     in
     div
-        [ style "position" "relative"
-        , style "overflow" "scroll"
-        , style "height" "210px"
+        [ class "h-[200px]"
         ]
         (ColorPalette.colors world.palette
             |> Nonempty.indexedMap showColor

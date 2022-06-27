@@ -17,9 +17,9 @@ echo '' >>DEMOS.md
 for ((i = 1; i <= ${#dirs[@]}; i++)); do
     directory=${dirs[$i]}
     mkdir -p dist/"$directory"
-    cd examples/"$directory"
-    yarn
-    yarn build --base=/elm-3d-playground-exploration/"$directory"/
+    cd examples/"$directory" || exit
+    npm install
+    npm run build -- --base=/elm-3d-playground-exploration/"$directory"
     cp -R dist/. ../../dist/"$directory"
     cd ../..
     echo - "$directory": \[demo\]\(https://erkal.github.io/elm-3d-playground-exploration/"$directory"\), \[src\]\(https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/"$directory"/src\) >>DEMOS.md

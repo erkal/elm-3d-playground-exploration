@@ -6,30 +6,23 @@ import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
-import Element exposing (Element, alignBottom, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, mouseOver, padding, paddingXY, paragraph, pointer, px, row, scrollbarY, spacing, textColumn, width, wrappedRow)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Events
-import Element.Font as Font
-import Element.Input as Input exposing (button, checkbox)
 import Geometry exposing (Point, Vector)
 import HardcodedLevels exposing (hardcodedLevels)
-import Html exposing (Html, br, div, h2, p, span, text)
-import Html.Attributes exposing (style)
+import Html exposing (Html, br, div, h2, p, pre, span, text, textarea)
+import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
+import Html.Events
 import Illuminance
 import Json.Decode
-import LevelSelector exposing (Levels)
+import LevelSelector as LS exposing (Levels)
 import Light
 import LuminousFlux
 import Path exposing (Path)
 import Playground exposing (..)
 import Playground.Animation exposing (wave)
-import Playground.Colors as Colors
 import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
-import Set
 import Swipe exposing (Swipe)
 import Temperature
 import Wall exposing (Wall(..), WallDirection(..))
@@ -102,7 +95,7 @@ initialConfigurations =
     , configBlock "Colors and light"
         True
         [ floatConfig "lumens of following lights" ( 40000, 120000 ) 100000
-        , colorConfig "background color" (rgb255 223 224 226)
+        , colorConfig "background color" (rgb255 150 150 150)
         , colorConfig "color 1" (rgb255 244 88 67)
         , colorConfig "color 2" (rgb255 255 200 40)
         , colorConfig "path color" (rgb255 244 88 67)
@@ -131,10 +124,10 @@ update : Computer -> Model -> Model
 update computer model =
     let
         playerCube =
-            (LevelSelector.current model.levels).playerCube
+            (LS.current model.levels).playerCube
 
         levelEditingCube =
-            (LevelSelector.current model.levels).levelEditingCube
+            (LS.current model.levels).levelEditingCube
 
         handleUserInput =
             case inputToRollDirection computer model of
@@ -226,7 +219,7 @@ swipeInputToRollDirection swipe =
 
 attemptRollForPlayer : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForPlayer rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.step rollDirection of
+    case LS.current model.levels |> World.step rollDirection of
         ViolatesRule CannotCrossPath ->
             model
 
@@ -256,7 +249,7 @@ attemptRollForPlayer rollDirection startCell computer model =
 
 attemptRollForLevelEditing : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForLevelEditing rollDirection startCell computer model =
-    case LevelSelector.current model.levels |> World.stepForLevelEditing rollDirection of
+    case LS.current model.levels |> World.stepForLevelEditing rollDirection of
         CannotRoll_LevelFinishedBecauseTopFaceIsRed ->
             model
 
@@ -280,7 +273,7 @@ stopAnimation computer model =
 
                         else
                             NoAnimation
-                    , levels = model.levels |> LevelSelector.setCurrent newWorld
+                    , levels = model.levels |> LS.setCurrent newWorld
                 }
 
             else
@@ -355,14 +348,16 @@ explanationText computer model =
         , style "text-align" "center"
         , style "font-size" "14px"
         ]
-        [ h2
-            []
+        [ div
+            [ class "text-lg font-bold" ]
             [ text "The Red-Faced Cube" ]
         , p
-            [ style "font-weight" "bold" ]
-            [ text "A puzzle from Martin Gardner's book Mathematical Carnival (1975)" ]
+            [ class "font-bold italic" ]
+            [ p [] [ text "A puzzle from the book Mathematical Carnival" ]
+            , p [] [ text "(1975, Martin Gardner)" ]
+            ]
         , p
-            []
+            [ class "text-xs" ]
             [ span
                 (case model.state of
                     AnimatingMistake { startedAt, violatedRule } ->
@@ -409,7 +404,7 @@ camera computer model =
         { focalPoint =
             let
                 center =
-                    World.center (LevelSelector.current model.levels)
+                    World.center (LS.current model.levels)
             in
             { x = center.x, y = center.y, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
@@ -422,7 +417,7 @@ viewShapes : Computer -> Model -> Html Never
 viewShapes computer model =
     let
         (Cube ( x, y ) _) =
-            (LevelSelector.current model.levels).playerCube
+            (LS.current model.levels).playerCube
 
         ( cubeX, cubeY ) =
             -- This is only for the camera follow rolling cube smoothly
@@ -524,7 +519,7 @@ drawMarkForFinishCell : Computer -> Model -> Shape
 drawMarkForFinishCell computer model =
     let
         ( x, y ) =
-            (LevelSelector.current model.levels).levelEditingPath.last
+            (LS.current model.levels).levelEditingPath.last
     in
     cylinder (matte (getColor "finish mark color" computer)) 0.3 1
         |> rotateX (degrees 90)
@@ -543,7 +538,7 @@ drawBoard computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LevelSelector.current model.levels).levelEditingPath
+        ((LS.current model.levels).levelEditingPath
             |> Path.cells
             |> List.map drawCellOnPath
         )
@@ -606,7 +601,7 @@ drawWallsForLevelEditingPath computer model =
     let
         pathToDraw =
             model.editor.mouseOveredSolution
-                |> Maybe.withDefault (LevelSelector.current model.levels).levelEditingPath
+                |> Maybe.withDefault (LS.current model.levels).levelEditingPath
     in
     group
         (pathToDraw
@@ -619,9 +614,9 @@ drawWallsForLevelEditingPath computer model =
 drawWallsForPlayerPath : Computer -> Model -> Shape
 drawWallsForPlayerPath computer model =
     group
-        ((LevelSelector.current model.levels).levelEditingPath
+        ((LS.current model.levels).levelEditingPath
             |> Path.wallsWithDuplicates
-            |> List.filter (\wall -> not (Path.crosses wall (LevelSelector.current model.levels).playerPath))
+            |> List.filter (\wall -> not (Path.crosses wall (LS.current model.levels).playerPath))
             |> List.map (drawWall computer)
         )
 
@@ -654,7 +649,7 @@ drawPlayerPath computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LevelSelector.current model.levels).playerPath
+        ((LS.current model.levels).playerPath
             |> Path.cells
             |> List.indexedMap drawCellOnPath
         )
@@ -664,7 +659,7 @@ drawPlayerCube : Computer -> Model -> Shape
 drawPlayerCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            (LevelSelector.current model.levels).playerCube
+            (LS.current model.levels).playerCube
 
         s =
             getFloat "cubes side length" computer
@@ -717,7 +712,7 @@ drawLevelEditingCube : Computer -> Model -> Shape
 drawLevelEditingCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            (LevelSelector.current model.levels).levelEditingCube
+            (LS.current model.levels).levelEditingCube
 
         s =
             getFloat "cubes side length" computer
@@ -875,7 +870,7 @@ updateFromEditor computer editorMsg ({ editor } as model) =
                         |> Editor.toggle bool
                 , levels =
                     model.levels
-                        |> LevelSelector.map World.reset
+                        |> LS.map World.reset
                 , state =
                     NoAnimation
             }
@@ -884,11 +879,11 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.mapCurrent
+                        |> LS.mapCurrent
                             (\world ->
                                 { world
                                     | calculatedSolutions =
-                                        LevelSelector.current model.levels |> World.calculateSolutions
+                                        LS.current model.levels |> World.calculateSolutions
                                 }
                             )
             }
@@ -909,14 +904,14 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.goTo i
+                        |> LS.goTo i
             }
 
         PressedPreviousLevelButton ->
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.goToPrevious
+                        |> LS.goToPrevious
                         |> Maybe.withDefault model.levels
             }
 
@@ -924,7 +919,7 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.goToNext
+                        |> LS.goToNext
                         |> Maybe.withDefault model.levels
             }
 
@@ -932,14 +927,14 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.levels
-                        |> LevelSelector.add World.empty
+                        |> LS.add World.empty
             }
 
         PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LevelSelector.removeCurrent }
+            { model | levels = model.levels |> LS.removeCurrent }
 
         PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LevelSelector.moveLevelOneUp }
+            { model | levels = model.levels |> LS.moveLevelOneUp }
 
         ClickedExportLevelsButton ->
             { model | editor = model.editor |> Editor.exportLevels model.levels }
@@ -948,7 +943,7 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LevelSelector.decoder World.Decode.decodeWorld)
+                        |> Json.Decode.decodeString (LS.decoder World.Decode.decodeWorld)
                         |> Result.withDefault model.levels
             }
 
@@ -958,226 +953,141 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             }
 
 
-viewEditor : Computer -> Model -> Element EditorMsg
+viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
-    column
-        [ width fill
-        , height fill
+    div
+        [ class "fixed w-[300px] h-full top-0 right-0"
+        , class "bg-black20"
+        , class "border-[0.5px] border-white20"
+        , class "overflow-y-scroll"
+        , class "text-xs text-white60"
         ]
-        [ column
-            [ alignTop
-            , alignRight
-            , width (px 500)
-            , height fill
-            , padding 20
-            , spacing 20
-            , Font.color Colors.darkText
-            , Font.size 13
-            ]
-            (editorOnOffButton computer model
-                :: editorContent computer model
-            )
+        [ div [ class "m-4" ] [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
+        , editorContent computer model
         ]
 
 
-header : String -> Element EditorMsg
-header str =
-    el
-        [ width fill
-        , paddingXY 0 10
-        , Font.heavy
-        , Font.size 20
-        ]
-        (Element.text str)
-
-
-editorContent : Computer -> Model -> List (Element EditorMsg)
+editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editor.isOn then
-        [ --viewInstructions computer model ,
-          viewLevelSelector computer model
-        , viewSolutions computer model
-        , viewImportExportLevels computer model
-        ]
-
-    else
-        []
-
-
-viewInstructions : Computer -> Model -> Element EditorMsg
-viewInstructions computer model =
-    column []
-        [ header "Editing a level"
-        , Element.text "Drag the last point on path to extend or shorten it."
-        ]
-
-
-editorOnOffButton : Computer -> Model -> Element EditorMsg
-editorOnOffButton computer model =
-    checkbox []
-        { onChange = ClickedEditorOnOffButton
-        , icon = Input.defaultCheckbox
-        , checked = model.editor.isOn
-        , label = Input.labelLeft [] (Element.text "Editor")
-        }
-
-
-viewLevelSelector : Computer -> Model -> Element EditorMsg
-viewLevelSelector computer model =
-    let
-        showLevelBox i _ =
-            Element.el
-                [ width (px 30)
-                , height (px 30)
-                , Font.size 20
-                , Element.Events.onClick (PressedLevelBox (i + 1))
-                , Background.color Colors.darkGray
-                , pointer
-                , Border.rounded 6
-                , Border.color Colors.black
-                , Border.width
-                    (if LevelSelector.currentIndex model.levels == i + 1 then
-                        4
-
-                     else
-                        0
-                    )
-                ]
-                (Element.el [ centerX, centerY ] (Element.text (String.fromInt (i + 1))))
-    in
-    column [ spacing 10 ]
-        [ header "Level Selector"
-        , wrappedRow
-            [ spacing 10 ]
-            (model.levels |> LevelSelector.asList |> List.indexedMap showLevelBox)
-        , row [ spacing 10 ]
-            [ makeButton "Add level" PressedAddLevelButton
-            , makeButton "Remove level" PressedRemoveLevelButton
-            , makeButton "Move level up" PressedMoveLevelOneUpButton
+        div
+            []
+            [ div [ class "p-4" ]
+                [ viewSolutions computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelSelection model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelExporting computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelImporting computer model ]
             ]
 
-        --, levelSelectionButtons computer model
-        ]
+    else
+        div [] []
 
 
-viewSolutions : Computer -> Model -> Element EditorMsg
+viewSolutions : Computer -> Model -> Html EditorMsg
 viewSolutions computer model =
-    column []
-        [ header "Solutions"
-        , column [ spacing 10 ]
-            [ makeButton "Calculate all solutions" PressedCalculateSolutionsButton
-            , column [ spacing 4 ]
-                (LevelSelector.current model.levels
+    div []
+        [ div [ class "h-40" ]
+            [ div [ class "text-lg" ] [ Html.text "Solution Calculator" ]
+            , makeButton PressedCalculateSolutionsButton "Calculate all solutions"
+            , div []
+                (LS.current model.levels
                     |> .calculatedSolutions
                     |> List.indexedMap
                         (\i p ->
-                            el
-                                [ Element.Events.onMouseEnter (MouseEnterSolution p)
-                                , Element.Events.onMouseLeave MouseLeftSolution
-                                , Background.color Colors.gray
-                                , mouseOver [ Background.color Colors.black, Font.color Colors.lightText ]
-                                , Element.pointer
-                                , padding 10
+                            div
+                                [ class "m-2 p-2 w-24 bg-black60 hover:bg-black cursor-crosshair"
+                                , Html.Events.onMouseEnter (MouseEnterSolution p)
+                                , Html.Events.onMouseLeave MouseLeftSolution
                                 ]
-                                (Element.text ("Solution " ++ String.fromInt i))
+                                [ Html.text ("Solution " ++ String.fromInt i) ]
                         )
                 )
             ]
         ]
 
 
-levelSelectionButtons : Computer -> Model -> Element EditorMsg
-levelSelectionButtons computer model =
-    column []
-        [ row [ spacing 10 ]
-            [ makeButton "<" PressedPreviousLevelButton
-            , el [ Font.size 22, Font.heavy ] <|
-                Element.text <|
-                    String.concat
-                        [ String.fromInt (LevelSelector.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LevelSelector.size model.levels)
-                        ]
-            , makeButton ">" PressedNextLevelButton
+makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
+makeCheckBox msg isChecked string_ =
+    div []
+        [ Html.input
+            [ class "align-bottom"
+            , type_ "checkbox"
+            , id string_
+            , name string_
+            , Html.Events.onCheck msg
+            , checked isChecked
             ]
+            []
+        , Html.label [ class "pl-2 font-bold", for string_ ] [ Html.text string_ ]
         ]
 
 
-makeButton : String -> EditorMsg -> Element EditorMsg
-makeButton buttonText editorMsg =
-    button
-        [ Font.color Colors.white
-        , paddingXY 10 6
-        , Background.color Colors.blue
-        , Border.rounded 8
+makeButton : msg -> String -> Html msg
+makeButton msg string =
+    Html.button
+        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        , Html.Events.onClick msg
         ]
-        { onPress = Just editorMsg
-        , label = Element.text buttonText
-        }
+        [ Html.text string ]
 
 
-viewImportExportLevels : Computer -> Model -> Element EditorMsg
-viewImportExportLevels computer model =
-    column [ width fill, spacing 10 ]
-        [ header "Import/Export Levels"
-        , levelExporting computer model
-        , levelImporting computer model
+levelSelection : Model -> Html EditorMsg
+levelSelection model =
+    div []
+        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
+        , p []
+            [ makeButton PressedPreviousLevelButton "<"
+            , span [ style "margin" "10px" ]
+                [ Html.text <|
+                    String.concat
+                        [ String.fromInt (LS.currentIndex model.levels)
+                        , " / "
+                        , String.fromInt (LS.size model.levels)
+                        ]
+                ]
+            , makeButton PressedNextLevelButton ">"
+            ]
+        , makeButton PressedAddLevelButton "Add level"
+        , makeButton PressedRemoveLevelButton "Remove current level"
+        , makeButton PressedMoveLevelOneUpButton "Move level one up"
         ]
 
 
-levelExporting : Computer -> Model -> Element EditorMsg
+levelExporting : Computer -> Model -> Html EditorMsg
 levelExporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Export Levels" ClickedExportLevelsButton
+    div []
+        [ makeButton ClickedExportLevelsButton "Export Levels"
         , textAreaForExportedLevels model
         ]
 
 
-textAreaForExportedLevels : Model -> Element EditorMsg
+textAreaForExportedLevels : Model -> Html EditorMsg
 textAreaForExportedLevels model =
-    el
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.color Colors.lightText
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    pre
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
         ]
-        (Element.text model.editor.jsonExportedLevels)
+        [ Html.text model.editor.jsonExportedLevels ]
 
 
-levelImporting : Computer -> Model -> Element EditorMsg
+levelImporting : Computer -> Model -> Html EditorMsg
 levelImporting computer model =
-    column
-        [ spacing 10
-        , width fill
-        ]
-        [ makeButton "Import Levels" ClickedImportLevelsButton
+    div
+        []
+        [ makeButton ClickedImportLevelsButton "Import Levels"
         , textAreaForLevelsToImport model
         ]
 
 
-textAreaForLevelsToImport : Model -> Element EditorMsg
+textAreaForLevelsToImport : Model -> Html EditorMsg
 textAreaForLevelsToImport model =
-    Input.text
-        [ width fill
-        , height (px 100)
-        , padding 10
-        , Background.color Colors.black
-        , Font.color Colors.lightText
-        , Font.family [ Font.monospace ]
-        , scrollbarY
-        , htmlAttribute (style "user-select" "text")
-        , Border.rounded 10
+    textarea
+        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
+        , rows 150
+        , cols 10
+        , Html.Events.onInput EditedTextAreaForImportingLevels
+        , value model.editor.jsonLevelsToImport
         ]
-        { onChange = EditedTextAreaForImportingLevels
-        , text = model.editor.jsonLevelsToImport
-        , placeholder = Nothing
-        , label = Input.labelHidden "Imported Levels"
-        }
+        [ Html.text "todo" ]

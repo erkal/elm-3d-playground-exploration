@@ -106,7 +106,6 @@ const sendInputsToElmApp = (app) => {
       }
 
       if (isShiftKey(e)) {
-        console.log("yo");
         inputs.keyboard.shift = true;
       }
 
@@ -123,7 +122,6 @@ const sendInputsToElmApp = (app) => {
       }
 
       if (isArrowDownKey(e)) {
-        console.log("yey");
         inputs.keyboard.down = true;
       }
     }

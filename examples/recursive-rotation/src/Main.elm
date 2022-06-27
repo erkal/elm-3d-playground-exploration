@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, orthographic)
-import Color exposing (rgb255, white)
+import Color exposing (rgb255, rgba, white)
 import Html exposing (Html)
 import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
 import Playground.Animation exposing (spin)
@@ -63,7 +63,7 @@ view computer _ =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = white
+        , backgroundColor = rgba 0 0 0 0.7
         , sunlightAzimuth = degrees 90
         , sunlightElevation = -(degrees 180)
         }
