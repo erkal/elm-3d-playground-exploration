@@ -70,8 +70,9 @@ view computer model =
         , sunlightAzimuth = -(degrees 15)
         , sunlightElevation = -(degrees 45)
         }
-        [ axes
-        , drawCarousel computer model
+        [ drawCarousel computer model
+
+        --, axes
         ]
 
 
