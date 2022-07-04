@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type='range'] {
+  margin: auto;
+  -webkit-appearance: none;
+  position: relative;
+  overflow: hidden;
+  height: 16px;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+::-webkit-slider-runnable-track {
+  background: lightGray;
+}
+
+/*
+ * 1. Set to 0 width and remove border for a slider without a thumb
+ * 2. Shadow is negative the full width of the input and has a spread 
+ *    of the width of the input.
+ */
+::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0px;
+  height: 16px;
+  background: blue;
+  box-shadow: -3000px 0 0 3000px black;
+  opacity: 0.5;
+  /* border: 2px solid #999;  */
+}
+
+::-moz-range-track {
+  height: 16px;
+  background: lightGray;
+}
+
+::-moz-range-thumb {
+  background: blue;
+  height: 16px;
+  width: 0px;
+  /* border: 3px solid #999; */
+  border-radius: 0 !important;
+  box-shadow: -3000px 0 0 3000px black;
+  opacity: 0.5;
+  box-sizing: border-box;
+}
+
+::-ms-fill-lower {
+  background: black;
+  opacity: 0.5;
+}
+
+::-ms-thumb {
+  background: blue;
+  /* border: 2px solid #999; */
+  height: 16px;
+  width: 0px;
+  box-sizing: border-box;
+}
+
+::-ms-ticks-after {
+  display: none;
+}
+
+::-ms-ticks-before {
+  display: none;
+}
+
+::-ms-track {
+  background: lightGray;
+  color: transparent;
+  height: 16px;
+  border: none;
+}
+
+::-ms-tooltip {
+  display: none;
+}

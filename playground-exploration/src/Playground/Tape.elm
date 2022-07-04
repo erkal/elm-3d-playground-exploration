@@ -244,7 +244,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div [ class "pl-4 py-4 border-[0.5px] border-white20 bg-black20" ]
+    div [ class "w-full h-full p-4 border-[0.5px] border-white20 bg-black20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
@@ -255,7 +255,7 @@ view tape =
 viewSlider : Tape gameModel -> Html Msg
 viewSlider tape =
     input
-        [ class "absolute left-[100px] w-[490px]"
+        [ class "absolute w-full"
         , type_ "range"
         , HA.min (String.fromInt 0)
         , HA.max (String.fromInt (totalSize tape - 1))

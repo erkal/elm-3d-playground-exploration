@@ -65,9 +65,6 @@ initialConfigurations =
     , configBlock "Parameters"
         True
         [ floatConfig "trixel scale" ( 0.5, 1 ) 1
-        , floatConfig "minimum rotation degree" ( -(degrees 180), 0 ) 0
-        , floatConfig "maximum rotation degree" ( 0, degrees 180 ) 0
-        , floatConfig "rotation period" ( 1, 20 ) 5
         ]
     ]
 
@@ -228,15 +225,6 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
                 |> moveX (cos (degrees 30))
                 |> moveY (1 + sin (degrees 30))
 
-        minRot =
-            getFloat "minimum rotation degree" computer
-
-        maxRot =
-            getFloat "maximum rotation degree" computer
-
-        duration =
-            getFloat "rotation period" computer
-
         faceCenter =
             let
                 c =
@@ -249,15 +237,6 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
                                 { u = 2 / 3, v = 2 / 3 }
             in
             { x = c.x, y = c.y, z = 0 }
-
-        rotationDegree =
-            wave minRot maxRot duration computer.clock
-
-        rotation =
-            identity
-                -->> rotateAround ( faceCenter, ( 1, 0, 0 ) ) rotationDegree
-                -->> rotateAround ( faceCenter, ( 0, 1, 0 ) ) rotationDegree
-                >> rotateAround ( faceCenter, ( 0, 0, 1 ) ) rotationDegree
     in
     (case lr of
         L ->
@@ -267,7 +246,6 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
             drawRightFace
     )
         |> scaleAround faceCenter (getFloat "trixel scale" computer)
-        |> rotation
         |> moveX x
         |> moveY y
 

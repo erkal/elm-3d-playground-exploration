@@ -374,6 +374,6 @@ viewGUI computer model =
             , div [ class "absolute overflow-y-auto left-10 h-full w-[260px] bg-black20 border-x-[0.5px] border-white20" ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
-            , div [ class "absolute bottom-0 left-[300px] w-[600px] h-16" ] [ Html.map FromTape (Tape.view model.tape) ]
+            , div [ class "absolute bottom-0 left-[300px] w-[600px] h-20" ] [ Html.map FromTape (Tape.view model.tape) ]
             , viewComputer computer model
             ]
