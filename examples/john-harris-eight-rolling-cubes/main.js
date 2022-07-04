@@ -1,4 +1,4 @@
-import "./style.css";
+import "../../playground-exploration/src/style.css";
 import { Elm } from "./src/Main.elm";
 import {
   sendInputsToElmApp,
