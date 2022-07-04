@@ -432,16 +432,13 @@ viewColorPalette model =
             LS.current model.levels
 
         boxSize =
-            13
+            18
 
         gutter =
             0
 
-        borderOfSelected =
-            2
-
         m =
-            20
+            15
 
         showColor i color =
             let
@@ -451,36 +448,26 @@ viewColorPalette model =
                 translateY =
                     toFloat (i // m) * (boxSize + gutter)
 
-                ( border, boxSize_ ) =
+                border =
                     if model.selectedColorIndex == i then
-                        ( borderOfSelected
-                        , boxSize - 2 * borderOfSelected
-                        )
+                        3
 
                     else
-                        ( 0
-                        , boxSize
-                        )
+                        0
             in
             div
-                [ style "position" "absolute"
-                , style "width" (String.fromFloat boxSize_ ++ "px")
-                , style "height" (String.fromFloat boxSize_ ++ "px")
+                [ class "absolute"
+                , style "width" (String.fromFloat boxSize ++ "px")
+                , style "height" (String.fromFloat boxSize ++ "px")
                 , style "background-color" (Color.toCssString color)
-                , style "transform"
-                    ("translate("
-                        ++ String.fromFloat translateX
-                        ++ "px,"
-                        ++ String.fromFloat translateY
-                        ++ "px)"
-                    )
+                , style "transform" ("translate(" ++ String.fromFloat translateX ++ "px," ++ String.fromFloat translateY ++ "px)")
                 , onClick (SelectColor i)
                 , style "border" ("solid white " ++ String.fromFloat border ++ "px")
                 ]
                 []
     in
     div
-        [ class "h-[200px]"
+        [ class "h-[320px]"
         ]
         (ColorPalette.colors world.palette
             |> Nonempty.indexedMap showColor
