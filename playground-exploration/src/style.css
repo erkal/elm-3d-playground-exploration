@@ -26,8 +26,8 @@ input[type='range'] {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
-  background: darkOrange;
-  box-shadow: -3000px 0 0 3000px orange;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.3);
   /* border: 2px solid #999;  */
 }
 
@@ -37,21 +37,21 @@ input[type='range'] {
 }
 
 ::-moz-range-thumb {
-  background: darkOrange;
+  background: rgba(0, 0, 0, 0.5);
   height: 16px;
   width: 16px;
   /* border: 3px solid #999; */
   border-radius: 0 !important;
-  box-shadow: -3000px 0 0 3000px orange;
+  box-shadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
 }
 
 ::-ms-fill-lower {
-  background: darkOrange;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 ::-ms-thumb {
-  background: darkOrange;
+  background: rgba(0, 0, 0, 0.5);
   /* border: 2px solid #999; */
   height: 16px;
   width: 16px;
