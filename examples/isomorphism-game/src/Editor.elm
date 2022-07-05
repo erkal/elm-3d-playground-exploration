@@ -25,9 +25,11 @@ init =
 -- UPDATE
 
 
-onOff : Bool -> Editor -> Editor
-onOff bool editor =
-    { editor | isOn = bool }
+toggle : Editor -> Editor
+toggle editor =
+    { editor
+        | isOn = not editor.isOn
+    }
 
 
 exportLevels : Levels Level -> Editor -> Editor

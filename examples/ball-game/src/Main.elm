@@ -4,9 +4,9 @@ import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
 import Editor exposing (Editor, EditorState(..))
 import Geometry exposing (Point, Vector)
-import Html exposing (Html, div, p, pre, span, textarea)
+import Html exposing (Html, button, div, p, pre, span, textarea)
 import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
-import Html.Events
+import Html.Events exposing (onClick)
 import Illuminance
 import Json.Decode
 import LevelSelector as LS exposing (Levels)
@@ -17,6 +17,8 @@ import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material as Material
+import Svg exposing (svg)
+import Svg.Attributes as SA
 import Temperature
 import Triangulate
 import World exposing (World)
@@ -440,7 +442,7 @@ drawBallTrail computer model =
 
 
 type EditorMsg
-    = ClickedEditorOnOffButton Bool
+    = PressedEditorOnOffButton
     | ClickedButtonStartDrawingPolygon
     | ClickedButtonFinishDrawingPolygon (List Point2d)
     | PressedPreviousLevelButton
@@ -456,11 +458,8 @@ type EditorMsg
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
-        ClickedEditorOnOffButton bool ->
-            { model
-                | editor =
-                    model.editor |> Editor.toggle bool
-            }
+        PressedEditorOnOffButton ->
+            { model | editor = model.editor |> Editor.toggle }
 
         ClickedButtonStartDrawingPolygon ->
             { model | editor = model.editor |> Editor.startDrawingPolygon }
@@ -513,17 +512,38 @@ updateFromEditor computer editorMsg model =
             }
 
 
+icons =
+    { edit =
+        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M 18 2 L 15.585938 4.4140625 L 19.585938 8.4140625 L 22 6 L 18 2 z M 14.076172 5.9238281 L 3 17 L 3 21 L 7 21 L 18.076172 9.9238281 L 14.076172 5.9238281 z" ] [] ]
+    , cross =
+        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M12 9.71428L18.8571 2.85714L21.1429 5.14285L14.2857 12L21.1429 18.8571L18.8571 21.1428L12 14.2857L5.14286 21.1428L2.85715 18.8571L9.71429 12L2.85715 5.14285L5.14286 2.85714L12 9.71428Z" ] [] ]
+    }
+
+
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        [ class "fixed w-[300px] h-full top-0 right-0"
-        , class "bg-black20"
-        , class "border-[0.5px] border-white20"
-        , class "overflow-y-scroll"
-        , class "text-xs text-white60"
+        []
+        [ editorContent computer model
+        , editorToggleButton model
         ]
-        [ div [ class "m-4" ] [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
-        , editorContent computer model
+
+
+editorToggleButton : Model -> Html EditorMsg
+editorToggleButton model =
+    div
+        [ class "fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60"
+        ]
+        [ button
+            [ class "w-6"
+            , onClick PressedEditorOnOffButton
+            ]
+            [ if model.editor.isOn then
+                icons.cross
+
+              else
+                icons.edit
+            ]
         ]
 
 
@@ -531,7 +551,12 @@ editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editor.isOn then
         div
-            []
+            [ class "fixed top-0 right-0 w-[300px] h-full"
+            , class "bg-black20"
+            , class "border-[0.5px] border-white20"
+            , class "overflow-y-scroll"
+            , class "text-xs text-white60"
+            ]
             [ div [ class "p-4" ]
                 [ viewPolygonEditor computer model ]
             , div [ class "p-4 border-[0.5px] border-white20" ]
@@ -562,22 +587,6 @@ viewPolygonEditor computer model =
                 _ ->
                     makeButton ClickedButtonStartDrawingPolygon "Start drawing a polygon"
             ]
-        ]
-
-
-makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
-makeCheckBox msg isChecked string_ =
-    div []
-        [ Html.input
-            [ class "align-bottom"
-            , type_ "checkbox"
-            , id string_
-            , name string_
-            , Html.Events.onCheck msg
-            , checked isChecked
-            ]
-            []
-        , Html.label [ class "pl-2 font-bold", for string_ ] [ Html.text string_ ]
         ]
 
 

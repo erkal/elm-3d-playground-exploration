@@ -26,10 +26,10 @@ init =
     }
 
 
-toggle : Bool -> Editor -> Editor
-toggle bool editor =
+toggle : Editor -> Editor
+toggle editor =
     { editor
-        | isOn = bool
+        | isOn = not editor.isOn
         , state = Idle
     }
 

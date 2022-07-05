@@ -6,9 +6,9 @@ import Editor exposing (Editor)
 import GeometryHelpers exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import HardcodedLevels exposing (hardcodedLevels)
-import Html exposing (Html, div, input, p, pre, span, textarea)
+import Html exposing (Html, button, div, input, p, pre, span, textarea)
 import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
-import Html.Events
+import Html.Events exposing (onClick)
 import Illuminance
 import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
@@ -21,6 +21,8 @@ import Scene as Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
+import Svg exposing (svg)
+import Svg.Attributes as SA
 import Temperature
 
 
@@ -800,7 +802,7 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
 
 
 type EditorMsg
-    = ClickedEditorOnOffButton Bool
+    = PressedEditorOnOffButton
     | PressedPreviousLevelButton
     | PressedNextLevelButton
     | PressedAddLevelButton
@@ -815,8 +817,8 @@ type EditorMsg
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
-        ClickedEditorOnOffButton bool ->
-            { model | editor = model.editor |> Editor.onOff bool }
+        PressedEditorOnOffButton ->
+            { model | editor = model.editor |> Editor.toggle }
 
         PressedPreviousLevelButton ->
             { model
@@ -870,19 +872,65 @@ updateFromEditor computer editorMsg model =
             }
 
 
+icons =
+    { edit =
+        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M 18 2 L 15.585938 4.4140625 L 19.585938 8.4140625 L 22 6 L 18 2 z M 14.076172 5.9238281 L 3 17 L 3 21 L 7 21 L 18.076172 9.9238281 L 14.076172 5.9238281 z" ] [] ]
+    , cross =
+        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M12 10.5858L16.2426 6.34313L17.6569 7.75735L13.4142 12L17.6569 16.2426L16.2426 17.6568L12 13.4142L7.75736 17.6568L6.34315 16.2426L10.5858 12L6.34315 7.75735L7.75736 6.34313L12 10.5858Z" ] [] ]
+    }
+
+
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        [ class "fixed w-[300px] h-full top-0 right-0"
-        , class "bg-black20"
-        , class "border-[0.5px] border-white20"
-        , class "overflow-y-scroll"
-        , class "text-xs text-white60"
+        []
+        [ editorContent computer model
+        , editorToggleButton model
         ]
-        [ div [ class "m-4" ]
-            [ makeCheckBox ClickedEditorOnOffButton model.editor.isOn "Editor" ]
-        , editorContent computer model
+
+
+editorToggleButton : Model -> Html EditorMsg
+editorToggleButton model =
+    div
+        [ class "fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60"
         ]
+        [ button
+            [ class "w-6"
+            , onClick PressedEditorOnOffButton
+            ]
+            [ if model.editor.isOn then
+                icons.cross
+
+              else
+                icons.edit
+            ]
+        ]
+
+
+editorContent : Computer -> Model -> Html EditorMsg
+editorContent computer model =
+    if model.editor.isOn then
+        div
+            [ class "fixed top-0 right-0 w-[300px] h-full"
+            , class "bg-black20"
+            , class "border-[0.5px] border-white20"
+            , class "overflow-y-scroll"
+            , class "text-xs text-white60"
+            ]
+            [ div [ class "p-4" ]
+                [ explanationsForEditor computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelSelection model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ makeButton PressedResetPlayerGraphButton "Reset player graph" ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelExporting computer model ]
+            , div [ class "p-4 border-[0.5px] border-white20" ]
+                [ levelImporting computer model ]
+            ]
+
+    else
+        div [] []
 
 
 levelSelection : Model -> Html EditorMsg
@@ -914,43 +962,6 @@ makeButton msg string =
         , Html.Events.onClick msg
         ]
         [ Html.text string ]
-
-
-editorContent : Computer -> Model -> Html EditorMsg
-editorContent computer model =
-    if model.editor.isOn then
-        div
-            []
-            [ div [ class "p-4" ]
-                [ explanationsForEditor computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelSelection model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ makeButton PressedResetPlayerGraphButton "Reset player graph" ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelExporting computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelImporting computer model ]
-            ]
-
-    else
-        div [] []
-
-
-makeCheckBox : (Bool -> msg) -> Bool -> String -> Html msg
-makeCheckBox msg isChecked string_ =
-    div []
-        [ Html.input
-            [ class "align-bottom"
-            , type_ "checkbox"
-            , id string_
-            , name string_
-            , Html.Events.onCheck msg
-            , checked isChecked
-            ]
-            []
-        , Html.label [ class "pl-2 font-bold", for string_ ] [ Html.text string_ ]
-        ]
 
 
 explanationsForEditor : Computer -> Model -> Html EditorMsg
