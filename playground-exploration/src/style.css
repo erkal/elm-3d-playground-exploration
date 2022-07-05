@@ -24,11 +24,10 @@ input[type='range'] {
  */
 ::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 0px;
+  width: 16px;
   height: 16px;
-  background: blue;
-  box-shadow: -3000px 0 0 3000px black;
-  opacity: 0.5;
+  background: darkOrange;
+  box-shadow: -3000px 0 0 3000px orange;
   /* border: 2px solid #999;  */
 }
 
@@ -38,26 +37,24 @@ input[type='range'] {
 }
 
 ::-moz-range-thumb {
-  background: blue;
+  background: darkOrange;
   height: 16px;
-  width: 0px;
+  width: 16px;
   /* border: 3px solid #999; */
   border-radius: 0 !important;
-  box-shadow: -3000px 0 0 3000px black;
-  opacity: 0.5;
+  box-shadow: -3000px 0 0 3000px orange;
   box-sizing: border-box;
 }
 
 ::-ms-fill-lower {
-  background: black;
-  opacity: 0.5;
+  background: darkOrange;
 }
 
 ::-ms-thumb {
-  background: blue;
+  background: darkOrange;
   /* border: 2px solid #999; */
   height: 16px;
-  width: 0px;
+  width: 16px;
   box-sizing: border-box;
 }
 
