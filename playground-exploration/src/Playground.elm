@@ -371,9 +371,21 @@ viewGUI computer model =
         div []
             [ div [ class "absolute h-full w-[40px] p-1 border-r-[0.5px] border-white20 bg-black80" ]
                 [ yingYangButton, twitterLink, githubLink ]
-            , div [ class "absolute overflow-y-auto left-10 h-full w-[260px] bg-black20 border-x-[0.5px] border-white20" ]
+            , div
+                [ class "absolute overflow-y-auto left-10 w-[260px] bg-black20 border-x-[0.5px] border-white20"
+                , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
+                ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
-            , div [ class "absolute bottom-0 left-[300px] w-[600px] h-20" ] [ Html.map FromTape (Tape.view model.tape) ]
+            , div
+                [ class "absolute bottom-0 left-10 h-20"
+                , style "width" <|
+                    if computer.screen.width > 600 then
+                        "600px"
+
+                    else
+                        String.fromFloat (computer.screen.width - 40) ++ "px"
+                ]
+                [ Html.map FromTape (Tape.view model.tape) ]
             , viewComputer computer model
             ]
