@@ -62,7 +62,7 @@ initialConfigurations =
     [ configBlock "Camera"
         True
         [ floatConfig "camera x" ( -40, 40 ) 0
-        , floatConfig "camera y" ( -40, 0 ) 0
+        , floatConfig "camera y" ( -40, 40 ) 0
         , floatConfig "camera z" ( 1, 50 ) 20
         ]
     , configBlock "Parameters"
@@ -146,7 +146,11 @@ updateMouseOverUV computer model =
 camera : Computer -> Camera
 camera computer =
     perspective
-        { focalPoint = { x = 0, y = 0, z = 0 }
+        { focalPoint =
+            { x = getFloat "camera x" computer
+            , y = getFloat "camera y" computer
+            , z = 0
+            }
         , eyePoint =
             { x = getFloat "camera x" computer
             , y = getFloat "camera y" computer
