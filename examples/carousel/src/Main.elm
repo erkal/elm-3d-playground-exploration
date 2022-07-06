@@ -2,10 +2,10 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspective)
 import Carousel exposing (Carousel)
-import Color exposing (Color, black, blue, charcoal, darkBlue, darkGray, gray, green, lightBlue, lightBrown, lightGray, orange, purple, red, rgb255)
-import Html exposing (Html)
+import Color exposing (Color, blue, charcoal, darkBlue, gray, green, lightBlue, lightBrown, orange, purple, red, rgb255)
+import Html exposing (Html, div, text)
+import Html.Attributes exposing (class)
 import Playground exposing (Computer, game)
-import Playground.Animation exposing (..)
 import Scene as Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
@@ -33,6 +33,25 @@ init computer =
 
 update : Computer -> Model -> Model
 update ({ pointer } as computer) model =
+    model
+        |> handleKeyPresses computer
+        |> tickCarousel computer
+
+
+handleKeyPresses : Computer -> Model -> Model
+handleKeyPresses { keyboard } =
+    if keyboard.left then
+        Carousel.animateToPrevious
+
+    else if keyboard.right then
+        Carousel.animateToNext
+
+    else
+        identity
+
+
+tickCarousel : Computer -> Model -> Model
+tickCarousel ({ pointer } as computer) model =
     let
         { x, y } =
             pointer
@@ -61,6 +80,18 @@ camera =
 
 view : Computer -> Model -> Html Never
 view computer model =
+    div [ class "w-full" ]
+        [ div
+            [ class "absolute p-4 text-xl text-white80"
+            , class "grid place-items-center w-full"
+            ]
+            [ text "Swipe or press left/right arrow keys" ]
+        , viewScene computer model
+        ]
+
+
+viewScene : Computer -> Model -> Html Never
+viewScene computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
@@ -115,10 +146,3 @@ drawCarousel computer carousel =
 drawCard : Computer -> Color -> Shape
 drawCard computer color =
     block (matte color) ( 0.2, 0.3, 0.3 )
-
-
-
---|> scale (wave 1 2 14 computer.clock)
---|> rotateX (wave 1 10 30 computer.clock)
---|> rotateY (wave 1 10 30 computer.clock)
---|> rotateZ (wave 1 10 30 computer.clock)

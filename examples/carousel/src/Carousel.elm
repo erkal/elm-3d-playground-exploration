@@ -131,7 +131,7 @@ animateToNext (Carousel carousel) =
             | state =
                 Floating
                     { targetX = (carousel.railX - constants.distanceBetweenCardCenters) |> nearestMultipleOf constants.distanceBetweenCardCenters
-                    , railVx = -constants.maxRailSpeed
+                    , railVx = 0.2 * -constants.maxRailSpeed
                     }
         }
 
@@ -143,7 +143,7 @@ animateToPrevious (Carousel carousel) =
             | state =
                 Floating
                     { targetX = (carousel.railX + constants.distanceBetweenCardCenters) |> nearestMultipleOf constants.distanceBetweenCardCenters
-                    , railVx = constants.maxRailSpeed
+                    , railVx = 0.2 * constants.maxRailSpeed
                     }
         }
 
