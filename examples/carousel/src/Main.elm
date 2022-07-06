@@ -82,10 +82,11 @@ view : Computer -> Model -> Html Never
 view computer model =
     div [ class "w-full" ]
         [ div
-            [ class "absolute p-4 text-xl text-white80"
+            [ class "absolute p-4 text-white80"
             , class "grid place-items-center w-full"
             ]
-            [ text "Swipe or press left/right arrow keys" ]
+            [ div [] [ text "Swipe or press left/right arrow keys" ]
+            ]
         , viewScene computer model
         ]
 
