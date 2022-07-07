@@ -46,14 +46,25 @@ update computer model =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    div []
+    div
+        [ style "cursor" <|
+            if List.member "Space" computer.keyboard.pressedKeys then
+                if Camera2d.isPanningWithSpaceBar model.camera2d then
+                    "grabbing"
+
+                else
+                    "grab"
+
+            else
+                "default"
+        ]
         [ viewWebGLCanvas computer model
         , div
             [ class "absolute w-screen h-screen text-center text-xs text-white60"
             ]
             [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * Camera2d.getZoom model.camera2d)) ++ "%") ]
-            , div [ class "p-1" ] [ text "Panning: scroll horizontally and vertically" ]
-            , div [ class "p-1" ] [ text "Zooming: press Control key and scroll vertically" ]
+            , div [ class "p-1" ] [ text "Panning: SCROLL or SPACE + DRAG" ]
+            , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
             ]
         ]
 

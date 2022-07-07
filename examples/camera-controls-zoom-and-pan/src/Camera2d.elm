@@ -1,9 +1,9 @@
 module Camera2d exposing
     ( Camera2d
     , PartialScreen
-    , applyPanning
     , getZoom
     , init
+    , isPanningWithSpaceBar
     , maxZoom
     , minZoom
     , panWithWheel
@@ -41,7 +41,7 @@ type Camera2d
 type CameraState
     = Idle
     | ZoomingWithWheel { lastWheelDeltaYArrivedAt : Float }
-    | PanningWithSpace { mousePositionAtPanStart : Point2d, currentMousePosition : Point2d }
+    | PanningWithSpaceBar { pointerPositionAtPanStart : Point2d, cameraPositionAtStart : Point2d }
 
 
 type alias PartialScreen =
@@ -59,6 +59,16 @@ init =
         , zoom = 1
         , state = Idle
         }
+
+
+isPanningWithSpaceBar : Camera2d -> Bool
+isPanningWithSpaceBar (Camera2d camera2d) =
+    case camera2d.state of
+        PanningWithSpaceBar _ ->
+            True
+
+        _ ->
+            False
 
 
 getZoom : Camera2d -> Float
@@ -149,16 +159,6 @@ zoomAround zoomDelta zoomCenter (Camera2d camera2d) =
         }
 
 
-applyPanning : { mousePositionAtPanStart : Point2d, currentMousePosition : Point2d } -> Camera2d -> Camera2d
-applyPanning { mousePositionAtPanStart, currentMousePosition } (Camera2d camera2d) =
-    let
-        translation =
-            vectorFrom currentMousePosition mousePositionAtPanStart
-                |> scaleBy (1 / camera2d.zoom)
-    in
-    Camera2d { camera2d | position = camera2d.position |> translateBy translation }
-
-
 
 -- TRANSFORMATIONS
 
@@ -194,11 +194,17 @@ tick computer camera2d =
                 |> Maybe.withDefault { x = 0, y = 0 }
     in
     camera2d
+        -- zoom with wheel
         |> startZoomingWithWheel computer mouseOverXY
         |> continueZoomingWithWheel computer mouseOverXY
         |> stopZoomingWithWheelByDeltaX computer
         |> stopZoomingWithWheelByTime computer
+        -- pan with wheel
         |> panWithWheel computer
+        -- pan with space bar
+        |> startPanningWithSpaceBar computer
+        |> panWithSpaceBar computer
+        |> stopPanningWithSpaceBar computer
 
 
 startZoomingWithWheel : Computer -> Point2d -> Camera2d -> Camera2d
@@ -253,7 +259,7 @@ stopZoomingWithWheelByTime : Computer -> Camera2d -> Camera2d
 stopZoomingWithWheelByTime { clock } (Camera2d camera2d) =
     case camera2d.state of
         ZoomingWithWheel { lastWheelDeltaYArrivedAt } ->
-            if (clock - lastWheelDeltaYArrivedAt > 0.08) |> Debug.log "" then
+            if clock - lastWheelDeltaYArrivedAt > 0.08 then
                 Camera2d { camera2d | state = Idle }
 
             else
@@ -277,3 +283,44 @@ panWithWheel { wheel } (Camera2d camera2d) =
 
         _ ->
             Camera2d camera2d
+
+
+startPanningWithSpaceBar : Computer -> Camera2d -> Camera2d
+startPanningWithSpaceBar { keyboard, pointer } (Camera2d camera2d) =
+    if List.member "Space" keyboard.pressedKeys && pointer.down then
+        Camera2d
+            { camera2d
+                | state =
+                    PanningWithSpaceBar
+                        { pointerPositionAtPanStart = Point2d pointer.x pointer.y
+                        , cameraPositionAtStart = camera2d.position
+                        }
+            }
+
+    else
+        Camera2d camera2d
+
+
+panWithSpaceBar : Computer -> Camera2d -> Camera2d
+panWithSpaceBar { keyboard, pointer } (Camera2d camera2d) =
+    case camera2d.state of
+        PanningWithSpaceBar { pointerPositionAtPanStart, cameraPositionAtStart } ->
+            let
+                translation =
+                    vectorFrom (Point2d pointer.x pointer.y) pointerPositionAtPanStart
+                        |> scaleBy (1 / camera2d.zoom)
+            in
+            Camera2d { camera2d | position = cameraPositionAtStart |> translateBy translation }
+
+        _ ->
+            Camera2d camera2d
+
+
+stopPanningWithSpaceBar : Computer -> Camera2d -> Camera2d
+stopPanningWithSpaceBar { pointer } (Camera2d camera2d) =
+    if pointer.up then
+        Camera2d
+            { camera2d | state = Idle }
+
+    else
+        Camera2d camera2d
