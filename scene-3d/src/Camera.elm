@@ -45,7 +45,7 @@ perspective { focalPoint, eyePoint, upDirection } =
                 , eyePoint = Point3d.fromMeters eyePoint
                 , upDirection = Direction3d.from Point3d.origin (Point3d.fromMeters upDirection) |> Maybe.withDefault Direction3d.positiveY
                 }
-        , verticalFieldOfView = Angle.degrees 40
+        , verticalFieldOfView = Angle.radians (2 * atan 0.5)
         }
 
 
@@ -66,7 +66,7 @@ perspectiveWithOrbit { focalPoint, azimuth, elevation, distance } =
                 , elevation = Angle.radians elevation
                 , distance = Length.meters distance
                 }
-        , verticalFieldOfView = Angle.degrees 40
+        , verticalFieldOfView = Angle.radians (2 * atan 0.5)
         }
 
 
