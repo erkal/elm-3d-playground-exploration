@@ -317,7 +317,6 @@ insertVertex computer model =
 
                             Just vertexId ->
                                 Graph.getPosition vertexId (LS.current model.levels).baseGraph
-                                    |> Debug.log "yeey"
                 in
                 if
                     distanceXY positionOfNearestVertex model.pointerXY

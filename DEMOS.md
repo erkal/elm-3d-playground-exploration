@@ -3,6 +3,7 @@
 - a_template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template-with-configurations/src)
 - a_template: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template/src)
 - ball-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/ball-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/ball-game/src)
+- camera-controls-zoom-and-pan: [demo](https://erkal.github.io/elm-3d-playground-exploration/camera-controls-zoom-and-pan), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/camera-controls-zoom-and-pan/src)
 - carousel: [demo](https://erkal.github.io/elm-3d-playground-exploration/carousel), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/carousel/src)
 - celtic-knots: [demo](https://erkal.github.io/elm-3d-playground-exploration/celtic-knots), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/celtic-knots/src)
 - color-shower: [demo](https://erkal.github.io/elm-3d-playground-exploration/color-shower), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/color-shower/src)
