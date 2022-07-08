@@ -45,7 +45,9 @@ perspective { focalPoint, eyePoint, upDirection } =
                 , eyePoint = Point3d.fromMeters eyePoint
                 , upDirection = Direction3d.from Point3d.origin (Point3d.fromMeters upDirection) |> Maybe.withDefault Direction3d.positiveY
                 }
-        , verticalFieldOfView = Angle.radians (2 * atan 0.5)
+        , verticalFieldOfView =
+            -- so that if the z-coordinate of the camera is the same as screen width, we see the XY plane in screen pixel coordinates!
+            Angle.radians (2 * atan 0.5)
         }
 
 
@@ -66,7 +68,9 @@ perspectiveWithOrbit { focalPoint, azimuth, elevation, distance } =
                 , elevation = Angle.radians elevation
                 , distance = Length.meters distance
                 }
-        , verticalFieldOfView = Angle.radians (2 * atan 0.5)
+        , verticalFieldOfView =
+            -- so that if the z-coordinate of the camera is the same as screen width, we see the XY plane in screen pixel coordinates!
+            Angle.radians (2 * atan 0.5)
         }
 
 
