@@ -46,18 +46,7 @@ update computer model =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    div
-        [ style "cursor" <|
-            if List.member "Space" computer.keyboard.pressedKeys then
-                if Camera2d.isPanningWithSpaceBar model.camera2d then
-                    "grabbing"
-
-                else
-                    "grab"
-
-            else
-                "default"
-        ]
+    div [ cursorForSpaceDragging computer model ]
         [ viewWebGLCanvas computer model
         , div
             [ class "absolute w-screen h-screen text-center text-xs text-white60"
@@ -67,6 +56,20 @@ view computer model =
             , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
             ]
         ]
+
+
+cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
+cursorForSpaceDragging computer model =
+    style "cursor" <|
+        if List.member "Space" computer.keyboard.pressedKeys then
+            if Camera2d.isPanningWithSpaceBar model.camera2d then
+                "grabbing"
+
+            else
+                "grab"
+
+        else
+            "default"
 
 
 viewWebGLCanvas : Computer -> Model -> Html Never
