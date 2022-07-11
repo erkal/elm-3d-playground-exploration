@@ -296,7 +296,7 @@ viewComputer computer model =
                             else
                                 "fill-white40"
                         ]
-                        [ Icons.draw Icons.icons.pointer ]
+                        [ Icons.icons.pointer ]
                     ]
     in
     div []
@@ -340,7 +340,7 @@ viewGUI computer model =
                 , Html.Events.onClick ClickOnDistractionFreeButton
                 , HA.title "Distraction Free Mode"
                 ]
-                [ Icons.draw Icons.icons.yinAndYang ]
+                [ Icons.icons.yinAndYang ]
 
         twitterLink =
             div [ class "absolute w-8 bottom-12" ]
@@ -349,7 +349,7 @@ viewGUI computer model =
                     , href "https://twitter.com/AzizErkalSelman"
                     , target "_blank"
                     ]
-                    [ Icons.draw Icons.icons.twitter ]
+                    [ Icons.icons.twitter ]
                 ]
 
         githubLink =
@@ -359,7 +359,7 @@ viewGUI computer model =
                     , href "https://github.com/erkal/elm-3d-playground-exploration"
                     , target "_blank"
                     ]
-                    [ Icons.draw Icons.icons.githubCat ]
+                    [ Icons.icons.githubCat ]
                 ]
     in
     if model.distractionFree then

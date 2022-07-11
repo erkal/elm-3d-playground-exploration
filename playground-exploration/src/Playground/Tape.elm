@@ -305,13 +305,13 @@ recButton msg conditionalStyle =
         [ text "REC" ]
 
 
-tapeButtonWithIcon : String -> msg -> Html msg
+tapeButtonWithIcon : Html msg -> msg -> Html msg
 tapeButtonWithIcon iconD msg =
     button
         [ class "absolute left-[60px] mx-1 px-1 bg-black40"
         , onClick msg
         ]
-        [ div [ class "w-4 h-6 fill-white80" ] [ Icons.draw iconD ] ]
+        [ div [ class "w-4 h-6 fill-white80" ] [ iconD ] ]
 
 
 fpsMeter : Tape gameModel -> Maybe Int
