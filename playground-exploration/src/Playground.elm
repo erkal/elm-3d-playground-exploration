@@ -294,7 +294,7 @@ viewComputer computer model =
                                 "text-black80"
 
                             else
-                                "text-white40"
+                                "text-black40"
                         ]
                         [ Icons.icons.pointer ]
                     ]
@@ -340,7 +340,7 @@ viewGUI computer model =
                 , Html.Events.onClick ClickOnDistractionFreeButton
                 , HA.title "Distraction Free Mode"
                 ]
-                [ Icons.icons.yinAndYang ]
+                [ Icons.icons.yinYang ]
 
         twitterLink =
             div [ class "absolute w-8 bottom-12" ]
