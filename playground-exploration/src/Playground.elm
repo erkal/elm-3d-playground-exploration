@@ -291,10 +291,10 @@ viewComputer computer model =
                     [ div
                         [ class <|
                             if computer.pointer.isDown then
-                                "fill-black80"
+                                "text-black80"
 
                             else
-                                "fill-white40"
+                                "text-white40"
                         ]
                         [ Icons.icons.pointer ]
                     ]
@@ -333,10 +333,10 @@ viewGUI computer model =
             button
                 [ class <|
                     if model.distractionFree then
-                        "fill-black20 hover:fill-black80"
+                        "text-black20 hover:text-black80"
 
                     else
-                        "fill-white40 hover:fill-white80"
+                        "text-white40 hover:text-white80"
                 , Html.Events.onClick ClickOnDistractionFreeButton
                 , HA.title "Distraction Free Mode"
                 ]
@@ -345,7 +345,7 @@ viewGUI computer model =
         twitterLink =
             div [ class "absolute w-8 bottom-12" ]
                 [ a
-                    [ class "fill-twitterBlue40 hover:fill-twitterBlue"
+                    [ class "text-twitterBlue40 hover:text-twitterBlue"
                     , href "https://twitter.com/AzizErkalSelman"
                     , target "_blank"
                     ]
@@ -355,7 +355,7 @@ viewGUI computer model =
         githubLink =
             div [ class "absolute w-8 bottom-2" ]
                 [ a
-                    [ class "fill-githubCat40 hover:fill-githubCat"
+                    [ class "text-githubCat40 hover:text-githubCat"
                     , href "https://github.com/erkal/elm-3d-playground-exploration"
                     , target "_blank"
                     ]
