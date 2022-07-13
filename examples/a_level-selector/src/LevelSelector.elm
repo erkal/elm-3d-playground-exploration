@@ -1,7 +1,7 @@
 module LevelSelector exposing (LevelSelector, Msg, current, init, update, view)
 
 import Html exposing (Html, button, div, input, pre, text, textarea)
-import Html.Attributes exposing (autocomplete, class, cols, placeholder, rows, title, value)
+import Html.Attributes exposing (autocomplete, class, cols, placeholder, rows, style, title, value)
 import Html.Events exposing (onClick, onInput, onMouseDown)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -222,7 +222,7 @@ view (LevelSelector p) =
 
         deleteCurrentLevelButton =
             div
-                [ class "inline-block ml-1 w-4 text-white40 hover:text-white80"
+                [ class "inline-block ml-1 w-4 text-white40 hover:text-red-400"
                 , onClick PressedRemoveLevelButton
                 , title "Delete Level"
                 ]
@@ -254,6 +254,7 @@ view (LevelSelector p) =
                      else
                         "hover:bg-black20"
                     )
+                , style "transition" "background-color 0.3s ease"
                 , onMouseDown (MouseDownOnLevelItem index)
                 ]
                 [ if index == SelectList.currentIndex p.selectList then
@@ -295,6 +296,7 @@ makeButton : msg -> String -> Html msg
 makeButton msg string =
     Html.button
         [ class "m-1 p-2 rounded text-white60 bg-black40 hover:bg-black80"
+        , style "transition" "background-color 0.3s ease"
         , Html.Events.onClick msg
         ]
         [ Html.text string ]
