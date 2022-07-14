@@ -2,19 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --track: lightgray;
+  --sliderthumb: dimgray;
+  --thumbboxshadow: -3000px 0 0 3000px gray;
+  --height: 24px;
+  --thumbheight: 24px;
+  --thumbwidth: 24px;
+  /*--sliderborder: 3px solid red;*/
+  --sliderborder: 0;
+}
+
 input[type='range'] {
   margin: auto;
   -webkit-appearance: none;
   position: relative;
   overflow: hidden;
-  height: 16px;
+  height: var(--height);
   width: 100%;
   cursor: pointer;
   border-radius: 0;
 }
 
 ::-webkit-slider-runnable-track {
-  background: lightGray;
+  background: var(--track);
 }
 
 /*
@@ -24,37 +35,37 @@ input[type='range'] {
  */
 ::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.3);
-  /* border: 2px solid #999;  */
+  width: var(--thumbwidth);
+  height: var(--thumbheight);
+  background: var(--sliderthumb);
+  box-shadow: var(--thumbboxshadow);
+  border: var(--sliderborder);
 }
 
 ::-moz-range-track {
-  height: 16px;
-  background: lightGray;
+  height: var(--trackheight);
+  background: var(--track);
 }
 
 ::-moz-range-thumb {
-  background: rgba(0, 0, 0, 0.5);
-  height: 16px;
-  width: 16px;
-  /* border: 3px solid #999; */
+  background: var(--sliderthumb);
+  height: var(--thumbheight);
+  width: var(--thumbwidth);
+  border: var(--sliderborder) 9;
   border-radius: 0 !important;
-  box-shadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--thumbboxshadow);
   box-sizing: border-box;
 }
 
 ::-ms-fill-lower {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--sliderthumb);
 }
 
 ::-ms-thumb {
-  background: rgba(0, 0, 0, 0.5);
-  /* border: 2px solid #999; */
-  height: 16px;
-  width: 16px;
+  background: var(--sliderthumb);
+  border: var(--sliderborder) 9;
+  height: var(--thumbheight);
+  width: var(--thumbwidth);
   box-sizing: border-box;
 }
 
@@ -67,9 +78,9 @@ input[type='range'] {
 }
 
 ::-ms-track {
-  background: lightGray;
+  background: var(--track);
   color: transparent;
-  height: 16px;
+  height: var(--height);
   border: none;
 }
 
