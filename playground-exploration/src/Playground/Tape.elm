@@ -275,7 +275,7 @@ viewTapeButtons (Tape state { future }) =
                 recButton PressedPauseButton "text-red-500 font-bold"
 
             Paused ->
-                recButton PressedRecordButton "text-white80 font-bold"
+                recButton PressedRecordButton "text-white60 hover:text-white80 font-bold"
 
             Playing _ ->
                 div [] []
@@ -298,7 +298,7 @@ viewTapeButtons (Tape state { future }) =
 recButton : Msg -> String -> Html Msg
 recButton msg conditionalStyle =
     button
-        [ class "px-2 bg-black40"
+        [ class "px-2 bg-black60 hover:bg-black80 active:bg-black"
         , class conditionalStyle
         , onClick msg
         ]
@@ -308,10 +308,10 @@ recButton msg conditionalStyle =
 tapeButtonWithIcon : Html msg -> msg -> Html msg
 tapeButtonWithIcon iconD msg =
     button
-        [ class "absolute left-[60px] mx-1 px-1 bg-black40"
+        [ class "absolute left-[60px] mx-1 px-1 bg-black60 hover:bg-black80 active:bg-black"
         , onClick msg
         ]
-        [ div [ class "w-4 h-6 fill-white80" ] [ iconD ] ]
+        [ div [ class "w-4 h-6 text-white60 hover:text-white80" ] [ iconD ] ]
 
 
 fpsMeter : Tape gameModel -> Maybe Int

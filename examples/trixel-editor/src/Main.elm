@@ -12,15 +12,17 @@ import Html exposing (Html, button, div, h2, hr, option, p, select, span, text)
 import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
-import LevelSelector as LS exposing (Levels)
+import Json.Decode as Decode
+import Json.Encode as Encode
 import List.Nonempty as Nonempty
-import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurationsAndEditor, getFloat)
-import Playground.Animation exposing (wave)
+import Playground exposing (Computer, Screen, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
 import Scene as Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Svg exposing (svg)
 import Svg.Attributes as SA
-import TrixelGrid.CoordinateTransformations exposing (fromWorldCoordinates, toWorldCoordinates)
+import Tools.Pages as Pages exposing (Pages)
+import Tools.PanAndZoomUI as PanAndZoomUI exposing (PanAndZoomUI)
+import TrixelGrid.CoordinateTransformations exposing (fromCanvasCoordinates, toCanvasCoordinates)
 import TrixelGrid.Face as Face exposing (Face(..), LR(..))
 import TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 import World exposing (ColorIndex, World)
@@ -37,7 +39,8 @@ main =
 
 
 type alias Model =
-    { levels : Levels World
+    { pages : Pages World
+    , camera : PanAndZoomUI
     , editorIsOn : Bool
     , selectedColorIndex : Int
     , mouseOveredUV : { u : Float, v : Float }
@@ -46,12 +49,12 @@ type alias Model =
 
 mapCurrentWorld : (World -> World) -> Model -> Model
 mapCurrentWorld up model =
-    { model | levels = LS.mapCurrent up model.levels }
+    { model | pages = Pages.mapCurrent up model.pages }
 
 
 currentPalette : Model -> Palette
 currentPalette =
-    .levels >> LS.current >> .palette
+    .pages >> Pages.current >> .palette
 
 
 
@@ -59,22 +62,25 @@ currentPalette =
 
 
 initialConfigurations =
-    [ configBlock "Camera"
-        True
-        [ floatConfig "camera x" ( -40, 40 ) 0
-        , floatConfig "camera y" ( -40, 40 ) 0
-        , floatConfig "camera z" ( 1, 50 ) 20
-        ]
-    , configBlock "Parameters"
+    [ configBlock "Parameters"
         True
         [ floatConfig "trixel scale" ( 0.5, 1 ) 1
+        , floatConfig "grid dot size" ( 0, 0.4 ) 0
+        , colorConfig "grid color" black
         ]
     ]
 
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton World.empty
+    { pages =
+        Pages.init
+            -- TODO: Decode encode World
+            (always (Encode.string ""))
+            (Decode.succeed World.empty)
+            { name = "1", page = World.empty }
+            []
+    , camera = PanAndZoomUI.init { minZoom = 10, maxZoom = 70 }
     , editorIsOn = True
     , mouseOveredUV = { u = 0, v = 0 }
     , selectedColorIndex = 0
@@ -88,9 +94,31 @@ init computer =
 update : Computer -> Model -> Model
 update computer model =
     model
+        |> updateCamera computer
         |> updateMouseOverUV computer
         |> insertTrixelOnPointerDown computer
         |> removeTrixelOnShiftMouseDown computer
+
+
+toPerspectiveCamera : Screen -> PanAndZoomUI -> Camera
+toPerspectiveCamera screen panAndZoomUI =
+    let
+        { panX, panY, zoom } =
+            PanAndZoomUI.get panAndZoomUI
+    in
+    Camera.perspective
+        { focalPoint =
+            { x = panX
+            , y = panY
+            , z = 0
+            }
+        , eyePoint =
+            { x = panX
+            , y = panY
+            , z = screen.height / zoom
+            }
+        , upDirection = { x = 0, y = 1, z = 0 }
+        }
 
 
 insertTrixelOnPointerDown : Computer -> Model -> Model
@@ -118,11 +146,23 @@ removeTrixelOnShiftMouseDown computer model =
         model
 
 
+updateCamera : Computer -> Model -> Model
+updateCamera computer model =
+    let
+        zoomCenter =
+            computer.pointer
+                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.camera) computer.screen
+                |> Maybe.map (\p -> { x = p.x, y = p.y })
+                |> Maybe.withDefault { x = 0, y = 0 }
+    in
+    { model | camera = model.camera |> PanAndZoomUI.tick computer zoomCenter }
+
+
 updateMouseOverUV : Computer -> Model -> Model
 updateMouseOverUV computer model =
     case
         Camera.mouseOverXY
-            (camera computer)
+            (toPerspectiveCamera computer.screen model.camera)
             computer.screen
             computer.pointer
     of
@@ -132,7 +172,7 @@ updateMouseOverUV computer model =
         Just p ->
             { model
                 | mouseOveredUV =
-                    fromWorldCoordinates
+                    fromCanvasCoordinates
                         { x = p.x
                         , y = p.y
                         }
@@ -143,40 +183,49 @@ updateMouseOverUV computer model =
 -- VIEW
 
 
-camera : Computer -> Camera
-camera computer =
-    perspective
-        { focalPoint =
-            { x = getFloat "camera x" computer
-            , y = getFloat "camera y" computer
-            , z = 0
-            }
-        , eyePoint =
-            { x = getFloat "camera x" computer
-            , y = getFloat "camera y" computer
-            , z = getFloat "camera z" computer
-            }
-        , upDirection = { x = 0, y = 1, z = 0 }
-        }
-
-
 view : Computer -> Model -> Html Never
 view computer model =
+    div [ cursorForSpaceDragging computer model ]
+        [ div [ class "fixed w-full h-full" ]
+            [ viewWebGLCanvas computer model ]
+        , div
+            [ class "absolute w-screen h-screen text-center text-lg text-white60"
+            ]
+            [ div [ class "p-1" ] [ text "TRIXELS" ]
+            ]
+        ]
+
+
+cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
+cursorForSpaceDragging computer model =
+    style "cursor" <|
+        if List.member "Space" computer.keyboard.pressedKeys then
+            if PanAndZoomUI.isPanningWithSpaceBar model.camera then
+                "grabbing"
+
+            else
+                "grab"
+
+        else
+            "default"
+
+
+viewWebGLCanvas : Computer -> Model -> Html Never
+viewWebGLCanvas computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera = camera computer
+        , camera = toPerspectiveCamera computer.screen model.camera
         , backgroundColor =
-            (LS.current model.levels).palette
-                |> ColorPalette.get (LS.current model.levels).backgroundColorIndex
+            (Pages.current model.pages).palette
+                |> ColorPalette.get (Pages.current model.pages).backgroundColorIndex
         , sunlightAzimuth = degrees 225
         , sunlightElevation = degrees 315
         }
         [ group
-            [ group []
-            , drawFaces computer model
+            [ drawFaces computer model
+            , drawGrid computer
 
-            --, drawVertices
             --, axes
             --, drawMouseOveredFace computer model
             ]
@@ -195,7 +244,7 @@ axes =
 drawMouseOveredFace : Computer -> Model -> Shape
 drawMouseOveredFace computer model =
     drawFace computer
-        (LS.current model.levels).palette
+        (Pages.current model.pages).palette
         ( Face.at model.mouseOveredUV, model.selectedColorIndex )
 
 
@@ -203,7 +252,7 @@ drawFaces : Computer -> Model -> Shape
 drawFaces computer model =
     let
         world =
-            LS.current model.levels
+            Pages.current model.pages
     in
     group
         (world.trixels |> AnyDict.toList |> List.map (drawFace computer world.palette))
@@ -216,7 +265,7 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
             { u = toFloat u
             , v = toFloat v
             }
-                |> toWorldCoordinates
+                |> toCanvasCoordinates
 
         drawLeftFace : Shape
         drawLeftFace =
@@ -236,7 +285,7 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
         faceCenter =
             let
                 c =
-                    toWorldCoordinates <|
+                    toCanvasCoordinates <|
                         case lr of
                             L ->
                                 { u = 1 / 3, v = 1 / 3 }
@@ -258,19 +307,20 @@ drawFace computer palette ( Face lr u v, colorIndex ) =
         |> moveY y
 
 
-drawVertex : Color -> Float -> Vertex -> Shape
-drawVertex color radius v =
+drawGridDot : Color -> Float -> Vertex -> Shape
+drawGridDot color radius v =
     let
         { x, y } =
-            Vertex.worldCoordinates v
+            Vertex.canvasCoordinates v
     in
-    cube (matte color) radius
+    cylinder (matte color) radius 0.1
+        |> rotateX (degrees 90)
         |> moveX x
         |> moveY y
 
 
-drawVertices : Shape
-drawVertices =
+drawGrid : Computer -> Shape
+drawGrid computer =
     let
         cartesianProduct : List a -> List b -> List ( b, a )
         cartesianProduct columns =
@@ -279,14 +329,24 @@ drawVertices =
                     List.map (\j -> ( i, j )) columns
             in
             List.concatMap row
+
+        gridDotSize =
+            getFloat "grid dot size" computer
+
+        gridColor =
+            getColor "grid color" computer
     in
-    group
-        (cartesianProduct
-            (List.range -3 3)
-            (List.range -2 2)
-            |> List.map vertex
-            |> List.map (drawVertex black 0.02)
-        )
+    if gridDotSize == 0 then
+        group []
+
+    else
+        group
+            (cartesianProduct
+                (List.range -3 3)
+                (List.range -2 2)
+                |> List.map vertex
+                |> List.map (drawGridDot gridColor gridDotSize)
+            )
 
 
 
@@ -298,12 +358,7 @@ type EditorMsg
     | SelectPalette Palette
     | SelectColor Int
     | PressedButtonForSettingBackgroundColor
-      -- LEVEL SELECTOR:
-    | PressedPreviousLevelButton
-    | PressedNextLevelButton
-    | PressedAddLevelButton
-    | PressedRemoveLevelButton
-    | PressedMoveLevelOneUoButton
+    | FromLevelEditor Pages.Msg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
@@ -323,31 +378,8 @@ updateFromEditor computer editorMsg model =
             model
                 |> mapCurrentWorld (World.setBackgroundColorIndex model.selectedColorIndex)
 
-        -- LEVEL SELECTOR:
-        PressedPreviousLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToPrevious
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedNextLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToNext
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add World.empty }
-
-        PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
-
-        PressedMoveLevelOneUoButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
+        FromLevelEditor levelEditorMsg ->
+            { model | pages = model.pages |> Pages.update levelEditorMsg }
 
 
 icons =
@@ -397,7 +429,7 @@ editorContent computer model =
             ]
             [ viewInstructions
             , viewColorSelection model
-            , levelSelection model
+            , pageSelection model
             ]
 
     else
@@ -410,6 +442,8 @@ viewInstructions =
         [ div [ class "text-lg" ] [ text "Instructions" ]
         , div [ class "pl-2" ] [ text "- Press mouse to add trixel" ]
         , div [ class "pl-2" ] [ text "- Hold shift and press mouse to remove trixel" ]
+        , div [ class "pl-2" ] [ text "- Panning: SCROLL or SPACE + DRAG" ]
+        , div [ class "pl-2" ] [ text "- Zooming: CTRL + SCROLL" ]
         ]
 
 
@@ -424,25 +458,14 @@ viewColorSelection model =
         ]
 
 
-levelSelection : Model -> Html EditorMsg
-levelSelection model =
+pageSelection : Model -> Html EditorMsg
+pageSelection model =
     div [ class "p-4 border-[0.5px] border-white20" ]
-        [ div [ class "text-lg" ] [ text "Level Selection" ]
-        , p []
-            [ makeButton PressedPreviousLevelButton "<"
-            , span [ style "margin" "10px" ]
-                [ text <|
-                    String.concat
-                        [ String.fromInt (LS.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LS.size model.levels)
-                        ]
-                ]
-            , makeButton PressedNextLevelButton ">"
+        [ div [ class "text-lg" ] [ text "Pages" ]
+        , div [ class "p-4" ]
+            [ Html.map FromLevelEditor
+                (Pages.view model.pages)
             ]
-        , makeButton PressedAddLevelButton "Add level"
-        , makeButton PressedRemoveLevelButton "Remove current level"
-        , makeButton PressedMoveLevelOneUoButton "Move level one up"
         ]
 
 
@@ -478,7 +501,7 @@ viewColorPalette : Model -> Html EditorMsg
 viewColorPalette model =
     let
         world =
-            LS.current model.levels
+            Pages.current model.pages
 
         boxSize =
             18

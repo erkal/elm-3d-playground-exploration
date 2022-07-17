@@ -3,7 +3,7 @@ module TrixelGrid.Vertex exposing (..)
 -- The coordinate system is as described in the following article
 -- http://www-cs-students.stanford.edu/~amitp/game-programming/grids/
 
-import TrixelGrid.CoordinateTransformations exposing (toWorldCoordinates)
+import TrixelGrid.CoordinateTransformations exposing (toCanvasCoordinates)
 
 
 type Vertex
@@ -15,9 +15,9 @@ vertex =
     Vertex
 
 
-worldCoordinates : Vertex -> { x : Float, y : Float }
-worldCoordinates (Vertex ( u, v )) =
-    toWorldCoordinates
+canvasCoordinates : Vertex -> { x : Float, y : Float }
+canvasCoordinates (Vertex ( u, v )) =
+    toCanvasCoordinates
         { u = toFloat u
         , v = toFloat v
         }

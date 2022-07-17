@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --track: lightgray;
-  --sliderthumb: dimgray;
-  --thumbboxshadow: -3000px 0 0 3000px gray;
+  --track: rgba(0, 0, 0, 0.4);
+  --sliderthumb: rgba(0, 0, 0, 0.7);
+  --thumbboxshadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.5);
+  /*--sliderborder: 3px solid red;*/
+  --sliderborder: 0;
   --height: 24px;
   --thumbheight: 24px;
   --thumbwidth: 24px;
-  /*--sliderborder: 3px solid red;*/
-  --sliderborder: 0;
 }
 
 input[type='range'] {

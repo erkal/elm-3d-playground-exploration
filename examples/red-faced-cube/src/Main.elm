@@ -2,18 +2,16 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Cell exposing (Cell, RollDirection(..))
-import Color exposing (darkRed, hsl, lightRed, red, rgb255, white)
+import Color exposing (darkRed, hsl, lightRed, rgb255, white)
 import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Ease
 import Editor exposing (Editor)
 import Geometry exposing (Point, Vector)
 import HardcodedLevels exposing (hardcodedLevels)
-import Html exposing (Html, br, button, div, h2, p, pre, span, text, textarea)
+import Html exposing (Html, br, button, div, p, pre, span, text, textarea)
 import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
 import Html.Events exposing (onClick)
 import Illuminance
-import Json.Decode
-import LevelSelector as LS exposing (Levels)
 import Light
 import LuminousFlux
 import Path exposing (Path)
@@ -27,9 +25,11 @@ import Svg exposing (svg)
 import Svg.Attributes as SA
 import Swipe exposing (Swipe)
 import Temperature
+import Tools.Pages as Pages exposing (Pages)
 import Wall exposing (Wall(..), WallDirection(..))
 import World exposing (RollResultForLevelEditing(..), Rule(..), StepResult(..), World)
 import World.Decode
+import World.Encode
 
 
 
@@ -51,7 +51,7 @@ main =
 
 type alias Model =
     { state : State
-    , levels : Levels World
+    , levels : Pages World
     , editor : Editor
     , cellUnderPointer : Cell
     , swipe : Swipe
@@ -111,7 +111,9 @@ initialConfigurations =
 init : Computer -> Model
 init computer =
     { state = NoAnimation
-    , levels = hardcodedLevels
+    , levels =
+        Pages.init World.Encode.encodeWorld World.Decode.decodeWorld { name = "level 1", page = World.levelFromBook } []
+            |> Pages.importJSON hardcodedLevels
     , editor = Editor.init
     , cellUnderPointer = ( 0, 0 )
     , swipe = Swipe.init
@@ -126,10 +128,10 @@ update : Computer -> Model -> Model
 update computer model =
     let
         playerCube =
-            (LS.current model.levels).playerCube
+            (Pages.current model.levels).playerCube
 
         levelEditingCube =
-            (LS.current model.levels).levelEditingCube
+            (Pages.current model.levels).levelEditingCube
 
         handleUserInput =
             case inputToRollDirection computer model of
@@ -221,7 +223,7 @@ swipeInputToRollDirection swipe =
 
 attemptRollForPlayer : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForPlayer rollDirection startCell computer model =
-    case LS.current model.levels |> World.step rollDirection of
+    case Pages.current model.levels |> World.step rollDirection of
         ViolatesRule CannotCrossPath ->
             model
 
@@ -251,7 +253,7 @@ attemptRollForPlayer rollDirection startCell computer model =
 
 attemptRollForLevelEditing : RollDirection -> Cell -> Computer -> Model -> Model
 attemptRollForLevelEditing rollDirection startCell computer model =
-    case LS.current model.levels |> World.stepForLevelEditing rollDirection of
+    case Pages.current model.levels |> World.stepForLevelEditing rollDirection of
         CannotRoll_LevelFinishedBecauseTopFaceIsRed ->
             model
 
@@ -275,7 +277,7 @@ stopAnimation computer model =
 
                         else
                             NoAnimation
-                    , levels = model.levels |> LS.setCurrent newWorld
+                    , levels = model.levels |> Pages.mapCurrent (always newWorld)
                 }
 
             else
@@ -406,7 +408,7 @@ camera computer model =
         { focalPoint =
             let
                 center =
-                    World.center (LS.current model.levels)
+                    World.center (Pages.current model.levels)
             in
             { x = center.x, y = center.y, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
@@ -419,7 +421,7 @@ viewShapes : Computer -> Model -> Html Never
 viewShapes computer model =
     let
         (Cube ( x, y ) _) =
-            (LS.current model.levels).playerCube
+            (Pages.current model.levels).playerCube
 
         ( cubeX, cubeY ) =
             -- This is only for the camera follow rolling cube smoothly
@@ -521,7 +523,7 @@ drawMarkForFinishCell : Computer -> Model -> Shape
 drawMarkForFinishCell computer model =
     let
         ( x, y ) =
-            (LS.current model.levels).levelEditingPath.last
+            (Pages.current model.levels).levelEditingPath.last
     in
     cylinder (matte (getColor "finish mark color" computer)) 0.3 1
         |> rotateX (degrees 90)
@@ -540,7 +542,7 @@ drawBoard computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LS.current model.levels).levelEditingPath
+        ((Pages.current model.levels).levelEditingPath
             |> Path.cells
             |> List.map drawCellOnPath
         )
@@ -603,7 +605,7 @@ drawWallsForLevelEditingPath computer model =
     let
         pathToDraw =
             model.editor.mouseOveredSolution
-                |> Maybe.withDefault (LS.current model.levels).levelEditingPath
+                |> Maybe.withDefault (Pages.current model.levels).levelEditingPath
     in
     group
         (pathToDraw
@@ -616,9 +618,9 @@ drawWallsForLevelEditingPath computer model =
 drawWallsForPlayerPath : Computer -> Model -> Shape
 drawWallsForPlayerPath computer model =
     group
-        ((LS.current model.levels).levelEditingPath
+        ((Pages.current model.levels).levelEditingPath
             |> Path.wallsWithDuplicates
-            |> List.filter (\wall -> not (Path.crosses wall (LS.current model.levels).playerPath))
+            |> List.filter (\wall -> not (Path.crosses wall (Pages.current model.levels).playerPath))
             |> List.map (drawWall computer)
         )
 
@@ -651,7 +653,7 @@ drawPlayerPath computer model =
                 |> moveY (toFloat y)
     in
     group
-        ((LS.current model.levels).playerPath
+        ((Pages.current model.levels).playerPath
             |> Path.cells
             |> List.indexedMap drawCellOnPath
         )
@@ -661,7 +663,7 @@ drawPlayerCube : Computer -> Model -> Shape
 drawPlayerCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            (LS.current model.levels).playerCube
+            (Pages.current model.levels).playerCube
 
         s =
             getFloat "cubes side length" computer
@@ -714,7 +716,7 @@ drawLevelEditingCube : Computer -> Model -> Shape
 drawLevelEditingCube computer model =
     let
         (Cube ( x, y ) redFaceDirection) =
-            (LS.current model.levels).levelEditingCube
+            (Pages.current model.levels).levelEditingCube
 
         s =
             getFloat "cubes side length" computer
@@ -851,15 +853,7 @@ type EditorMsg
     | PressedCalculateSolutionsButton
     | MouseEnterSolution Path
     | MouseLeftSolution
-    | PressedLevelBox Int
-    | PressedPreviousLevelButton
-    | PressedNextLevelButton
-    | PressedAddLevelButton
-    | PressedRemoveLevelButton
-    | PressedMoveLevelOneUpButton
-    | ClickedExportLevelsButton
-    | ClickedImportLevelsButton
-    | EditedTextAreaForImportingLevels String
+    | FromLevelEditor Pages.Msg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
@@ -872,7 +866,7 @@ updateFromEditor computer editorMsg ({ editor } as model) =
                         |> Editor.toggle
                 , levels =
                     model.levels
-                        |> LS.map World.reset
+                        |> Pages.mapCurrent World.reset
                 , state =
                     NoAnimation
             }
@@ -881,11 +875,11 @@ updateFromEditor computer editorMsg ({ editor } as model) =
             { model
                 | levels =
                     model.levels
-                        |> LS.mapCurrent
+                        |> Pages.mapCurrent
                             (\world ->
                                 { world
                                     | calculatedSolutions =
-                                        LS.current model.levels |> World.calculateSolutions
+                                        Pages.current model.levels |> World.calculateSolutions
                                 }
                             )
             }
@@ -902,57 +896,8 @@ updateFromEditor computer editorMsg ({ editor } as model) =
                     { editor | mouseOveredSolution = Nothing }
             }
 
-        PressedLevelBox i ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goTo i
-            }
-
-        PressedPreviousLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToPrevious
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedNextLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToNext
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedAddLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.add World.empty
-            }
-
-        PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
-
-        PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
-
-        ClickedExportLevelsButton ->
-            { model | editor = model.editor |> Editor.exportLevels model.levels }
-
-        ClickedImportLevelsButton ->
-            { model
-                | levels =
-                    model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder World.Decode.decodeWorld)
-                        |> Result.withDefault model.levels
-            }
-
-        EditedTextAreaForImportingLevels string ->
-            { model
-                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
-            }
+        FromLevelEditor levelEditorMsg ->
+            { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
 icons =
@@ -1004,10 +949,6 @@ editorContent computer model =
                 [ viewSolutions computer model ]
             , div [ class "p-4 border-[0.5px] border-white20" ]
                 [ levelSelection model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelExporting computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelImporting computer model ]
             ]
 
     else
@@ -1021,7 +962,7 @@ viewSolutions computer model =
             [ div [ class "text-lg" ] [ Html.text "Solution Calculator" ]
             , makeButton PressedCalculateSolutionsButton "Calculate all solutions"
             , div []
-                (LS.current model.levels
+                (Pages.current model.levels
                     |> .calculatedSolutions
                     |> List.indexedMap
                         (\i p ->
@@ -1065,57 +1006,6 @@ makeButton msg string =
 levelSelection : Model -> Html EditorMsg
 levelSelection model =
     div []
-        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
-        , p []
-            [ makeButton PressedPreviousLevelButton "<"
-            , span [ style "margin" "10px" ]
-                [ Html.text <|
-                    String.concat
-                        [ String.fromInt (LS.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LS.size model.levels)
-                        ]
-                ]
-            , makeButton PressedNextLevelButton ">"
-            ]
-        , makeButton PressedAddLevelButton "Add level"
-        , makeButton PressedRemoveLevelButton "Remove current level"
-        , makeButton PressedMoveLevelOneUpButton "Move level one up"
+        [ div [ class "text-lg" ] [ text "Pages" ]
+        , div [ class "p-4" ] [ Html.map FromLevelEditor (Pages.view model.levels) ]
         ]
-
-
-levelExporting : Computer -> Model -> Html EditorMsg
-levelExporting computer model =
-    div []
-        [ makeButton ClickedExportLevelsButton "Export Levels"
-        , textAreaForExportedLevels model
-        ]
-
-
-textAreaForExportedLevels : Model -> Html EditorMsg
-textAreaForExportedLevels model =
-    pre
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        ]
-        [ Html.text model.editor.jsonExportedLevels ]
-
-
-levelImporting : Computer -> Model -> Html EditorMsg
-levelImporting computer model =
-    div
-        []
-        [ makeButton ClickedImportLevelsButton "Import Levels"
-        , textAreaForLevelsToImport model
-        ]
-
-
-textAreaForLevelsToImport : Model -> Html EditorMsg
-textAreaForLevelsToImport model =
-    textarea
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        , rows 150
-        , cols 10
-        , Html.Events.onInput EditedTextAreaForImportingLevels
-        , value model.editor.jsonLevelsToImport
-        ]
-        [ Html.text "todo" ]

@@ -4,8 +4,8 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Json.Decode
 import Json.Encode
-import LevelSelector exposing (LevelSelector)
 import Playground exposing (Computer, gameWithConfigurationsAndEditor)
+import Tools.Pages as Pages exposing (Pages)
 
 
 main =
@@ -13,7 +13,7 @@ main =
 
 
 type alias Model =
-    LevelSelector Level
+    Pages Level
 
 
 type alias Level =
@@ -26,13 +26,13 @@ type alias Level =
 
 init : Computer -> Model
 init computer =
-    LevelSelector.init
+    Pages.init
         Json.Encode.string
         Json.Decode.string
-        { name = "level 1", level = "I am level 1" }
-        [ { name = "level 2", level = "I am level 2" }
-        , { name = "level 3", level = "I am level 3" }
-        , { name = "level 4", level = "I am level 4" }
+        { name = "level 1", page = "I am level 1" }
+        [ { name = "level 2", page = "I am level 2" }
+        , { name = "level 3", page = "I am level 3" }
+        , { name = "level 4", page = "I am level 4" }
         ]
 
 
@@ -52,24 +52,24 @@ update computer model =
 view : Computer -> Model -> Html Never
 view computer model =
     div [ class "absolute left-[400px]" ]
-        [ div [] [ text (LevelSelector.current model) ]
+        [ div [] [ text (Pages.current model) ]
         ]
 
 
 type EditorMsg
-    = FromLevelEditor LevelSelector.Msg
+    = FromLevelEditor Pages.Msg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         FromLevelEditor levelEditorMsg ->
-            model |> LevelSelector.update levelEditorMsg
+            model |> Pages.update levelEditorMsg
 
 
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div [ class "fixed right-0 p-4" ]
         [ Html.map FromLevelEditor
-            (LevelSelector.view model)
+            (Pages.view model)
         ]

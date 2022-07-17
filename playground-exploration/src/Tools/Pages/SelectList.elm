@@ -1,7 +1,4 @@
-module SelectList exposing (..)
-
-import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE exposing (Value)
+module Tools.Pages.SelectList exposing (..)
 
 
 type SelectList a

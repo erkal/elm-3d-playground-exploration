@@ -1,4 +1,13 @@
-module LevelSelector exposing (LevelSelector, Msg, current, init, update, view)
+module Tools.Pages exposing
+    ( Msg
+    , Pages
+    , current
+    , importJSON
+    , init
+    , mapCurrent
+    , update
+    , view
+    )
 
 import Html exposing (Html, button, div, input, pre, text, textarea)
 import Html.Attributes exposing (autocomplete, class, cols, placeholder, rows, style, title, value)
@@ -6,43 +15,43 @@ import Html.Events exposing (onClick, onInput, onMouseDown)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Playground.Icons as Icons
-import SelectList exposing (SelectList)
+import Tools.Pages.SelectList as SelectList exposing (SelectList)
 
 
-type LevelSelector level
-    = LevelSelector
-        { selectList : SelectList (Item level)
+type Pages page
+    = Pages
+        { selectList : SelectList (Item page)
 
         --
-        , encodeLevel : level -> Value
-        , levelDecoder : Decoder level
-        , jsonExportedLevels : String
-        , jsonLevelsToImport : String
+        , encodePage : page -> Value
+        , pageDecoder : Decoder page
+        , textAreaContentForExportingJson : String
+        , textAreaContentForImportingJson : String
         }
 
 
-type alias Item level =
+type alias Item page =
     { name : String
-    , level : level
+    , page : page
     }
 
 
-init : (level -> Value) -> Decoder level -> Item level -> List (Item level) -> LevelSelector level
-init encodeLevel levelDecoder first rest =
-    LevelSelector
+init : (page -> Value) -> Decoder page -> Item page -> List (Item page) -> Pages page
+init encodePage pageDecoder first rest =
+    Pages
         { selectList = SelectList.init first rest
 
         --
-        , encodeLevel = encodeLevel
-        , levelDecoder = levelDecoder
-        , jsonExportedLevels = ""
-        , jsonLevelsToImport = ""
+        , encodePage = encodePage
+        , pageDecoder = pageDecoder
+        , textAreaContentForExportingJson = ""
+        , textAreaContentForImportingJson = ""
         }
 
 
-current : LevelSelector level -> level
-current (LevelSelector p) =
-    p.selectList |> SelectList.current |> .level
+current : Pages page -> page
+current (Pages p) =
+    p.selectList |> SelectList.current |> .page
 
 
 
@@ -62,7 +71,7 @@ type Msg
     | EditedTextAreaForImportingLevels String
 
 
-update : Msg -> LevelSelector level -> LevelSelector level
+update : Msg -> Pages page -> Pages page
 update msg selectListComponent =
     selectListComponent
         |> addNewLevel msg
@@ -74,30 +83,36 @@ update msg selectListComponent =
         |> handleImportExport msg
 
 
-mapSelectList : (SelectList (Item level) -> SelectList (Item level)) -> LevelSelector level -> LevelSelector level
-mapSelectList up (LevelSelector p) =
-    LevelSelector { p | selectList = up p.selectList }
+mapSelectList : (SelectList (Item page) -> SelectList (Item page)) -> Pages page -> Pages page
+mapSelectList up (Pages p) =
+    Pages { p | selectList = up p.selectList }
 
 
-changeLevelName : Msg -> LevelSelector level -> LevelSelector level
-changeLevelName msg (LevelSelector p) =
+mapCurrent : (page -> page) -> Pages page -> Pages page
+mapCurrent up =
+    mapSelectList
+        (SelectList.mapCurrent (\item -> { item | page = up item.page }))
+
+
+changeLevelName : Msg -> Pages page -> Pages page
+changeLevelName msg (Pages p) =
     case msg of
         ChangedCurrentLevelsNameTo newName ->
-            LevelSelector p
+            Pages p
                 |> mapSelectList
                     (SelectList.mapCurrent (\item -> { item | name = newName }))
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-handleImportExport : Msg -> LevelSelector level -> LevelSelector level
-handleImportExport msg (LevelSelector p) =
+handleImportExport : Msg -> Pages page -> Pages page
+handleImportExport msg (Pages p) =
     case msg of
         ClickedExportLevelsButton ->
-            LevelSelector
+            Pages
                 { p
-                    | jsonExportedLevels =
+                    | textAreaContentForExportingJson =
                         JE.encode 2
                             (p.selectList
                                 |> SelectList.toList
@@ -105,112 +120,118 @@ handleImportExport msg (LevelSelector p) =
                                     (\item ->
                                         JE.object
                                             [ ( "name", JE.string item.name )
-                                            , ( "level", p.encodeLevel item.level )
+                                            , ( "page", p.encodePage item.page )
                                             ]
                                     )
                             )
                 }
 
         ClickedImportLevelsButton ->
-            LevelSelector
-                { p
-                    | selectList =
-                        let
-                            itemDecoder : Decoder (Item level)
-                            itemDecoder =
-                                JD.map2
-                                    Item
-                                    (JD.field "name" JD.string)
-                                    (JD.field "level" p.levelDecoder)
-                        in
-                        p.jsonLevelsToImport
-                            |> JD.decodeString
-                                (JD.list itemDecoder
-                                    |> JD.andThen
-                                        (\l ->
-                                            case l of
-                                                [] ->
-                                                    JD.fail "List is empty"
-
-                                                first :: rest ->
-                                                    JD.succeed (SelectList.init first rest)
-                                        )
-                                )
-                            |> Result.withDefault p.selectList
-                }
+            Pages p
+                |> importJSON p.textAreaContentForImportingJson
 
         EditedTextAreaForImportingLevels string ->
-            LevelSelector { p | jsonLevelsToImport = string }
+            Pages { p | textAreaContentForImportingJson = string }
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-selectLevel : Msg -> LevelSelector level -> LevelSelector level
-selectLevel msg (LevelSelector p) =
+importJSON : String -> Pages page -> Pages page
+importJSON jSONString (Pages p) =
+    Pages
+        { p
+            | selectList =
+                let
+                    itemDecoder : Decoder (Item page)
+                    itemDecoder =
+                        JD.map2
+                            Item
+                            (JD.field "name" JD.string)
+                            (JD.field "page" p.pageDecoder)
+                in
+                jSONString
+                    |> JD.decodeString
+                        (JD.list itemDecoder
+                            |> JD.andThen
+                                (\l ->
+                                    case l of
+                                        [] ->
+                                            JD.fail "List of pages is empty"
+
+                                        first :: rest ->
+                                            JD.succeed (SelectList.init first rest)
+                                )
+                        )
+                    |> Result.withDefault p.selectList
+        }
+
+
+selectLevel : Msg -> Pages page -> Pages page
+selectLevel msg (Pages p) =
     case msg of
         MouseDownOnLevelItem index ->
-            LevelSelector p
+            Pages p
                 |> mapSelectList (SelectList.goTo index)
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-removeCurrentLevel : Msg -> LevelSelector level -> LevelSelector level
-removeCurrentLevel msg (LevelSelector p) =
+removeCurrentLevel : Msg -> Pages page -> Pages page
+removeCurrentLevel msg (Pages p) =
     case msg of
         PressedRemoveLevelButton ->
-            LevelSelector p
+            Pages p
                 |> mapSelectList SelectList.removeCurrent
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-moveLevelOneDown : Msg -> LevelSelector level -> LevelSelector level
-moveLevelOneDown msg (LevelSelector p) =
+moveLevelOneDown : Msg -> Pages page -> Pages page
+moveLevelOneDown msg (Pages p) =
     case msg of
         PressedMoveLevelDownButton ->
-            LevelSelector p
+            Pages p
                 |> mapSelectList SelectList.moveElementDown
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-moveLevelOneUp : Msg -> LevelSelector level -> LevelSelector level
-moveLevelOneUp msg (LevelSelector p) =
+moveLevelOneUp : Msg -> Pages page -> Pages page
+moveLevelOneUp msg (Pages p) =
     case msg of
         PressedMoveLevelUpButton ->
-            LevelSelector p
+            Pages p
                 |> mapSelectList SelectList.moveElementUp
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
-addNewLevel : Msg -> LevelSelector level -> LevelSelector level
-addNewLevel msg (LevelSelector p) =
+addNewLevel : Msg -> Pages page -> Pages page
+addNewLevel msg (Pages p) =
     case msg of
         PressedAddLevelButton ->
             let
                 currentLevel =
                     SelectList.current p.selectList
             in
-            LevelSelector p
+            Pages p
                 |> mapSelectList (SelectList.add { currentLevel | name = currentLevel.name ++ " copy" })
 
         _ ->
-            LevelSelector p
+            Pages p
 
 
 
 -- VIEW
 
 
-view : LevelSelector level -> Html Msg
-view (LevelSelector p) =
+view : Pages page -> Html Msg
+view (Pages p) =
     let
         addNewLevelButton =
             button
@@ -260,7 +281,7 @@ view (LevelSelector p) =
                 [ if index == SelectList.currentIndex p.selectList then
                     div []
                         [ input
-                            [ class "w-[140px] bg-transparent"
+                            [ class "w-[100px] bg-transparent"
                             , placeholder "Enter Level Name"
                             , value (p.selectList |> SelectList.current |> .name)
                             , onInput ChangedCurrentLevelsNameTo
@@ -280,15 +301,14 @@ view (LevelSelector p) =
                 ]
     in
     div
-        [ class "w-60 text-xs bg-black20"
+        [ class "w-60 text-xs"
         ]
-        [ div [ class "text-xl p-2" ] [ text "Level Selector" ]
-        , div [ class "w-full h-[200px] overflow-hidden overflow-y-scroll" ]
+        [ div [ class "w-full h-[200px] overflow-hidden overflow-y-scroll" ]
             (p.selectList |> SelectList.toList |> List.indexedMap (\index { name } -> levelItem index name))
         , div [ class "p-4 border-[0.5px] border-white20" ]
-            [ levelExporting (LevelSelector p) ]
+            [ exportingPages (Pages p) ]
         , div [ class "p-4 border-[0.5px] border-white20" ]
-            [ levelImporting (LevelSelector p) ]
+            [ importingPages (Pages p) ]
         ]
 
 
@@ -302,18 +322,18 @@ makeButton msg string =
         [ Html.text string ]
 
 
-levelExporting : LevelSelector level -> Html Msg
-levelExporting (LevelSelector p) =
+exportingPages : Pages page -> Html Msg
+exportingPages (Pages p) =
     div []
         [ makeButton ClickedExportLevelsButton "Export"
         , pre
             [ class "w-full p-2 h-28 overflow-y-scroll text-white60 text-[8px] leading-[9px] bg-black40 select-text" ]
-            [ Html.text p.jsonExportedLevels ]
+            [ Html.text p.textAreaContentForExportingJson ]
         ]
 
 
-levelImporting : LevelSelector level -> Html Msg
-levelImporting (LevelSelector p) =
+importingPages : Pages page -> Html Msg
+importingPages (Pages p) =
     div []
         [ makeButton ClickedImportLevelsButton "Import"
         , textarea
@@ -321,7 +341,7 @@ levelImporting (LevelSelector p) =
             , rows 150
             , cols 10
             , Html.Events.onInput EditedTextAreaForImportingLevels
-            , value p.jsonLevelsToImport
+            , value p.textAreaContentForImportingJson
             ]
             [ Html.text "todo" ]
         ]

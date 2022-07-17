@@ -1,15 +1,12 @@
 module Main exposing (main)
 
 import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
-import Color exposing (Color, black, blue, darkGreen, green, orange, red, rgb255, white, yellow)
-import Editor exposing (Editor, EditorState(..))
+import Color exposing (Color, black, blue, darkGreen, green, red, rgb255, white, yellow)
 import Geometry exposing (Point, Vector)
-import Html exposing (Html, button, div, p, pre, span, textarea)
-import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
+import Html exposing (Html, button, div, p, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Illuminance
-import Json.Decode
-import LevelSelector as LS exposing (Levels)
 import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
@@ -20,10 +17,12 @@ import Scene3d.Material as Material
 import Svg exposing (svg)
 import Svg.Attributes as SA
 import Temperature
+import Tools.Pages as Pages exposing (Pages)
 import Triangulate
 import World exposing (World)
 import World.Decode
-import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, Vector2d, edgesOfPolygon, edgesOfPolyline)
+import World.Encode
+import World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, Vector2d, distance, edgesOfPolygon, edgesOfPolyline)
 import World.Physics.Tick
 
 
@@ -32,11 +31,17 @@ main =
 
 
 type alias Model =
-    { levels : Levels World
-    , editor : Editor
+    { levels : Pages World
+    , editorIsOn : Bool
+    , state : State
     , camera : Camera
     , mouseOverXY : Point2d
     }
+
+
+type State
+    = Idle
+    | DrawingPolygon (List Point2d)
 
 
 
@@ -73,8 +78,9 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { levels = LS.singleton World.init
-    , editor = Editor.init
+    { levels = Pages.init World.Encode.encode World.Decode.decoder { name = "level 1", page = World.init } []
+    , editorIsOn = True
+    , state = Idle
     , camera = camera computer { x = 0, y = 0, z = 0 }
     , mouseOverXY = Point2d 0 0
     }
@@ -114,7 +120,7 @@ update computer_ model =
                 computer_
 
         handleEditorInput =
-            if model.editor.isOn then
+            if model.editorIsOn then
                 handleDrawingPolygon computer
 
             else
@@ -129,11 +135,30 @@ update computer_ model =
 
 handleDrawingPolygon : Computer -> Model -> Model
 handleDrawingPolygon computer model =
-    if computer.keyboard.shift then
-        { model | editor = model.editor |> Editor.addVertexToDrawnPolygon model.mouseOverXY }
+    case ( computer.keyboard.shift, model.state ) of
+        ( True, DrawingPolygon l ) ->
+            let
+                newPoint =
+                    model.mouseOverXY
+            in
+            { model
+                | state =
+                    DrawingPolygon
+                        (case List.reverse l of
+                            [] ->
+                                [ newPoint ]
 
-    else
-        model
+                            last :: _ ->
+                                if distance last newPoint > 2 then
+                                    l ++ [ newPoint ]
+
+                                else
+                                    l
+                        )
+            }
+
+        _ ->
+            model
 
 
 updateMouseOverXY : Computer -> Model -> Model
@@ -151,7 +176,7 @@ moveCamera : Computer -> Model -> Model
 moveCamera computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (Pages.current model.levels).ball
     in
     { model
         | camera =
@@ -163,9 +188,9 @@ tickWorld : Computer -> Model -> Model
 tickWorld computer model =
     let
         newWorld =
-            LS.current model.levels |> World.Physics.Tick.tick computer
+            Pages.current model.levels |> World.Physics.Tick.tick computer
     in
-    { model | levels = model.levels |> LS.mapCurrent (always newWorld) }
+    { model | levels = model.levels |> Pages.mapCurrent (always newWorld) }
 
 
 
@@ -282,7 +307,7 @@ drawMouseOverXY computer model =
 
 drawPolygonBeingEdited : Computer -> Model -> Shape
 drawPolygonBeingEdited computer model =
-    case model.editor.state of
+    case model.state of
         DrawingPolygon points ->
             group
                 (points
@@ -368,14 +393,14 @@ drawPolygons computer model =
                 ]
     in
     group
-        ((LS.current model.levels).polygons |> List.map drawPolygon)
+        ((Pages.current model.levels).polygons |> List.map drawPolygon)
 
 
 drawBall : Computer -> Model -> Shape
 drawBall computer model =
     let
         ball =
-            (LS.current model.levels).ball
+            (Pages.current model.levels).ball
 
         playerBall =
             group
@@ -426,7 +451,7 @@ drawBallTrail computer model =
     if getBool "draw ball trail" computer then
         let
             ball =
-                (LS.current model.levels).ball
+                (Pages.current model.levels).ball
         in
         group
             (ball.trail
@@ -445,71 +470,29 @@ type EditorMsg
     = PressedEditorOnOffButton
     | ClickedButtonStartDrawingPolygon
     | ClickedButtonFinishDrawingPolygon (List Point2d)
-    | PressedPreviousLevelButton
-    | PressedNextLevelButton
-    | PressedAddLevelButton
-    | PressedRemoveLevelButton
-    | PressedMoveLevelOneUpButton
-    | ClickedExportLevelsButton
-    | ClickedImportLevelsButton
-    | EditedTextAreaForImportingLevels String
+    | FromLevelEditor Pages.Msg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
-            { model | editor = model.editor |> Editor.toggle }
+            { model
+                | editorIsOn = not model.editorIsOn
+                , state = Idle
+            }
 
         ClickedButtonStartDrawingPolygon ->
-            { model | editor = model.editor |> Editor.startDrawingPolygon }
+            { model | state = DrawingPolygon [] }
 
         ClickedButtonFinishDrawingPolygon points ->
             { model
-                | editor = model.editor |> Editor.finishDrawingPolygon
-                , levels = model.levels |> LS.mapCurrent (World.addPolygon points)
+                | state = Idle
+                , levels = model.levels |> Pages.mapCurrent (World.addPolygon points)
             }
 
-        PressedPreviousLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToPrevious
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedNextLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToNext
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add World.init }
-
-        PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
-
-        PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
-
-        ClickedExportLevelsButton ->
-            { model | editor = model.editor |> Editor.exportLevels model.levels }
-
-        ClickedImportLevelsButton ->
-            { model
-                | levels =
-                    model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder World.Decode.decoder)
-                        |> Result.withDefault model.levels
-            }
-
-        EditedTextAreaForImportingLevels string ->
-            { model
-                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
-            }
+        FromLevelEditor levelEditorMsg ->
+            { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
 icons =
@@ -538,7 +521,7 @@ editorToggleButton model =
             [ class "w-6"
             , onClick PressedEditorOnOffButton
             ]
-            [ if model.editor.isOn then
+            [ if model.editorIsOn then
                 icons.cross
 
               else
@@ -549,7 +532,7 @@ editorToggleButton model =
 
 editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
-    if model.editor.isOn then
+    if model.editorIsOn then
         div
             [ class "fixed top-0 right-0 w-[300px] h-full"
             , class "bg-black20"
@@ -557,14 +540,10 @@ editorContent computer model =
             , class "overflow-y-scroll"
             , class "text-xs text-white60"
             ]
-            [ div [ class "p-4" ]
+            [ div [ class "p-4 border-[0.5px] border-white20" ]
                 [ viewPolygonEditor computer model ]
             , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelSelection model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelExporting computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelImporting computer model ]
+                [ pageSelection model ]
             ]
 
     else
@@ -576,7 +555,7 @@ viewPolygonEditor computer model =
     div []
         [ div [ class "h-40" ]
             [ div [ class "text-lg" ] [ Html.text "Polygon editor" ]
-            , case model.editor.state of
+            , case model.state of
                 DrawingPolygon points ->
                     div [ class "p-2" ]
                         [ div [] [ Html.text "Now, draw your polygon in the counter-clockwise direction by holding the shift key pressed. " ]
@@ -599,60 +578,9 @@ makeButton msg string =
         [ Html.text string ]
 
 
-levelSelection : Model -> Html EditorMsg
-levelSelection model =
+pageSelection : Model -> Html EditorMsg
+pageSelection model =
     div []
-        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
-        , p []
-            [ makeButton PressedPreviousLevelButton "<"
-            , span [ style "margin" "10px" ]
-                [ Html.text <|
-                    String.concat
-                        [ String.fromInt (LS.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LS.size model.levels)
-                        ]
-                ]
-            , makeButton PressedNextLevelButton ">"
-            ]
-        , makeButton PressedAddLevelButton "Add level"
-        , makeButton PressedRemoveLevelButton "Remove current level"
-        , makeButton PressedMoveLevelOneUpButton "Move level one up"
+        [ div [ class "text-lg" ] [ text "Pages" ]
+        , div [ class "p-4" ] [ Html.map FromLevelEditor (Pages.view model.levels) ]
         ]
-
-
-levelExporting : Computer -> Model -> Html EditorMsg
-levelExporting computer model =
-    div []
-        [ makeButton ClickedExportLevelsButton "Export Levels"
-        , textAreaForExportedLevels model
-        ]
-
-
-textAreaForExportedLevels : Model -> Html EditorMsg
-textAreaForExportedLevels model =
-    pre
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        ]
-        [ Html.text model.editor.jsonExportedLevels ]
-
-
-levelImporting : Computer -> Model -> Html EditorMsg
-levelImporting computer model =
-    div
-        []
-        [ makeButton ClickedImportLevelsButton "Import Levels"
-        , textAreaForLevelsToImport model
-        ]
-
-
-textAreaForLevelsToImport : Model -> Html EditorMsg
-textAreaForLevelsToImport model =
-    textarea
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        , rows 150
-        , cols 10
-        , Html.Events.onInput EditedTextAreaForImportingLevels
-        , value model.editor.jsonLevelsToImport
-        ]
-        [ Html.text "todo" ]

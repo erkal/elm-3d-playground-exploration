@@ -2,18 +2,17 @@ module Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (blue, green, lightBlue, red, rgb255, white, yellow)
-import Editor exposing (Editor)
 import GeometryHelpers exposing (Point, lerp)
 import Graph exposing (Graph, VertexData, VertexId)
 import HardcodedLevels exposing (hardcodedLevels)
-import Html exposing (Html, button, div, input, p, pre, span, textarea)
+import Html exposing (Html, button, div, input, p, pre, span, text, textarea)
 import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
 import Html.Events exposing (onClick)
 import Illuminance
 import Json.Decode
 import Level exposing (BaseGraph, Level, PlayerGraph)
 import Level.Decode
-import LevelSelector as LS exposing (Levels)
+import Level.Encode
 import Light
 import LuminousFlux
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
@@ -24,6 +23,7 @@ import Scene3d.Material exposing (matte)
 import Svg exposing (svg)
 import Svg.Attributes as SA
 import Temperature
+import Tools.Pages as Pages exposing (Pages)
 
 
 main =
@@ -36,8 +36,8 @@ main =
 
 
 type alias Model =
-    { editor : Editor
-    , levels : Levels Level
+    { editorIsOn : Bool
+    , levels : Pages Level
     , pointerXY : Point
     , gameState : GameState
     , editorState : EditorState
@@ -103,8 +103,10 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { editor = Editor.init
-    , levels = hardcodedLevels
+    { editorIsOn = False
+    , levels =
+        Pages.init Level.Encode.encode Level.Decode.decoder { name = "level 1", page = Level.exampleLevel } []
+            |> Pages.importJSON hardcodedLevels
     , pointerXY = Point 0 0 0
     , gameState = Idle
     , editorState = EditorIdle
@@ -118,14 +120,14 @@ init computer =
 mapCurrentBaseGraph : (BaseGraph -> BaseGraph) -> Model -> Model
 mapCurrentBaseGraph up model =
     { model
-        | levels = LS.mapCurrent (Level.mapBaseGraph up) model.levels
+        | levels = Pages.mapCurrent (Level.mapBaseGraph up) model.levels
     }
 
 
 mapCurrentPlayerGraph : (PlayerGraph -> PlayerGraph) -> Model -> Model
 mapCurrentPlayerGraph up model =
     { model
-        | levels = LS.mapCurrent (Level.mapPlayerGraph up) model.levels
+        | levels = Pages.mapCurrent (Level.mapPlayerGraph up) model.levels
     }
 
 
@@ -133,7 +135,7 @@ update : Computer -> Model -> Model
 update computer model =
     let
         handleInput =
-            if model.editor.isOn then
+            if model.editorIsOn then
                 handleInputForEditor computer
 
             else
@@ -165,10 +167,10 @@ tickPlayerVertices : Computer -> Model -> Model
 tickPlayerVertices computer model =
     let
         baseGraph =
-            (LS.current model.levels).baseGraph
+            (Pages.current model.levels).baseGraph
 
         playerGraph =
-            (LS.current model.levels).playerGraph
+            (Pages.current model.levels).playerGraph
 
         lerpToBaseVertex vertexId vertexData =
             case model.gameState of
@@ -246,7 +248,7 @@ handleInputForEditor computer model =
 
 nearestBaseVertex : Computer -> Model -> Maybe VertexId
 nearestBaseVertex computer model =
-    Graph.nearestVertex model.pointerXY (LS.current model.levels).baseGraph
+    Graph.nearestVertex model.pointerXY (Pages.current model.levels).baseGraph
 
 
 playerVertexOnTheNearestBaseVertex : Computer -> Model -> Maybe VertexId
@@ -255,7 +257,7 @@ playerVertexOnTheNearestBaseVertex computer model =
         v =
             nearestBaseVertex computer model
     in
-    Graph.vertices (LS.current model.levels).playerGraph
+    Graph.vertices (Pages.current model.levels).playerGraph
         |> List.filter (\( _, { data } ) -> Just data.mappedToBaseVertex == v)
         |> List.head
         |> Maybe.map Tuple.first
@@ -285,7 +287,7 @@ insertBaseEdge computer model =
         case ( model.editorState, nearestBaseVertex computer model ) of
             ( DraggingBaseEdge { sourceId }, Just targetId ) ->
                 if
-                    distanceXY (Graph.getPosition targetId (LS.current model.levels).baseGraph) model.pointerXY
+                    distanceXY (Graph.getPosition targetId (Pages.current model.levels).baseGraph) model.pointerXY
                         < getFloat "pointer reach" computer
                 then
                     model
@@ -316,7 +318,7 @@ insertVertex computer model =
                                 Point 0 0 0
 
                             Just vertexId ->
-                                Graph.getPosition vertexId (LS.current model.levels).baseGraph
+                                Graph.getPosition vertexId (Pages.current model.levels).baseGraph
                 in
                 if
                     distanceXY positionOfNearestVertex model.pointerXY
@@ -346,7 +348,7 @@ startDraggingPlayerVertex computer model =
         case ( model.gameState, playerVertexOnTheNearestBaseVertex computer model ) of
             ( Idle, Just vertexId ) ->
                 if
-                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).playerGraph) model.pointerXY
+                    distanceXY (Graph.getPosition vertexId (Pages.current model.levels).playerGraph) model.pointerXY
                         < getFloat "pointer reach" computer
                 then
                     { model
@@ -381,7 +383,7 @@ startDraggingBaseVertex computer model =
         of
             ( EditorIdle, Just vertexId ) ->
                 if
-                    distanceXY (Graph.getPosition vertexId (LS.current model.levels).baseGraph) model.pointerXY
+                    distanceXY (Graph.getPosition vertexId (Pages.current model.levels).baseGraph) model.pointerXY
                         < getFloat "pointer reach" computer
                 then
                     { model | editorState = DraggingBaseVertex { vertexId = vertexId } }
@@ -435,7 +437,7 @@ endDraggingPlayerVertex computer model =
                                         | data =
                                             vertexData.data
                                                 |> setMappedVertexTo
-                                                    (Graph.getData dragData.dragged (LS.current model.levels).playerGraph
+                                                    (Graph.getData dragData.dragged (Pages.current model.levels).playerGraph
                                                         |> Maybe.map .mappedToBaseVertex
                                                         |> Maybe.withDefault 0
                                                     )
@@ -583,7 +585,7 @@ drawDraggedBaseEdge computer model =
         DraggingBaseEdge { sourceId } ->
             let
                 sourcePosition =
-                    Graph.getPosition sourceId (LS.current model.levels).baseGraph
+                    Graph.getPosition sourceId (Pages.current model.levels).baseGraph
 
                 ( length, rotation ) =
                     toPolar
@@ -637,7 +639,7 @@ drawPlayerGraph computer model =
 drawVerticesOfPlayerGraph : Computer -> Model -> Shape
 drawVerticesOfPlayerGraph computer model =
     group
-        (Graph.vertices (LS.current model.levels).playerGraph
+        (Graph.vertices (Pages.current model.levels).playerGraph
             |> List.map (drawPlayerVertex computer model)
         )
 
@@ -662,7 +664,7 @@ drawEdgesOfPlayerGraph : Computer -> Model -> Shape
 drawEdgesOfPlayerGraph computer model =
     group
         (model.levels
-            |> LS.current
+            |> Pages.current
             |> .playerGraph
             |> Graph.edges
             |> List.map (drawPlayerEdge computer)
@@ -735,7 +737,7 @@ drawBaseGraph computer model =
 drawVerticesOfBaseGraph : Computer -> Model -> Shape
 drawVerticesOfBaseGraph computer model =
     group
-        (Graph.vertices (LS.current model.levels).baseGraph
+        (Graph.vertices (Pages.current model.levels).baseGraph
             |> List.map (drawBaseVertex computer)
         )
 
@@ -757,7 +759,7 @@ drawEdgesOfBaseGraph : Computer -> Model -> Shape
 drawEdgesOfBaseGraph computer model =
     group
         (model.levels
-            |> LS.current
+            |> Pages.current
             |> .baseGraph
             |> Graph.edges
             |> List.map (drawBaseEdge computer)
@@ -802,73 +804,21 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
 
 type EditorMsg
     = PressedEditorOnOffButton
-    | PressedPreviousLevelButton
-    | PressedNextLevelButton
-    | PressedAddLevelButton
-    | PressedRemoveLevelButton
-    | PressedMoveLevelOneUpButton
     | PressedResetPlayerGraphButton
-    | ClickedExportLevelsButton
-    | ClickedImportLevelsButton
-    | EditedTextAreaForImportingLevels String
+    | FromLevelEditor Pages.Msg
 
 
 updateFromEditor : Computer -> EditorMsg -> Model -> Model
 updateFromEditor computer editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
-            { model | editor = model.editor |> Editor.toggle }
-
-        PressedPreviousLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToPrevious
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedNextLevelButton ->
-            { model
-                | levels =
-                    model.levels
-                        |> LS.goToNext
-                        |> Maybe.withDefault model.levels
-            }
-
-        PressedAddLevelButton ->
-            { model | levels = model.levels |> LS.add Level.empty }
-
-        PressedRemoveLevelButton ->
-            { model | levels = model.levels |> LS.removeCurrent }
-
-        PressedMoveLevelOneUpButton ->
-            { model | levels = model.levels |> LS.moveLevelOneUp }
+            { model | editorIsOn = not model.editorIsOn }
 
         PressedResetPlayerGraphButton ->
-            { model | levels = model.levels |> LS.mapCurrent Level.resetPlayerGraph }
+            { model | levels = model.levels |> Pages.mapCurrent Level.resetPlayerGraph }
 
-        ClickedExportLevelsButton ->
-            { model
-                | editor =
-                    model.editor
-                        |> Editor.exportLevels
-                            (model.levels
-                             --|> Debug.log ""
-                            )
-            }
-
-        ClickedImportLevelsButton ->
-            { model
-                | levels =
-                    model.editor.jsonLevelsToImport
-                        |> Json.Decode.decodeString (LS.decoder Level.Decode.decoder)
-                        |> Result.withDefault model.levels
-            }
-
-        EditedTextAreaForImportingLevels string ->
-            { model
-                | editor = model.editor |> Editor.setTextAreaForImportingLevels string
-            }
+        FromLevelEditor levelEditorMsg ->
+            { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
 icons =
@@ -897,7 +847,7 @@ editorToggleButton model =
             [ class "w-6"
             , onClick PressedEditorOnOffButton
             ]
-            [ if model.editor.isOn then
+            [ if model.editorIsOn then
                 icons.cross
 
               else
@@ -908,7 +858,7 @@ editorToggleButton model =
 
 editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
-    if model.editor.isOn then
+    if model.editorIsOn then
         div
             [ class "fixed top-0 right-0 w-[300px] h-full"
             , class "bg-black20"
@@ -919,13 +869,9 @@ editorContent computer model =
             [ div [ class "p-4" ]
                 [ explanationsForEditor computer model ]
             , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelSelection model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
                 [ makeButton PressedResetPlayerGraphButton "Reset player graph" ]
             , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelExporting computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
-                [ levelImporting computer model ]
+                [ levelSelection model ]
             ]
 
     else
@@ -935,22 +881,8 @@ editorContent computer model =
 levelSelection : Model -> Html EditorMsg
 levelSelection model =
     div []
-        [ div [ class "text-lg" ] [ Html.text "Level Selection" ]
-        , p []
-            [ makeButton PressedPreviousLevelButton "<"
-            , span [ style "margin" "10px" ]
-                [ Html.text <|
-                    String.concat
-                        [ String.fromInt (LS.currentIndex model.levels)
-                        , " / "
-                        , String.fromInt (LS.size model.levels)
-                        ]
-                ]
-            , makeButton PressedNextLevelButton ">"
-            ]
-        , makeButton PressedAddLevelButton "Add level"
-        , makeButton PressedRemoveLevelButton "Remove current level"
-        , makeButton PressedMoveLevelOneUpButton "Move level one up"
+        [ div [ class "text-lg" ] [ text "Pages" ]
+        , div [ class "p-4" ] [ Html.map FromLevelEditor (Pages.view model.levels) ]
         ]
 
 
@@ -971,40 +903,3 @@ explanationsForEditor computer model =
         , div [ class "text-xs" ] [ Html.text "- To move vertices drag them with mouse" ]
         , div [ class "text-xs" ] [ Html.text "- Hold shift and drag with mouse to draw an edge" ]
         ]
-
-
-levelExporting : Computer -> Model -> Html EditorMsg
-levelExporting computer model =
-    div []
-        [ makeButton ClickedExportLevelsButton "Export Levels"
-        , textAreaForExportedLevels model
-        ]
-
-
-textAreaForExportedLevels : Model -> Html EditorMsg
-textAreaForExportedLevels model =
-    pre
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        ]
-        [ Html.text model.editor.jsonExportedLevels ]
-
-
-levelImporting : Computer -> Model -> Html EditorMsg
-levelImporting computer model =
-    div
-        []
-        [ makeButton ClickedImportLevelsButton "Import Levels"
-        , textAreaForLevelsToImport model
-        ]
-
-
-textAreaForLevelsToImport : Model -> Html EditorMsg
-textAreaForLevelsToImport model =
-    textarea
-        [ class "w-60 m-2 p-2 h-28 overflow-y-scroll bg-black40 select-text"
-        , rows 150
-        , cols 10
-        , Html.Events.onInput EditedTextAreaForImportingLevels
-        , value model.editor.jsonLevelsToImport
-        ]
-        [ Html.text "todo" ]

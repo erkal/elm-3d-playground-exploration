@@ -1,9 +1,7 @@
 module World exposing (..)
 
-import Color exposing (Color)
 import ColorPalette exposing (Palette(..))
 import Dict.Any exposing (AnyDict)
-import Playground exposing (Computer)
 import TrixelGrid.Face as Face exposing (Face)
 
 

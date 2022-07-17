@@ -27,16 +27,22 @@ viewConfig : String -> Config -> Html Msg
 viewConfig key config =
     case config of
         BoolConfig value ->
-            div []
-                [ div [ class "mb-2" ] [ Html.label [ for key ] [ Html.text key ] ]
-                , Html.input
-                    [ type_ "checkbox"
-                    , id key
-                    , name key
-                    , Html.Events.onCheck (SetBool key)
-                    , checked value
+            div [ class "h-12 py-4" ]
+                [ Html.label
+                    [ class "block"
+                    , for key
                     ]
-                    []
+                    [ Html.input
+                        [ class "relative bottom-[1px] align-middle mr-2"
+                        , type_ "checkbox"
+                        , id key
+                        , name key
+                        , Html.Events.onCheck (SetBool key)
+                        , checked value
+                        ]
+                        []
+                    , Html.text key
+                    ]
                 ]
 
         FloatConfig ( min, max ) value ->
