@@ -171,7 +171,7 @@ tick : Computer -> Point2d -> PanAndZoomUI -> PanAndZoomUI
 tick computer zoomCenter panAndZoomUI =
     panAndZoomUI
         -- zoom with wheel
-        |> startZoomingWithWheel computer zoomCenter
+        |> startZoomingWithWheel computer
         |> continueZoomingWithWheel computer zoomCenter
         |> stopZoomingWithWheelByDeltaX computer
         |> stopZoomingWithWheelByTime computer
@@ -183,8 +183,8 @@ tick computer zoomCenter panAndZoomUI =
         |> stopPanningWithSpaceBar computer
 
 
-startZoomingWithWheel : Computer -> Point2d -> PanAndZoomUI -> PanAndZoomUI
-startZoomingWithWheel { wheel, keyboard, clock } zoomCenter (PAZ p) =
+startZoomingWithWheel : Computer -> PanAndZoomUI -> PanAndZoomUI
+startZoomingWithWheel { wheel, keyboard, clock } (PAZ p) =
     case ( keyboard.control, p.state ) of
         ( True, Idle ) ->
             PAZ p
