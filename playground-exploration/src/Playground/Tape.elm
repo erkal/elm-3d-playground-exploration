@@ -12,9 +12,8 @@ module Playground.Tape exposing
     , view
     )
 
-import Color exposing (Color, lightGray, red)
 import Html exposing (Html, button, div, input, text)
-import Html.Attributes as HA exposing (class, disabled, id, name, type_)
+import Html.Attributes as HA exposing (class, disabled, type_)
 import Html.Events exposing (onClick)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
@@ -75,16 +74,16 @@ isRecording (Tape state _) =
 
 
 updateCurrentGameModelWithEditorMsg :
-    (Computer -> levelEditorMsg -> gameModel -> gameModel)
-    -> levelEditorMsg
+    (Computer -> editorMsg -> gameModel -> gameModel)
+    -> editorMsg
     -> Tape gameModel
     -> Tape gameModel
-updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg (Tape state ({ current } as pastCurrentFuture)) =
+updateCurrentGameModelWithEditorMsg updateFromEditor editorMsg (Tape state ({ current } as pastCurrentFuture)) =
     Tape state
         { pastCurrentFuture
             | current =
                 current
-                    |> Tuple.mapSecond (updateFromEditor (Tuple.first current) levelEditorMsg)
+                    |> Tuple.mapSecond (updateFromEditor (Tuple.first current) editorMsg)
         }
 
 

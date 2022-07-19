@@ -167,9 +167,9 @@ gameWithConfigurationsAndEditor :
     -> (Computer -> gameModel -> gameModel)
     -> Configurations
     -> (Computer -> gameModel)
-    -> (Computer -> gameModel -> Html levelEditorMsg)
-    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
-    -> Program Flags (Model gameModel) (Msg levelEditorMsg)
+    -> (Computer -> gameModel -> Html editorMsg)
+    -> (Computer -> editorMsg -> gameModel -> gameModel)
+    -> Program Flags (Model gameModel) (Msg editorMsg)
 gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
     let
         init flags =
@@ -206,19 +206,19 @@ type alias Model gameModel =
     }
 
 
-type Msg levelEditorMsg
+type Msg editorMsg
     = NoOp
     | ClickOnDistractionFreeButton
     | Tick Inputs
     | FromConfigurationsEditor Configurations.Msg
-    | FromLevelEditor levelEditorMsg
+    | FromLevelEditor editorMsg
     | FromTape Tape.Msg
 
 
 gameUpdate :
     (Computer -> gameModel -> gameModel)
-    -> (Computer -> levelEditorMsg -> gameModel -> gameModel)
-    -> Msg levelEditorMsg
+    -> (Computer -> editorMsg -> gameModel -> gameModel)
+    -> Msg editorMsg
     -> Model gameModel
     -> Model gameModel
 gameUpdate updateGameModel updateFromEditor msg model =
@@ -235,8 +235,8 @@ gameUpdate updateGameModel updateFromEditor msg model =
         FromConfigurationsEditor computerMsg ->
             { model | tape = model.tape |> Tape.updateConfigurations computerMsg }
 
-        FromLevelEditor levelEditorMsg ->
-            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor levelEditorMsg }
+        FromLevelEditor editorMsg ->
+            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor editorMsg }
 
         FromTape tapeMsg ->
             { model | tape = model.tape |> Tape.update tapeMsg }
@@ -248,9 +248,9 @@ gameUpdate updateGameModel updateFromEditor msg model =
 
 view :
     (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> Html levelEditorMsg)
+    -> (Computer -> gameModel -> Html editorMsg)
     -> Model gameModel
-    -> Html (Msg levelEditorMsg)
+    -> Html (Msg editorMsg)
 view viewGameModel viewLevelEditor model =
     let
         computer =
@@ -326,7 +326,7 @@ viewComputer computer model =
         ]
 
 
-viewGUI : Computer -> Model gameModel -> Html (Msg levelEditorMsg)
+viewGUI : Computer -> Model gameModel -> Html (Msg editorMsg)
 viewGUI computer model =
     let
         yingYangButton =
