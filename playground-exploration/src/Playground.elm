@@ -361,6 +361,28 @@ viewGUI computer model =
                     ]
                     [ Icons.icons.githubCat ]
                 ]
+
+        widthOfLeftStripe =
+            40
+
+        widthOfConfigurationsEditor =
+            260
+
+        heightOfTape =
+            80
+
+        ( heightOfConfigurationsEditor, leftOfTape, widthOfTape ) =
+            if computer.screen.width > 640 then
+                ( computer.screen.height
+                , widthOfLeftStripe + widthOfConfigurationsEditor
+                , computer.screen.width - (widthOfLeftStripe + widthOfConfigurationsEditor)
+                )
+
+            else
+                ( computer.screen.height - heightOfTape
+                , widthOfLeftStripe
+                , computer.screen.width - widthOfLeftStripe
+                )
     in
     if model.distractionFree then
         div [ class "fixed w-10 h-10 p-1" ]
@@ -369,22 +391,23 @@ viewGUI computer model =
 
     else
         div []
-            [ div [ class "absolute h-full w-[40px] p-1 border-r-[0.5px] border-white20 bg-black80" ]
+            [ div
+                [ class "absolute h-full p-1 border-r-[0.5px] border-white20 bg-black80"
+                , style "width" <| String.fromFloat widthOfLeftStripe ++ "px"
+                ]
                 [ yingYangButton, twitterLink, githubLink ]
             , div
-                [ class "absolute overflow-y-auto left-10 w-[260px] bg-black20 border-x-[0.5px] border-white20"
-                , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
+                [ class "absolute overflow-y-auto left-10 bg-black20 border-x-[0.5px] border-white20"
+                , style "width" <| String.fromFloat widthOfConfigurationsEditor ++ "px"
+                , style "height" <| String.fromFloat heightOfConfigurationsEditor ++ "px"
                 ]
                 [ Html.map FromConfigurationsEditor (ConfigurationsGUI.view (currentComputer model.tape).configurations)
                 ]
             , div
-                [ class "absolute bottom-0 left-10 h-20"
-                , style "width" <|
-                    if computer.screen.width > 600 then
-                        "600px"
-
-                    else
-                        String.fromFloat (computer.screen.width - 40) ++ "px"
+                [ class "absolute bottom-0"
+                , style "left" (String.fromFloat leftOfTape ++ "px")
+                , style "height" (String.fromFloat heightOfTape ++ "px")
+                , style "width" <| String.fromFloat widthOfTape ++ "px"
                 ]
                 [ Html.map FromTape (Tape.view model.tape) ]
             , viewComputer computer model

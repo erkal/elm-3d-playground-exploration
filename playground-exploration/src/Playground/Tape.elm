@@ -14,7 +14,7 @@ module Playground.Tape exposing
 
 import Color exposing (Color, lightGray, red)
 import Html exposing (Html, button, div, input, text)
-import Html.Attributes as HA exposing (class, id, name, type_)
+import Html.Attributes as HA exposing (class, disabled, id, name, type_)
 import Html.Events exposing (onClick)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
@@ -272,43 +272,41 @@ viewTapeButtons (Tape state { future }) =
         [ class "py-1" ]
         [ case state of
             Recording ->
-                recButton PressedPauseButton "text-red-500 font-bold"
+                recButton False PressedPauseButton "text-red-500 font-bold"
 
             Paused ->
-                recButton PressedRecordButton "text-white60 hover:text-white80 font-bold"
+                recButton False PressedRecordButton "text-white60 hover:text-white80 font-bold"
 
             Playing _ ->
-                div [] []
+                recButton True PressedRecordButton "text-white60 hover:text-white80 font-bold"
         , case state of
             Recording ->
-                div [] []
+                tapeButtonWithIcon (List.isEmpty future) Icons.icons.play PressedPlayButton
 
             Paused ->
-                if List.isEmpty future then
-                    div [] []
+                tapeButtonWithIcon (List.isEmpty future) Icons.icons.play PressedPlayButton
 
-                else
-                    tapeButtonWithIcon Icons.icons.play PressedPlayButton
-
-            _ ->
-                tapeButtonWithIcon Icons.icons.pause PressedPauseButton
+            Playing _ ->
+                tapeButtonWithIcon False Icons.icons.pause PressedPauseButton
         ]
 
 
-recButton : Msg -> String -> Html Msg
-recButton msg conditionalStyle =
+recButton : Bool -> Msg -> String -> Html Msg
+recButton isDisabled msg conditionalStyle =
     button
-        [ class "px-2 bg-black60 hover:bg-black80 active:bg-black"
+        [ class "px-2 bg-black60 hover:bg-black80 active:bg-black disabled:opacity-30 disabled:bg-black60"
         , class conditionalStyle
+        , disabled isDisabled
         , onClick msg
         ]
         [ text "REC" ]
 
 
-tapeButtonWithIcon : Html msg -> msg -> Html msg
-tapeButtonWithIcon iconD msg =
+tapeButtonWithIcon : Bool -> Html msg -> msg -> Html msg
+tapeButtonWithIcon isDisabled iconD msg =
     button
-        [ class "absolute left-[60px] mx-1 px-1 bg-black60 hover:bg-black80 active:bg-black"
+        [ class "absolute left-[60px] mx-1 px-1 bg-black60 hover:bg-black80 active:bg-black disabled:opacity-30 disabled:bg-black60"
+        , disabled isDisabled
         , onClick msg
         ]
         [ div [ class "w-4 h-6 text-white60 hover:text-white80" ] [ iconD ] ]

@@ -4,7 +4,7 @@ import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
 import Color exposing (Color, black, blue, darkGreen, green, red, rgb255, white, yellow)
 import Geometry exposing (Point, Vector)
 import Html exposing (Html, button, div, p, text)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Illuminance
 import Light
@@ -534,7 +534,8 @@ editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editorIsOn then
         div
-            [ class "fixed top-0 right-0 w-[300px] h-full"
+            [ class "fixed top-0 right-0 w-[300px]"
+            , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
             , class "bg-black20"
             , class "border-[0.5px] border-white20"
             , class "overflow-y-scroll"

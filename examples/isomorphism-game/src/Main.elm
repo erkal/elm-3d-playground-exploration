@@ -860,7 +860,8 @@ editorContent : Computer -> Model -> Html EditorMsg
 editorContent computer model =
     if model.editorIsOn then
         div
-            [ class "fixed top-0 right-0 w-[300px] h-full"
+            [ class "fixed top-0 right-0 w-[300px]"
+            , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
             , class "bg-black20"
             , class "border-[0.5px] border-white20"
             , class "overflow-y-scroll"
