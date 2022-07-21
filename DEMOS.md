@@ -1,7 +1,5 @@
 # Demos
 
-- a_camera-controls-zoom-and-pan: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_camera-controls-zoom-and-pan), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_camera-controls-zoom-and-pan/src)
-- a_level-selector: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_level-selector), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_level-selector/src)
 - a_template-with-configurations: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template-with-configurations), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template-with-configurations/src)
 - a_template: [demo](https://erkal.github.io/elm-3d-playground-exploration/a_template), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/a_template/src)
 - ball-game: [demo](https://erkal.github.io/elm-3d-playground-exploration/ball-game), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/ball-game/src)
@@ -19,9 +17,9 @@
 - recursive-tree: [demo](https://erkal.github.io/elm-3d-playground-exploration/recursive-tree), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/recursive-tree/src)
 - red-faced-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/red-faced-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/red-faced-cube/src)
 - rhombitrihexagonal-tiling: [demo](https://erkal.github.io/elm-3d-playground-exploration/rhombitrihexagonal-tiling), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/rhombitrihexagonal-tiling/src)
-- rotate-and-zoom: [demo](https://erkal.github.io/elm-3d-playground-exploration/rotate-and-zoom), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/rotate-and-zoom/src)
 - rotating-blocks: [demo](https://erkal.github.io/elm-3d-playground-exploration/rotating-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/rotating-blocks/src)
 - the-soma-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/the-soma-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/the-soma-cube/src)
 - trixel-editor: [demo](https://erkal.github.io/elm-3d-playground-exploration/trixel-editor), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/trixel-editor/src)
 - turning-blocks: [demo](https://erkal.github.io/elm-3d-playground-exploration/turning-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/turning-blocks/src)
 - wave-in-wave: [demo](https://erkal.github.io/elm-3d-playground-exploration/wave-in-wave), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/wave-in-wave/src)
+- zoom-and-pan: [demo](https://erkal.github.io/elm-3d-playground-exploration/zoom-and-pan), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/zoom-and-pan/src)
