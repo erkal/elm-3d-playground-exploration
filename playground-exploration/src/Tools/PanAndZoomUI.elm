@@ -14,7 +14,6 @@ module Tools.PanAndZoomUI exposing
     , zoomToFit
     )
 
-import Camera exposing (Camera)
 import Playground exposing (Computer, Screen)
 import Tools.PanAndZoomUI.Geometry2d exposing (BoundingBox, Point2d, scaleAbout, scaleBy, translateBy, vectorFrom)
 
@@ -248,9 +247,9 @@ stopZoomingWithWheelByTime { clock } (PAZ p) =
 
 
 panWithWheel : Computer -> PanAndZoomUI -> PanAndZoomUI
-panWithWheel { wheel } (PAZ p) =
-    case p.state of
-        Idle ->
+panWithWheel { wheel, keyboard } (PAZ p) =
+    case ( p.state, keyboard.control ) of
+        ( Idle, False ) ->
             let
                 translation =
                     ( wheel.deltaX, -wheel.deltaY )
