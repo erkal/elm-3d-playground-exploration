@@ -21,5 +21,6 @@
 - the-soma-cube: [demo](https://erkal.github.io/elm-3d-playground-exploration/the-soma-cube), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/the-soma-cube/src)
 - trixel-editor: [demo](https://erkal.github.io/elm-3d-playground-exploration/trixel-editor), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/trixel-editor/src)
 - turning-blocks: [demo](https://erkal.github.io/elm-3d-playground-exploration/turning-blocks), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/turning-blocks/src)
+- velm: [demo](https://erkal.github.io/elm-3d-playground-exploration/velm), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/velm/src)
 - wave-in-wave: [demo](https://erkal.github.io/elm-3d-playground-exploration/wave-in-wave), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/wave-in-wave/src)
 - zoom-and-pan: [demo](https://erkal.github.io/elm-3d-playground-exploration/zoom-and-pan), [src](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/zoom-and-pan/src)

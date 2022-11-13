@@ -26,11 +26,18 @@ init computer =
     {}
 
 
+a =
+    let
+        ( b, c ) =
+            ( 1, 2 )
+    in
+    42
+
+
 
 -- UPDATE
 
 
-update : Computer -> Model -> Model
 update computer model =
     model
 
@@ -75,7 +82,7 @@ axes =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block (matte blue) ( 1, 1, 1 )
+    block (matte (Color.hsl (wave 0 1 1 computer.clock) 0.4 0.4)) ( 1, 1, 1 )
         |> scale (wave 1 2 14 computer.clock)
         |> rotateX (wave 1 10 30 computer.clock)
         |> rotateY (wave 1 10 30 computer.clock)
