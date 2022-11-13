@@ -30,7 +30,7 @@ for ((i = 1; i <= ${#dirs[@]}; i++)); do
 #    cp -fr ../a_template/vite.config.js ./
 #
 #    npm install
-    npm install vite-plugin-elm@latest
+#    npm install vite-plugin-elm@latest
 #    npm run build
 
 
