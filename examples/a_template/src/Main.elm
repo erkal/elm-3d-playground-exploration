@@ -74,7 +74,7 @@ axes =
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block (matte (Color.hsl (wave 0 1 1 computer.clock) 0.4 0.4)) ( 1, 1, 1 )
+    block (matte (Color.hsl (wave 0 1 30 computer.clock) 0.4 0.4)) ( 1, 1, 1 )
         |> scale (wave 1 2 14 computer.clock)
         |> rotateX (wave 1 10 30 computer.clock)
         |> rotateY (wave 1 10 30 computer.clock)
