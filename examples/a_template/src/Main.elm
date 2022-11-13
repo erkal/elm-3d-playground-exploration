@@ -26,14 +26,6 @@ init computer =
     {}
 
 
-a =
-    let
-        ( b, c ) =
-            ( 1, 2 )
-    in
-    42
-
-
 
 -- UPDATE
 
