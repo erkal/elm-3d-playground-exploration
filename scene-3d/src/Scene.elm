@@ -65,7 +65,7 @@ sunny arguments shapes =
             , Pixels.int (round arguments.screen.height)
             )
         , background = Scene3d.backgroundColor arguments.backgroundColor
-        , entities = toEntities shapes
+        , entities = shapes
         , shadows = True
         , upDirection = Direction3d.z
         , sunlightDirection =
@@ -94,7 +94,7 @@ unlit arguments shapes =
         , camera = arguments.camera
         , clipDepth = Length.meters arguments.clipDepth
         , background = Scene3d.backgroundColor arguments.background
-        , entities = toEntities shapes
+        , entities = shapes
         }
 
 
@@ -127,41 +127,8 @@ custom arguments shapes =
             , Pixels.int (round arguments.screen.height)
             )
         , background = Scene3d.backgroundColor arguments.backgroundColor
-        , entities = toEntities shapes
+        , entities = shapes
         }
-
-
-
--- CONVERSION OF SHAPES TO ENTITIES
-
-
-toEntities : List Shape -> List (Scene3d.Entity ())
-toEntities drawables =
-    drawables
-        |> List.concatMap drawableToEntities
-
-
-drawableToEntities : Shape -> List (Scene3d.Entity ())
-drawableToEntities shape =
-    case shape of
-        Block material_ block3d ->
-            [ Scene3d.blockWithShadow material_ block3d ]
-
-        Triangle material_ triangle3d ->
-            [ Scene3d.facetWithShadow material_ triangle3d ]
-
-        Sphere material_ sphere3d ->
-            [ Scene3d.sphereWithShadow (uniform material_) sphere3d ]
-
-        Cylinder material_ cylinder3d ->
-            [ Scene3d.cylinderWithShadow material_ cylinder3d ]
-
-        Line color lineSegment3d ->
-            [ Scene3d.lineSegment (Material.color color) lineSegment3d ]
-
-        Group drawables ->
-            drawables
-                |> List.concatMap drawableToEntities
 
 
 
@@ -172,13 +139,8 @@ type alias Material_ =
     Material () { normals : () }
 
 
-type Shape
-    = Block Material_ (Block3d Meters ())
-    | Triangle Material_ (Triangle3d Meters ())
-    | Cylinder Material_ (Cylinder3d Meters ())
-    | Sphere Material_ (Sphere3d Meters ())
-    | Line Color (LineSegment3d Meters ())
-    | Group (List Shape)
+type alias Shape =
+    Scene3d.Entity ()
 
 
 type alias Vector =
@@ -194,7 +156,7 @@ block material_ ( xDim, yDim, zDim ) =
             , zDim / 2
             )
     in
-    Block material_
+    Scene3d.blockWithShadow material_
         (Block3d.from
             (Point3d.meters -hXDim -hYDim -hZDim)
             (Point3d.meters hXDim hYDim hZDim)
@@ -203,7 +165,7 @@ block material_ ( xDim, yDim, zDim ) =
 
 triangle : Material_ -> ( Point, Point, Point ) -> Shape
 triangle material_ ( p, q, r ) =
-    Triangle material_
+    Scene3d.facetWithShadow material_
         (Triangle3d.from
             (Point3d.meters p.x p.y p.z)
             (Point3d.meters q.x q.y q.z)
@@ -217,7 +179,7 @@ cube material_ width =
         hw =
             width / 2
     in
-    Block material_
+    Scene3d.blockWithShadow material_
         (Block3d.from
             (Point3d.meters -hw -hw -hw)
             (Point3d.meters hw hw hw)
@@ -226,7 +188,7 @@ cube material_ width =
 
 cylinder : Material_ -> Float -> Float -> Shape
 cylinder material_ radius length =
-    Cylinder material_
+    Scene3d.cylinderWithShadow material_
         (Cylinder3d.centeredOn Point3d.origin
             Direction3d.positiveY
             { radius = Length.meters radius
@@ -237,58 +199,30 @@ cylinder material_ radius length =
 
 sphere : Material_ -> Float -> Shape
 sphere material_ radius =
-    Sphere material_
+    Scene3d.sphereWithShadow (uniform material_)
         (Sphere3d.withRadius (Length.meters radius) Point3d.origin)
 
 
 line : Color -> Vector -> Shape
 line color vector =
-    Line color
+    Scene3d.lineSegment (Material.color color)
         (LineSegment3d.fromPointAndVector Point3d.origin
             (Vector3d.fromTuple Length.meters vector)
         )
 
 
 group : List Shape -> Shape
-group drawables =
-    Group drawables
+group =
+    Scene3d.group
 
 
 
 -- MODIFY
 
 
-rotate : Axis3d Meters () -> Angle -> Shape -> Shape
-rotate axis angle shape =
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.rotateAround axis angle)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.rotateAround axis angle)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.rotateAround axis angle)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.rotateAround axis angle)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.rotateAround axis angle)
-
-        Group drawables ->
-            Group
-                (List.map (rotate axis angle) drawables)
-
-
 rotateAround : ( Point, Vector ) -> Float -> Shape -> Shape
 rotateAround ( axisOrigin, ( dx, dy, dz ) ) angle =
-    rotate
+    Scene3d.rotateAround
         (Axis3d.through (Point3d.fromMeters axisOrigin)
             (Direction3d.unsafe { x = dx, y = dy, z = dz })
         )
@@ -297,17 +231,17 @@ rotateAround ( axisOrigin, ( dx, dy, dz ) ) angle =
 
 rotateX : Float -> Shape -> Shape
 rotateX angle shape =
-    rotate Axis3d.x (Angle.radians angle) shape
+    Scene3d.rotateAround Axis3d.x (Angle.radians angle) shape
 
 
 rotateY : Float -> Shape -> Shape
 rotateY angle shape =
-    rotate Axis3d.y (Angle.radians angle) shape
+    Scene3d.rotateAround Axis3d.y (Angle.radians angle) shape
 
 
 rotateZ : Float -> Shape -> Shape
 rotateZ angle shape =
-    rotate Axis3d.z (Angle.radians angle) shape
+    Scene3d.rotateAround Axis3d.z (Angle.radians angle) shape
 
 
 scaleAround : Point -> Float -> Shape -> Shape
@@ -316,63 +250,13 @@ scaleAround { x, y, z } factor =
 
 
 scale : Float -> Shape -> Shape
-scale factor shape =
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.scaleAbout Point3d.origin factor)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.scaleAbout Point3d.origin factor)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.scaleAbout Point3d.origin factor)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.scaleAbout Point3d.origin factor)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.scaleAbout Point3d.origin factor)
-
-        Group drawables ->
-            Group
-                (List.map (scale factor) drawables)
+scale =
+    Scene3d.scaleAbout Point3d.origin
 
 
 move : Vector -> Shape -> Shape
-move ( x, y, z ) shape =
-    let
-        translation =
-            Vector3d.meters x y z
-    in
-    case shape of
-        Block color block3d ->
-            Block color
-                (block3d |> Block3d.translateBy translation)
-
-        Triangle color triangle3d ->
-            Triangle color
-                (triangle3d |> Triangle3d.translateBy translation)
-
-        Sphere color sphere3d ->
-            Sphere color
-                (sphere3d |> Sphere3d.translateBy translation)
-
-        Cylinder color cylinder3d ->
-            Cylinder color
-                (cylinder3d |> Cylinder3d.translateBy translation)
-
-        Line color lineSegment3d ->
-            Line color
-                (lineSegment3d |> LineSegment3d.translateBy translation)
-
-        Group drawables ->
-            Group
-                (List.map (move ( x, y, z )) drawables)
+move ( x, y, z ) =
+    Scene3d.translateBy (Vector3d.meters x y z)
 
 
 moveX : Float -> Shape -> Shape
