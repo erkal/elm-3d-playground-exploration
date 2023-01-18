@@ -40,7 +40,7 @@ main =
 
 type alias Model =
     { pages : Pages World
-    , camera : PanAndZoomUI
+    , panAndZoomUI : PanAndZoomUI
     , editorIsOn : Bool
     , selectedColorIndex : Int
     , mouseOveredUV : { u : Float, v : Float }
@@ -80,7 +80,7 @@ init computer =
             (Decode.succeed World.empty)
             { name = "1", page = World.empty }
             []
-    , camera = PanAndZoomUI.init { minZoom = 10, maxZoom = 70 }
+    , panAndZoomUI = PanAndZoomUI.init { minZoom = 10, maxZoom = 70 }
     , editorIsOn = True
     , mouseOveredUV = { u = 0, v = 0 }
     , selectedColorIndex = 0
@@ -151,18 +151,18 @@ updateCamera computer model =
     let
         zoomCenter =
             computer.pointer
-                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.camera) computer.screen
+                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.panAndZoomUI) computer.screen
                 |> Maybe.map (\p -> { x = p.x, y = p.y })
                 |> Maybe.withDefault { x = 0, y = 0 }
     in
-    { model | camera = model.camera |> PanAndZoomUI.tick computer zoomCenter }
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoomUI.tick computer zoomCenter }
 
 
 updateMouseOverUV : Computer -> Model -> Model
 updateMouseOverUV computer model =
     case
         Camera.mouseOverXY
-            (toPerspectiveCamera computer.screen model.camera)
+            (toPerspectiveCamera computer.screen model.panAndZoomUI)
             computer.screen
             computer.pointer
     of
@@ -200,7 +200,7 @@ cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
-            if PanAndZoomUI.isPanningWithSpaceBar model.camera then
+            if PanAndZoomUI.isPanningWithSpaceBar model.panAndZoomUI then
                 "grabbing"
 
             else
@@ -215,7 +215,7 @@ viewWebGLCanvas computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera = toPerspectiveCamera computer.screen model.camera
+        , camera = toPerspectiveCamera computer.screen model.panAndZoomUI
         , backgroundColor =
             (Pages.current model.pages).palette
                 |> ColorPalette.get (Pages.current model.pages).backgroundColorIndex

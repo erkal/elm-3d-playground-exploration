@@ -1,4 +1,3 @@
-
 module Main exposing (main)
 
 import Camera exposing (Camera)
@@ -16,7 +15,7 @@ main =
 
 
 type alias Model =
-    { camera : PanAndZoomUI }
+    { panAndZoomUI : PanAndZoomUI }
 
 
 
@@ -29,7 +28,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { camera = PanAndZoomUI.init { minZoom = 0.1, maxZoom = 1 } }
+    { panAndZoomUI = PanAndZoomUI.init { minZoom = 0.1, maxZoom = 1 } }
 
 
 
@@ -41,11 +40,11 @@ update computer model =
     let
         zoomCenter =
             computer.pointer
-                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.camera) computer.screen
+                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.panAndZoomUI) computer.screen
                 |> Maybe.map (\p -> { x = p.x, y = p.y })
                 |> Maybe.withDefault { x = 0, y = 0 }
     in
-    { model | camera = model.camera |> PanAndZoomUI.tick computer zoomCenter }
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoomUI.tick computer zoomCenter }
 
 
 
@@ -58,7 +57,7 @@ view computer model =
         [ div [ class "fixed w-full h-full" ]
             [ viewWebGLCanvas computer model ]
         , div [ class "absolute w-screen h-screen text-center text-xs text-white60" ]
-            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoomUI.get model.camera).zoom)) ++ "%") ]
+            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoomUI.get model.panAndZoomUI).zoom)) ++ "%") ]
             , div [ class "p-1" ] [ text "Panning: SCROLL or SPACE + DRAG" ]
             , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
             ]
@@ -69,7 +68,7 @@ cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
-            if PanAndZoomUI.isPanningWithSpaceBar model.camera then
+            if PanAndZoomUI.isPanningWithSpaceBar model.panAndZoomUI then
                 "grabbing"
 
             else
@@ -84,7 +83,7 @@ viewWebGLCanvas computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera = toPerspectiveCamera computer.screen model.camera
+        , camera = toPerspectiveCamera computer.screen model.panAndZoomUI
         , backgroundColor = rgb255 46 46 46
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
@@ -147,7 +146,7 @@ drawPointer computer model =
     let
         mouseOverXY =
             computer.pointer
-                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.camera) computer.screen
+                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.panAndZoomUI) computer.screen
                 |> Maybe.withDefault { x = 0, y = 0, z = 0 }
     in
     sphere (matte lightBlue) 50
