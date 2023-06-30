@@ -1,0 +1,8 @@
+{
+  "targets": {
+    "a_template": {
+      "inputs": ["examples/a_template/src/Main.elm"],
+      "output": "examples/a_template/build/main.js"
+    }
+  }
+}

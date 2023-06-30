@@ -1,0 +1,22 @@
+{
+  "name": "elm-3d-playground-exploration",
+  "author": "",
+  "description": "",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "elm-tooling install",
+    "prebuild": "elm-tooling install",
+    "dev-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./output.css --watch",
+    "dev-elm": "npx elm-watch hot",
+    "serve": "http-server ."
+  },
+  "devDependencies": {
+    "elm-tooling": "^1.8.0",
+    "prettier": "^2.7.1",
+    "tailwindcss": "^3.3.2"
+  },
+  "dependencies": {
+    "elm-watch": "^1.1.2"
+  }
+}

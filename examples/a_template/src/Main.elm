@@ -5,7 +5,7 @@ import Color exposing (blue, gray, green, red, rgb255)
 import Html exposing (Html)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
-import Scene as Scene exposing (..)
+import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
 
