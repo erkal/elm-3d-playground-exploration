@@ -2,6 +2,7 @@
 node_modules
 elm-stuff
 .DS_Store
-dist
-dist-ssr
+build
+**/dist/
+**/build/
 *.local

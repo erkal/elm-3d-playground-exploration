@@ -9,7 +9,8 @@
     "prebuild": "elm-tooling install",
     "dev-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./output.css --watch",
     "dev-elm": "npx elm-watch hot",
-    "serve": "http-server ."
+    "serve": "http-server .",
+    "build": "npx elm-watch make --optimize"
   },
   "devDependencies": {
     "elm-tooling": "^1.8.0",

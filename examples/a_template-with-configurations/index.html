@@ -57,7 +57,7 @@
           devicePixelRatio: window.devicePixelRatio,
         };
 
-      const app = Elm.Template.init({
+      const app = Elm.TemplateWithConfigs.init({
         node: document.querySelector("#app div"),
         flags: { inputs: inputs },
       });

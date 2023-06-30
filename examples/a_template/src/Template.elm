@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Template exposing (main)
 
 import Camera exposing (Camera, perspective)
 import Color exposing (blue, gray, green, red, rgb255)

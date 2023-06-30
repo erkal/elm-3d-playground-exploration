@@ -1,8 +1,12 @@
 {
   "targets": {
     "a_template": {
-      "inputs": ["examples/a_template/src/Main.elm"],
+      "inputs": ["examples/a_template/src/Template.elm"],
       "output": "examples/a_template/build/main.js"
+    },
+    "a_template-with-configurations": {
+      "inputs": ["examples/a_template-with-configurations/src/TemplateWithConfigs.elm"],
+      "output": "examples/a_template-with-configurations/build/main.js"
     }
   }
 }
