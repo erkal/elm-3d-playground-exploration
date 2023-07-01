@@ -78,7 +78,7 @@ view computer model =
         , sunlightElevation = -(degrees 45)
         }
         [ wavingCube computer
-        , wavingCube computer |> moveX -2
+        , wavingCube computer |> moveX -1.3
         , wavingCube computer |> moveX 2
         ]
 
