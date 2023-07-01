@@ -235,7 +235,7 @@ view (Pages p) =
     let
         addNewLevelButton =
             button
-                [ class "inline-block ml-1 w-4 text-white40 hover:text-white80"
+                [ class "inline-block ml-1 w-4 text-white/40 hover:text-white/80"
                 , onClick PressedAddLevelButton
                 , title "Duplicate Level"
                 ]
@@ -243,7 +243,7 @@ view (Pages p) =
 
         deleteCurrentLevelButton =
             div
-                [ class "inline-block ml-1 w-4 text-white40 hover:text-red-400"
+                [ class "inline-block ml-1 w-4 text-white/40 hover:text-red-400"
                 , onClick PressedRemoveLevelButton
                 , title "Delete Level"
                 ]
@@ -251,7 +251,7 @@ view (Pages p) =
 
         moveLevelDownButton =
             div
-                [ class "inline-block ml-1 w-4 text-white40 hover:text-white80"
+                [ class "inline-block ml-1 w-4 text-white/40 hover:text-white/80"
                 , onClick PressedMoveLevelDownButton
                 , title "Move Level Down"
                 ]
@@ -259,7 +259,7 @@ view (Pages p) =
 
         moveLevelUpButton =
             div
-                [ class "inline-block ml-1 w-4 text-white40 hover:text-white80"
+                [ class "inline-block ml-1 w-4 text-white/40 hover:text-white/80"
                 , onClick PressedMoveLevelUpButton
                 , title "Move Level Up"
                 ]
@@ -267,13 +267,13 @@ view (Pages p) =
 
         levelItem index levelName =
             button
-                [ class "w-full h-8 p-2 text-left text-white80 border-b border-white20"
+                [ class "w-full h-8 p-2 text-left text-white/80 border-b border-white/20"
                 , class
                     (if index == SelectList.currentIndex p.selectList then
-                        "bg-black40 hover:bg-black60 active:bg-black80"
+                        "bg-black/40 hover:bg-black/60 active:bg-black/80"
 
                      else
-                        "hover:bg-black20"
+                        "hover:bg-black/20"
                     )
                 , style "transition" "background-color 0.3s ease"
                 , onMouseDown (MouseDownOnLevelItem index)
@@ -305,9 +305,9 @@ view (Pages p) =
         ]
         [ div [ class "w-full h-[200px] overflow-hidden overflow-y-scroll" ]
             (p.selectList |> SelectList.toList |> List.indexedMap (\index { name } -> levelItem index name))
-        , div [ class "p-4 border-[0.5px] border-white20" ]
+        , div [ class "p-4 border-[0.5px] border-white/20" ]
             [ exportingPages (Pages p) ]
-        , div [ class "p-4 border-[0.5px] border-white20" ]
+        , div [ class "p-4 border-[0.5px] border-white/20" ]
             [ importingPages (Pages p) ]
         ]
 
@@ -315,7 +315,7 @@ view (Pages p) =
 makeButton : msg -> String -> Html msg
 makeButton msg string =
     Html.button
-        [ class "m-1 p-2 rounded text-white60 bg-black40 hover:bg-black80"
+        [ class "m-1 p-2 rounded text-white/60 bg-black/40 hover:bg-black/80"
         , style "transition" "background-color 0.3s ease"
         , Html.Events.onClick msg
         ]
@@ -327,7 +327,7 @@ exportingPages (Pages p) =
     div []
         [ makeButton ClickedExportLevelsButton "Export"
         , pre
-            [ class "w-full p-2 h-28 overflow-y-scroll text-white60 text-[8px] leading-[9px] bg-black40 select-text" ]
+            [ class "w-full p-2 h-28 overflow-y-scroll text-white/60 text-[8px] leading-[9px] bg-black/40 select-text" ]
             [ Html.text p.textAreaContentForExportingJson ]
         ]
 
@@ -337,7 +337,7 @@ importingPages (Pages p) =
     div []
         [ makeButton ClickedImportLevelsButton "Import"
         , textarea
-            [ class "w-full p-2 h-28 overflow-y-scroll text-white60 text-[8px] leading-[9px] bg-black40 select-text"
+            [ class "w-full p-2 h-28 overflow-y-scroll text-white/60 text-[8px] leading-[9px] bg-black/40 select-text"
             , rows 150
             , cols 10
             , Html.Events.onInput EditedTextAreaForImportingLevels

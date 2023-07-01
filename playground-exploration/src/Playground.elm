@@ -260,10 +260,9 @@ view viewGameModel viewLevelEditor model =
             currentGameModel model.tape
     in
     div
-        [ class "bg-black40"
+        [ class "bg-black/40"
         , class "select-none"
         , class "antialiased"
-        , class "font-mono"
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
@@ -291,10 +290,10 @@ viewComputer computer model =
                     [ div
                         [ class <|
                             if computer.pointer.isDown then
-                                "text-black80"
+                                "text-black/80"
 
                             else
-                                "text-black40"
+                                "text-black/40"
                         ]
                         [ Icons.icons.pointer ]
                     ]
@@ -303,7 +302,7 @@ viewComputer computer model =
         [ viewPointer
 
         --, pre
-        --    [ class "fixed p-2 w-[300px] h-[130px] bottom-0 right-0 border-[0.5px] border-white20 bg-black20 text-xs text-white60"
+        --    [ class "fixed p-2 w-[300px] h-[130px] bottom-0 right-0 border-[0.5px] border-white/20 bg-black/20 text-xs text-white/60"
         --    ]
         --    [ p [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
         --    , p [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
@@ -333,10 +332,10 @@ viewGUI computer model =
             button
                 [ class <|
                     if model.distractionFree then
-                        "text-black20 hover:text-black80"
+                        "text-black/20 hover:text-black/80"
 
                     else
-                        "text-white40 hover:text-white80"
+                        "text-white/40 hover:text-white/80"
                 , Html.Events.onClick ClickOnDistractionFreeButton
                 , HA.title "Distraction Free Mode"
                 ]
@@ -392,12 +391,12 @@ viewGUI computer model =
     else
         div []
             [ div
-                [ class "absolute h-full p-1 border-r-[0.5px] border-white20 bg-black80"
+                [ class "absolute h-full p-1 border-r-[0.5px] border-white/20 bg-black/80"
                 , style "width" <| String.fromFloat widthOfLeftStripe ++ "px"
                 ]
                 [ yingYangButton, twitterLink, githubLink ]
             , div
-                [ class "absolute overflow-y-auto left-10 bg-black20 border-x-[0.5px] border-white20"
+                [ class "absolute overflow-y-auto left-10 bg-black/20 border-x-[0.5px] border-white/20"
                 , style "width" <| String.fromFloat widthOfConfigurationsEditor ++ "px"
                 , style "height" <| String.fromFloat heightOfConfigurationsEditor ++ "px"
                 ]
