@@ -6,6 +6,12 @@
       ],
       "output": "build/BallGame/main.js"
     },
+    "Carousel": {
+      "inputs": [
+        "examples/Carousel/Main.elm"
+      ],
+      "output": "build/Carousel/main.js"
+    },
     "Template": {
       "inputs": [
         "examples/Template/Main.elm"
