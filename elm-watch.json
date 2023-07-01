@@ -1,5 +1,11 @@
 {
   "targets": {
+    "BallGame": {
+      "inputs": [
+        "examples/BallGame/Main.elm"
+      ],
+      "output": "build/BallGame/main.js"
+    },
     "Template": {
       "inputs": [
         "examples/Template/Main.elm"
