@@ -1,13 +1,15 @@
 #!/bin/bash
+
 echo "<html>" >build/index.html
 echo "<head>" >>build/index.html
 echo "<meta name='viewport' content='width=device-width, initial-scale=1' />" >>build/index.html
+echo "<link href=\"https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400&display=swap\" rel=\"stylesheet\">" >>build/index.html
 echo "<style>" >>build/index.html
-echo "body { background-color: #2c3e50; color: #ecf0f1; width: 80%; margin: auto; max-width: 1000px; }" >>build/index.html
+echo "body { background-color: #2c3e50; color: #b2bec3; font-family: 'Public Sans', sans-serif; font-size: 20px; width: 80%; margin: auto; max-width: 1000px; }" >>build/index.html
+echo "a { color: #c8d6e5; text-decoration: none; }" >>build/index.html
 echo ".item { display: flex; flex-direction: column; margin: 20px 0px; }" >>build/index.html
 echo ".item img { max-width: 100%; height : auto; }" >>build/index.html
 echo "</style>" >>build/index.html
-
 echo "</head>" >>build/index.html
 echo "<body>" >>build/index.html
 
@@ -35,5 +37,6 @@ for dir in examples/*/; do
     echo "<p>$description</p>" >>build/index.html
     echo "</div>" >>build/index.html
 done
+
 echo "</body>" >>build/index.html
 echo "</html>" >>build/index.html
