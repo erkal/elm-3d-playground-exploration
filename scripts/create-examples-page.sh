@@ -15,8 +15,8 @@ echo ".item img { width: 100%; height: auto; }" >>build/index.html
 echo "</style>" >>build/index.html
 echo "</head>" >>build/index.html
 echo "<body>" >>build/index.html
-echo "<h1>All examples</h1>" >>build/index.html
-echo "<h2><a href='https://github.com/erkal/elm-3d-playground-exploration'>https://github.com/erkal/elm-3d-playground-exploration</a></h2>" >>build/index.html
+echo "<h1>All Examples in</h1>" >>build/index.html
+echo "<h2><a href='https://github.com/erkal/elm-3d-playground-exploration'>github.com/erkal/elm-3d-playground-exploration</a></h2>" >>build/index.html
 
 for dir in examples/*/; do
     dir_name=$(basename "$dir")
