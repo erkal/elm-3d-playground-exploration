@@ -1,8 +1,7 @@
 {
     "type": "application",
     "source-directories": [
-        "examples/a_template/src",
-        "examples/a_template-with-configurations/src",
+        "examples",
         "playground-exploration/src",
         "scene-3d/src"
     ],
