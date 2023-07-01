@@ -23,6 +23,12 @@
         "examples/TemplateWithConfigs/Main.elm"
       ],
       "output": "build/TemplateWithConfigs/main.js"
+    },
+    "WebPage": {
+      "inputs": [
+        "examples/WebPage/Main.elm"
+      ],
+      "output": "build/WebPage/main.js"
     }
   }
 }
