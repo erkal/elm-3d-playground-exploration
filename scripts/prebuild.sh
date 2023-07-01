@@ -41,3 +41,42 @@ fi
 
 # Create the JSON object and write it into elm-watch.json using Node.js
 node -e "const fs = require('fs'); const data = { targets: { ${targets_json} } }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"
+
+# Create the index.html file in the build directory with initial html, head tags and adding some style in head.
+cat <<EOF >./build/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Elm Examples</title>
+    <style>
+        body {
+            background-color: #282c34;
+            color: #abb2bf;
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        a {
+            color: #61afef;
+        }
+        a:hover {
+            color: #c678dd;
+        }
+    </style>
+</head>
+<body>
+<h1>Elm Examples:</h1>
+EOF
+
+# Go through each subdirectory in the examples directory
+for example in examples/*; do
+    # Extract just the name of the example directory
+    example_name=$(basename "$example")
+
+    # Write the link to the example's index.html to the main index.html
+    echo "<a href='$example_name/index.html'>$example_name</a><br>" >>./build/index.html
+done
+
+# Close html and body tags
+echo "</body></html>" >>./build/index.html
