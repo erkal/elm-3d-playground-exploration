@@ -1,8 +1,7 @@
+.DS_Store
 .idea
 node_modules
 elm-stuff
-.DS_Store
 build
-**/dist/
-**/build/
+dist
 *.local
