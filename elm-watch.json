@@ -1,11 +1,15 @@
 {
   "targets": {
-    "a_template": {
-      "inputs": ["examples/Template/Main.elm"],
+    "Template": {
+      "inputs": [
+        "examples/Template/Main.elm"
+      ],
       "output": "build/Template/main.js"
     },
-    "a_template-with-configurations": {
-      "inputs": ["examples/TemplateWithConfigs/Main.elm"],
+    "TemplateWithConfigs": {
+      "inputs": [
+        "examples/TemplateWithConfigs/Main.elm"
+      ],
       "output": "build/TemplateWithConfigs/main.js"
     }
   }

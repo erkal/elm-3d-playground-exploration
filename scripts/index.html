@@ -14,7 +14,7 @@
       import { sendInputsToElmApp } from "../../playground-exploration/src/input.js";
       import { preventEvents } from "../../playground-exploration/src/preventEvents.js";
 
-      const app = Elm.TemplateWithConfigs.Main.init({
+      const app = Elm.{{ EXAMPLE_NAME }}.Main.init({
         node: document.querySelector("#app"),
         flags: {
           inputs: {
