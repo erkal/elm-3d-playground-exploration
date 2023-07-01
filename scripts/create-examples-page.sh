@@ -7,8 +7,8 @@ echo "<link href=\"https://fonts.googleapis.com/css2?family=Public+Sans:wght@300
 echo "<style>" >>build/index.html
 echo "body { background-color: #222222; color: #f3f3f3; font-family: 'Public Sans', sans-serif; font-size: 18px; margin: auto; padding: 20px; max-width: 1000px; display: flex; flex-direction: column; align-items: center; }" >>build/index.html
 echo "h1 { color: #FFFFFF; }" >>build/index.html
-echo "a { color: #c8d6e5; text-decoration: none; padding: 10px; transition: color 0.3s; }" >>build/index.html
-echo "a:hover { color: #FFFFFF; }" >>build/index.html
+echo "a { color: #c8d6e5; text-decoration: underline; padding: 10px; transition: color 0.3s; }" >>build/index.html
+echo "a:hover { color: #FFFFFF; font-weight: bold; }" >>build/index.html
 echo ".item { padding: 20px; display: flex; flex-direction: column; margin: 40px 0px; background-color: #333333; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3); transition: box-shadow 0.3s; }" >>build/index.html
 echo ".item:hover { box-shadow: 0 8px 16px 0 rgba(0,0,0,0.5); }" >>build/index.html
 echo ".item img { width: 100%; height: auto; }" >>build/index.html
