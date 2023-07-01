@@ -73,7 +73,7 @@ view computer model =
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
         , camera = camera computer
-        , backgroundColor = rgb255 46 46 46
+        , backgroundColor = rgb255 26 46 46
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
