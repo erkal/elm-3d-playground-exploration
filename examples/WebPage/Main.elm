@@ -26,7 +26,7 @@ init computer =
 initialConfigurations =
     [ configBlock "Configurations"
         True
-        [ boolConfig "example check mark" False
+        [ boolConfig "example check box" False
         ]
     ]
 
