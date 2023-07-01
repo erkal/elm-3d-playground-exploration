@@ -5,19 +5,16 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "postinstall": "elm-tooling install",
-    "prebuild": "elm-tooling install",
     "dev-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./output.css --watch",
     "dev-elm": "npx elm-watch hot",
-    "serve": "http-server .",
+    "serve": "npx http-server .",
     "build": "npx elm-watch make --optimize"
   },
   "devDependencies": {
-    "elm-tooling": "^1.8.0",
-    "prettier": "^2.7.1",
+    "elm-tooling": "^1.14.0",
+    "elm-watch": "^1.1.2",
+    "http-server": "^14.1.1",
+    "prettier": "^2.8.8",
     "tailwindcss": "^3.3.2"
-  },
-  "dependencies": {
-    "elm-watch": "^1.1.2"
   }
 }
