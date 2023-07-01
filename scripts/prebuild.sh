@@ -23,6 +23,16 @@ for example in examples/*; do
     # {{ EXAMPLE_NAME }} with the example directory name
     cat scripts/index.html | sed "s/{{ EXAMPLE_NAME }}/${example_name}/g" >"build/${example_name}/index.html"
 
+    # Check if image.png exists, if yes, copy it to the build directory
+    if [ -f "${example}/image.png" ]; then
+        cp "${example}/image.png" "build/${example_name}/image.png"
+    fi
+
+    # Check if description.txt exists, if yes, copy it to the build directory
+    if [ -f "${example}/description.txt" ]; then
+        cp "${example}/description.txt" "build/${example_name}/description.txt"
+    fi
+
     # Store the inputs and output strings
     input="examples/${example_name}/Main.elm"
     output="build/${example_name}/main.js"
