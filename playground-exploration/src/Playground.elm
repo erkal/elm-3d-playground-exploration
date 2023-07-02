@@ -341,10 +341,21 @@ viewGUI computer model =
                 ]
                 [ Icons.icons.yinYang ]
 
+        homeButton =
+            div [ class "absolute w-8 top-12" ]
+                [ a
+                    [ class "text-white/40 hover:text-white/80"
+                    , href "https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html"
+                    , target "_blank"
+                    , HA.title "Home of all examples"
+                    ]
+                    [ Icons.icons.home ]
+                ]
+
         twitterLink =
             div [ class "absolute w-8 bottom-12" ]
                 [ a
-                    [ class "text-twitterBlue40 hover:text-twitterBlue"
+                    [ class "text-twitterBlue/40 hover:text-twitterBlue"
                     , href "https://twitter.com/AzizErkalSelman"
                     , target "_blank"
                     ]
@@ -354,7 +365,7 @@ viewGUI computer model =
         githubLink =
             div [ class "absolute w-8 bottom-2" ]
                 [ a
-                    [ class "text-githubCat40 hover:text-githubCat"
+                    [ class "text-githubCat/40 hover:text-githubCat"
                     , href "https://github.com/erkal/elm-3d-playground-exploration"
                     , target "_blank"
                     ]
@@ -394,7 +405,7 @@ viewGUI computer model =
                 [ class "absolute h-full p-1 border-r-[0.5px] border-white/20 bg-black/80"
                 , style "width" <| String.fromFloat widthOfLeftStripe ++ "px"
                 ]
-                [ yingYangButton, twitterLink, githubLink ]
+                [ yingYangButton, homeButton, twitterLink, githubLink ]
             , div
                 [ class "absolute overflow-y-auto left-10 bg-black/20 border-x-[0.5px] border-white/20"
                 , style "width" <| String.fromFloat widthOfConfigurationsEditor ++ "px"

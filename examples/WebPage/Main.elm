@@ -1,7 +1,7 @@
 module WebPage.Main exposing (main)
 
 import Html exposing (Html, a, div, h2, i, img, span, text)
-import Html.Attributes exposing (class, href, src)
+import Html.Attributes exposing (class, href, src, target)
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor)
 
 
@@ -60,7 +60,7 @@ viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
         [ class "fixed w-full h-full"
-        , class "bg-gradient-to-br from-blue-400 via-lightBlue-500 to-cyan-700"
+        , class "bg-gradient-to-br from-blue-300 via-lightBlue-500 to-cyan-700"
         , class "overflow-y-auto"
         ]
         [ div
@@ -72,6 +72,7 @@ viewEditor computer model =
                 , span []
                     [ a
                         [ href "https://github.com/erkal/elm-3d-playground-exploration"
+                        , target "_blank"
                         , class "underline transition-all duration-300 hover:text-lightBlue-400"
                         ]
                         [ text "elm-3d-playground-exploration" ]
@@ -130,7 +131,10 @@ viewExample exampleName =
         , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
         [ h2 [ class "text-xl font-semibold mb-4 text-white" ] [ text exampleName ]
-        , a [ href exampleLink ]
+        , a
+            [ href exampleLink
+            , target "_blank"
+            ]
             [ div
                 [ class "relative cursor-pointer group" ]
                 [ img [ src imageLink, class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
@@ -142,6 +146,7 @@ viewExample exampleName =
         , a
             [ class "inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
             , href sourceCodeLink
+            , target "_blank"
             ]
             [ text "Source code" ]
         , div [ class "mt-2 text-sm text-white" ] [ text "TODO: Write a description here" ]
