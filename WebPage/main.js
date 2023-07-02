@@ -8178,7 +8178,7 @@ var $elm$html$Html$Attributes$src = function (url) {
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
 var $author$project$WebPage$Main$viewExample = function (exampleName) {
-	var sourceCodeLink = 'https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/' + exampleName;
+	var sourceCodeLink = 'https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/' + exampleName;
 	var imageLink = '../' + (exampleName + '/image.png');
 	var exampleLink = '../' + (exampleName + '/index.html');
 	return A2(
