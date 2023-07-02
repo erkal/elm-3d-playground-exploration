@@ -616,6 +616,10 @@ video {
   top: 0px;
 }
 
+.top-12 {
+  top: 3rem;
+}
+
 .float-right {
   float: right;
 }
@@ -1109,8 +1113,8 @@ video {
   color: rgb(0 0 0 / 0.8);
 }
 
-.text-githubCat40 {
-  color: rgba(232, 78, 50, 0.4);
+.text-githubCat\/40 {
+  color: rgb(232 78 50 / 0.4);
 }
 
 .text-red-500 {
@@ -1118,8 +1122,8 @@ video {
   color: rgb(239 68 68 / var(--tw-text-opacity));
 }
 
-.text-twitterBlue40 {
-  color: rgba(31, 161, 242, 0.4);
+.text-twitterBlue\/40 {
+  color: rgb(31 161 242 / 0.4);
 }
 
 .text-white {

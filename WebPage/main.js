@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fE,
-		impl.go,
-		impl.gj,
+		impl.fF,
+		impl.gp,
+		impl.gk,
 		function() { return function() {} }
 	);
 });
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fE,
-		impl.go,
-		impl.gj,
+		impl.fF,
+		impl.gp,
+		impl.gk,
 		function(sendToApp, initialModel) {
-			var view = impl.gr;
+			var view = impl.gs;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fE,
-		impl.go,
-		impl.gj,
+		impl.fF,
+		impl.gp,
+		impl.gk,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.du && impl.du(sendToApp)
-			var view = impl.gr;
+			var view = impl.gs;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3982,7 +3982,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.gl) && (_VirtualDom_doc.title = title = doc.gl);
+				(title !== doc.gm) && (_VirtualDom_doc.title = title = doc.gm);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.f_;
-	var onUrlRequest = impl.f$;
+	var onUrlChange = impl.f$;
+	var onUrlRequest = impl.f0;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		fE: function(flags)
+		fF: function(flags)
 		{
-			return A3(impl.fE, flags, _Browser_getUrl(), key);
+			return A3(impl.fF, flags, _Browser_getUrl(), key);
 		},
-		gr: impl.gr,
-		go: impl.go,
-		gj: impl.gj
+		gs: impl.gs,
+		gp: impl.gp,
+		gk: impl.gk
 	});
 }
 
@@ -4401,7 +4401,7 @@ var _Regex_never = /.^/;
 var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
-	if (options.fV) { flags += 'm'; }
+	if (options.fW) { flags += 'm'; }
 	if (options.e4) { flags += 'i'; }
 
 	try
@@ -4981,7 +4981,7 @@ var $elm$core$Basics$always = F2(
 	});
 var $author$project$Playground$Computer$assignConfigurations = F2(
 	function (initialConfigurations, inputs) {
-		return {e9: inputs.e9, fa: initialConfigurations, fi: inputs.fi, fm: inputs.fm, fJ: inputs.fJ, bL: inputs.bL, ae: inputs.ae, gt: inputs.gt};
+		return {e9: inputs.e9, fa: initialConfigurations, fi: inputs.fi, fm: inputs.fm, fK: inputs.fK, bL: inputs.bL, ae: inputs.ae, gu: inputs.gu};
 	});
 var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map2 = _Json_map2;
@@ -6626,7 +6626,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (clock) {
 															return $elm$json$Json$Decode$succeed(
-																{e9: clock, fi: devicePixelRatio, fm: dt, fJ: keyboard, bL: pointer, ae: screen, gt: wheel});
+																{e9: clock, fi: devicePixelRatio, fm: dt, fK: keyboard, bL: pointer, ae: screen, gu: wheel});
 														},
 														A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 												},
@@ -6665,7 +6665,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 																										$elm$json$Json$Decode$andThen,
 																										function (alt) {
 																											return $elm$json$Json$Decode$succeed(
-																												{eZ: alt, fb: control, dR: down, fl: downs, fM: left, f6: pressedKeys, ga: right, ge: shift, eT: up});
+																												{eZ: alt, fb: control, dR: down, fl: downs, fN: left, f7: pressedKeys, gb: right, gf: shift, eT: up});
 																										},
 																										A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																								},
@@ -6719,7 +6719,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 																						$elm$json$Json$Decode$andThen,
 																						function (down) {
 																							return $elm$json$Json$Decode$succeed(
-																								{dR: down, d_: isDown, fS: move, gb: rightDown, gc: rightUp, eT: up, eW: x, eX: y});
+																								{dR: down, d_: isDown, fT: move, gc: rightDown, gd: rightUp, eT: up, eW: x, eX: y});
 																						},
 																						A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																				},
@@ -6862,7 +6862,18 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fT: $author$project$Playground$Icons$draw(
+	fB: $author$project$Playground$Icons$draw(
+		_List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$path,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$d('M6 19h3v-6h6v6h3v-9l-6-4.5L6 10v9Zm-2 2V9l8-6l8 6v12h-7v-6h-2v6H4Zm8-8.75Z')
+					]),
+				_List_Nil)
+			])),
+	fU: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6880,7 +6891,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fU: $author$project$Playground$Icons$draw(
+	fV: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6898,7 +6909,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f3: $author$project$Playground$Icons$draw(
+	f4: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6909,7 +6920,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f4: $author$project$Playground$Icons$draw(
+	f5: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6920,7 +6931,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f5: $author$project$Playground$Icons$draw(
+	f6: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6942,7 +6953,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	gm: $author$project$Playground$Icons$draw(
+	gn: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6955,7 +6966,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	gn: $author$project$Playground$Icons$draw(
+	go: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6966,7 +6977,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	gC: $author$project$Playground$Icons$draw(
+	gD: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7147,7 +7158,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {fD: index, fQ: match, fZ: number, gi: submatches};
+		return {fE: index, fR: match, f_: number, gj: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -7164,7 +7175,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{e4: false, fV: false},
+		{e4: false, fW: false},
 		string);
 };
 var $elm$core$List$head = function (list) {
@@ -7301,7 +7312,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.gi;
+							return $.gj;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -7639,7 +7650,7 @@ var $author$project$Playground$ConfigurationsGUI$viewBlock = function (block) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(block.fW)
+						$elm$html$Html$text(block.fX)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -7837,16 +7848,16 @@ var $author$project$Playground$Tape$viewTapeButtons = function (_v0) {
 						return A3(
 							$author$project$Playground$Tape$tapeButtonWithIcon,
 							$elm$core$List$isEmpty(future),
-							$author$project$Playground$Icons$icons.f4,
+							$author$project$Playground$Icons$icons.f5,
 							$author$project$Playground$Tape$PressedPlayButton);
 					case 1:
 						return A3(
 							$author$project$Playground$Tape$tapeButtonWithIcon,
 							$elm$core$List$isEmpty(future),
-							$author$project$Playground$Icons$icons.f4,
+							$author$project$Playground$Icons$icons.f5,
 							$author$project$Playground$Tape$PressedPlayButton);
 					default:
-						return A3($author$project$Playground$Tape$tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.f3, $author$project$Playground$Tape$PressedPauseButton);
+						return A3($author$project$Playground$Tape$tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.f4, $author$project$Playground$Tape$PressedPauseButton);
 				}
 			}()
 			]));
@@ -7916,7 +7927,7 @@ var $author$project$Playground$viewGUI = F2(
 					$elm$html$Html$Attributes$title('Distraction Free Mode')
 				]),
 			_List_fromArray(
-				[$author$project$Playground$Icons$icons.gC]));
+				[$author$project$Playground$Icons$icons.gD]));
 		var widthOfLeftStripe = 40;
 		var widthOfConfigurationsEditor = 260;
 		var twitterLink = A2(
@@ -7931,12 +7942,32 @@ var $author$project$Playground$viewGUI = F2(
 					$elm$html$Html$a,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('text-twitterBlue40 hover:text-twitterBlue'),
+							$elm$html$Html$Attributes$class('text-twitterBlue/40 hover:text-twitterBlue'),
 							$elm$html$Html$Attributes$href('https://twitter.com/AzizErkalSelman'),
 							$elm$html$Html$Attributes$target('_blank')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.gn]))
+						[$author$project$Playground$Icons$icons.go]))
+				]));
+		var homeButton = A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('absolute w-8 top-12')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$a,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$target('_blank'),
+							$elm$html$Html$Attributes$title('Home of all examples')
+						]),
+					_List_fromArray(
+						[$author$project$Playground$Icons$icons.fB]))
 				]));
 		var heightOfTape = 80;
 		var githubLink = A2(
@@ -7951,7 +7982,7 @@ var $author$project$Playground$viewGUI = F2(
 					$elm$html$Html$a,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('text-githubCat40 hover:text-githubCat'),
+							$elm$html$Html$Attributes$class('text-githubCat/40 hover:text-githubCat'),
 							$elm$html$Html$Attributes$href('https://github.com/erkal/elm-3d-playground-exploration'),
 							$elm$html$Html$Attributes$target('_blank')
 						]),
@@ -7985,7 +8016,7 @@ var $author$project$Playground$viewGUI = F2(
 							$elm$core$String$fromFloat(widthOfLeftStripe) + 'px')
 						]),
 					_List_fromArray(
-						[yingYangButton, twitterLink, githubLink])),
+						[yingYangButton, homeButton, twitterLink, githubLink])),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -8106,11 +8137,11 @@ var $author$project$Playground$gameWithConfigurationsAndEditor = F6(
 		};
 		return $elm$browser$Browser$element(
 			{
-				fE: init,
-				gj: $elm$core$Basics$always(
+				fF: init,
+				gk: $elm$core$Basics$always(
 					$author$project$Playground$tick($author$project$Playground$Tick)),
-				go: update,
-				gr: A2($author$project$Playground$view, viewGameModel, viewEditor)
+				gp: update,
+				gs: A2($author$project$Playground$view, viewGameModel, viewEditor)
 			});
 	});
 var $author$project$WebPage$Main$init = function (computer) {
@@ -8124,7 +8155,7 @@ var $author$project$Playground$boolConfig = F2(
 	});
 var $author$project$Playground$Configurations$Block = F3(
 	function (name, isOpen, configs) {
-		return {aS: configs, fH: isOpen, fW: name};
+		return {aS: configs, fI: isOpen, fX: name};
 	});
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$core$Dict$fromList = function (assocs) {
@@ -8204,7 +8235,8 @@ var $author$project$WebPage$Main$viewExample = function (exampleName) {
 				$elm$html$Html$a,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$href(exampleLink)
+						$elm$html$Html$Attributes$href(exampleLink),
+						$elm$html$Html$Attributes$target('_blank')
 					]),
 				_List_fromArray(
 					[
@@ -8247,7 +8279,8 @@ var $author$project$WebPage$Main$viewExample = function (exampleName) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$class('inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg'),
-						$elm$html$Html$Attributes$href(sourceCodeLink)
+						$elm$html$Html$Attributes$href(sourceCodeLink),
+						$elm$html$Html$Attributes$target('_blank')
 					]),
 				_List_fromArray(
 					[
@@ -8325,6 +8358,7 @@ var $author$project$WebPage$Main$viewEditor = F2(
 											_List_fromArray(
 												[
 													$elm$html$Html$Attributes$href('https://github.com/erkal/elm-3d-playground-exploration'),
+													$elm$html$Html$Attributes$target('_blank'),
 													$elm$html$Html$Attributes$class('underline transition-all duration-300 hover:text-lightBlue-400')
 												]),
 											_List_fromArray(
@@ -8374,7 +8408,7 @@ _Platform_export({'WebPage':{'Main':{'init':$author$project$WebPage$Main$main(
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{e9: clock, fi: devicePixelRatio, fm: dt, fJ: keyboard, bL: pointer, ae: screen, gt: wheel});
+																		{e9: clock, fi: devicePixelRatio, fm: dt, fK: keyboard, bL: pointer, ae: screen, gu: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -8413,7 +8447,7 @@ _Platform_export({'WebPage':{'Main':{'init':$author$project$WebPage$Main$main(
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{eZ: alt, fb: control, dR: down, fl: downs, fM: left, f6: pressedKeys, ga: right, ge: shift, eT: up});
+																														{eZ: alt, fb: control, dR: down, fl: downs, fN: left, f7: pressedKeys, gb: right, gf: shift, eT: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -8467,7 +8501,7 @@ _Platform_export({'WebPage':{'Main':{'init':$author$project$WebPage$Main$main(
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{dR: down, d_: isDown, fS: move, gb: rightDown, gc: rightUp, eT: up, eW: x, eX: y});
+																										{dR: down, d_: isDown, fT: move, gc: rightDown, gd: rightUp, eT: up, eW: x, eX: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
