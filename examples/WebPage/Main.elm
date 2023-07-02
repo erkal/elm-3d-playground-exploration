@@ -60,7 +60,7 @@ viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
         [ class "fixed w-full h-full"
-        , class "bg-gradient-to-br from-blue-300 via-lightBlue-500 to-cyan-700"
+        , class "bg-gradient-to-br from-blue-400 via-lightBlue-500 to-cyan-700"
         , class "overflow-y-auto"
         ]
         [ div
