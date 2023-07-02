@@ -61,19 +61,19 @@ viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
         [ class "fixed w-full h-full"
-        , class "bg-gradient-to-br from-yellow-400 via-red-500 to-purple-500"
+        , class "bg-gradient-to-br from-blue-400 via-lightBlue-500 to-cyan-700"
         , class "overflow-y-auto"
         ]
         [ div
-            [ class "mx-auto container max-w-4xl h-full p-6 sm:p-12 text-lg text-white"
+            [ class "mx-auto container max-w-5xl h-full py-6 px-6 sm:px-12 text-lg text-white"
             , class "flex flex-col items-center"
             ]
-            [ div [ class "text-3xl font-extrabold mb-5 tracking-tight" ]
+            [ div [ class "text-3xl font-extrabold mb-8 tracking-tight" ]
                 [ span [] [ text "All examples in " ]
                 , span []
                     [ a
                         [ href "https://github.com/erkal/elm-3d-playground-exploration"
-                        , class "underline py-4 transition-all duration-300 hover:text-blue-400"
+                        , class "underline transition-all duration-300 hover:text-lightBlue-400"
                         ]
                         [ text "elm-3d-playground-exploration" ]
                     ]
@@ -86,8 +86,7 @@ viewEditor computer model =
 viewExamples : Computer -> Model -> Html EditorMsg
 viewExamples computer model =
     div
-        [ class "py-12 grid grid-cols-1 sm:grid-cols-2 gap-8"
-        ]
+        [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
         [ viewExample "Carousel"
         , viewExample "Carousel"
         , viewExample "Carousel"
@@ -98,15 +97,16 @@ viewExamples computer model =
 viewExample : String -> Html EditorMsg
 viewExample exampleName =
     div
-        [ class "p-6 rounded-lg shadow-lg"
-        , class "bg-gradient-to-r from-teal-400 via-blue-500 to-purple-600 text-white"
+        [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
+        , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
-        [ h2 [ class "text-2xl font-bold mb-4 text-white" ] [ text exampleName ]
-        , a [ href "../Carousel/index.html" ] [ img [ src "../Carousel/image.png" ] [] ]
+        [ h2 [ class "text-xl font-semibold mb-4 text-white" ] [ text exampleName ]
+        , a [ href "../Carousel/index.html" ]
+            [ img [ src "../Carousel/image.png", class "rounded-xl hover:opacity-75 transition-all duration-300 " ] [] ]
         , a
-            [ class "inline-block mt-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 transition-colors duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
+            [ class "inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
             , href "https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/Carousel"
             ]
             [ text "Source code" ]
-        , div [ class "mt-5 text-white" ] [ text "TODO: Write a description here" ]
+        , div [ class "mt-2 text-sm text-white" ] [ text "Here goes the longer description for your example that should fit well without stretching the cards too much. Adjust text size to fit more content, if necessary." ]
         ]
