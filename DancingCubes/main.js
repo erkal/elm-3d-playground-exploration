@@ -14564,7 +14564,7 @@ var $author$project$DancingCubes$Main$view = F2(
 		return A2(
 			$author$project$Scene$sunny,
 			{
-				eX: A4($avh4$elm_color$Color$rgba, 0, 0, 0, 0),
+				eX: A3($avh4$elm_color$Color$hsl, 0.6, 0.5, 0.2),
 				e$: $author$project$Camera$perspective(
 					{
 						dO: {

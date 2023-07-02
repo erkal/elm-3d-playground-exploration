@@ -8261,7 +8261,7 @@ var $author$project$WebPage$Main$viewExample = function (exampleName) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Here goes the longer description for your example that should fit well without stretching the cards too much. Adjust text size to fit more content, if necessary.')
+						$elm$html$Html$text('TODO: Write a description here')
 					]))
 			]));
 };
@@ -8273,13 +8273,11 @@ var $author$project$WebPage$Main$viewExamples = F2(
 				[
 					$elm$html$Html$Attributes$class('grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8')
 				]),
-			_List_fromArray(
-				[
-					$author$project$WebPage$Main$viewExample('Carousel'),
-					$author$project$WebPage$Main$viewExample('Carousel'),
-					$author$project$WebPage$Main$viewExample('Carousel'),
-					$author$project$WebPage$Main$viewExample('Carousel')
-				]));
+			A2(
+				$elm$core$List$map,
+				$author$project$WebPage$Main$viewExample,
+				_List_fromArray(
+					['BallGame', 'Carousel', 'ColorShower', 'DancingCubes', 'GooeyEffect', 'GrowingSquares', 'HappyBirthdayAndrey', 'IsomorphismGame', 'JohnHarrisEightRollingCubes', 'MultipleShadowsFromIanMackenzie', 'PlanetarySystem', 'RecursiveRotation', 'RecursiveTree', 'RedFacedCube', 'RotatingBlocks', 'Template', 'TemplateWithConfigs', 'TheSomaCube', 'TrixelEditor', 'TurningBlocks', 'WaveInWave', 'ZoomAndPan'])));
 	});
 var $author$project$WebPage$Main$viewEditor = F2(
 	function (computer, model) {
