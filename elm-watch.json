@@ -84,12 +84,6 @@
       ],
       "output": "build/RedFacedCube/main.js"
     },
-    "RotatingBlocks": {
-      "inputs": [
-        "examples/RotatingBlocks/Main.elm"
-      ],
-      "output": "build/RotatingBlocks/main.js"
-    },
     "Template": {
       "inputs": [
         "examples/Template/Main.elm"

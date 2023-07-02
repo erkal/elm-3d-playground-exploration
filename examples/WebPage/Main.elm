@@ -125,8 +125,7 @@ viewExample exampleName descriptionText =
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
         , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
-        [ h2 [ class "text-2xl font-semibold mb-4 text-white" ] [ text exampleName ]
-        , a
+        [ a
             [ href exampleLink
             , target "_blank"
             ]
