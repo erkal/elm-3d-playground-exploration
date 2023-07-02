@@ -12,8 +12,8 @@
     <script src="main.js"></script>
 
     <script type="module">
-      import { sendInputsToElmApp } from "../../playground-exploration/src/input.js";
-      import { preventEvents } from "../../playground-exploration/src/preventEvents.js";
+      import { sendInputsToElmApp } from "../input.js";
+      import { preventEvents } from "../preventEvents.js";
 
       const app = Elm.{{ EXAMPLE_NAME }}.Main.init({
         node: document.querySelector("#app"),

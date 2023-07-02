@@ -11,7 +11,10 @@
     "watch-elm": "npx elm-watch hot",
     "serve": "npx http-server .",
     "dev": "bash ./scripts/prebuild.sh && concurrently \"npm run watch-tailwind\" \"npm run watch-elm\" \"npm run serve\" \"open http://192.168.178.39:8080/build\"",
-    "deploy": "gh-pages -d ."
+    "build-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css",
+    "build-elm": "npx elm-watch make --optimize",
+    "build": "bash ./scripts/prebuild.sh && npm run build-tailwind && npm run build-elm",
+    "deploy": "npm run build && gh-pages -d build"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
