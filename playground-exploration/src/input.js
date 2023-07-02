@@ -135,7 +135,7 @@ const sendInputsToElmApp = (app) => {
     if (isControlKey(e)) {
       inputs.keyboard.control = false;
 
-      // the next line is to prevent buggy behavoiur on OS X
+      // the next line is to prevent buggy behavior on OS X
       inputs.keyboard.pressedKeys = [];
     }
 

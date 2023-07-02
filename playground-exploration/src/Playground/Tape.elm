@@ -243,7 +243,7 @@ jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
 
 view : Tape gameModel -> Html Msg
 view tape =
-    div [ class "w-full h-full p-4 border-[0.5px] border-white20 bg-black20" ]
+    div [ class "w-full h-full p-4 border-[0.5px] border-white/20 bg-black/20" ]
         [ viewSlider tape
         , viewTapeButtons tape
         , viewFpsMeter tape
@@ -274,10 +274,10 @@ viewTapeButtons (Tape state { future }) =
                 recButton False PressedPauseButton "text-red-500 font-bold"
 
             Paused ->
-                recButton False PressedRecordButton "text-white60 hover:text-white80 font-bold"
+                recButton False PressedRecordButton "text-white/60 hover:text-white/80 font-bold"
 
             Playing _ ->
-                recButton True PressedRecordButton "text-white60 hover:text-white80 font-bold"
+                recButton True PressedRecordButton "text-white/60 hover:text-white/80 font-bold"
         , case state of
             Recording ->
                 tapeButtonWithIcon (List.isEmpty future) Icons.icons.play PressedPlayButton
@@ -293,7 +293,7 @@ viewTapeButtons (Tape state { future }) =
 recButton : Bool -> Msg -> String -> Html Msg
 recButton isDisabled msg conditionalStyle =
     button
-        [ class "px-2 bg-black60 hover:bg-black80 active:bg-black disabled:opacity-30 disabled:bg-black60"
+        [ class "px-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
         , class conditionalStyle
         , disabled isDisabled
         , onClick msg
@@ -304,11 +304,11 @@ recButton isDisabled msg conditionalStyle =
 tapeButtonWithIcon : Bool -> Html msg -> msg -> Html msg
 tapeButtonWithIcon isDisabled iconD msg =
     button
-        [ class "absolute left-[60px] mx-1 px-1 bg-black60 hover:bg-black80 active:bg-black disabled:opacity-30 disabled:bg-black60"
+        [ class "absolute left-[60px] mx-1 px-1 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
         , disabled isDisabled
         , onClick msg
         ]
-        [ div [ class "w-4 h-6 text-white60 hover:text-white80" ] [ iconD ] ]
+        [ div [ class "w-4 h-6 text-white/60 hover:text-white/80" ] [ iconD ] ]
 
 
 fpsMeter : Tape gameModel -> Maybe Int
@@ -322,7 +322,7 @@ fpsMeter ((Tape state { pastReversed }) as tape) =
 
 viewFpsMeter : Tape gameModel -> Html Msg
 viewFpsMeter tape =
-    div [ class "absolute bottom-2 right-4 text-sm text-white40" ] <|
+    div [ class "absolute bottom-2 right-4 text-sm text-white/40" ] <|
         case fpsMeter tape of
             Nothing ->
                 [ text "... Fps" ]
@@ -334,7 +334,7 @@ viewFpsMeter tape =
 viewClock : Tape gameModel -> Html Msg
 viewClock tape =
     div
-        [ class "absolute left-[104px] bottom-2 text-sm text-white40"
+        [ class "absolute left-[104px] bottom-2 text-sm text-white/40"
         ]
         [ text <|
             "clock: "
