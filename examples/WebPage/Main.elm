@@ -123,7 +123,7 @@ viewExample exampleName =
             "../" ++ exampleName ++ "/image.png"
 
         sourceCodeLink =
-            "https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/" ++ exampleName
+            "https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/" ++ exampleName
     in
     div
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
