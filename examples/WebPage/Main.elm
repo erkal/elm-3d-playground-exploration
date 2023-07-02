@@ -1,7 +1,7 @@
 module WebPage.Main exposing (main)
 
 import Color exposing (white)
-import Html exposing (Html, a, div, h2, img, span, text)
+import Html exposing (Html, a, div, h2, i, img, span, text)
 import Html.Attributes exposing (class, href, src)
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor)
 
@@ -101,8 +101,15 @@ viewExample exampleName =
         , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
         [ h2 [ class "text-xl font-semibold mb-4 text-white" ] [ text exampleName ]
-        , a [ href "../Carousel/index.html" ]
-            [ img [ src "../Carousel/image.png", class "rounded-xl hover:opacity-75 transition-all duration-300 " ] [] ]
+        , div
+            [ class "relative cursor-pointer group" ]
+            [ a [ href "../Carousel/index.html", class "w-full h-full block" ]
+                []
+            , img [ src "../Carousel/image.png", class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
+            , div
+                [ class "flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100" ]
+                [ i [ class "fas fa-expand" ] [] ]
+            ]
         , a
             [ class "inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
             , href "https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/Carousel"
