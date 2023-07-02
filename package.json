@@ -10,7 +10,7 @@
     "watch-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css --watch",
     "watch-elm": "npx elm-watch hot",
     "serve": "npx http-server .",
-    "dev": "bash ./scripts/prebuild.sh && bash ./scripts/create-examples-page.sh && concurrently \"npm run watch-tailwind\" \"npm run watch-elm\" \"npm run serve\" \"open http://192.168.178.39:8080/build\""
+    "dev": "bash ./scripts/prebuild.sh && concurrently \"npm run watch-tailwind\" \"npm run watch-elm\" \"npm run serve\" \"open http://192.168.178.39:8080/build\""
   },
   "devDependencies": {
     "concurrently": "^8.2.0",

@@ -96,15 +96,25 @@ viewExamples computer model =
 
 viewExample : String -> Html EditorMsg
 viewExample exampleName =
+    let
+        exampleLink =
+            "../" ++ exampleName ++ "/index.html"
+
+        imageLink =
+            "../" ++ exampleName ++ "/image.png"
+
+        sourceCodeLink =
+            "https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/" ++ exampleName
+    in
     div
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
         , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
         [ h2 [ class "text-xl font-semibold mb-4 text-white" ] [ text exampleName ]
-        , a [ href "../Carousel/index.html" ]
+        , a [ href exampleLink ]
             [ div
                 [ class "relative cursor-pointer group" ]
-                [ img [ src "../Carousel/image.png", class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
+                [ img [ src imageLink, class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
                 , div
                     [ class "flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100" ]
                     [ i [ class "fas fa-expand" ] [] ]
@@ -112,7 +122,7 @@ viewExample exampleName =
             ]
         , a
             [ class "inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
-            , href "https://github.com/erkal/elm-3d-playground-exploration/tree/restructure-for-elm-watch/examples/Carousel"
+            , href sourceCodeLink
             ]
             [ text "Source code" ]
         , div [ class "mt-2 text-sm text-white" ] [ text "Here goes the longer description for your example that should fit well without stretching the cards too much. Adjust text size to fit more content, if necessary." ]
