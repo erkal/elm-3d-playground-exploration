@@ -1,0 +1,142 @@
+{
+  "targets": {
+    "BallGame": {
+      "inputs": [
+        "examples/BallGame/Main.elm"
+      ],
+      "output": "build/BallGame/main.js"
+    },
+    "Carousel": {
+      "inputs": [
+        "examples/Carousel/Main.elm"
+      ],
+      "output": "build/Carousel/main.js"
+    },
+    "ColorShower": {
+      "inputs": [
+        "examples/ColorShower/Main.elm"
+      ],
+      "output": "build/ColorShower/main.js"
+    },
+    "DancingCubes": {
+      "inputs": [
+        "examples/DancingCubes/Main.elm"
+      ],
+      "output": "build/DancingCubes/main.js"
+    },
+    "GooeyEffect": {
+      "inputs": [
+        "examples/GooeyEffect/Main.elm"
+      ],
+      "output": "build/GooeyEffect/main.js"
+    },
+    "GrowingSquares": {
+      "inputs": [
+        "examples/GrowingSquares/Main.elm"
+      ],
+      "output": "build/GrowingSquares/main.js"
+    },
+    "HappyBirthdayAndrey": {
+      "inputs": [
+        "examples/HappyBirthdayAndrey/Main.elm"
+      ],
+      "output": "build/HappyBirthdayAndrey/main.js"
+    },
+    "IsomorphismGame": {
+      "inputs": [
+        "examples/IsomorphismGame/Main.elm"
+      ],
+      "output": "build/IsomorphismGame/main.js"
+    },
+    "JohnHarrisEightRollingCubes": {
+      "inputs": [
+        "examples/JohnHarrisEightRollingCubes/Main.elm"
+      ],
+      "output": "build/JohnHarrisEightRollingCubes/main.js"
+    },
+    "MultipleShadowsFromIanMackenzie": {
+      "inputs": [
+        "examples/MultipleShadowsFromIanMackenzie/Main.elm"
+      ],
+      "output": "build/MultipleShadowsFromIanMackenzie/main.js"
+    },
+    "PlanetarySystem": {
+      "inputs": [
+        "examples/PlanetarySystem/Main.elm"
+      ],
+      "output": "build/PlanetarySystem/main.js"
+    },
+    "RecursiveRotation": {
+      "inputs": [
+        "examples/RecursiveRotation/Main.elm"
+      ],
+      "output": "build/RecursiveRotation/main.js"
+    },
+    "RecursiveTree": {
+      "inputs": [
+        "examples/RecursiveTree/Main.elm"
+      ],
+      "output": "build/RecursiveTree/main.js"
+    },
+    "RedFacedCube": {
+      "inputs": [
+        "examples/RedFacedCube/Main.elm"
+      ],
+      "output": "build/RedFacedCube/main.js"
+    },
+    "RotatingBlocks": {
+      "inputs": [
+        "examples/RotatingBlocks/Main.elm"
+      ],
+      "output": "build/RotatingBlocks/main.js"
+    },
+    "Template": {
+      "inputs": [
+        "examples/Template/Main.elm"
+      ],
+      "output": "build/Template/main.js"
+    },
+    "TemplateWithConfigs": {
+      "inputs": [
+        "examples/TemplateWithConfigs/Main.elm"
+      ],
+      "output": "build/TemplateWithConfigs/main.js"
+    },
+    "TheSomaCube": {
+      "inputs": [
+        "examples/TheSomaCube/Main.elm"
+      ],
+      "output": "build/TheSomaCube/main.js"
+    },
+    "TrixelEditor": {
+      "inputs": [
+        "examples/TrixelEditor/Main.elm"
+      ],
+      "output": "build/TrixelEditor/main.js"
+    },
+    "TurningBlocks": {
+      "inputs": [
+        "examples/TurningBlocks/Main.elm"
+      ],
+      "output": "build/TurningBlocks/main.js"
+    },
+    "WaveInWave": {
+      "inputs": [
+        "examples/WaveInWave/Main.elm"
+      ],
+      "output": "build/WaveInWave/main.js"
+    },
+    "WebPage": {
+      "inputs": [
+        "examples/WebPage/Main.elm"
+      ],
+      "output": "build/WebPage/main.js"
+    },
+    "ZoomAndPan": {
+      "inputs": [
+        "examples/ZoomAndPan/Main.elm"
+      ],
+      "output": "build/ZoomAndPan/main.js"
+    }
+  }
+}
