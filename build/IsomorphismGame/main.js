@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.2";
   var TARGET_NAME = "IsomorphismGame";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1688322089912"
+    "1688322672834"
   );
   var ORIGINAL_COMPILATION_MODE = "proxy";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";

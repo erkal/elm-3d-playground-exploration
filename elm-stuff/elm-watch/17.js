@@ -1,2877 +1,5 @@
-// elm-watch hot {"version":"1.1.2","targetName":"GrowingSquares","webSocketPort":59856}
-"use strict";
-(() => {
-  // node_modules/tiny-decoders/index.mjs
-  function boolean(value) {
-    if (typeof value !== "boolean") {
-      throw new DecoderError({ tag: "boolean", got: value });
-    }
-    return value;
-  }
-  function number(value) {
-    if (typeof value !== "number") {
-      throw new DecoderError({ tag: "number", got: value });
-    }
-    return value;
-  }
-  function string(value) {
-    if (typeof value !== "string") {
-      throw new DecoderError({ tag: "string", got: value });
-    }
-    return value;
-  }
-  function stringUnion(mapping) {
-    return function stringUnionDecoder(value) {
-      const str = string(value);
-      if (!Object.prototype.hasOwnProperty.call(mapping, str)) {
-        throw new DecoderError({
-          tag: "unknown stringUnion variant",
-          knownVariants: Object.keys(mapping),
-          got: str
-        });
-      }
-      return str;
-    };
-  }
-  function unknownArray(value) {
-    if (!Array.isArray(value)) {
-      throw new DecoderError({ tag: "array", got: value });
-    }
-    return value;
-  }
-  function unknownRecord(value) {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      throw new DecoderError({ tag: "object", got: value });
-    }
-    return value;
-  }
-  function array(decoder) {
-    return function arrayDecoder(value) {
-      const arr = unknownArray(value);
-      const result = [];
-      for (let index = 0; index < arr.length; index++) {
-        try {
-          result.push(decoder(arr[index]));
-        } catch (error) {
-          throw DecoderError.at(error, index);
-        }
-      }
-      return result;
-    };
-  }
-  function record(decoder) {
-    return function recordDecoder(value) {
-      const object = unknownRecord(value);
-      const keys = Object.keys(object);
-      const result = {};
-      for (const key of keys) {
-        if (key === "__proto__") {
-          continue;
-        }
-        try {
-          result[key] = decoder(object[key]);
-        } catch (error) {
-          throw DecoderError.at(error, key);
-        }
-      }
-      return result;
-    };
-  }
-  function fields(callback, { exact = "allow extra", allow = "object" } = {}) {
-    return function fieldsDecoder(value) {
-      const object = allow === "array" ? unknownArray(value) : unknownRecord(value);
-      const knownFields = /* @__PURE__ */ Object.create(null);
-      function field(key, decoder) {
-        try {
-          const result2 = decoder(object[key]);
-          knownFields[key] = null;
-          return result2;
-        } catch (error) {
-          throw DecoderError.at(error, key);
-        }
-      }
-      const result = callback(field, object);
-      if (exact !== "allow extra") {
-        const unknownFields = Object.keys(object).filter((key) => !Object.prototype.hasOwnProperty.call(knownFields, key));
-        if (unknownFields.length > 0) {
-          throw new DecoderError({
-            tag: "exact fields",
-            knownFields: Object.keys(knownFields),
-            got: unknownFields
-          });
-        }
-      }
-      return result;
-    };
-  }
-  function fieldsAuto(mapping, { exact = "allow extra" } = {}) {
-    return function fieldsAutoDecoder(value) {
-      const object = unknownRecord(value);
-      const keys = Object.keys(mapping);
-      const result = {};
-      for (const key of keys) {
-        if (key === "__proto__") {
-          continue;
-        }
-        const decoder = mapping[key];
-        try {
-          result[key] = decoder(object[key]);
-        } catch (error) {
-          throw DecoderError.at(error, key);
-        }
-      }
-      if (exact !== "allow extra") {
-        const unknownFields = Object.keys(object).filter((key) => !Object.prototype.hasOwnProperty.call(mapping, key));
-        if (unknownFields.length > 0) {
-          throw new DecoderError({
-            tag: "exact fields",
-            knownFields: keys,
-            got: unknownFields
-          });
-        }
-      }
-      return result;
-    };
-  }
-  function fieldsUnion(key, mapping) {
-    return fields(function fieldsUnionFields(field, object) {
-      const tag = field(key, string);
-      if (Object.prototype.hasOwnProperty.call(mapping, tag)) {
-        const decoder = mapping[tag];
-        return decoder(object);
-      }
-      throw new DecoderError({
-        tag: "unknown fieldsUnion tag",
-        knownTags: Object.keys(mapping),
-        got: tag,
-        key
-      });
-    });
-  }
-  function multi(mapping) {
-    return function multiDecoder(value) {
-      if (value === void 0) {
-        if (mapping.undefined !== void 0) {
-          return mapping.undefined(value);
-        }
-      } else if (value === null) {
-        if (mapping.null !== void 0) {
-          return mapping.null(value);
-        }
-      } else if (typeof value === "boolean") {
-        if (mapping.boolean !== void 0) {
-          return mapping.boolean(value);
-        }
-      } else if (typeof value === "number") {
-        if (mapping.number !== void 0) {
-          return mapping.number(value);
-        }
-      } else if (typeof value === "string") {
-        if (mapping.string !== void 0) {
-          return mapping.string(value);
-        }
-      } else if (Array.isArray(value)) {
-        if (mapping.array !== void 0) {
-          return mapping.array(value);
-        }
-      } else {
-        if (mapping.object !== void 0) {
-          return mapping.object(value);
-        }
-      }
-      throw new DecoderError({
-        tag: "unknown multi type",
-        knownTypes: Object.keys(mapping),
-        got: value
-      });
-    };
-  }
-  function optional(decoder, defaultValue) {
-    return function optionalDecoder(value) {
-      if (value === void 0) {
-        return defaultValue;
-      }
-      try {
-        return decoder(value);
-      } catch (error) {
-        const newError = DecoderError.at(error);
-        if (newError.path.length === 0) {
-          newError.optional = true;
-        }
-        throw newError;
-      }
-    };
-  }
-  function chain(decoder, next) {
-    return function chainDecoder(value) {
-      return next(decoder(value));
-    };
-  }
-  function formatDecoderErrorVariant(variant, options) {
-    const formatGot = (value) => {
-      const formatted = repr(value, options);
-      return (options === null || options === void 0 ? void 0 : options.sensitive) === true ? `${formatted}
-(Actual values are hidden in sensitive mode.)` : formatted;
-    };
-    const stringList = (strings) => strings.length === 0 ? "(none)" : strings.map((s) => JSON.stringify(s)).join(", ");
-    const got = (message, value) => value === DecoderError.MISSING_VALUE ? message : `${message}
-Got: ${formatGot(value)}`;
-    switch (variant.tag) {
-      case "boolean":
-      case "number":
-      case "string":
-        return got(`Expected a ${variant.tag}`, variant.got);
-      case "array":
-      case "object":
-        return got(`Expected an ${variant.tag}`, variant.got);
-      case "unknown multi type":
-        return `Expected one of these types: ${variant.knownTypes.length === 0 ? "never" : variant.knownTypes.join(", ")}
-Got: ${formatGot(variant.got)}`;
-      case "unknown fieldsUnion tag":
-        return `Expected one of these tags: ${stringList(variant.knownTags)}
-Got: ${formatGot(variant.got)}`;
-      case "unknown stringUnion variant":
-        return `Expected one of these variants: ${stringList(variant.knownVariants)}
-Got: ${formatGot(variant.got)}`;
-      case "exact fields":
-        return `Expected only these fields: ${stringList(variant.knownFields)}
-Found extra fields: ${formatGot(variant.got).replace(/^\[|\]$/g, "")}`;
-      case "tuple size":
-        return `Expected ${variant.expected} items
-Got: ${variant.got}`;
-      case "custom":
-        return got(variant.message, variant.got);
-    }
-  }
-  var DecoderError = class extends TypeError {
-    constructor({ key, ...params }) {
-      const variant = "tag" in params ? params : { tag: "custom", message: params.message, got: params.value };
-      super(`${formatDecoderErrorVariant(
-        variant,
-        { sensitive: true }
-      )}
-
-For better error messages, see https://github.com/lydell/tiny-decoders#error-messages`);
-      this.path = key === void 0 ? [] : [key];
-      this.variant = variant;
-      this.nullable = false;
-      this.optional = false;
-    }
-    static at(error, key) {
-      if (error instanceof DecoderError) {
-        if (key !== void 0) {
-          error.path.unshift(key);
-        }
-        return error;
-      }
-      return new DecoderError({
-        tag: "custom",
-        message: error instanceof Error ? error.message : String(error),
-        got: DecoderError.MISSING_VALUE,
-        key
-      });
-    }
-    format(options) {
-      const path = this.path.map((part) => `[${JSON.stringify(part)}]`).join("");
-      const nullableString = this.nullable ? " (nullable)" : "";
-      const optionalString = this.optional ? " (optional)" : "";
-      const variant = formatDecoderErrorVariant(this.variant, options);
-      return `At root${path}${nullableString}${optionalString}:
-${variant}`;
-    }
-  };
-  DecoderError.MISSING_VALUE = Symbol("DecoderError.MISSING_VALUE");
-  function repr(value, { recurse = true, maxArrayChildren = 5, maxObjectChildren = 3, maxLength = 100, recurseMaxLength = 20, sensitive = false } = {}) {
-    const type = typeof value;
-    const toStringType = Object.prototype.toString.call(value).replace(/^\[object\s+(.+)\]$/, "$1");
-    try {
-      if (value == null || type === "number" || type === "boolean" || type === "symbol" || toStringType === "RegExp") {
-        return sensitive ? toStringType.toLowerCase() : truncate(String(value), maxLength);
-      }
-      if (type === "string") {
-        return sensitive ? type : truncate(JSON.stringify(value), maxLength);
-      }
-      if (typeof value === "function") {
-        return `function ${truncate(JSON.stringify(value.name), maxLength)}`;
-      }
-      if (Array.isArray(value)) {
-        const arr = value;
-        if (!recurse && arr.length > 0) {
-          return `${toStringType}(${arr.length})`;
-        }
-        const lastIndex = arr.length - 1;
-        const items = [];
-        const end = Math.min(maxArrayChildren - 1, lastIndex);
-        for (let index = 0; index <= end; index++) {
-          const item = index in arr ? repr(arr[index], {
-            recurse: false,
-            maxLength: recurseMaxLength,
-            sensitive
-          }) : "<empty>";
-          items.push(item);
-        }
-        if (end < lastIndex) {
-          items.push(`(${lastIndex - end} more)`);
-        }
-        return `[${items.join(", ")}]`;
-      }
-      if (toStringType === "Object") {
-        const object = value;
-        const keys = Object.keys(object);
-        const { name } = object.constructor;
-        if (!recurse && keys.length > 0) {
-          return `${name}(${keys.length})`;
-        }
-        const numHidden = Math.max(0, keys.length - maxObjectChildren);
-        const items = keys.slice(0, maxObjectChildren).map((key2) => `${truncate(JSON.stringify(key2), recurseMaxLength)}: ${repr(object[key2], {
-          recurse: false,
-          maxLength: recurseMaxLength,
-          sensitive
-        })}`).concat(numHidden > 0 ? `(${numHidden} more)` : []);
-        const prefix = name === "Object" ? "" : `${name} `;
-        return `${prefix}{${items.join(", ")}}`;
-      }
-      return toStringType;
-    } catch (_error) {
-      return toStringType;
-    }
-  }
-  function truncate(str, maxLength) {
-    const half = Math.floor(maxLength / 2);
-    return str.length <= maxLength ? str : `${str.slice(0, half)}\u2026${str.slice(-half)}`;
-  }
-
-  // src/Helpers.ts
-  function join(array2, separator) {
-    return array2.join(separator);
-  }
-  function pad(number2) {
-    return number2.toString().padStart(2, "0");
-  }
-  function formatDate(date) {
-    return join(
-      [pad(date.getFullYear()), pad(date.getMonth() + 1), pad(date.getDate())],
-      "-"
-    );
-  }
-  function formatTime(date) {
-    return join(
-      [pad(date.getHours()), pad(date.getMinutes()), pad(date.getSeconds())],
-      ":"
-    );
-  }
-
-  // src/TeaProgram.ts
-  async function runTeaProgram(options) {
-    return new Promise((resolve, reject) => {
-      const [initialModel, initialCmds] = options.init;
-      let model = initialModel;
-      const msgQueue = [];
-      let killed = false;
-      const dispatch = (dispatchedMsg) => {
-        if (killed) {
-          return;
-        }
-        const alreadyRunning = msgQueue.length > 0;
-        msgQueue.push(dispatchedMsg);
-        if (alreadyRunning) {
-          return;
-        }
-        for (const msg of msgQueue) {
-          const [newModel, cmds] = options.update(msg, model);
-          model = newModel;
-          runCmds(cmds);
-        }
-        msgQueue.length = 0;
-      };
-      const runCmds = (cmds) => {
-        for (const cmd of cmds) {
-          options.runCmd(
-            cmd,
-            mutable,
-            dispatch,
-            (result) => {
-              cmds.length = 0;
-              killed = true;
-              resolve(result);
-            },
-            (error) => {
-              cmds.length = 0;
-              killed = true;
-              reject(error);
-            }
-          );
-          if (killed) {
-            break;
-          }
-        }
-      };
-      const mutable = options.initMutable(
-        dispatch,
-        (result) => {
-          killed = true;
-          resolve(result);
-        },
-        (error) => {
-          killed = true;
-          reject(error);
-        }
-      );
-      runCmds(initialCmds);
-    });
-  }
-
-  // src/Types.ts
-  var AbsolutePath = fieldsAuto({
-    tag: () => "AbsolutePath",
-    absolutePath: string
-  });
-  var CompilationMode = stringUnion({
-    debug: null,
-    standard: null,
-    optimize: null
-  });
-  var BrowserUiPosition = stringUnion({
-    TopLeft: null,
-    TopRight: null,
-    BottomLeft: null,
-    BottomRight: null
-  });
-
-  // client/WebSocketMessages.ts
-  var FocusedTabAcknowledged = fieldsAuto({
-    tag: () => "FocusedTabAcknowledged"
-  });
-  var OpenEditorError = fieldsUnion("tag", {
-    EnvNotSet: fieldsAuto({
-      tag: () => "EnvNotSet"
-    }),
-    CommandFailed: fieldsAuto({
-      tag: () => "CommandFailed",
-      message: string
-    })
-  });
-  var OpenEditorFailed = fieldsAuto({
-    tag: () => "OpenEditorFailed",
-    error: OpenEditorError
-  });
-  var ErrorLocation = fieldsUnion("tag", {
-    FileOnly: fieldsAuto({
-      tag: () => "FileOnly",
-      file: AbsolutePath
-    }),
-    FileWithLineAndColumn: fieldsAuto({
-      tag: () => "FileWithLineAndColumn",
-      file: AbsolutePath,
-      line: number,
-      column: number
-    }),
-    Target: fieldsAuto({
-      tag: () => "Target",
-      targetName: string
-    })
-  });
-  var CompileError = fieldsAuto({
-    title: string,
-    location: optional(ErrorLocation),
-    htmlContent: string
-  });
-  var StatusChanged = fieldsAuto({
-    tag: () => "StatusChanged",
-    status: fieldsUnion("tag", {
-      AlreadyUpToDate: fieldsAuto({
-        tag: () => "AlreadyUpToDate",
-        compilationMode: CompilationMode,
-        browserUiPosition: BrowserUiPosition
-      }),
-      Busy: fieldsAuto({
-        tag: () => "Busy",
-        compilationMode: CompilationMode,
-        browserUiPosition: BrowserUiPosition
-      }),
-      CompileError: fieldsAuto({
-        tag: () => "CompileError",
-        compilationMode: CompilationMode,
-        browserUiPosition: BrowserUiPosition,
-        openErrorOverlay: boolean,
-        errors: array(CompileError),
-        foregroundColor: string,
-        backgroundColor: string
-      }),
-      ElmJsonError: fieldsAuto({
-        tag: () => "ElmJsonError",
-        error: string
-      }),
-      ClientError: fieldsAuto({
-        tag: () => "ClientError",
-        message: string
-      })
-    })
-  });
-  var SuccessfullyCompiled = fieldsAuto({
-    tag: () => "SuccessfullyCompiled",
-    code: string,
-    elmCompiledTimestamp: number,
-    compilationMode: CompilationMode,
-    browserUiPosition: BrowserUiPosition
-  });
-  var SuccessfullyCompiledButRecordFieldsChanged = fieldsAuto({
-    tag: () => "SuccessfullyCompiledButRecordFieldsChanged"
-  });
-  var WebSocketToClientMessage = fieldsUnion("tag", {
-    FocusedTabAcknowledged,
-    OpenEditorFailed,
-    StatusChanged,
-    SuccessfullyCompiled,
-    SuccessfullyCompiledButRecordFieldsChanged
-  });
-  var WebSocketToServerMessage = fieldsUnion("tag", {
-    ChangedCompilationMode: fieldsAuto({
-      tag: () => "ChangedCompilationMode",
-      compilationMode: CompilationMode
-    }),
-    ChangedBrowserUiPosition: fieldsAuto({
-      tag: () => "ChangedBrowserUiPosition",
-      browserUiPosition: BrowserUiPosition
-    }),
-    ChangedOpenErrorOverlay: fieldsAuto({
-      tag: () => "ChangedOpenErrorOverlay",
-      openErrorOverlay: boolean
-    }),
-    FocusedTab: fieldsAuto({
-      tag: () => "FocusedTab"
-    }),
-    PressedOpenEditor: fieldsAuto({
-      tag: () => "PressedOpenEditor",
-      file: AbsolutePath,
-      line: number,
-      column: number
-    })
-  });
-  function decodeWebSocketToClientMessage(message) {
-    if (message.startsWith("//")) {
-      const newlineIndexRaw = message.indexOf("\n");
-      const newlineIndex = newlineIndexRaw === -1 ? message.length : newlineIndexRaw;
-      const jsonString = message.slice(2, newlineIndex);
-      const parsed = SuccessfullyCompiled(JSON.parse(jsonString));
-      return { ...parsed, code: message };
-    } else {
-      return WebSocketToClientMessage(JSON.parse(message));
-    }
-  }
-
-  // client/client.ts
-  var window = globalThis;
-  var IS_WEB_WORKER = window.window === void 0;
-  var { __ELM_WATCH } = window;
-  if (typeof __ELM_WATCH !== "object" || __ELM_WATCH === null) {
-    __ELM_WATCH = {};
-    Object.defineProperty(window, "__ELM_WATCH", { value: __ELM_WATCH });
-  }
-  __ELM_WATCH.MOCKED_TIMINGS ?? (__ELM_WATCH.MOCKED_TIMINGS = false);
-  __ELM_WATCH.WEBSOCKET_TIMEOUT ?? (__ELM_WATCH.WEBSOCKET_TIMEOUT = 1e3);
-  __ELM_WATCH.ON_INIT ?? (__ELM_WATCH.ON_INIT = () => {
-  });
-  __ELM_WATCH.ON_RENDER ?? (__ELM_WATCH.ON_RENDER = () => {
-  });
-  __ELM_WATCH.ON_REACHED_IDLE_STATE ?? (__ELM_WATCH.ON_REACHED_IDLE_STATE = () => {
-  });
-  __ELM_WATCH.RELOAD_STATUSES ?? (__ELM_WATCH.RELOAD_STATUSES = {});
-  var RELOAD_MESSAGE_KEY = "__elmWatchReloadMessage";
-  var RELOAD_TARGET_NAME_KEY_PREFIX = "__elmWatchReloadTarget__";
-  __ELM_WATCH.RELOAD_PAGE ?? (__ELM_WATCH.RELOAD_PAGE = (message) => {
-    if (message !== void 0) {
-      try {
-        window.sessionStorage.setItem(RELOAD_MESSAGE_KEY, message);
-      } catch {
-      }
-    }
-    if (IS_WEB_WORKER) {
-      if (message !== void 0) {
-        console.info(message);
-      }
-      console.error(
-        message === void 0 ? "elm-watch: You need to reload the page! I seem to be running in a Web Worker, so I can\u2019t do it for you." : `elm-watch: You need to reload the page! I seem to be running in a Web Worker, so I couldn\u2019t actually reload the page (see above).`
-      );
-    } else {
-      window.location.reload();
-    }
-  });
-  __ELM_WATCH.KILL_MATCHING ?? (__ELM_WATCH.KILL_MATCHING = () => Promise.resolve());
-  __ELM_WATCH.DISCONNECT ?? (__ELM_WATCH.DISCONNECT = () => {
-  });
-  __ELM_WATCH.LOG_DEBUG ?? (__ELM_WATCH.LOG_DEBUG = console.debug);
-  var VERSION = "1.1.2";
-  var TARGET_NAME = "GrowingSquares";
-  var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1688322674975"
-  );
-  var ORIGINAL_COMPILATION_MODE = "standard";
-  var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";
-  var WEBSOCKET_PORT = "59856";
-  var CONTAINER_ID = "elm-watch";
-  var DEBUG = String("false") === "true";
-  var BROWSER_UI_MOVED_EVENT = "BROWSER_UI_MOVED_EVENT";
-  var CLOSE_ALL_ERROR_OVERLAYS_EVENT = "CLOSE_ALL_ERROR_OVERLAYS_EVENT";
-  var JUST_CHANGED_BROWSER_UI_POSITION_TIMEOUT = 2e3;
-  var SEND_KEY_DO_NOT_USE_ALL_THE_TIME = Symbol(
-    "This value is supposed to only be obtained via `Status`."
-  );
-  function logDebug(...args) {
-    if (DEBUG) {
-      __ELM_WATCH.LOG_DEBUG(...args);
-    }
-  }
-  function parseBrowseUiPositionWithFallback(value) {
-    try {
-      return BrowserUiPosition(value);
-    } catch {
-      return ORIGINAL_BROWSER_UI_POSITION;
-    }
-  }
-  function run() {
-    let elmCompiledTimestampBeforeReload = void 0;
-    try {
-      const message = window.sessionStorage.getItem(RELOAD_MESSAGE_KEY);
-      if (message !== null) {
-        console.info(message);
-        window.sessionStorage.removeItem(RELOAD_MESSAGE_KEY);
-      }
-      const key = RELOAD_TARGET_NAME_KEY_PREFIX + TARGET_NAME;
-      const previous = window.sessionStorage.getItem(key);
-      if (previous !== null) {
-        const number2 = Number(previous);
-        if (Number.isFinite(number2)) {
-          elmCompiledTimestampBeforeReload = number2;
-        }
-        window.sessionStorage.removeItem(key);
-      }
-    } catch {
-    }
-    const elements = IS_WEB_WORKER ? void 0 : getOrCreateTargetRoot();
-    const browserUiPosition = elements === void 0 ? ORIGINAL_BROWSER_UI_POSITION : parseBrowseUiPositionWithFallback(elements.container.dataset.position);
-    const getNow = () => new Date();
-    runTeaProgram({
-      initMutable: initMutable(getNow, elements),
-      init: init(getNow(), browserUiPosition, elmCompiledTimestampBeforeReload),
-      update: (msg, model) => {
-        const [updatedModel, cmds] = update(msg, model);
-        const modelChanged = updatedModel !== model;
-        const reloadTrouble = model.status.tag !== updatedModel.status.tag && updatedModel.status.tag === "WaitingForReload" && updatedModel.elmCompiledTimestamp === updatedModel.elmCompiledTimestampBeforeReload;
-        const newModel = modelChanged ? {
-          ...updatedModel,
-          previousStatusTag: model.status.tag,
-          uiExpanded: reloadTrouble ? true : updatedModel.uiExpanded
-        } : model;
-        const oldErrorOverlay = getErrorOverlay(model.status);
-        const newErrorOverlay = getErrorOverlay(newModel.status);
-        const allCmds = modelChanged ? [
-          ...cmds,
-          {
-            tag: "UpdateGlobalStatus",
-            reloadStatus: statusToReloadStatus(newModel),
-            elmCompiledTimestamp: newModel.elmCompiledTimestamp
-          },
-          newModel.status.tag === newModel.previousStatusTag && oldErrorOverlay?.openErrorOverlay === newErrorOverlay?.openErrorOverlay ? { tag: "NoCmd" } : {
-            tag: "UpdateErrorOverlay",
-            errors: newErrorOverlay === void 0 || !newErrorOverlay.openErrorOverlay ? /* @__PURE__ */ new Map() : newErrorOverlay.errors,
-            sendKey: statusToSpecialCaseSendKey(newModel.status)
-          },
-          {
-            tag: "Render",
-            model: newModel,
-            manageFocus: msg.tag === "UiMsg"
-          },
-          model.browserUiPosition === newModel.browserUiPosition ? { tag: "NoCmd" } : {
-            tag: "SetBrowserUiPosition",
-            browserUiPosition: newModel.browserUiPosition
-          },
-          reloadTrouble ? { tag: "TriggerReachedIdleState", reason: "ReloadTrouble" } : { tag: "NoCmd" }
-        ] : cmds;
-        logDebug(`${msg.tag} (${TARGET_NAME})`, msg, newModel, allCmds);
-        return [newModel, allCmds];
-      },
-      runCmd: runCmd(getNow, elements)
-    }).catch((error) => {
-      console.error("elm-watch: Unexpectedly exited with error:", error);
-    });
-  }
-  function getErrorOverlay(status) {
-    return "errorOverlay" in status ? status.errorOverlay : void 0;
-  }
-  function statusToReloadStatus(model) {
-    switch (model.status.tag) {
-      case "Busy":
-      case "Connecting":
-        return { tag: "MightWantToReload" };
-      case "CompileError":
-      case "ElmJsonError":
-      case "EvalError":
-      case "Idle":
-      case "SleepingBeforeReconnect":
-      case "UnexpectedError":
-        return { tag: "NoReloadWanted" };
-      case "WaitingForReload":
-        return model.elmCompiledTimestamp === model.elmCompiledTimestampBeforeReload ? { tag: "NoReloadWanted" } : { tag: "ReloadRequested", reasons: model.status.reasons };
-    }
-  }
-  function statusToStatusType(statusTag) {
-    switch (statusTag) {
-      case "Idle":
-        return "Success";
-      case "Busy":
-      case "Connecting":
-      case "SleepingBeforeReconnect":
-      case "WaitingForReload":
-        return "Waiting";
-      case "CompileError":
-      case "ElmJsonError":
-      case "EvalError":
-      case "UnexpectedError":
-        return "Error";
-    }
-  }
-  function statusToSpecialCaseSendKey(status) {
-    switch (status.tag) {
-      case "CompileError":
-      case "Idle":
-        return status.sendKey;
-      case "Busy":
-        return SEND_KEY_DO_NOT_USE_ALL_THE_TIME;
-      case "Connecting":
-      case "SleepingBeforeReconnect":
-      case "WaitingForReload":
-      case "ElmJsonError":
-      case "EvalError":
-      case "UnexpectedError":
-        return void 0;
-    }
-  }
-  function getOrCreateContainer() {
-    const existing = document.getElementById(CONTAINER_ID);
-    if (existing !== null) {
-      return existing;
-    }
-    const container = h(HTMLDivElement, { id: CONTAINER_ID });
-    container.style.all = "unset";
-    container.style.position = "fixed";
-    container.style.zIndex = "2147483647";
-    const shadowRoot = container.attachShadow({ mode: "open" });
-    shadowRoot.append(h(HTMLStyleElement, {}, CSS));
-    document.documentElement.append(container);
-    return container;
-  }
-  function getOrCreateTargetRoot() {
-    const container = getOrCreateContainer();
-    const { shadowRoot } = container;
-    if (shadowRoot === null) {
-      throw new Error(
-        `elm-watch: Cannot set up hot reload, because an element with ID ${CONTAINER_ID} exists, but \`.shadowRoot\` is null!`
-      );
-    }
-    let overlay = shadowRoot.querySelector(`.${CLASS.overlay}`);
-    if (overlay === null) {
-      overlay = h(HTMLDivElement, {
-        className: CLASS.overlay,
-        attrs: { "data-test-id": "Overlay" }
-      });
-      shadowRoot.append(overlay);
-    }
-    let overlayCloseButton = shadowRoot.querySelector(
-      `.${CLASS.overlayCloseButton}`
-    );
-    if (overlayCloseButton === null) {
-      const closeAllErrorOverlays = () => {
-        shadowRoot.dispatchEvent(new CustomEvent(CLOSE_ALL_ERROR_OVERLAYS_EVENT));
-      };
-      overlayCloseButton = h(HTMLButtonElement, {
-        className: CLASS.overlayCloseButton,
-        attrs: {
-          "aria-label": "Close error overlay",
-          "data-test-id": "OverlayCloseButton"
-        },
-        onclick: closeAllErrorOverlays
-      });
-      shadowRoot.append(overlayCloseButton);
-      const overlayNonNull = overlay;
-      window.addEventListener(
-        "keydown",
-        (event) => {
-          if (overlayNonNull.hasChildNodes() && event.key === "Escape") {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            closeAllErrorOverlays();
-          }
-        },
-        true
-      );
-    }
-    let root = shadowRoot.querySelector(`.${CLASS.root}`);
-    if (root === null) {
-      root = h(HTMLDivElement, { className: CLASS.root });
-      shadowRoot.append(root);
-    }
-    const targetRoot = createTargetRoot(TARGET_NAME);
-    root.append(targetRoot);
-    const elements = {
-      container,
-      shadowRoot,
-      overlay,
-      overlayCloseButton,
-      root,
-      targetRoot
-    };
-    setBrowserUiPosition(ORIGINAL_BROWSER_UI_POSITION, elements);
-    return elements;
-  }
-  function createTargetRoot(targetName) {
-    return h(HTMLDivElement, {
-      className: CLASS.targetRoot,
-      attrs: { "data-target": targetName }
-    });
-  }
-  function browserUiPositionToCss(browserUiPosition) {
-    switch (browserUiPosition) {
-      case "TopLeft":
-        return { top: "-1px", bottom: "auto", left: "-1px", right: "auto" };
-      case "TopRight":
-        return { top: "-1px", bottom: "auto", left: "auto", right: "-1px" };
-      case "BottomLeft":
-        return { top: "auto", bottom: "-1px", left: "-1px", right: "auto" };
-      case "BottomRight":
-        return { top: "auto", bottom: "-1px", left: "auto", right: "-1px" };
-    }
-  }
-  function browserUiPositionToCssForChooser(browserUiPosition) {
-    switch (browserUiPosition) {
-      case "TopLeft":
-        return { top: "auto", bottom: "0", left: "auto", right: "0" };
-      case "TopRight":
-        return { top: "auto", bottom: "0", left: "0", right: "auto" };
-      case "BottomLeft":
-        return { top: "0", bottom: "auto", left: "auto", right: "0" };
-      case "BottomRight":
-        return { top: "0", bottom: "auto", left: "0", right: "auto" };
-    }
-  }
-  function setBrowserUiPosition(browserUiPosition, elements) {
-    const isFirstTargetRoot = elements.targetRoot.previousElementSibling === null;
-    if (!isFirstTargetRoot) {
-      return;
-    }
-    elements.container.dataset.position = browserUiPosition;
-    for (const [key, value] of Object.entries(
-      browserUiPositionToCss(browserUiPosition)
-    )) {
-      elements.container.style.setProperty(key, value);
-    }
-    const isInBottomHalf = browserUiPosition === "BottomLeft" || browserUiPosition === "BottomRight";
-    elements.root.classList.toggle(CLASS.rootBottomHalf, isInBottomHalf);
-    elements.shadowRoot.dispatchEvent(
-      new CustomEvent(BROWSER_UI_MOVED_EVENT, { detail: browserUiPosition })
-    );
-  }
-  var initMutable = (getNow, elements) => (dispatch, resolvePromise) => {
-    let removeListeners = [];
-    const mutable = {
-      removeListeners: () => {
-        for (const removeListener of removeListeners) {
-          removeListener();
-        }
-      },
-      webSocket: initWebSocket(
-        getNow,
-        INITIAL_ELM_COMPILED_TIMESTAMP,
-        dispatch
-      ),
-      webSocketTimeoutId: void 0
-    };
-    mutable.webSocket.addEventListener(
-      "open",
-      () => {
-        removeListeners = [
-          addEventListener(window, "focus", (event) => {
-            if (event instanceof CustomEvent && event.detail !== TARGET_NAME) {
-              return;
-            }
-            dispatch({ tag: "FocusedTab" });
-          }),
-          addEventListener(window, "visibilitychange", () => {
-            if (document.visibilityState === "visible") {
-              dispatch({
-                tag: "PageVisibilityChangedToVisible",
-                date: getNow()
-              });
-            }
-          }),
-          ...elements === void 0 ? [] : [
-            addEventListener(
-              elements.shadowRoot,
-              BROWSER_UI_MOVED_EVENT,
-              (event) => {
-                dispatch({
-                  tag: "BrowserUiMoved",
-                  browserUiPosition: fields(
-                    (field) => field("detail", parseBrowseUiPositionWithFallback)
-                  )(event)
-                });
-              }
-            ),
-            addEventListener(
-              elements.shadowRoot,
-              CLOSE_ALL_ERROR_OVERLAYS_EVENT,
-              () => {
-                dispatch({
-                  tag: "UiMsg",
-                  date: getNow(),
-                  msg: {
-                    tag: "ChangedOpenErrorOverlay",
-                    openErrorOverlay: false
-                  }
-                });
-              }
-            )
-          ]
-        ];
-      },
-      { once: true }
-    );
-    __ELM_WATCH.RELOAD_STATUSES[TARGET_NAME] = {
-      tag: "MightWantToReload"
-    };
-    const originalOnInit = __ELM_WATCH.ON_INIT;
-    __ELM_WATCH.ON_INIT = () => {
-      dispatch({ tag: "AppInit" });
-      originalOnInit();
-    };
-    const originalKillMatching = __ELM_WATCH.KILL_MATCHING;
-    __ELM_WATCH.KILL_MATCHING = (targetName) => new Promise((resolve, reject) => {
-      if (targetName.test(TARGET_NAME) && mutable.webSocket.readyState !== WebSocket.CLOSED) {
-        mutable.webSocket.addEventListener("close", () => {
-          originalKillMatching(targetName).then(resolve).catch(reject);
-        });
-        mutable.removeListeners();
-        mutable.webSocket.close();
-        if (mutable.webSocketTimeoutId !== void 0) {
-          clearTimeout(mutable.webSocketTimeoutId);
-          mutable.webSocketTimeoutId = void 0;
-        }
-        elements?.targetRoot.remove();
-        resolvePromise(void 0);
-      } else {
-        originalKillMatching(targetName).then(resolve).catch(reject);
-      }
-    });
-    const originalDisconnect = __ELM_WATCH.DISCONNECT;
-    __ELM_WATCH.DISCONNECT = (targetName) => {
-      if (targetName.test(TARGET_NAME) && mutable.webSocket.readyState !== WebSocket.CLOSED) {
-        mutable.webSocket.close();
-      } else {
-        originalDisconnect(targetName);
-      }
-    };
-    return mutable;
-  };
-  function addEventListener(target, eventName, listener) {
-    target.addEventListener(eventName, listener);
-    return () => {
-      target.removeEventListener(eventName, listener);
-    };
-  }
-  function initWebSocket(getNow, elmCompiledTimestamp, dispatch) {
-    const hostname = window.location.hostname === "" ? "localhost" : window.location.hostname;
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = new URL(`${protocol}://${hostname}:${WEBSOCKET_PORT}/elm-watch`);
-    url.searchParams.set("elmWatchVersion", VERSION);
-    url.searchParams.set("targetName", TARGET_NAME);
-    url.searchParams.set("elmCompiledTimestamp", elmCompiledTimestamp.toString());
-    const webSocket = new WebSocket(url);
-    webSocket.addEventListener("open", () => {
-      dispatch({ tag: "WebSocketConnected", date: getNow() });
-    });
-    webSocket.addEventListener("close", () => {
-      dispatch({
-        tag: "WebSocketClosed",
-        date: getNow()
-      });
-    });
-    webSocket.addEventListener("message", (event) => {
-      dispatch({
-        tag: "WebSocketMessageReceived",
-        date: getNow(),
-        data: event.data
-      });
-    });
-    return webSocket;
-  }
-  var init = (date, browserUiPosition, elmCompiledTimestampBeforeReload) => {
-    const model = {
-      status: { tag: "Connecting", date, attemptNumber: 1 },
-      previousStatusTag: "Idle",
-      compilationMode: ORIGINAL_COMPILATION_MODE,
-      browserUiPosition,
-      lastBrowserUiPositionChangeDate: void 0,
-      elmCompiledTimestamp: INITIAL_ELM_COMPILED_TIMESTAMP,
-      elmCompiledTimestampBeforeReload,
-      uiExpanded: false
-    };
-    return [model, [{ tag: "Render", model, manageFocus: false }]];
-  };
-  function update(msg, model) {
-    switch (msg.tag) {
-      case "AppInit":
-        return [{ ...model }, []];
-      case "BrowserUiMoved":
-        return [{ ...model, browserUiPosition: msg.browserUiPosition }, []];
-      case "EvalErrored":
-        return [
-          {
-            ...model,
-            status: { tag: "EvalError", date: msg.date },
-            uiExpanded: true
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "EvalErrored"
-            }
-          ]
-        ];
-      case "EvalNeedsReload":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "WaitingForReload",
-              date: msg.date,
-              reasons: msg.reasons
-            }
-          },
-          []
-        ];
-      case "EvalSucceeded":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "Idle",
-              date: msg.date,
-              sendKey: SEND_KEY_DO_NOT_USE_ALL_THE_TIME
-            }
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "EvalSucceeded"
-            }
-          ]
-        ];
-      case "FocusedTab":
-        return [
-          statusToStatusType(model.status.tag) === "Error" ? { ...model } : model,
-          [
-            {
-              tag: "SendMessage",
-              message: { tag: "FocusedTab" },
-              sendKey: SEND_KEY_DO_NOT_USE_ALL_THE_TIME
-            },
-            {
-              tag: "WebSocketTimeoutBegin"
-            }
-          ]
-        ];
-      case "PageVisibilityChangedToVisible":
-        return reconnect(model, msg.date, { force: true });
-      case "SleepBeforeReconnectDone":
-        return reconnect(model, msg.date, { force: false });
-      case "UiMsg":
-        return onUiMsg(msg.date, msg.msg, model);
-      case "WebSocketClosed": {
-        const attemptNumber = "attemptNumber" in model.status ? model.status.attemptNumber + 1 : 1;
-        return [
-          {
-            ...model,
-            status: {
-              tag: "SleepingBeforeReconnect",
-              date: msg.date,
-              attemptNumber
-            }
-          },
-          [{ tag: "SleepBeforeReconnect", attemptNumber }]
-        ];
-      }
-      case "WebSocketConnected":
-        return [
-          {
-            ...model,
-            status: { tag: "Busy", date: msg.date, errorOverlay: void 0 }
-          },
-          []
-        ];
-      case "WebSocketMessageReceived": {
-        const result = parseWebSocketMessageData(msg.data);
-        switch (result.tag) {
-          case "Success":
-            return onWebSocketToClientMessage(msg.date, result.message, model);
-          case "Error":
-            return [
-              {
-                ...model,
-                status: {
-                  tag: "UnexpectedError",
-                  date: msg.date,
-                  message: result.message
-                },
-                uiExpanded: true
-              },
-              []
-            ];
-        }
-      }
-    }
-  }
-  function onUiMsg(date, msg, model) {
-    switch (msg.tag) {
-      case "ChangedBrowserUiPosition":
-        return [
-          {
-            ...model,
-            browserUiPosition: msg.browserUiPosition,
-            lastBrowserUiPositionChangeDate: date
-          },
-          [
-            {
-              tag: "SendMessage",
-              message: {
-                tag: "ChangedBrowserUiPosition",
-                browserUiPosition: msg.browserUiPosition
-              },
-              sendKey: msg.sendKey
-            }
-          ]
-        ];
-      case "ChangedCompilationMode":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "Busy",
-              date,
-              errorOverlay: getErrorOverlay(model.status)
-            },
-            compilationMode: msg.compilationMode
-          },
-          [
-            {
-              tag: "SendMessage",
-              message: {
-                tag: "ChangedCompilationMode",
-                compilationMode: msg.compilationMode
-              },
-              sendKey: msg.sendKey
-            }
-          ]
-        ];
-      case "ChangedOpenErrorOverlay":
-        return "errorOverlay" in model.status && model.status.errorOverlay !== void 0 ? [
-          {
-            ...model,
-            status: {
-              ...model.status,
-              errorOverlay: {
-                ...model.status.errorOverlay,
-                openErrorOverlay: msg.openErrorOverlay
-              }
-            },
-            uiExpanded: false
-          },
-          [
-            {
-              tag: "SendMessage",
-              message: {
-                tag: "ChangedOpenErrorOverlay",
-                openErrorOverlay: msg.openErrorOverlay
-              },
-              sendKey: model.status.tag === "Busy" ? SEND_KEY_DO_NOT_USE_ALL_THE_TIME : model.status.sendKey
-            }
-          ]
-        ] : [model, []];
-      case "PressedChevron":
-        return [{ ...model, uiExpanded: !model.uiExpanded }, []];
-      case "PressedOpenEditor":
-        return [
-          model,
-          [
-            {
-              tag: "SendMessage",
-              message: {
-                tag: "PressedOpenEditor",
-                file: msg.file,
-                line: msg.line,
-                column: msg.column
-              },
-              sendKey: msg.sendKey
-            }
-          ]
-        ];
-      case "PressedReconnectNow":
-        return reconnect(model, date, { force: true });
-    }
-  }
-  function onWebSocketToClientMessage(date, msg, model) {
-    switch (msg.tag) {
-      case "FocusedTabAcknowledged":
-        return [model, [{ tag: "WebSocketTimeoutClear" }]];
-      case "OpenEditorFailed":
-        return [
-          model.status.tag === "CompileError" ? {
-            ...model,
-            status: { ...model.status, openEditorError: msg.error },
-            uiExpanded: true
-          } : model,
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "OpenEditorFailed"
-            }
-          ]
-        ];
-      case "StatusChanged":
-        return statusChanged(date, msg, model);
-      case "SuccessfullyCompiled": {
-        const justChangedBrowserUiPosition = model.lastBrowserUiPositionChangeDate !== void 0 && date.getTime() - model.lastBrowserUiPositionChangeDate.getTime() < JUST_CHANGED_BROWSER_UI_POSITION_TIMEOUT;
-        return msg.compilationMode !== ORIGINAL_COMPILATION_MODE ? [
-          {
-            ...model,
-            status: {
-              tag: "WaitingForReload",
-              date,
-              reasons: ORIGINAL_COMPILATION_MODE === "proxy" ? [] : [
-                `compilation mode changed from ${ORIGINAL_COMPILATION_MODE} to ${msg.compilationMode}.`
-              ]
-            },
-            compilationMode: msg.compilationMode
-          },
-          []
-        ] : [
-          {
-            ...model,
-            compilationMode: msg.compilationMode,
-            elmCompiledTimestamp: msg.elmCompiledTimestamp,
-            browserUiPosition: msg.browserUiPosition,
-            lastBrowserUiPositionChangeDate: void 0
-          },
-          [
-            { tag: "Eval", code: msg.code },
-            justChangedBrowserUiPosition ? {
-              tag: "SetBrowserUiPosition",
-              browserUiPosition: msg.browserUiPosition
-            } : { tag: "NoCmd" }
-          ]
-        ];
-      }
-      case "SuccessfullyCompiledButRecordFieldsChanged":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "WaitingForReload",
-              date,
-              reasons: [
-                `record field mangling in optimize mode was different than last time.`
-              ]
-            }
-          },
-          []
-        ];
-    }
-  }
-  function statusChanged(date, { status }, model) {
-    switch (status.tag) {
-      case "AlreadyUpToDate":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "Idle",
-              date,
-              sendKey: SEND_KEY_DO_NOT_USE_ALL_THE_TIME
-            },
-            compilationMode: status.compilationMode,
-            browserUiPosition: status.browserUiPosition
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "AlreadyUpToDate"
-            }
-          ]
-        ];
-      case "Busy":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "Busy",
-              date,
-              errorOverlay: getErrorOverlay(model.status)
-            },
-            compilationMode: status.compilationMode,
-            browserUiPosition: status.browserUiPosition
-          },
-          []
-        ];
-      case "ClientError":
-        return [
-          {
-            ...model,
-            status: { tag: "UnexpectedError", date, message: status.message },
-            uiExpanded: true
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "ClientError"
-            }
-          ]
-        ];
-      case "CompileError":
-        return [
-          {
-            ...model,
-            status: {
-              tag: "CompileError",
-              date,
-              sendKey: SEND_KEY_DO_NOT_USE_ALL_THE_TIME,
-              errorOverlay: {
-                errors: new Map(
-                  status.errors.map((error) => {
-                    const overlayError = {
-                      title: error.title,
-                      location: error.location,
-                      htmlContent: error.htmlContent,
-                      foregroundColor: status.foregroundColor,
-                      backgroundColor: status.backgroundColor
-                    };
-                    const id = JSON.stringify(overlayError);
-                    return [id, overlayError];
-                  })
-                ),
-                openErrorOverlay: status.openErrorOverlay
-              },
-              openEditorError: void 0
-            },
-            compilationMode: status.compilationMode,
-            browserUiPosition: status.browserUiPosition
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "CompileError"
-            }
-          ]
-        ];
-      case "ElmJsonError":
-        return [
-          {
-            ...model,
-            status: { tag: "ElmJsonError", date, error: status.error }
-          },
-          [
-            {
-              tag: "TriggerReachedIdleState",
-              reason: "ElmJsonError"
-            }
-          ]
-        ];
-    }
-  }
-  function reconnect(model, date, { force }) {
-    return model.status.tag === "SleepingBeforeReconnect" && (date.getTime() - model.status.date.getTime() >= retryWaitMs(model.status.attemptNumber) || force) ? [
-      {
-        ...model,
-        status: {
-          tag: "Connecting",
-          date,
-          attemptNumber: model.status.attemptNumber
-        }
-      },
-      [
-        {
-          tag: "Reconnect",
-          elmCompiledTimestamp: model.elmCompiledTimestamp
-        }
-      ]
-    ] : [model, []];
-  }
-  function retryWaitMs(attemptNumber) {
-    return Math.min(1e3 + 10 * attemptNumber ** 2, 1e3 * 60);
-  }
-  function printRetryWaitMs(attemptNumber) {
-    return `${retryWaitMs(attemptNumber) / 1e3} seconds`;
-  }
-  var runCmd = (getNow, elements) => (cmd, mutable, dispatch, _resolvePromise, rejectPromise) => {
-    switch (cmd.tag) {
-      case "Eval": {
-        try {
-          const f = new Function(cmd.code);
-          f();
-          dispatch({ tag: "EvalSucceeded", date: getNow() });
-        } catch (unknownError) {
-          if (unknownError instanceof Error && unknownError.message.startsWith("ELM_WATCH_RELOAD_NEEDED")) {
-            dispatch({
-              tag: "EvalNeedsReload",
-              date: getNow(),
-              reasons: unknownError.message.split("\n\n---\n\n").slice(1)
-            });
-          } else {
-            void Promise.reject(unknownError);
-            dispatch({ tag: "EvalErrored", date: getNow() });
-          }
-        }
-        return;
-      }
-      case "NoCmd":
-        return;
-      case "Reconnect":
-        mutable.webSocket = initWebSocket(
-          getNow,
-          cmd.elmCompiledTimestamp,
-          dispatch
-        );
-        return;
-      case "Render": {
-        const { model } = cmd;
-        const info = {
-          version: VERSION,
-          webSocketUrl: new URL(mutable.webSocket.url),
-          targetName: TARGET_NAME,
-          originalCompilationMode: ORIGINAL_COMPILATION_MODE,
-          initializedElmAppsStatus: checkInitializedElmAppsStatus(),
-          errorOverlayVisible: elements !== void 0 && !elements.overlay.hidden
-        };
-        if (elements === void 0) {
-          if (model.status.tag !== model.previousStatusTag) {
-            const isError = statusToStatusType(model.status.tag) === "Error";
-            const consoleMethod = isError ? console.error : console.info;
-            consoleMethod(renderWebWorker(model, info));
-          }
-        } else {
-          const { targetRoot } = elements;
-          render(getNow, targetRoot, dispatch, model, info, cmd.manageFocus);
-        }
-        return;
-      }
-      case "SendMessage": {
-        const json = JSON.stringify(cmd.message);
-        try {
-          mutable.webSocket.send(json);
-        } catch (error) {
-          console.error("elm-watch: Failed to send WebSocket message:", error);
-        }
-        return;
-      }
-      case "SetBrowserUiPosition":
-        if (elements !== void 0) {
-          setBrowserUiPosition(cmd.browserUiPosition, elements);
-        }
-        return;
-      case "SleepBeforeReconnect":
-        setTimeout(() => {
-          if (typeof document === "undefined" || document.visibilityState === "visible") {
-            dispatch({ tag: "SleepBeforeReconnectDone", date: getNow() });
-          }
-        }, retryWaitMs(cmd.attemptNumber));
-        return;
-      case "TriggerReachedIdleState":
-        Promise.resolve().then(() => {
-          __ELM_WATCH.ON_REACHED_IDLE_STATE(cmd.reason);
-        }).catch(rejectPromise);
-        return;
-      case "UpdateErrorOverlay":
-        if (elements !== void 0) {
-          updateErrorOverlay(
-            TARGET_NAME,
-            (msg) => {
-              dispatch({ tag: "UiMsg", date: getNow(), msg });
-            },
-            cmd.sendKey,
-            cmd.errors,
-            elements.overlay,
-            elements.overlayCloseButton
-          );
-        }
-        return;
-      case "UpdateGlobalStatus":
-        __ELM_WATCH.RELOAD_STATUSES[TARGET_NAME] = cmd.reloadStatus;
-        switch (cmd.reloadStatus.tag) {
-          case "NoReloadWanted":
-          case "MightWantToReload":
-            break;
-          case "ReloadRequested":
-            try {
-              window.sessionStorage.setItem(
-                RELOAD_TARGET_NAME_KEY_PREFIX + TARGET_NAME,
-                cmd.elmCompiledTimestamp.toString()
-              );
-            } catch {
-            }
-        }
-        reloadPageIfNeeded();
-        return;
-      case "WebSocketTimeoutBegin":
-        if (mutable.webSocketTimeoutId === void 0) {
-          mutable.webSocketTimeoutId = setTimeout(() => {
-            mutable.webSocketTimeoutId = void 0;
-            mutable.webSocket.close();
-            dispatch({
-              tag: "WebSocketClosed",
-              date: getNow()
-            });
-          }, __ELM_WATCH.WEBSOCKET_TIMEOUT);
-        }
-        return;
-      case "WebSocketTimeoutClear":
-        if (mutable.webSocketTimeoutId !== void 0) {
-          clearTimeout(mutable.webSocketTimeoutId);
-          mutable.webSocketTimeoutId = void 0;
-        }
-        return;
-    }
-  };
-  function parseWebSocketMessageData(data) {
-    try {
-      return {
-        tag: "Success",
-        message: decodeWebSocketToClientMessage(string(data))
-      };
-    } catch (unknownError) {
-      return {
-        tag: "Error",
-        message: `Failed to decode web socket message sent from the server:
-${possiblyDecodeErrorToString(
-          unknownError
-        )}`
-      };
-    }
-  }
-  function possiblyDecodeErrorToString(unknownError) {
-    return unknownError instanceof DecoderError ? unknownError.format() : unknownError instanceof Error ? unknownError.message : repr(unknownError);
-  }
-  function functionToNull(value) {
-    return typeof value === "function" ? null : value;
-  }
-  var ProgramType = stringUnion({
-    "Platform.worker": null,
-    "Browser.sandbox": null,
-    "Browser.element": null,
-    "Browser.document": null,
-    "Browser.application": null,
-    Html: null
-  });
-  var ElmModule = chain(
-    record(
-      chain(
-        functionToNull,
-        multi({
-          null: () => [],
-          array: array(
-            fields((field) => field("__elmWatchProgramType", ProgramType))
-          ),
-          object: (value) => ElmModule(value)
-        })
-      )
-    ),
-    (record2) => Object.values(record2).flat()
-  );
-  var ProgramTypes = fields((field) => field("Elm", ElmModule));
-  function checkInitializedElmAppsStatus() {
-    if (window.Elm !== void 0 && "__elmWatchProxy" in window.Elm) {
-      return {
-        tag: "DebuggerModeStatus",
-        status: {
-          tag: "Disabled",
-          reason: noDebuggerYetReason
-        }
-      };
-    }
-    if (window.Elm === void 0) {
-      return { tag: "MissingWindowElm" };
-    }
-    let programTypes;
-    try {
-      programTypes = ProgramTypes(window);
-    } catch (unknownError) {
-      return {
-        tag: "DecodeError",
-        message: possiblyDecodeErrorToString(unknownError)
-      };
-    }
-    if (programTypes.length === 0) {
-      return { tag: "NoProgramsAtAll" };
-    }
-    const noDebugger = programTypes.filter((programType) => {
-      switch (programType) {
-        case "Platform.worker":
-        case "Html":
-          return true;
-        case "Browser.sandbox":
-        case "Browser.element":
-        case "Browser.document":
-        case "Browser.application":
-          return false;
-      }
-    });
-    return {
-      tag: "DebuggerModeStatus",
-      status: noDebugger.length === programTypes.length ? {
-        tag: "Disabled",
-        reason: noDebuggerReason(new Set(noDebugger))
-      } : { tag: "Enabled" }
-    };
-  }
-  function reloadPageIfNeeded() {
-    let shouldReload = false;
-    const reasons = [];
-    for (const [targetName, reloadStatus] of Object.entries(
-      __ELM_WATCH.RELOAD_STATUSES
-    )) {
-      switch (reloadStatus.tag) {
-        case "MightWantToReload":
-          return;
-        case "NoReloadWanted":
-          break;
-        case "ReloadRequested":
-          shouldReload = true;
-          if (reloadStatus.reasons.length > 0) {
-            reasons.push([targetName, reloadStatus.reasons]);
-          }
-          break;
-      }
-    }
-    if (!shouldReload) {
-      return;
-    }
-    const first = reasons[0];
-    const [separator, reasonString] = reasons.length === 1 && first !== void 0 && first[1].length === 1 ? [" ", `${first[1].join("")}
-(target: ${first[0]})`] : [
-      ":\n\n",
-      reasons.map(
-        ([targetName, subReasons]) => [
-          targetName,
-          ...subReasons.map((subReason) => `- ${subReason}`)
-        ].join("\n")
-      ).join("\n\n")
-    ];
-    const message = reasons.length === 0 ? void 0 : `elm-watch: I did a full page reload because${separator}${reasonString}`;
-    __ELM_WATCH.RELOAD_STATUSES = {};
-    __ELM_WATCH.RELOAD_PAGE(message);
-  }
-  function h(t, {
-    attrs,
-    style,
-    localName,
-    ...props
-  }, ...children) {
-    const element = document.createElement(
-      localName ?? t.name.replace(/^HTML(\w+)Element$/, "$1").replace("Anchor", "a").replace("Paragraph", "p").replace(/^([DOU])List$/, "$1l").toLowerCase()
-    );
-    Object.assign(element, props);
-    if (attrs !== void 0) {
-      for (const [key, value] of Object.entries(attrs)) {
-        element.setAttribute(key, value);
-      }
-    }
-    if (style !== void 0) {
-      for (const [key, value] of Object.entries(style)) {
-        element.style[key] = value;
-      }
-    }
-    for (const child of children) {
-      if (child !== void 0) {
-        element.append(
-          typeof child === "string" ? document.createTextNode(child) : child
-        );
-      }
-    }
-    return element;
-  }
-  function renderWebWorker(model, info) {
-    const statusData = statusIconAndText(model, info);
-    return `${statusData.icon} elm-watch: ${statusData.status} ${formatTime(
-      model.status.date
-    )} (${info.targetName})`;
-  }
-  function render(getNow, targetRoot, dispatch, model, info, manageFocus) {
-    targetRoot.replaceChildren(
-      view(
-        (msg) => {
-          dispatch({ tag: "UiMsg", date: getNow(), msg });
-        },
-        model,
-        info,
-        manageFocus
-      )
-    );
-    const firstFocusableElement = targetRoot.querySelector(`button, [tabindex]`);
-    if (manageFocus && firstFocusableElement instanceof HTMLElement) {
-      firstFocusableElement.focus();
-    }
-    __ELM_WATCH.ON_RENDER(TARGET_NAME);
-  }
-  var CLASS = {
-    browserUiPositionButton: "browserUiPositionButton",
-    browserUiPositionChooser: "browserUiPositionChooser",
-    chevronButton: "chevronButton",
-    compilationModeWithIcon: "compilationModeWithIcon",
-    container: "container",
-    debugModeIcon: "debugModeIcon",
-    envNotSet: "envNotSet",
-    errorLocationButton: "errorLocationButton",
-    errorTitle: "errorTitle",
-    expandedUiContainer: "expandedUiContainer",
-    flashError: "flashError",
-    flashSuccess: "flashSuccess",
-    overlay: "overlay",
-    overlayCloseButton: "overlayCloseButton",
-    root: "root",
-    rootBottomHalf: "rootBottomHalf",
-    shortStatusContainer: "shortStatusContainer",
-    targetName: "targetName",
-    targetRoot: "targetRoot"
-  };
-  function getStatusClass({
-    statusType,
-    statusTypeChanged,
-    hasReceivedHotReload,
-    uiRelatedUpdate,
-    errorOverlayVisible
-  }) {
-    switch (statusType) {
-      case "Success":
-        return statusTypeChanged && hasReceivedHotReload ? CLASS.flashSuccess : void 0;
-      case "Error":
-        return errorOverlayVisible ? statusTypeChanged && hasReceivedHotReload ? CLASS.flashError : void 0 : uiRelatedUpdate ? void 0 : CLASS.flashError;
-      case "Waiting":
-        return void 0;
-    }
-  }
-  var CHEVRON_UP = "\u25B2";
-  var CHEVRON_DOWN = "\u25BC";
-  var CSS = `
-input,
-button,
-select,
-textarea {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  color: inherit;
-  margin: 0;
-}
-
-fieldset {
-  display: grid;
-  gap: 0.25em;
-  margin: 0;
-  border: 1px solid var(--grey);
-  padding: 0.25em 0.75em 0.5em;
-}
-
-fieldset:disabled {
-  color: var(--grey);
-}
-
-p,
-dd {
-  margin: 0;
-}
-
-dl {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 0.25em 1em;
-  margin: 0;
-  white-space: nowrap;
-}
-
-dt {
-  text-align: right;
-  color: var(--grey);
-}
-
-time {
-  display: inline-grid;
-  overflow: hidden;
-}
-
-time::after {
-  content: attr(data-format);
-  visibility: hidden;
-  height: 0;
-}
-
-.${CLASS.overlay} {
-  position: fixed;
-  z-index: -2;
-  inset: 0;
-  overflow-y: auto;
-  padding: 2ch 0;
-}
-
-.${CLASS.overlayCloseButton} {
-  position: fixed;
-  z-index: -1;
-  top: 0;
-  right: 0;
-  appearance: none;
-  padding: 1em;
-  border: none;
-  border-radius: 0;
-  background: none;
-  cursor: pointer;
-  font-size: 1.25em;
-  filter: drop-shadow(0 0 0.125em var(--backgroundColor));
-}
-
-.${CLASS.overlayCloseButton}::before,
-.${CLASS.overlayCloseButton}::after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0.125em;
-  height: 1em;
-  background-color: var(--foregroundColor);
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.${CLASS.overlayCloseButton}::after {
-  transform: translate(-50%, -50%) rotate(-45deg);
-}
-
-.${CLASS.overlay},
-.${CLASS.overlay} pre {
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-}
-
-.${CLASS.overlay} details {
-  --border-thickness: 0.125em;
-  border-top: var(--border-thickness) solid;
-  margin: 2ch 0;
-}
-
-.${CLASS.overlay} summary {
-  cursor: pointer;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0 2ch;
-  word-break: break-word;
-}
-
-.${CLASS.overlay} summary::-webkit-details-marker {
-  display: none;
-}
-
-.${CLASS.overlay} summary::marker {
-  content: none;
-}
-
-.${CLASS.overlay} summary > * {
-  pointer-events: auto;
-}
-
-.${CLASS.errorTitle} {
-  display: inline-block;
-  font-weight: bold;
-  --padding: 1ch;
-  padding: 0 var(--padding);
-  transform: translate(calc(var(--padding) * -1), calc(-50% - var(--border-thickness) / 2));
-}
-
-.${CLASS.errorTitle}::before {
-  content: "${CHEVRON_DOWN}";
-  display: inline-block;
-  margin-right: 1ch;
-  transform: translateY(-0.0625em);
-}
-
-details[open] > summary > .${CLASS.errorTitle}::before {
-  content: "${CHEVRON_UP}";
-}
-
-.${CLASS.errorLocationButton} {
-  appearance: none;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: none;
-  text-align: left;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.${CLASS.overlay} pre {
-  margin: 0;
-  padding: 2ch;
-  overflow-x: auto;
-}
-
-.${CLASS.root} {
-  --grey: #767676;
-  display: flex;
-  align-items: start;
-  overflow: auto;
-  max-height: 100vh;
-  max-width: 100vw;
-  color: black;
-  font-family: system-ui;
-}
-
-.${CLASS.rootBottomHalf} {
-  align-items: end;
-}
-
-.${CLASS.targetRoot} + .${CLASS.targetRoot} {
-  margin-left: -1px;
-}
-
-.${CLASS.targetRoot}:only-of-type .${CLASS.debugModeIcon},
-.${CLASS.targetRoot}:only-of-type .${CLASS.targetName} {
-  display: none;
-}
-
-.${CLASS.container} {
-  display: flex;
-  flex-direction: column-reverse;
-  background-color: white;
-  border: 1px solid var(--grey);
-}
-
-.${CLASS.rootBottomHalf} .${CLASS.container} {
-  flex-direction: column;
-}
-
-.${CLASS.envNotSet} {
-  display: grid;
-  gap: 0.75em;
-  margin: 2em 0;
-}
-
-.${CLASS.envNotSet},
-.${CLASS.root} pre {
-  border-left: 0.25em solid var(--grey);
-  padding-left: 0.5em;
-}
-
-.${CLASS.root} pre {
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-.${CLASS.expandedUiContainer} {
-  padding: 1em;
-  padding-top: 0.75em;
-  display: grid;
-  gap: 0.75em;
-  outline: none;
-  contain: paint;
-}
-
-.${CLASS.rootBottomHalf} .${CLASS.expandedUiContainer} {
-  padding-bottom: 0.75em;
-}
-
-.${CLASS.expandedUiContainer}:is(.length0, .length1) {
-  grid-template-columns: min-content;
-}
-
-.${CLASS.expandedUiContainer} > dl {
-  justify-self: start;
-}
-
-.${CLASS.expandedUiContainer} label {
-  display: grid;
-  grid-template-columns: min-content auto;
-  align-items: center;
-  gap: 0.25em;
-}
-
-.${CLASS.expandedUiContainer} label.Disabled {
-  color: var(--grey);
-}
-
-.${CLASS.expandedUiContainer} label > small {
-  grid-column: 2;
-}
-
-.${CLASS.compilationModeWithIcon} {
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
-}
-
-.${CLASS.browserUiPositionChooser} {
-  position: absolute;
-  display: grid;
-  grid-template-columns: min-content min-content;
-  pointer-events: none;
-}
-
-.${CLASS.browserUiPositionButton} {
-  appearance: none;
-  padding: 0;
-  border: none;
-  background: none;
-  border-radius: none;
-  pointer-events: auto;
-  width: 1em;
-  height: 1em;
-  text-align: center;
-  line-height: 1em;
-}
-
-.${CLASS.browserUiPositionButton}:hover {
-  background-color: rgba(0, 0, 0, 0.25);
-}
-
-.${CLASS.targetRoot}:not(:first-child) .${CLASS.browserUiPositionChooser} {
-  display: none;
-}
-
-.${CLASS.shortStatusContainer} {
-  line-height: 1;
-  padding: 0.25em;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
-}
-
-.${CLASS.flashError}::before,
-.${CLASS.flashSuccess}::before {
-  content: "";
-  position: absolute;
-  margin-top: 0.5em;
-  margin-left: 0.5em;
-  --size: min(500px, 100vmin);
-  width: var(--size);
-  height: var(--size);
-  border-radius: 50%;
-  animation: flash 0.7s 0.05s ease-out both;
-  pointer-events: none;
-}
-
-.${CLASS.flashError}::before {
-  background-color: #eb0000;
-}
-
-.${CLASS.flashSuccess}::before {
-  background-color: #00b600;
-}
-
-@keyframes flash {
-  from {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0.9;
-  }
-
-  to {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0;
-  }
-}
-
-@keyframes nudge {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 0.8;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .${CLASS.flashError}::before,
-  .${CLASS.flashSuccess}::before {
-    transform: translate(-50%, -50%);
-    width: 2em;
-    height: 2em;
-    animation: nudge 0.25s ease-in-out 4 alternate forwards;
-  }
-}
-
-.${CLASS.chevronButton} {
-  appearance: none;
-  border: none;
-  border-radius: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-}
-`;
-  function view(dispatch, passedModel, info, manageFocus) {
-    const model = __ELM_WATCH.MOCKED_TIMINGS ? {
-      ...passedModel,
-      status: {
-        ...passedModel.status,
-        date: new Date("2022-02-05T13:10:05Z")
-      }
-    } : passedModel;
-    const statusData = {
-      ...statusIconAndText(model, info),
-      ...viewStatus(dispatch, model, info)
-    };
-    const statusType = statusToStatusType(model.status.tag);
-    const statusTypeChanged = statusType !== statusToStatusType(model.previousStatusTag);
-    const statusClass = getStatusClass({
-      statusType,
-      statusTypeChanged,
-      hasReceivedHotReload: model.elmCompiledTimestamp !== INITIAL_ELM_COMPILED_TIMESTAMP,
-      uiRelatedUpdate: manageFocus,
-      errorOverlayVisible: info.errorOverlayVisible
-    });
-    return h(
-      HTMLDivElement,
-      { className: CLASS.container },
-      model.uiExpanded ? viewExpandedUi(
-        model.status,
-        statusData,
-        info,
-        model.browserUiPosition,
-        dispatch
-      ) : void 0,
-      h(
-        HTMLDivElement,
-        {
-          className: CLASS.shortStatusContainer,
-          onclick: () => {
-            dispatch({ tag: "PressedChevron" });
-          }
-        },
-        h(
-          HTMLButtonElement,
-          {
-            className: CLASS.chevronButton,
-            attrs: { "aria-expanded": model.uiExpanded.toString() }
-          },
-          icon(
-            model.uiExpanded ? CHEVRON_UP : CHEVRON_DOWN,
-            model.uiExpanded ? "Collapse elm-watch" : "Expand elm-watch"
-          )
-        ),
-        compilationModeIcon(model.compilationMode),
-        icon(
-          statusData.icon,
-          statusData.status,
-          statusClass === void 0 ? {} : {
-            className: statusClass,
-            onanimationend: (event) => {
-              if (event.currentTarget instanceof HTMLElement) {
-                event.currentTarget.classList.remove(statusClass);
-              }
-            }
-          }
-        ),
-        h(
-          HTMLTimeElement,
-          { dateTime: model.status.date.toISOString() },
-          formatTime(model.status.date)
-        ),
-        h(HTMLSpanElement, { className: CLASS.targetName }, TARGET_NAME)
-      )
-    );
-  }
-  function icon(emoji, alt, props) {
-    return h(
-      HTMLSpanElement,
-      { attrs: { "aria-label": alt }, ...props },
-      h(HTMLSpanElement, { attrs: { "aria-hidden": "true" } }, emoji)
-    );
-  }
-  function viewExpandedUi(status, statusData, info, browserUiPosition, dispatch) {
-    const items = [
-      ["target", info.targetName],
-      ["elm-watch", info.version],
-      ["web socket", printWebSocketUrl(info.webSocketUrl)],
-      [
-        "updated",
-        h(
-          HTMLTimeElement,
-          {
-            dateTime: status.date.toISOString(),
-            attrs: { "data-format": "2044-04-30 04:44:44" }
-          },
-          `${formatDate(status.date)} ${formatTime(status.date)}`
-        )
-      ],
-      ["status", statusData.status],
-      ...statusData.dl
-    ];
-    const browserUiPositionSendKey = statusToSpecialCaseSendKey(status);
-    return h(
-      HTMLDivElement,
-      {
-        className: `${CLASS.expandedUiContainer} length${statusData.content.length}`,
-        attrs: {
-          tabindex: "-1"
-        }
-      },
-      h(
-        HTMLDListElement,
-        {},
-        ...items.flatMap(([key, value]) => [
-          h(HTMLElement, { localName: "dt" }, key),
-          h(HTMLElement, { localName: "dd" }, value)
-        ])
-      ),
-      ...statusData.content,
-      browserUiPositionSendKey === void 0 ? void 0 : viewBrowserUiPositionChooser(
-        browserUiPosition,
-        dispatch,
-        browserUiPositionSendKey
-      )
-    );
-  }
-  var allBrowserUiPositionsInOrder = [
-    "TopLeft",
-    "TopRight",
-    "BottomLeft",
-    "BottomRight"
-  ];
-  function viewBrowserUiPositionChooser(currentPosition, dispatch, sendKey) {
-    const arrows = getBrowserUiPositionArrows(currentPosition);
-    return h(
-      HTMLDivElement,
-      {
-        className: CLASS.browserUiPositionChooser,
-        style: browserUiPositionToCssForChooser(currentPosition)
-      },
-      ...allBrowserUiPositionsInOrder.map((position) => {
-        const arrow = arrows[position];
-        return arrow === void 0 ? h(HTMLDivElement, { style: { visibility: "hidden" } }, "\xB7") : h(
-          HTMLButtonElement,
-          {
-            className: CLASS.browserUiPositionButton,
-            attrs: { "data-position": position },
-            onclick: () => {
-              dispatch({
-                tag: "ChangedBrowserUiPosition",
-                browserUiPosition: position,
-                sendKey
-              });
-            }
-          },
-          arrow
-        );
-      })
-    );
-  }
-  var ARROW_UP = "\u2191";
-  var ARROW_DOWN = "\u2193";
-  var ARROW_LEFT = "\u2190";
-  var ARROW_RIGHT = "\u2192";
-  var ARROW_UP_LEFT = "\u2196";
-  var ARROW_UP_RIGHT = "\u2197";
-  var ARROW_DOWN_LEFT = "\u2199";
-  var ARROW_DOWN_RIGHT = "\u2198";
-  function getBrowserUiPositionArrows(browserUiPosition) {
-    switch (browserUiPosition) {
-      case "TopLeft":
-        return {
-          TopLeft: void 0,
-          TopRight: ARROW_RIGHT,
-          BottomLeft: ARROW_DOWN,
-          BottomRight: ARROW_DOWN_RIGHT
-        };
-      case "TopRight":
-        return {
-          TopLeft: ARROW_LEFT,
-          TopRight: void 0,
-          BottomLeft: ARROW_DOWN_LEFT,
-          BottomRight: ARROW_DOWN
-        };
-      case "BottomLeft":
-        return {
-          TopLeft: ARROW_UP,
-          TopRight: ARROW_UP_RIGHT,
-          BottomLeft: void 0,
-          BottomRight: ARROW_RIGHT
-        };
-      case "BottomRight":
-        return {
-          TopLeft: ARROW_UP_LEFT,
-          TopRight: ARROW_UP,
-          BottomLeft: ARROW_LEFT,
-          BottomRight: void 0
-        };
-    }
-  }
-  function statusIconAndText(model, info) {
-    switch (model.status.tag) {
-      case "Busy":
-        return {
-          icon: "\u23F3",
-          status: "Waiting for compilation"
-        };
-      case "CompileError":
-        return {
-          icon: "\u{1F6A8}",
-          status: "Compilation error"
-        };
-      case "Connecting":
-        return {
-          icon: "\u{1F50C}",
-          status: "Connecting"
-        };
-      case "ElmJsonError":
-        return {
-          icon: "\u{1F6A8}",
-          status: "elm.json or inputs error"
-        };
-      case "EvalError":
-        return {
-          icon: "\u26D4\uFE0F",
-          status: "Eval error"
-        };
-      case "Idle":
-        return {
-          icon: idleIcon(info.initializedElmAppsStatus),
-          status: "Successfully compiled"
-        };
-      case "SleepingBeforeReconnect":
-        return {
-          icon: "\u{1F50C}",
-          status: "Sleeping"
-        };
-      case "UnexpectedError":
-        return {
-          icon: "\u274C",
-          status: "Unexpected error"
-        };
-      case "WaitingForReload":
-        return model.elmCompiledTimestamp === model.elmCompiledTimestampBeforeReload ? {
-          icon: "\u274C",
-          status: "Reload trouble"
-        } : {
-          icon: "\u23F3",
-          status: "Waiting for reload"
-        };
-    }
-  }
-  function viewStatus(dispatch, model, info) {
-    const { status, compilationMode } = model;
-    switch (status.tag) {
-      case "Busy":
-        return {
-          dl: [],
-          content: [
-            ...viewCompilationModeChooser({
-              dispatch,
-              sendKey: void 0,
-              compilationMode,
-              warnAboutCompilationModeMismatch: false,
-              info
-            }),
-            ...status.errorOverlay === void 0 ? [] : [viewErrorOverlayToggleButton(dispatch, status.errorOverlay)]
-          ]
-        };
-      case "CompileError":
-        return {
-          dl: [],
-          content: [
-            ...viewCompilationModeChooser({
-              dispatch,
-              sendKey: status.sendKey,
-              compilationMode,
-              warnAboutCompilationModeMismatch: true,
-              info
-            }),
-            viewErrorOverlayToggleButton(dispatch, status.errorOverlay),
-            ...status.openEditorError === void 0 ? [] : viewOpenEditorError(status.openEditorError)
-          ]
-        };
-      case "Connecting":
-        return {
-          dl: [
-            ["attempt", status.attemptNumber.toString()],
-            ["sleep", printRetryWaitMs(status.attemptNumber)]
-          ],
-          content: [
-            ...viewHttpsInfo(info.webSocketUrl),
-            h(HTMLButtonElement, { disabled: true }, "Connecting web socket\u2026")
-          ]
-        };
-      case "ElmJsonError":
-        return {
-          dl: [],
-          content: [
-            h(HTMLPreElement, { style: { minWidth: "80ch" } }, status.error)
-          ]
-        };
-      case "EvalError":
-        return {
-          dl: [],
-          content: [
-            h(
-              HTMLParagraphElement,
-              {},
-              "Check the console in the browser developer tools to see errors!"
-            )
-          ]
-        };
-      case "Idle":
-        return {
-          dl: [],
-          content: viewCompilationModeChooser({
-            dispatch,
-            sendKey: status.sendKey,
-            compilationMode,
-            warnAboutCompilationModeMismatch: true,
-            info
-          })
-        };
-      case "SleepingBeforeReconnect":
-        return {
-          dl: [
-            ["attempt", status.attemptNumber.toString()],
-            ["sleep", printRetryWaitMs(status.attemptNumber)]
-          ],
-          content: [
-            ...viewHttpsInfo(info.webSocketUrl),
-            h(
-              HTMLButtonElement,
-              {
-                onclick: () => {
-                  dispatch({ tag: "PressedReconnectNow" });
-                }
-              },
-              "Reconnect web socket now"
-            )
-          ]
-        };
-      case "UnexpectedError":
-        return {
-          dl: [],
-          content: [
-            h(
-              HTMLParagraphElement,
-              {},
-              "I ran into an unexpected error! This is the error message:"
-            ),
-            h(HTMLPreElement, {}, status.message)
-          ]
-        };
-      case "WaitingForReload":
-        return {
-          dl: [],
-          content: model.elmCompiledTimestamp === model.elmCompiledTimestampBeforeReload ? [
-            "A while ago I reloaded the page to get new compiled JavaScript.",
-            "But it looks like after the last page reload I got the same JavaScript as before, instead of new stuff!",
-            `The old JavaScript was compiled ${new Date(
-              model.elmCompiledTimestamp
-            ).toLocaleString()}, and so was the JavaScript currently running.`,
-            "I currently need to reload the page again, but fear a reload loop if I try.",
-            "Do you have accidental HTTP caching enabled maybe?",
-            "Try hard refreshing the page and see if that helps, and consider disabling HTTP caching during development."
-          ].map((text) => h(HTMLParagraphElement, {}, text)) : [h(HTMLParagraphElement, {}, "Waiting for other targets\u2026")]
-        };
-    }
-  }
-  function viewErrorOverlayToggleButton(dispatch, errorOverlay) {
-    return h(
-      HTMLButtonElement,
-      {
-        attrs: {
-          "data-test-id": errorOverlay.openErrorOverlay ? "HideErrorOverlayButton" : "ShowErrorOverlayButton"
-        },
-        onclick: () => {
-          dispatch({
-            tag: "ChangedOpenErrorOverlay",
-            openErrorOverlay: !errorOverlay.openErrorOverlay
-          });
-        }
-      },
-      errorOverlay.openErrorOverlay ? "Hide errors" : "Show errors"
-    );
-  }
-  function viewOpenEditorError(error) {
-    switch (error.tag) {
-      case "EnvNotSet":
-        return [
-          h(
-            HTMLDivElement,
-            { className: CLASS.envNotSet },
-            h(
-              HTMLParagraphElement,
-              {},
-              "\u2139\uFE0F Clicking error locations only works if you set it up."
-            ),
-            h(
-              HTMLParagraphElement,
-              {},
-              "Check this out: ",
-              h(
-                HTMLAnchorElement,
-                {
-                  href: "https://lydell.github.io/elm-watch/browser-ui/#clickable-error-locations",
-                  target: "_blank",
-                  rel: "noreferrer"
-                },
-                h(
-                  HTMLElement,
-                  { localName: "strong" },
-                  "Clickable error locations"
-                )
-              )
-            )
-          )
-        ];
-      case "CommandFailed":
-        return [
-          h(
-            HTMLParagraphElement,
-            {},
-            h(
-              HTMLElement,
-              { localName: "strong" },
-              "Opening the location in your editor failed!"
-            )
-          ),
-          h(HTMLPreElement, {}, error.message)
-        ];
-    }
-  }
-  function idleIcon(status) {
-    switch (status.tag) {
-      case "DecodeError":
-      case "MissingWindowElm":
-        return "\u274C";
-      case "NoProgramsAtAll":
-        return "\u2753";
-      case "DebuggerModeStatus":
-        return "\u2705";
-    }
-  }
-  function compilationModeIcon(compilationMode) {
-    switch (compilationMode) {
-      case "proxy":
-        return void 0;
-      case "debug":
-        return icon("\u{1F41B}", "Debug mode", { className: CLASS.debugModeIcon });
-      case "standard":
-        return void 0;
-      case "optimize":
-        return icon("\u{1F680}", "Optimize mode");
-    }
-  }
-  function printWebSocketUrl(url) {
-    const hostname = url.hostname.endsWith(".localhost") ? "localhost" : url.hostname;
-    return `${url.protocol}//${hostname}:${url.port}`;
-  }
-  function viewHttpsInfo(webSocketUrl) {
-    return webSocketUrl.protocol === "wss:" ? [
-      h(
-        HTMLParagraphElement,
-        {},
-        h(HTMLElement, { localName: "strong" }, "Having trouble connecting?")
-      ),
-      h(
-        HTMLParagraphElement,
-        {},
-        " You might need to ",
-        h(
-          HTMLAnchorElement,
-          { href: new URL(`https://${webSocketUrl.host}/accept`).href },
-          "accept elm-watch\u2019s self-signed certificate"
-        ),
-        ". "
-      ),
-      h(
-        HTMLParagraphElement,
-        {},
-        h(
-          HTMLAnchorElement,
-          {
-            href: "https://lydell.github.io/elm-watch/https/",
-            target: "_blank",
-            rel: "noreferrer"
-          },
-          "More information"
-        ),
-        "."
-      )
-    ] : [];
-  }
-  var noDebuggerYetReason = "The Elm debugger isn't available at this point.";
-  function noDebuggerReason(noDebuggerProgramTypes) {
-    return `The Elm debugger isn't supported by ${humanList(
-      Array.from(noDebuggerProgramTypes, (programType) => `\`${programType}\``),
-      "and"
-    )} programs.`;
-  }
-  function humanList(list, joinWord) {
-    const { length } = list;
-    return length <= 1 ? list.join("") : length === 2 ? list.join(` ${joinWord} `) : `${list.slice(0, length - 2).join(", ")}, ${list.slice(-2).join(` ${joinWord} `)}`;
-  }
-  function viewCompilationModeChooser({
-    dispatch,
-    sendKey,
-    compilationMode: selectedMode,
-    warnAboutCompilationModeMismatch,
-    info
-  }) {
-    switch (info.initializedElmAppsStatus.tag) {
-      case "DecodeError":
-        return [
-          h(
-            HTMLParagraphElement,
-            {},
-            "window.Elm does not look like expected! This is the error message:"
-          ),
-          h(HTMLPreElement, {}, info.initializedElmAppsStatus.message)
-        ];
-      case "MissingWindowElm":
-        return [
-          h(
-            HTMLParagraphElement,
-            {},
-            "elm-watch requires ",
-            h(
-              HTMLAnchorElement,
-              {
-                href: "https://lydell.github.io/elm-watch/window.Elm/",
-                target: "_blank",
-                rel: "noreferrer"
-              },
-              "window.Elm"
-            ),
-            " to exist, but it is undefined!"
-          )
-        ];
-      case "NoProgramsAtAll":
-        return [
-          h(
-            HTMLParagraphElement,
-            {},
-            "It looks like no Elm apps were initialized by elm-watch. Check the console in the browser developer tools to see potential errors!"
-          )
-        ];
-      case "DebuggerModeStatus": {
-        const compilationModes = [
-          {
-            mode: "debug",
-            name: "Debug",
-            status: info.initializedElmAppsStatus.status
-          },
-          { mode: "standard", name: "Standard", status: { tag: "Enabled" } },
-          { mode: "optimize", name: "Optimize", status: { tag: "Enabled" } }
-        ];
-        return [
-          h(
-            HTMLFieldSetElement,
-            { disabled: sendKey === void 0 },
-            h(HTMLLegendElement, {}, "Compilation mode"),
-            ...compilationModes.map(({ mode, name, status }) => {
-              const nameWithIcon = h(
-                HTMLSpanElement,
-                { className: CLASS.compilationModeWithIcon },
-                name,
-                mode === selectedMode ? compilationModeIcon(mode) : void 0
-              );
-              return h(
-                HTMLLabelElement,
-                { className: status.tag },
-                h(HTMLInputElement, {
-                  type: "radio",
-                  name: `CompilationMode-${info.targetName}`,
-                  value: mode,
-                  checked: mode === selectedMode,
-                  disabled: sendKey === void 0 || status.tag === "Disabled",
-                  onchange: sendKey === void 0 ? void 0 : () => {
-                    dispatch({
-                      tag: "ChangedCompilationMode",
-                      compilationMode: mode,
-                      sendKey
-                    });
-                  }
-                }),
-                ...status.tag === "Enabled" ? [
-                  nameWithIcon,
-                  warnAboutCompilationModeMismatch && mode === selectedMode && selectedMode !== info.originalCompilationMode && info.originalCompilationMode !== "proxy" ? h(
-                    HTMLElement,
-                    { localName: "small" },
-                    `Note: The code currently running is in ${ORIGINAL_COMPILATION_MODE} mode.`
-                  ) : void 0
-                ] : [
-                  nameWithIcon,
-                  h(HTMLElement, { localName: "small" }, status.reason)
-                ]
-              );
-            })
-          )
-        ];
-      }
-    }
-  }
-  var DATA_TARGET_NAMES = "data-target-names";
-  function updateErrorOverlay(targetName, dispatch, sendKey, errors, overlay, overlayCloseButton) {
-    const existingErrorElements = new Map(
-      Array.from(overlay.children, (element) => [
-        element.id,
-        {
-          targetNames: new Set(
-            (element.getAttribute(DATA_TARGET_NAMES) ?? "").split("\n")
-          ),
-          element
-        }
-      ])
-    );
-    for (const [id, { targetNames, element }] of existingErrorElements) {
-      if (targetNames.has(targetName) && !errors.has(id)) {
-        targetNames.delete(targetName);
-        if (targetNames.size === 0) {
-          element.remove();
-        } else {
-          element.setAttribute(DATA_TARGET_NAMES, [...targetNames].join("\n"));
-        }
-      }
-    }
-    let previousElement = void 0;
-    for (const [id, error] of errors) {
-      const maybeExisting = existingErrorElements.get(id);
-      if (maybeExisting === void 0) {
-        const element = viewOverlayError(
-          targetName,
-          dispatch,
-          sendKey,
-          id,
-          error
-        );
-        if (previousElement === void 0) {
-          overlay.prepend(element);
-        } else {
-          previousElement.after(element);
-        }
-        overlay.style.backgroundColor = error.backgroundColor;
-        overlayCloseButton.style.setProperty(
-          "--foregroundColor",
-          error.foregroundColor
-        );
-        overlayCloseButton.style.setProperty(
-          "--backgroundColor",
-          error.backgroundColor
-        );
-        previousElement = element;
-      } else {
-        if (!maybeExisting.targetNames.has(targetName)) {
-          maybeExisting.element.setAttribute(
-            DATA_TARGET_NAMES,
-            [...maybeExisting.targetNames, targetName].join("\n")
-          );
-        }
-        previousElement = maybeExisting.element;
-      }
-    }
-    const hidden = !overlay.hasChildNodes();
-    overlay.hidden = hidden;
-    overlayCloseButton.hidden = hidden;
-    overlayCloseButton.style.right = `${overlay.offsetWidth - overlay.clientWidth}px`;
-  }
-  function viewOverlayError(targetName, dispatch, sendKey, id, error) {
-    return h(
-      HTMLDetailsElement,
-      {
-        open: true,
-        id,
-        style: {
-          backgroundColor: error.backgroundColor,
-          color: error.foregroundColor
-        },
-        attrs: {
-          [DATA_TARGET_NAMES]: targetName
-        }
-      },
-      h(
-        HTMLElement,
-        { localName: "summary" },
-        h(
-          HTMLSpanElement,
-          {
-            className: CLASS.errorTitle,
-            style: {
-              backgroundColor: error.backgroundColor
-            }
-          },
-          error.title
-        ),
-        error.location === void 0 ? void 0 : h(
-          HTMLParagraphElement,
-          {},
-          viewErrorLocation(dispatch, sendKey, error.location)
-        )
-      ),
-      h(HTMLPreElement, { innerHTML: error.htmlContent })
-    );
-  }
-  function viewErrorLocation(dispatch, sendKey, location) {
-    switch (location.tag) {
-      case "FileOnly":
-        return viewErrorLocationButton(
-          dispatch,
-          sendKey,
-          {
-            file: location.file,
-            line: 1,
-            column: 1
-          },
-          location.file.absolutePath
-        );
-      case "FileWithLineAndColumn": {
-        return viewErrorLocationButton(
-          dispatch,
-          sendKey,
-          location,
-          `${location.file.absolutePath}:${location.line}:${location.column}`
-        );
-      }
-      case "Target":
-        return `Target: ${location.targetName}`;
-    }
-  }
-  function viewErrorLocationButton(dispatch, sendKey, location, text) {
-    return sendKey === void 0 ? text : h(
-      HTMLButtonElement,
-      {
-        className: CLASS.errorLocationButton,
-        onclick: () => {
-          dispatch({
-            tag: "PressedOpenEditor",
-            file: location.file,
-            line: location.line,
-            column: location.column,
-            sendKey
-          });
-        }
-      },
-      text
-    );
-  }
-  if (typeof WebSocket !== "undefined") {
-    run();
-  }
-})();
 (function(scope){
 'use strict';
-
-var _Platform_effectManagers = {}, _Scheduler_enqueue; // added by elm-watch
 
 function F(arity, fun, wrapper) {
   wrapper.a = arity;
@@ -4534,14 +1662,12 @@ function _Scheduler_fail(error)
 	};
 }
 
-// This function was slightly modified by elm-watch.
 function _Scheduler_binding(callback)
 {
 	return {
 		$: 2,
 		b: callback,
-		// c: null // commented out by elm-watch
-		c: Function.prototype // added by elm-watch
+		c: null
 	};
 }
 
@@ -4684,8 +1810,7 @@ function _Scheduler_step(proc)
 			proc.f.c = proc.f.b(function(newRoot) {
 				proc.f = newRoot;
 				_Scheduler_enqueue(proc);
-			// }); // commented out by elm-watch
-			}) || Function.prototype; // added by elm-watch
+			});
 			return;
 		}
 		else if (rootTag === 5)
@@ -4727,19 +1852,14 @@ function _Process_sleep(time)
 // PROGRAMS
 
 
-// This function was slightly modified by elm-watch.
 var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 {
 	return _Platform_initialize(
-		"Platform.worker", // added by elm-watch
-		false, // isDebug, added by elm-watch
-		debugMetadata, // added by elm-watch
 		flagDecoder,
 		args,
 		impl.init,
-		// impl.update, // commented out by elm-watch
-		// impl.subscriptions, // commented out by elm-watch
-		impl, // added by elm-watch
+		impl.update,
+		impl.subscriptions,
 		function() { return function() {} }
 	);
 });
@@ -4749,178 +1869,26 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 // INITIALIZE A PROGRAM
 
 
-// This whole function was changed by elm-watch.
-function _Platform_initialize(programType, isDebug, debugMetadata, flagDecoder, args, init, impl, stepperBuilder)
+function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
-	if (args === "__elmWatchReturnData") {
-		return { impl: impl, debugMetadata: debugMetadata, flagDecoder : flagDecoder, programType: programType };
-	}
-
-	var flags = _Json_wrap(args ? args['flags'] : undefined);
-	var flagResult = A2(_Json_run, flagDecoder, flags);
-	$elm$core$Result$isOk(flagResult) || _Debug_crash(2 /**/, _Json_errorToString(flagResult.a) /**/);
+	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
+	$elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
 	var managers = {};
-	var initUrl = programType === "Browser.application" ? _Browser_getUrl() : undefined;
-	globalThis.__ELM_WATCH.INIT_URL = initUrl;
-	var initPair = init(flagResult.a);
+	var initPair = init(result.a);
 	var model = initPair.a;
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
-	var update;
-	var subscriptions;
 
-	function setUpdateAndSubscriptions() {
-		update = impl.update || impl._impl.update;
-		subscriptions = impl.subscriptions || impl._impl.subscriptions;
-		if (isDebug) {
-			update = $elm$browser$Debugger$Main$wrapUpdate(update);
-			subscriptions = $elm$browser$Debugger$Main$wrapSubs(subscriptions);
-		}
-	}
-
-	function sendToApp(msg, viewMetadata) {
+	function sendToApp(msg, viewMetadata)
+	{
 		var pair = A2(update, msg, model);
 		stepper(model = pair.a, viewMetadata);
 		_Platform_enqueueEffects(managers, pair.b, subscriptions(model));
 	}
 
-	setUpdateAndSubscriptions();
 	_Platform_enqueueEffects(managers, initPair.b, subscriptions(model));
 
-	function __elmWatchHotReload(newData, new_Platform_effectManagers, new_Scheduler_enqueue, moduleName) {
-		_Platform_enqueueEffects(managers, _Platform_batch(_List_Nil), _Platform_batch(_List_Nil));
-		_Scheduler_enqueue = new_Scheduler_enqueue;
-
-		var reloadReasons = [];
-
-		for (var key in new_Platform_effectManagers) {
-			var manager = new_Platform_effectManagers[key];
-			if (!(key in _Platform_effectManagers)) {
-				_Platform_effectManagers[key] = manager;
-				managers[key] = _Platform_instantiateManager(manager, sendToApp);
-				if (manager.a) {
-					reloadReasons.push("a new port '" + key + "' was added. The idea is to give JavaScript code a chance to set it up!");
-					manager.a(key, sendToApp)
-				}
-			}
-		}
-
-		for (var key in newData.impl) {
-			if (key === "_impl" && impl._impl) {
-				for (var subKey in newData.impl[key]) {
-					impl._impl[subKey] = newData.impl[key][subKey];
-				}
-			} else {
-				impl[key] = newData.impl[key];
-			}
-		}
-
-		var newFlagResult = A2(_Json_run, newData.flagDecoder, flags);
-		if (!$elm$core$Result$isOk(newFlagResult)) {
-			return reloadReasons.concat("the flags type in `" + moduleName + "` changed and now the passed flags aren't correct anymore. The idea is to try to run with new flags!\nThis is the error:\n" + _Json_errorToString(newFlagResult.a));
-		}
-		if (!_Utils_eq_elmWatchInternal(debugMetadata, newData.debugMetadata)) {
-			return reloadReasons.concat("the message type in `" + moduleName + '` changed in debug mode ("debug metadata" changed).');
-		}
-		init = impl.init || impl._impl.init;
-		if (isDebug) {
-			init = A3($elm$browser$Debugger$Main$wrapInit, _Json_wrap(newData.debugMetadata), initPair.a.popout, init);
-		}
-		globalThis.__ELM_WATCH.INIT_URL = initUrl;
-		var newInitPair = init(newFlagResult.a);
-		if (!_Utils_eq_elmWatchInternal(initPair, newInitPair)) {
-			return reloadReasons.concat("`" + moduleName + ".init` returned something different than last time. Let's start fresh!");
-		}
-
-		setUpdateAndSubscriptions();
-		stepper(model, true /* isSync */);
-		_Platform_enqueueEffects(managers, _Platform_batch(_List_Nil), subscriptions(model));
-		return reloadReasons;
-	}
-
-	return Object.defineProperties(
-		ports ? { ports: ports } : {},
-		{
-			__elmWatchHotReload: { value: __elmWatchHotReload },
-			__elmWatchProgramType: { value: programType },
-		}
-	);
-}
-
-// This whole function was added by elm-watch.
-// Copy-paste of _Utils_eq but does not assume that x and y have the same type,
-// and considers functions to always be equal.
-function _Utils_eq_elmWatchInternal(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp_elmWatchInternal(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp_elmWatchInternal(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-// This whole function was added by elm-watch.
-function _Utils_eqHelp_elmWatchInternal(x, y, depth, stack)
-{
-	if (x === y) {
-		return true;
-	}
-
-	var xType = _Utils_typeof_elmWatchInternal(x);
-	var yType = _Utils_typeof_elmWatchInternal(y);
-
-	if (xType !== yType) {
-		return false;
-	}
-
-	switch (xType) {
-		case "primitive":
-			return false;
-		case "function":
-			return true;
-	}
-
-	if (x.$ !== y.$) {
-		return false;
-	}
-
-	if (x.$ === 'Set_elm_builtin') {
-		x = $elm$core$Set$toList(x);
-		y = $elm$core$Set$toList(y);
-	} else if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin' || x.$ < 0) {
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-
-	if (Object.keys(x).length !== Object.keys(y).length) {
-		return false;
-	}
-
-	if (depth > 100) {
-		stack.push(_Utils_Tuple2(x, y));
-		return true;
-	}
-
-	for (var key in x) {
-		if (!_Utils_eqHelp_elmWatchInternal(x[key], y[key], depth + 1, stack)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-// This whole function was added by elm-watch.
-function _Utils_typeof_elmWatchInternal(x)
-{
-	var type = typeof x;
-	return type === "function"
-		? "function"
-		: type !== "object" || type === null
-		? "primitive"
-		: "objectOrArray";
+	return ports ? { ports: ports } : {};
 }
 
 
@@ -5369,55 +2337,11 @@ function _Platform_mergeExportsProd(obj, exports)
 }
 
 
-// This whole function was changed by elm-watch.
 function _Platform_export(exports)
 {
-	var reloadReasons = _Platform_mergeExportsElmWatch('Elm', scope['Elm'] || (scope['Elm'] = {}), exports);
-	if (reloadReasons.length > 0) {
-		throw new Error(["ELM_WATCH_RELOAD_NEEDED"].concat(Array.from(new Set(reloadReasons))).join("\n\n---\n\n"));
-	}
-}
-
-// This whole function was added by elm-watch.
-function _Platform_mergeExportsElmWatch(moduleName, obj, exports)
-{
-	var reloadReasons = [];
-	for (var name in exports) {
-		if (name === "init") {
-			if ("init" in obj) {
-				if ("__elmWatchApps" in obj) {
-					var data = exports.init("__elmWatchReturnData");
-					for (var index = 0; index < obj.__elmWatchApps.length; index++) {
-						var app = obj.__elmWatchApps[index];
-						if (app.__elmWatchProgramType !== data.programType) {
-							reloadReasons.push("`" + moduleName + ".main` changed from `" + app.__elmWatchProgramType + "` to `" + data.programType + "`.");
-						} else {
-							try {
-								var innerReasons = app.__elmWatchHotReload(data, _Platform_effectManagers, _Scheduler_enqueue, moduleName);
-								reloadReasons = reloadReasons.concat(innerReasons);
-							} catch (error) {
-								reloadReasons.push("hot reload for `" + moduleName + "` failed, probably because of incompatible model changes.\nThis is the error:\n" + error + "\n" + (error ? error.stack : ""));
-							}
-						}
-					}
-				} else {
-					throw new Error("elm-watch: I'm trying to create `" + moduleName + ".init`, but it already exists and wasn't created by elm-watch. Maybe a duplicate script is getting loaded accidentally?");
-				}
-			} else {
-				obj.__elmWatchApps = [];
-				obj.init = function() {
-					var app = exports.init.apply(exports, arguments);
-					obj.__elmWatchApps.push(app);
-					globalThis.__ELM_WATCH.ON_INIT();
-					return app;
-				};
-			}
-		} else {
-			var innerReasons = _Platform_mergeExportsElmWatch(moduleName + "." + name, obj[name] || (obj[name] = {}), exports[name]);
-			reloadReasons = reloadReasons.concat(innerReasons);
-		}
-	}
-	return reloadReasons;
+	scope['Elm']
+		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
+		: scope['Elm'] = exports;
 }
 
 
@@ -5449,41 +2373,23 @@ function _VirtualDom_appendChild(parent, child)
 	parent.appendChild(child);
 }
 
-// This whole function was changed by elm-watch.
 var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args)
 {
-	var programType = "Html";
+	// NOTE: this function needs _Platform_export available to work
 
-	if (args === "__elmWatchReturnData") {
-		return { virtualNode: virtualNode, programType: programType };
-	}
-
-	/**_UNUSED/ // always UNUSED with elm-watch
+	/**_UNUSED/
 	var node = args['node'];
 	//*/
 	/**/
 	var node = args && args['node'] ? args['node'] : _Debug_crash(0);
 	//*/
 
-	var nextNode = _VirtualDom_render(virtualNode, function() {});
-	node.parentNode.replaceChild(nextNode, node);
-	node = nextNode;
-	var sendToApp = function() {};
-
-	function __elmWatchHotReload(newData) {
-		var patches = _VirtualDom_diff(virtualNode, newData.virtualNode);
-		node = _VirtualDom_applyPatches(node, virtualNode, patches, sendToApp);
-		virtualNode = newData.virtualNode;
-		return [];
-	}
-
-	return Object.defineProperties(
-		{},
-		{
-			__elmWatchHotReload: { value: __elmWatchHotReload },
-			__elmWatchProgramType: { value: programType },
-		}
+	node.parentNode.replaceChild(
+		_VirtualDom_render(virtualNode, function() {}),
+		node
 	);
+
+	return {};
 });
 
 
@@ -7017,22 +3923,17 @@ function _VirtualDom_dekey(keyedNode)
 
 var _Debugger_element;
 
-// This function was slightly modified by elm-watch.
 var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debugMetadata, args)
 {
 	return _Platform_initialize(
-		impl._impl ? "Browser.sandbox" : "Browser.element", // added by elm-watch
-		false, // isDebug, added by elm-watch
-		debugMetadata, // added by elm-watch
 		flagDecoder,
 		args,
 		impl.init,
-		// impl.update, // commented out by elm-watch
-		// impl.subscriptions, // commented out by elm-watch
-		impl, // added by elm-watch
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			// var view = impl.view; // commented out by elm-watch
-			/**_UNUSED/ // always UNUSED with elm-watch
+			var view = impl.view;
+			/**_UNUSED/
 			var domNode = args['node'];
 			//*/
 			/**/
@@ -7042,8 +3943,7 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 
 			return _Browser_makeAnimator(initialModel, function(model)
 			{
-				// var nextNode = view(model); // commented out by elm-watch
-				var nextNode = impl.view(model); // added by elm-watch
+				var nextNode = view(model);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				domNode = _VirtualDom_applyPatches(domNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -7059,30 +3959,24 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 
 var _Debugger_document;
 
-// This function was slightly modified by elm-watch.
 var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, debugMetadata, args)
 {
 	return _Platform_initialize(
-		impl._impl ? "Browser.application" : "Browser.document", // added by elm-watch
-		false, // isDebug, added by elm-watch
-		debugMetadata, // added by elm-watch
 		flagDecoder,
 		args,
 		impl.init,
-		// impl.update, // commented out by elm-watch
-		// impl.subscriptions, // commented out by elm-watch
-		impl, // added by elm-watch
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
-			// var view = impl.view; // commented out by elm-watch
+			var view = impl.view;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
 			return _Browser_makeAnimator(initialModel, function(model)
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
-				// var doc = view(model); // commented out by elm-watch
-				var doc = impl.view(model); // added by elm-watch
+				var doc = view(model);
 				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.body);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
@@ -7142,13 +4036,11 @@ function _Browser_makeAnimator(model, draw)
 // APPLICATION
 
 
-// This function was slightly modified by elm-watch.
 function _Browser_application(impl)
 {
-	// var onUrlChange = impl.onUrlChange; // commented out by elm-watch
-	// var onUrlRequest = impl.onUrlRequest; // commented out by elm-watch
-	// var key = function() { key.a(onUrlChange(_Browser_getUrl())); }; // commented out by elm-watch
-	var key = function() { key.a(impl.onUrlChange(_Browser_getUrl())); }; // added by elm-watch
+	var onUrlChange = impl.onUrlChange;
+	var onUrlRequest = impl.onUrlRequest;
+	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
 		setup: function(sendToApp)
@@ -7165,7 +4057,7 @@ function _Browser_application(impl)
 					var href = domNode.href;
 					var curr = _Browser_getUrl();
 					var next = $elm$url$Url$fromString(href).a;
-					sendToApp(impl.onUrlRequest(
+					sendToApp(onUrlRequest(
 						(next
 							&& curr.protocol === next.protocol
 							&& curr.host === next.host
@@ -7179,14 +4071,11 @@ function _Browser_application(impl)
 		},
 		init: function(flags)
 		{
-			// return A3(impl.init, flags, _Browser_getUrl(), key); // commented out by elm-watch
-			return A3(impl.init, flags, globalThis.__ELM_WATCH.INIT_URL, key); // added by elm-watch
+			return A3(impl.init, flags, _Browser_getUrl(), key);
 		},
-		// view: impl.view, // commented out by elm-watch
-		// update: impl.update, // commented out by elm-watch
-		// subscriptions: impl.subscriptions // commented out by elm-watch
-		view: function(model) { return impl.view(model); }, // added by elm-watch
-		_impl: impl // added by elm-watch
+		view: impl.view,
+		update: impl.update,
+		subscriptions: impl.subscriptions
 	});
 }
 
@@ -13140,366 +10029,578 @@ var $author$project$Playground$gameWithConfigurations = F4(
 					return gameModel;
 				}));
 	});
-var $author$project$Playground$game = F3(
-	function (viewGameModel, updateGameModel, initGameModel) {
-		return A4($author$project$Playground$gameWithConfigurations, viewGameModel, updateGameModel, _List_Nil, initGameModel);
+var $author$project$TheSomaCube$World$Piece = F3(
+	function (position, rotation_in_90, cubesInLocalCoordinates) {
+		return {cubesInLocalCoordinates: cubesInLocalCoordinates, position: position, rotation_in_90: rotation_in_90};
 	});
-var $author$project$GrowingSquares$Main$Square = F3(
-	function (color, center, sideLength) {
-		return {center: center, color: color, sideLength: sideLength};
-	});
-var $author$project$GrowingSquares$Main$constants = {maximumSideLength: 3, numberOfSquares: 300};
-var $avh4$elm_color$Color$hsla = F4(
-	function (hue, sat, light, alpha) {
-		var _v0 = _Utils_Tuple3(hue, sat, light);
-		var h = _v0.a;
-		var s = _v0.b;
-		var l = _v0.c;
-		var m2 = (l <= 0.5) ? (l * (s + 1)) : ((l + s) - (l * s));
-		var m1 = (l * 2) - m2;
-		var hueToRgb = function (h__) {
-			var h_ = (h__ < 0) ? (h__ + 1) : ((h__ > 1) ? (h__ - 1) : h__);
-			return ((h_ * 6) < 1) ? (m1 + (((m2 - m1) * h_) * 6)) : (((h_ * 2) < 1) ? m2 : (((h_ * 3) < 2) ? (m1 + (((m2 - m1) * ((2 / 3) - h_)) * 6)) : m1));
-		};
-		var b = hueToRgb(h - (1 / 3));
-		var g = hueToRgb(h);
-		var r = hueToRgb(h + (1 / 3));
-		return A4($avh4$elm_color$Color$RgbaSpace, r, g, b, alpha);
-	});
-var $avh4$elm_color$Color$hsl = F3(
-	function (h, s, l) {
-		return A4($avh4$elm_color$Color$hsla, h, s, l, 1.0);
-	});
-var $author$project$GrowingSquares$Main$init = function (computer) {
-	var n = $author$project$GrowingSquares$Main$constants.numberOfSquares;
-	var distance = $author$project$GrowingSquares$Main$constants.maximumSideLength / n;
-	var color = function (i) {
-		return A3($avh4$elm_color$Color$hsl, i / n, 0.3, 0.5);
-	};
-	return A2(
-		$elm$core$List$map,
-		function (i) {
-			return A3(
-				$author$project$GrowingSquares$Main$Square,
-				color(i),
-				{x: 0, y: 0},
-				i * distance);
-		},
-		A2($elm$core$List$range, 0, n - 1));
+var $author$project$TheSomaCube$World$initialWorld = {
+	pieces: _List_fromArray(
+		[
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(-3, 3, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 0, 0),
+					_Utils_Tuple3(0, 1, 0)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(0, 3, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 0, 0),
+					_Utils_Tuple3(0, 1, 0),
+					_Utils_Tuple3(0, 2, 0)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(3, 3, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 1, 0),
+					_Utils_Tuple3(0, 1, 0),
+					_Utils_Tuple3(0, 2, 0)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(-3, -1, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(0, 1, 0),
+					_Utils_Tuple3(1, 1, 0),
+					_Utils_Tuple3(1, 2, 0)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(3, 0, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 0, 0),
+					_Utils_Tuple3(0, 0, 1),
+					_Utils_Tuple3(0, 1, 1)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(-2, -3, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 0, 0),
+					_Utils_Tuple3(0, 0, 1),
+					_Utils_Tuple3(1, 1, 0)
+				])),
+			A3(
+			$author$project$TheSomaCube$World$Piece,
+			_Utils_Tuple3(2, -3, 0),
+			_Utils_Tuple3(0, 0, 0),
+			_List_fromArray(
+				[
+					_Utils_Tuple3(0, 0, 0),
+					_Utils_Tuple3(1, 0, 0),
+					_Utils_Tuple3(0, 0, 1),
+					_Utils_Tuple3(0, 1, 0)
+				]))
+		])
 };
-var $elm$core$Basics$cos = _Basics_cos;
-var $author$project$Playground$Animation$toFrac = F2(
-	function (period, time) {
-		return (time - ($elm$core$Basics$floor(time / period) * period)) / period;
+var $author$project$TheSomaCube$Main$init = function (computer) {
+	return {world: $author$project$TheSomaCube$World$initialWorld};
+};
+var $author$project$Playground$colorConfig = F2(
+	function (key, value) {
+		return _Utils_Tuple2(
+			key,
+			$author$project$Playground$Configurations$ColorConfig(value));
+	});
+var $author$project$Playground$Configurations$Block = F3(
+	function (name, isOpen, configs) {
+		return {configs: configs, isOpen: isOpen, name: name};
+	});
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $author$project$Playground$Configurations$configBlock = F3(
+	function (name, isOn, configList) {
+		return A3(
+			$author$project$Playground$Configurations$Block,
+			name,
+			isOn,
+			$elm$core$Dict$fromList(configList));
+	});
+var $author$project$Playground$configBlock = $author$project$Playground$Configurations$configBlock;
+var $author$project$Playground$floatConfig = F3(
+	function (key, _v0, value) {
+		var min = _v0.a;
+		var max = _v0.b;
+		return _Utils_Tuple2(
+			key,
+			A2(
+				$author$project$Playground$Configurations$FloatConfig,
+				_Utils_Tuple2(min, max),
+				value));
 	});
 var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$turns = function (angleInTurns) {
-	return (2 * $elm$core$Basics$pi) * angleInTurns;
-};
-var $author$project$Playground$Animation$wave = F4(
-	function (lo, hi, period, time) {
-		return lo + (((hi - lo) * (1 + $elm$core$Basics$cos(
-			$elm$core$Basics$turns(
-				A2($author$project$Playground$Animation$toFrac, period, time))))) / 2);
-	});
-var $author$project$GrowingSquares$Main$squareColor = function (clock) {
-	return A3(
-		$avh4$elm_color$Color$hsl,
-		A4($author$project$Playground$Animation$wave, 0, 1, 2, clock),
-		0.3,
-		0.5);
-};
-var $author$project$GrowingSquares$Main$addNew = F2(
+var $author$project$TheSomaCube$Main$initialConfigurations = _List_fromArray(
+	[
+		A3(
+		$author$project$Playground$configBlock,
+		'Camera',
+		true,
+		_List_fromArray(
+			[
+				A3(
+				$author$project$Playground$floatConfig,
+				'camera distance',
+				_Utils_Tuple2(3, 60),
+				20),
+				A3(
+				$author$project$Playground$floatConfig,
+				'camera azimuth',
+				_Utils_Tuple2(0, 2 * $elm$core$Basics$pi),
+				0.6),
+				A3(
+				$author$project$Playground$floatConfig,
+				'camera elevation',
+				_Utils_Tuple2((-$elm$core$Basics$pi) / 2, $elm$core$Basics$pi / 2),
+				0.4)
+			])),
+		A3(
+		$author$project$Playground$configBlock,
+		'Parameters',
+		true,
+		_List_fromArray(
+			[
+				A3(
+				$author$project$Playground$floatConfig,
+				'cube scale',
+				_Utils_Tuple2(0.1, 1),
+				0.95),
+				A3(
+				$author$project$Playground$floatConfig,
+				'edge width',
+				_Utils_Tuple2(0.001, 0.5),
+				0.1)
+			])),
+		A3(
+		$author$project$Playground$configBlock,
+		'Colors and light',
+		true,
+		_List_fromArray(
+			[
+				A3(
+				$author$project$Playground$floatConfig,
+				'sunlight azimuth',
+				_Utils_Tuple2(0, 2 * $elm$core$Basics$pi),
+				5.5),
+				A3(
+				$author$project$Playground$floatConfig,
+				'sunlight elevation',
+				_Utils_Tuple2((-$elm$core$Basics$pi) / 2, $elm$core$Basics$pi / 2),
+				-1),
+				A3(
+				$author$project$Playground$floatConfig,
+				'saturation',
+				_Utils_Tuple2(0, 1),
+				0.6),
+				A3(
+				$author$project$Playground$floatConfig,
+				'lightning',
+				_Utils_Tuple2(0, 1),
+				0.8),
+				A2($author$project$Playground$colorConfig, 'edge color', $avh4$elm_color$Color$black)
+			]))
+	]);
+var $author$project$TheSomaCube$Main$update = F2(
 	function (computer, model) {
-		return (_Utils_cmp(
-			$elm$core$List$length(model),
-			$author$project$GrowingSquares$Main$constants.numberOfSquares) < 0) ? A2(
-			$elm$core$List$cons,
-			A3(
-				$author$project$GrowingSquares$Main$Square,
-				$author$project$GrowingSquares$Main$squareColor(computer.clock),
-				{x: 0, y: 0},
-				0.3),
-			model) : model;
+		return model;
 	});
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
-	});
-var $author$project$GrowingSquares$Main$growInTime = function (computer) {
-	return $elm$core$List$map(
-		function (square) {
-			return _Utils_update(
-				square,
-				{
-					sideLength: A2($elm$core$Basics$min, $author$project$GrowingSquares$Main$constants.maximumSideLength, square.sideLength + computer.dt)
-				});
-		});
-};
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$GrowingSquares$Main$removeSquare = function (computer) {
-	return $elm$core$List$filter(
-		function (square) {
-			return !_Utils_eq(square.sideLength, $author$project$GrowingSquares$Main$constants.maximumSideLength);
-		});
-};
-var $author$project$GrowingSquares$Main$update = F2(
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $author$project$TheSomaCube$Main$explanationText = F2(
 	function (computer, model) {
 		return A2(
-			$author$project$GrowingSquares$Main$addNew,
-			computer,
-			A2(
-				$author$project$GrowingSquares$Main$removeSquare,
-				computer,
-				A2($author$project$GrowingSquares$Main$growInTime, computer, model)));
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'min-width', '320px'),
+					A2($elm$html$Html$Attributes$style, 'max-width', '500px'),
+					A2($elm$html$Html$Attributes$style, 'margin', '0 auto')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('m-2 text-center')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('The Soma Cube')
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('p-2 text-xs')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'color', 'darkred')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Following controls are not implemented yet')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Space Key to chose the next piece')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Arrow keys to rotate the cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('WASDQE to move the cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Shift + Arrow Keys to rotate the camera')
+								]))
+						]))
+				]));
 	});
-var $elm$core$Basics$degrees = function (angleInDegrees) {
-	return (angleInDegrees * $elm$core$Basics$pi) / 180;
-};
+var $author$project$Playground$Configurations$getFloatFromBlock = F2(
+	function (key, block) {
+		return A2(
+			$elm$core$Maybe$map,
+			function (config) {
+				if (config.$ === 'FloatConfig') {
+					var value = config.b;
+					return value;
+				} else {
+					return 0;
+				}
+			},
+			A2($elm$core$Dict$get, key, block.configs));
+	});
+var $author$project$Playground$Configurations$getFloat = F2(
+	function (key, configurations) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$List$head(
+				A2(
+					$elm$core$List$filterMap,
+					$author$project$Playground$Configurations$getFloatFromBlock(key),
+					configurations)));
+	});
+var $author$project$Playground$Computer$getFloat = F2(
+	function (key, computer) {
+		return A2($author$project$Playground$Configurations$getFloat, key, computer.configurations);
+	});
+var $author$project$Playground$getFloat = $author$project$Playground$Computer$getFloat;
 var $elm$core$Basics$atan = _Basics_atan;
-var $ianmackenzie$elm_geometry$Geometry$Types$Direction3d = function (a) {
-	return {$: 'Direction3d', a: a};
-};
-var $elm$core$Basics$sqrt = _Basics_sqrt;
-var $ianmackenzie$elm_geometry$Direction3d$from = F2(
-	function (_v0, _v1) {
-		var p1 = _v0.a;
-		var p2 = _v1.a;
-		var deltaZ = p2.z - p1.z;
-		var deltaY = p2.y - p1.y;
-		var deltaX = p2.x - p1.x;
-		var largestComponent = A2(
-			$elm$core$Basics$max,
-			$elm$core$Basics$abs(deltaX),
-			A2(
-				$elm$core$Basics$max,
-				$elm$core$Basics$abs(deltaY),
-				$elm$core$Basics$abs(deltaZ)));
-		if (!largestComponent) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var scaledZ = deltaZ / largestComponent;
-			var scaledY = deltaY / largestComponent;
-			var scaledX = deltaX / largestComponent;
-			var scaledLength = $elm$core$Basics$sqrt(((scaledX * scaledX) + (scaledY * scaledY)) + (scaledZ * scaledZ));
-			return $elm$core$Maybe$Just(
-				$ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-					{x: scaledX / scaledLength, y: scaledY / scaledLength, z: scaledZ / scaledLength}));
-		}
-	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Point3d = function (a) {
 	return {$: 'Point3d', a: a};
 };
 var $ianmackenzie$elm_geometry$Point3d$fromMeters = function (givenCoordinates) {
 	return $ianmackenzie$elm_geometry$Geometry$Types$Point3d(givenCoordinates);
 };
-var $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d = function (a) {
-	return {$: 'Viewpoint3d', a: a};
-};
-var $ianmackenzie$elm_geometry$Geometry$Types$Vector3d = function (a) {
-	return {$: 'Vector3d', a: a};
-};
-var $ianmackenzie$elm_geometry$Vector3d$cross = F2(
-	function (_v0, _v1) {
-		var v2 = _v0.a;
-		var v1 = _v1.a;
-		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-			{x: (v1.y * v2.z) - (v1.z * v2.y), y: (v1.z * v2.x) - (v1.x * v2.z), z: (v1.x * v2.y) - (v1.y * v2.x)});
-	});
-var $ianmackenzie$elm_geometry$Vector3d$direction = function (_v0) {
-	var v = _v0.a;
-	var largestComponent = A2(
-		$elm$core$Basics$max,
-		$elm$core$Basics$abs(v.x),
-		A2(
-			$elm$core$Basics$max,
-			$elm$core$Basics$abs(v.y),
-			$elm$core$Basics$abs(v.z)));
-	if (!largestComponent) {
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var scaledZ = v.z / largestComponent;
-		var scaledY = v.y / largestComponent;
-		var scaledX = v.x / largestComponent;
-		var scaledLength = $elm$core$Basics$sqrt(((scaledX * scaledX) + (scaledY * scaledY)) + (scaledZ * scaledZ));
-		return $elm$core$Maybe$Just(
-			$ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-				{x: scaledX / scaledLength, y: scaledY / scaledLength, z: scaledZ / scaledLength}));
-	}
-};
-var $ianmackenzie$elm_geometry$Vector3d$from = F2(
-	function (_v0, _v1) {
-		var p1 = _v0.a;
-		var p2 = _v1.a;
-		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-			{x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z});
-	});
 var $ianmackenzie$elm_units$Quantity$Quantity = function (a) {
 	return {$: 'Quantity', a: a};
 };
-var $ianmackenzie$elm_geometry$Vector3d$dot = F2(
-	function (_v0, _v1) {
-		var v2 = _v0.a;
-		var v1 = _v1.a;
-		return $ianmackenzie$elm_units$Quantity$Quantity(((v1.x * v2.x) + (v1.y * v2.y)) + (v1.z * v2.z));
-	});
-var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
-	function (_v0, _v1) {
-		var y = _v0.a;
-		var x = _v1.a;
-		return _Utils_cmp(x, y) > 0;
-	});
-var $ianmackenzie$elm_units$Quantity$lessThan = F2(
-	function (_v0, _v1) {
-		var y = _v0.a;
-		var x = _v1.a;
-		return _Utils_cmp(x, y) < 0;
-	});
-var $ianmackenzie$elm_geometry$Vector3d$minus = F2(
-	function (_v0, _v1) {
-		var v2 = _v0.a;
-		var v1 = _v1.a;
-		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-			{x: v1.x - v2.x, y: v1.y - v2.y, z: v1.z - v2.z});
-	});
-var $ianmackenzie$elm_geometry$Vector3d$projectionIn = F2(
-	function (_v0, _v1) {
-		var d = _v0.a;
-		var v = _v1.a;
-		var projectedLength = ((v.x * d.x) + (v.y * d.y)) + (v.z * d.z);
-		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-			{x: d.x * projectedLength, y: d.y * projectedLength, z: d.z * projectedLength});
-	});
-var $ianmackenzie$elm_geometry$Vector3d$reverse = function (_v0) {
-	var v = _v0.a;
-	return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-		{x: -v.x, y: -v.y, z: -v.z});
+var $ianmackenzie$elm_units$Length$meters = function (numMeters) {
+	return $ianmackenzie$elm_units$Quantity$Quantity(numMeters);
 };
-var $ianmackenzie$elm_units$Quantity$zero = $ianmackenzie$elm_units$Quantity$Quantity(0);
-var $ianmackenzie$elm_geometry$Vector3d$zero = $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
-	{x: 0, y: 0, z: 0});
-var $ianmackenzie$elm_geometry$Direction3d$orthonormalize = F3(
-	function (xVector, xyVector, xyzVector) {
-		return A2(
-			$elm$core$Maybe$andThen,
-			function (xDirection) {
-				var yVector = A2(
-					$ianmackenzie$elm_geometry$Vector3d$minus,
-					A2($ianmackenzie$elm_geometry$Vector3d$projectionIn, xDirection, xyVector),
-					xyVector);
-				return A2(
-					$elm$core$Maybe$andThen,
-					function (yDirection) {
-						var rightHandedZVector = A2($ianmackenzie$elm_geometry$Vector3d$cross, xyVector, xVector);
-						var tripleProduct = A2($ianmackenzie$elm_geometry$Vector3d$dot, xyzVector, rightHandedZVector);
-						var zVector = A2($ianmackenzie$elm_units$Quantity$greaterThan, $ianmackenzie$elm_units$Quantity$zero, tripleProduct) ? rightHandedZVector : (A2($ianmackenzie$elm_units$Quantity$lessThan, $ianmackenzie$elm_units$Quantity$zero, tripleProduct) ? $ianmackenzie$elm_geometry$Vector3d$reverse(rightHandedZVector) : $ianmackenzie$elm_geometry$Vector3d$zero);
-						return A2(
-							$elm$core$Maybe$map,
-							function (zDirection) {
-								return _Utils_Tuple3(xDirection, yDirection, zDirection);
-							},
-							$ianmackenzie$elm_geometry$Vector3d$direction(zVector));
-					},
-					$ianmackenzie$elm_geometry$Vector3d$direction(yVector));
-			},
-			$ianmackenzie$elm_geometry$Vector3d$direction(xVector));
+var $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d = function (a) {
+	return {$: 'Viewpoint3d', a: a};
+};
+var $ianmackenzie$elm_units$Quantity$negate = function (_v0) {
+	var value = _v0.a;
+	return $ianmackenzie$elm_units$Quantity$Quantity(-value);
+};
+var $ianmackenzie$elm_geometry$Geometry$Types$Direction3d = function (a) {
+	return {$: 'Direction3d', a: a};
+};
+var $ianmackenzie$elm_geometry$Unsafe$Direction3d$unsafeCrossProduct = F2(
+	function (_v0, _v1) {
+		var d1 = _v0.a;
+		var d2 = _v1.a;
+		return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
+			{x: (d1.y * d2.z) - (d1.z * d2.y), y: (d1.z * d2.x) - (d1.x * d2.z), z: (d1.x * d2.y) - (d1.y * d2.x)});
 	});
-var $ianmackenzie$elm_geometry$Direction3d$perpendicularTo = function (_v0) {
-	var d = _v0.a;
-	var absZ = $elm$core$Basics$abs(d.z);
-	var absY = $elm$core$Basics$abs(d.y);
-	var absX = $elm$core$Basics$abs(d.x);
-	if (_Utils_cmp(absX, absY) < 1) {
-		if (_Utils_cmp(absX, absZ) < 1) {
-			var scale = $elm$core$Basics$sqrt((d.z * d.z) + (d.y * d.y));
-			return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-				{x: 0, y: (-d.z) / scale, z: d.y / scale});
-		} else {
-			var scale = $elm$core$Basics$sqrt((d.y * d.y) + (d.x * d.x));
-			return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-				{x: (-d.y) / scale, y: d.x / scale, z: 0});
-		}
-	} else {
-		if (_Utils_cmp(absY, absZ) < 1) {
-			var scale = $elm$core$Basics$sqrt((d.z * d.z) + (d.x * d.x));
-			return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-				{x: d.z / scale, y: 0, z: (-d.x) / scale});
-		} else {
-			var scale = $elm$core$Basics$sqrt((d.x * d.x) + (d.y * d.y));
-			return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-				{x: (-d.y) / scale, y: d.x / scale, z: 0});
-		}
-	}
+var $ianmackenzie$elm_geometry$SketchPlane3d$xDirection = function (_v0) {
+	var properties = _v0.a;
+	return properties.xDirection;
 };
-var $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis = function (direction) {
-	var xDirection = $ianmackenzie$elm_geometry$Direction3d$perpendicularTo(direction);
-	var _v0 = xDirection;
-	var dX = _v0.a;
-	var _v1 = direction;
-	var d = _v1.a;
-	var yDirection = $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
-		{x: (d.y * dX.z) - (d.z * dX.y), y: (d.z * dX.x) - (d.x * dX.z), z: (d.x * dX.y) - (d.y * dX.x)});
-	return _Utils_Tuple2(xDirection, yDirection);
+var $ianmackenzie$elm_geometry$SketchPlane3d$yDirection = function (_v0) {
+	var properties = _v0.a;
+	return properties.yDirection;
 };
-var $ianmackenzie$elm_geometry$Direction3d$toVector = function (_v0) {
-	var directionComponents = _v0.a;
-	return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(directionComponents);
+var $ianmackenzie$elm_geometry$SketchPlane3d$normalDirection = function (sketchPlane) {
+	return A2(
+		$ianmackenzie$elm_geometry$Unsafe$Direction3d$unsafeCrossProduct,
+		$ianmackenzie$elm_geometry$SketchPlane3d$xDirection(sketchPlane),
+		$ianmackenzie$elm_geometry$SketchPlane3d$yDirection(sketchPlane));
 };
+var $ianmackenzie$elm_geometry$Frame3d$originPoint = function (_v0) {
+	var properties = _v0.a;
+	return properties.originPoint;
+};
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$sin = _Basics_sin;
+var $ianmackenzie$elm_geometry$Direction3d$rotateAround = F3(
+	function (_v0, _v1, _v2) {
+		var axis = _v0.a;
+		var angle = _v1.a;
+		var d = _v2.a;
+		var halfAngle = 0.5 * angle;
+		var qw = $elm$core$Basics$cos(halfAngle);
+		var sinHalfAngle = $elm$core$Basics$sin(halfAngle);
+		var _v3 = axis.direction;
+		var a = _v3.a;
+		var qx = a.x * sinHalfAngle;
+		var qwx = qw * qx;
+		var qxx = qx * qx;
+		var qy = a.y * sinHalfAngle;
+		var qwy = qw * qy;
+		var qxy = qx * qy;
+		var qyy = qy * qy;
+		var a22 = 1 - (2 * (qxx + qyy));
+		var qz = a.z * sinHalfAngle;
+		var qwz = qw * qz;
+		var a01 = 2 * (qxy - qwz);
+		var a10 = 2 * (qxy + qwz);
+		var qxz = qx * qz;
+		var a02 = 2 * (qxz + qwy);
+		var a20 = 2 * (qxz - qwy);
+		var qyz = qy * qz;
+		var a12 = 2 * (qyz - qwx);
+		var a21 = 2 * (qyz + qwx);
+		var qzz = qz * qz;
+		var a00 = 1 - (2 * (qyy + qzz));
+		var a11 = 1 - (2 * (qxx + qzz));
+		return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(
+			{x: ((a00 * d.x) + (a01 * d.y)) + (a02 * d.z), y: ((a10 * d.x) + (a11 * d.y)) + (a12 * d.z), z: ((a20 * d.x) + (a21 * d.y)) + (a22 * d.z)});
+	});
+var $ianmackenzie$elm_geometry$Point3d$rotateAround = F3(
+	function (_v0, _v1, _v2) {
+		var axis = _v0.a;
+		var angle = _v1.a;
+		var p = _v2.a;
+		var halfAngle = 0.5 * angle;
+		var qw = $elm$core$Basics$cos(halfAngle);
+		var sinHalfAngle = $elm$core$Basics$sin(halfAngle);
+		var _v3 = axis.originPoint;
+		var p0 = _v3.a;
+		var deltaX = p.x - p0.x;
+		var deltaY = p.y - p0.y;
+		var deltaZ = p.z - p0.z;
+		var _v4 = axis.direction;
+		var d = _v4.a;
+		var qx = d.x * sinHalfAngle;
+		var wx = qw * qx;
+		var xx = qx * qx;
+		var qy = d.y * sinHalfAngle;
+		var wy = qw * qy;
+		var xy = qx * qy;
+		var yy = qy * qy;
+		var a22 = 1 - (2 * (xx + yy));
+		var qz = d.z * sinHalfAngle;
+		var wz = qw * qz;
+		var a01 = 2 * (xy - wz);
+		var a10 = 2 * (xy + wz);
+		var xz = qx * qz;
+		var a02 = 2 * (xz + wy);
+		var a20 = 2 * (xz - wy);
+		var yz = qy * qz;
+		var a12 = 2 * (yz - wx);
+		var a21 = 2 * (yz + wx);
+		var zz = qz * qz;
+		var a00 = 1 - (2 * (yy + zz));
+		var a11 = 1 - (2 * (xx + zz));
+		return $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
+			{x: ((p0.x + (a00 * deltaX)) + (a01 * deltaY)) + (a02 * deltaZ), y: ((p0.y + (a10 * deltaX)) + (a11 * deltaY)) + (a12 * deltaZ), z: ((p0.z + (a20 * deltaX)) + (a21 * deltaY)) + (a22 * deltaZ)});
+	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Frame3d = function (a) {
 	return {$: 'Frame3d', a: a};
 };
 var $ianmackenzie$elm_geometry$Frame3d$unsafe = function (properties) {
 	return $ianmackenzie$elm_geometry$Geometry$Types$Frame3d(properties);
 };
-var $ianmackenzie$elm_geometry$Frame3d$withZDirection = F2(
-	function (givenZDirection, givenOrigin) {
-		var _v0 = $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis(givenZDirection);
-		var computedXDirection = _v0.a;
-		var computedYDirection = _v0.b;
-		return $ianmackenzie$elm_geometry$Frame3d$unsafe(
-			{originPoint: givenOrigin, xDirection: computedXDirection, yDirection: computedYDirection, zDirection: givenZDirection});
-	});
-var $ianmackenzie$elm_3d_camera$Viewpoint3d$lookAt = function (_arguments) {
-	var zVector = A2($ianmackenzie$elm_geometry$Vector3d$from, _arguments.focalPoint, _arguments.eyePoint);
-	var yVector = $ianmackenzie$elm_geometry$Direction3d$toVector(_arguments.upDirection);
-	var xVector = A2($ianmackenzie$elm_geometry$Vector3d$cross, zVector, yVector);
-	var _v0 = A3($ianmackenzie$elm_geometry$Direction3d$orthonormalize, zVector, yVector, xVector);
-	if (_v0.$ === 'Just') {
-		var _v1 = _v0.a;
-		var normalizedZDirection = _v1.a;
-		var normalizedYDirection = _v1.b;
-		var normalizedXDirection = _v1.c;
-		return $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d(
-			$ianmackenzie$elm_geometry$Frame3d$unsafe(
-				{originPoint: _arguments.eyePoint, xDirection: normalizedXDirection, yDirection: normalizedYDirection, zDirection: normalizedZDirection}));
-	} else {
-		var _v2 = $ianmackenzie$elm_geometry$Vector3d$direction(zVector);
-		if (_v2.$ === 'Just') {
-			var zDirection = _v2.a;
-			return $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d(
-				A2($ianmackenzie$elm_geometry$Frame3d$withZDirection, zDirection, _arguments.eyePoint));
-		} else {
-			var _v3 = $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis(_arguments.upDirection);
-			var arbitraryZDirection = _v3.a;
-			var arbitraryXDirection = _v3.b;
-			return $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d(
-				$ianmackenzie$elm_geometry$Frame3d$unsafe(
-					{originPoint: _arguments.eyePoint, xDirection: arbitraryXDirection, yDirection: _arguments.upDirection, zDirection: arbitraryZDirection}));
-		}
-	}
+var $ianmackenzie$elm_geometry$Frame3d$xDirection = function (_v0) {
+	var properties = _v0.a;
+	return properties.xDirection;
 };
-var $ianmackenzie$elm_geometry$Point3d$origin = $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
-	{x: 0, y: 0, z: 0});
+var $ianmackenzie$elm_geometry$Frame3d$yDirection = function (_v0) {
+	var properties = _v0.a;
+	return properties.yDirection;
+};
+var $ianmackenzie$elm_geometry$Frame3d$zDirection = function (_v0) {
+	var properties = _v0.a;
+	return properties.zDirection;
+};
+var $ianmackenzie$elm_geometry$Frame3d$rotateAround = F3(
+	function (axis, angle, frame) {
+		return $ianmackenzie$elm_geometry$Frame3d$unsafe(
+			{
+				originPoint: A3(
+					$ianmackenzie$elm_geometry$Point3d$rotateAround,
+					axis,
+					angle,
+					$ianmackenzie$elm_geometry$Frame3d$originPoint(frame)),
+				xDirection: A3(
+					$ianmackenzie$elm_geometry$Direction3d$rotateAround,
+					axis,
+					angle,
+					$ianmackenzie$elm_geometry$Frame3d$xDirection(frame)),
+				yDirection: A3(
+					$ianmackenzie$elm_geometry$Direction3d$rotateAround,
+					axis,
+					angle,
+					$ianmackenzie$elm_geometry$Frame3d$yDirection(frame)),
+				zDirection: A3(
+					$ianmackenzie$elm_geometry$Direction3d$rotateAround,
+					axis,
+					angle,
+					$ianmackenzie$elm_geometry$Frame3d$zDirection(frame))
+			});
+	});
+var $ianmackenzie$elm_geometry$Frame3d$rotateAroundOwn = F3(
+	function (axis, angle, frame) {
+		return A3(
+			$ianmackenzie$elm_geometry$Frame3d$rotateAround,
+			axis(frame),
+			angle,
+			frame);
+	});
+var $ianmackenzie$elm_geometry$Axis3d$direction = function (_v0) {
+	var axis = _v0.a;
+	return axis.direction;
+};
+var $ianmackenzie$elm_geometry$Point3d$translateBy = F2(
+	function (_v0, _v1) {
+		var v = _v0.a;
+		var p = _v1.a;
+		return $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
+			{x: p.x + v.x, y: p.y + v.y, z: p.z + v.z});
+	});
+var $ianmackenzie$elm_geometry$Frame3d$translateBy = F2(
+	function (vector, frame) {
+		return $ianmackenzie$elm_geometry$Frame3d$unsafe(
+			{
+				originPoint: A2(
+					$ianmackenzie$elm_geometry$Point3d$translateBy,
+					vector,
+					$ianmackenzie$elm_geometry$Frame3d$originPoint(frame)),
+				xDirection: $ianmackenzie$elm_geometry$Frame3d$xDirection(frame),
+				yDirection: $ianmackenzie$elm_geometry$Frame3d$yDirection(frame),
+				zDirection: $ianmackenzie$elm_geometry$Frame3d$zDirection(frame)
+			});
+	});
+var $ianmackenzie$elm_geometry$Geometry$Types$Vector3d = function (a) {
+	return {$: 'Vector3d', a: a};
+};
+var $ianmackenzie$elm_geometry$Vector3d$withLength = F2(
+	function (_v0, _v1) {
+		var a = _v0.a;
+		var d = _v1.a;
+		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
+			{x: a * d.x, y: a * d.y, z: a * d.z});
+	});
+var $ianmackenzie$elm_geometry$Frame3d$translateIn = F3(
+	function (direction, distance, frame) {
+		return A2(
+			$ianmackenzie$elm_geometry$Frame3d$translateBy,
+			A2($ianmackenzie$elm_geometry$Vector3d$withLength, distance, direction),
+			frame);
+	});
+var $ianmackenzie$elm_geometry$Frame3d$translateAlongOwn = F3(
+	function (axis, distance, frame) {
+		return A3(
+			$ianmackenzie$elm_geometry$Frame3d$translateIn,
+			$ianmackenzie$elm_geometry$Axis3d$direction(
+				axis(frame)),
+			distance,
+			frame);
+	});
+var $ianmackenzie$elm_geometry$Geometry$Types$Axis3d = function (a) {
+	return {$: 'Axis3d', a: a};
+};
+var $ianmackenzie$elm_geometry$Axis3d$through = F2(
+	function (givenPoint, givenDirection) {
+		return $ianmackenzie$elm_geometry$Geometry$Types$Axis3d(
+			{direction: givenDirection, originPoint: givenPoint});
+	});
+var $ianmackenzie$elm_geometry$Frame3d$xAxis = function (_v0) {
+	var frame = _v0.a;
+	return A2($ianmackenzie$elm_geometry$Axis3d$through, frame.originPoint, frame.xDirection);
+};
+var $ianmackenzie$elm_geometry$Frame3d$yAxis = function (_v0) {
+	var frame = _v0.a;
+	return A2($ianmackenzie$elm_geometry$Axis3d$through, frame.originPoint, frame.yDirection);
+};
+var $ianmackenzie$elm_geometry$Frame3d$zAxis = function (_v0) {
+	var frame = _v0.a;
+	return A2($ianmackenzie$elm_geometry$Axis3d$through, frame.originPoint, frame.zDirection);
+};
+var $ianmackenzie$elm_3d_camera$Viewpoint3d$orbit = function (_arguments) {
+	var initialFrame = $ianmackenzie$elm_geometry$Frame3d$unsafe(
+		{
+			originPoint: _arguments.focalPoint,
+			xDirection: $ianmackenzie$elm_geometry$SketchPlane3d$yDirection(_arguments.groundPlane),
+			yDirection: $ianmackenzie$elm_geometry$SketchPlane3d$normalDirection(_arguments.groundPlane),
+			zDirection: $ianmackenzie$elm_geometry$SketchPlane3d$xDirection(_arguments.groundPlane)
+		});
+	var finalFrame = A3(
+		$ianmackenzie$elm_geometry$Frame3d$translateAlongOwn,
+		$ianmackenzie$elm_geometry$Frame3d$zAxis,
+		_arguments.distance,
+		A3(
+			$ianmackenzie$elm_geometry$Frame3d$rotateAroundOwn,
+			$ianmackenzie$elm_geometry$Frame3d$xAxis,
+			$ianmackenzie$elm_units$Quantity$negate(_arguments.elevation),
+			A3($ianmackenzie$elm_geometry$Frame3d$rotateAroundOwn, $ianmackenzie$elm_geometry$Frame3d$yAxis, _arguments.azimuth, initialFrame)));
+	return $ianmackenzie$elm_3d_camera$Camera3d$Types$Viewpoint3d(finalFrame);
+};
 var $ianmackenzie$elm_3d_camera$Camera3d$Types$Camera3d = function (a) {
 	return {$: 'Camera3d', a: a};
 };
@@ -13530,48 +10631,54 @@ var $ianmackenzie$elm_3d_camera$Camera3d$perspective = function (_arguments) {
 			viewpoint: _arguments.viewpoint
 		});
 };
-var $ianmackenzie$elm_geometry$Direction3d$unsafe = function (givenComponents) {
-	return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(givenComponents);
-};
-var $ianmackenzie$elm_geometry$Direction3d$positiveY = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{x: 0, y: 1, z: 0});
 var $ianmackenzie$elm_units$Angle$radians = function (numRadians) {
 	return $ianmackenzie$elm_units$Quantity$Quantity(numRadians);
 };
-var $author$project$Camera$perspective = function (_v0) {
+var $ianmackenzie$elm_geometry$Point3d$origin = $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
+	{x: 0, y: 0, z: 0});
+var $ianmackenzie$elm_geometry$Geometry$Types$SketchPlane3d = function (a) {
+	return {$: 'SketchPlane3d', a: a};
+};
+var $ianmackenzie$elm_geometry$SketchPlane3d$unsafe = $ianmackenzie$elm_geometry$Geometry$Types$SketchPlane3d;
+var $ianmackenzie$elm_geometry$Direction3d$unsafe = function (givenComponents) {
+	return $ianmackenzie$elm_geometry$Geometry$Types$Direction3d(givenComponents);
+};
+var $ianmackenzie$elm_geometry$Direction3d$positiveX = $ianmackenzie$elm_geometry$Direction3d$unsafe(
+	{x: 1, y: 0, z: 0});
+var $ianmackenzie$elm_geometry$Direction3d$x = $ianmackenzie$elm_geometry$Direction3d$positiveX;
+var $ianmackenzie$elm_geometry$Direction3d$positiveZ = $ianmackenzie$elm_geometry$Direction3d$unsafe(
+	{x: 0, y: 0, z: 1});
+var $ianmackenzie$elm_geometry$Direction3d$z = $ianmackenzie$elm_geometry$Direction3d$positiveZ;
+var $ianmackenzie$elm_geometry$SketchPlane3d$zx = $ianmackenzie$elm_geometry$SketchPlane3d$unsafe(
+	{originPoint: $ianmackenzie$elm_geometry$Point3d$origin, xDirection: $ianmackenzie$elm_geometry$Direction3d$z, yDirection: $ianmackenzie$elm_geometry$Direction3d$x});
+var $author$project$Camera$perspectiveWithOrbit = function (_v0) {
 	var focalPoint = _v0.focalPoint;
-	var eyePoint = _v0.eyePoint;
-	var upDirection = _v0.upDirection;
+	var azimuth = _v0.azimuth;
+	var elevation = _v0.elevation;
+	var distance = _v0.distance;
 	return $ianmackenzie$elm_3d_camera$Camera3d$perspective(
 		{
 			verticalFieldOfView: $ianmackenzie$elm_units$Angle$radians(
 				2 * $elm$core$Basics$atan(0.5)),
-			viewpoint: $ianmackenzie$elm_3d_camera$Viewpoint3d$lookAt(
+			viewpoint: $ianmackenzie$elm_3d_camera$Viewpoint3d$orbit(
 				{
-					eyePoint: $ianmackenzie$elm_geometry$Point3d$fromMeters(eyePoint),
+					azimuth: $ianmackenzie$elm_units$Angle$radians(azimuth),
+					distance: $ianmackenzie$elm_units$Length$meters(distance),
+					elevation: $ianmackenzie$elm_units$Angle$radians(elevation),
 					focalPoint: $ianmackenzie$elm_geometry$Point3d$fromMeters(focalPoint),
-					upDirection: A2(
-						$elm$core$Maybe$withDefault,
-						$ianmackenzie$elm_geometry$Direction3d$positiveY,
-						A2(
-							$ianmackenzie$elm_geometry$Direction3d$from,
-							$ianmackenzie$elm_geometry$Point3d$origin,
-							$ianmackenzie$elm_geometry$Point3d$fromMeters(upDirection)))
+					groundPlane: $ianmackenzie$elm_geometry$SketchPlane3d$zx
 				})
 		});
 };
-var $avh4$elm_color$Color$scaleFrom255 = function (c) {
-	return c / 255;
+var $author$project$TheSomaCube$Main$camera = function (computer) {
+	return $author$project$Camera$perspectiveWithOrbit(
+		{
+			azimuth: A2($author$project$Playground$getFloat, 'camera azimuth', computer),
+			distance: A2($author$project$Playground$getFloat, 'camera distance', computer),
+			elevation: A2($author$project$Playground$getFloat, 'camera elevation', computer),
+			focalPoint: {x: 0.5, y: 1, z: 0}
+		});
 };
-var $avh4$elm_color$Color$rgb255 = F3(
-	function (r, g, b) {
-		return A4(
-			$avh4$elm_color$Color$RgbaSpace,
-			$avh4$elm_color$Color$scaleFrom255(r),
-			$avh4$elm_color$Color$scaleFrom255(g),
-			$avh4$elm_color$Color$scaleFrom255(b),
-			1.0);
-	});
 var $ianmackenzie$elm_geometry$Frame3d$copy = function (_v0) {
 	var properties = _v0.a;
 	return $ianmackenzie$elm_geometry$Geometry$Types$Frame3d(properties);
@@ -13671,6 +10778,10 @@ var $ianmackenzie$elm_units$Quantity$max = F2(
 		var y = _v1.a;
 		return $ianmackenzie$elm_units$Quantity$Quantity(
 			A2($elm$core$Basics$max, x, y));
+	});
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
 var $ianmackenzie$elm_units$Quantity$min = F2(
 	function (_v0, _v1) {
@@ -13809,9 +10920,26 @@ var $ianmackenzie$elm_geometry_linear_algebra_interop$Geometry$Interop$LinearAlg
 	return $elm_explorations$linear_algebra$Math$Vector3$fromRecord(
 		$ianmackenzie$elm_geometry$Vector3d$unwrap(vector));
 };
+var $ianmackenzie$elm_geometry$Vector3d$cross = F2(
+	function (_v0, _v1) {
+		var v2 = _v0.a;
+		var v1 = _v1.a;
+		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
+			{x: (v1.y * v2.z) - (v1.z * v2.y), y: (v1.z * v2.x) - (v1.x * v2.z), z: (v1.x * v2.y) - (v1.y * v2.x)});
+	});
+var $ianmackenzie$elm_geometry$Vector3d$from = F2(
+	function (_v0, _v1) {
+		var p1 = _v0.a;
+		var p2 = _v1.a;
+		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
+			{x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z});
+	});
 var $ianmackenzie$elm_units$Quantity$float = function (value) {
 	return $ianmackenzie$elm_units$Quantity$Quantity(value);
 };
+var $elm$core$Basics$sqrt = _Basics_sqrt;
+var $ianmackenzie$elm_geometry$Vector3d$zero = $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
+	{x: 0, y: 0, z: 0});
 var $ianmackenzie$elm_geometry$Vector3d$scaleTo = F2(
 	function (_v0, _v1) {
 		var q = _v0.a;
@@ -13890,9 +11018,6 @@ var $ianmackenzie$elm_geometry$Triangle3d$from = F3(
 		return $ianmackenzie$elm_geometry$Geometry$Types$Triangle3d(
 			_Utils_Tuple3(p1, p2, p3));
 	});
-var $ianmackenzie$elm_units$Length$meters = function (numMeters) {
-	return $ianmackenzie$elm_units$Quantity$Quantity(numMeters);
-};
 var $ianmackenzie$elm_units$Quantity$multiplyBy = F2(
 	function (scale, _v0) {
 		var value = _v0.a;
@@ -13977,7 +11102,6 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Mesh$collectShadowVertices = F3(
 				sv2,
 				A2($elm$core$List$cons, sv3, accumulated)));
 	});
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $ianmackenzie$elm_triangular_mesh$TriangularMesh$faceIndices = function (_v0) {
 	var mesh = _v0.a;
 	return mesh.faceIndices;
@@ -14121,6 +11245,17 @@ var $elm$core$List$all = F2(
 		return !A2(
 			$elm$core$List$any,
 			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
 			list);
 	});
 var $elm$core$Array$length = function (_v0) {
@@ -15732,25 +12867,9 @@ var $ianmackenzie$elm_geometry$Frame3d$isRightHanded = function (_v0) {
 	var a = $ianmackenzie$elm_geometry$Direction3d$xComponent(frame.xDirection);
 	return (((((((a * e) * i) + ((b * f) * g)) + ((c * d) * h)) - ((c * e) * g)) - ((b * d) * i)) - ((a * f) * h)) > 0;
 };
-var $ianmackenzie$elm_geometry$Frame3d$originPoint = function (_v0) {
-	var properties = _v0.a;
-	return properties.originPoint;
-};
 var $ianmackenzie$elm_geometry$Direction3d$unwrap = function (_v0) {
 	var coordinates = _v0.a;
 	return coordinates;
-};
-var $ianmackenzie$elm_geometry$Frame3d$xDirection = function (_v0) {
-	var properties = _v0.a;
-	return properties.xDirection;
-};
-var $ianmackenzie$elm_geometry$Frame3d$yDirection = function (_v0) {
-	var properties = _v0.a;
-	return properties.yDirection;
-};
-var $ianmackenzie$elm_geometry$Frame3d$zDirection = function (_v0) {
-	var properties = _v0.a;
-	return properties.zDirection;
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$placeIn = function (frame) {
 	var p0 = $ianmackenzie$elm_geometry$Point3d$unwrap(
@@ -16104,10 +13223,8 @@ var $ianmackenzie$elm_geometry$Direction3d$negativeY = $ianmackenzie$elm_geometr
 	{x: 0, y: -1, z: 0});
 var $ianmackenzie$elm_geometry$Direction3d$negativeZ = $ianmackenzie$elm_geometry$Direction3d$unsafe(
 	{x: 0, y: 0, z: -1});
-var $ianmackenzie$elm_geometry$Direction3d$positiveX = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{x: 1, y: 0, z: 0});
-var $ianmackenzie$elm_geometry$Direction3d$positiveZ = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{x: 0, y: 0, z: 1});
+var $ianmackenzie$elm_geometry$Direction3d$positiveY = $ianmackenzie$elm_geometry$Direction3d$unsafe(
+	{x: 0, y: 1, z: 0});
 var $ianmackenzie$elm_geometry$Block3d$axisAligned = F6(
 	function (x1, y1, z1, x2, y2, z2) {
 		var computedZDirection = A2($ianmackenzie$elm_units$Quantity$greaterThanOrEqualTo, z1, z2) ? $ianmackenzie$elm_geometry$Direction3d$positiveZ : $ianmackenzie$elm_geometry$Direction3d$negativeZ;
@@ -16163,51 +13280,387 @@ var $author$project$Scene$block = F2(
 				A3($ianmackenzie$elm_geometry$Point3d$meters, -hXDim, -hYDim, -hZDim),
 				A3($ianmackenzie$elm_geometry$Point3d$meters, hXDim, hYDim, hZDim)));
 	});
-var $ianmackenzie$elm_3d_scene$Scene3d$Types$Constant = function (a) {
-	return {$: 'Constant', a: a};
-};
-var $ianmackenzie$elm_3d_scene$Scene3d$Types$UnlitMaterial = F2(
-	function (a, b) {
-		return {$: 'UnlitMaterial', a: a, b: b};
-	});
-var $ianmackenzie$elm_3d_scene$Scene3d$Types$UseMeshUvs = {$: 'UseMeshUvs'};
-var $ianmackenzie$elm_3d_scene$Scene3d$Material$toVec3 = function (givenColor) {
-	var _v0 = $avh4$elm_color$Color$toRgba(givenColor);
-	var red = _v0.red;
-	var green = _v0.green;
-	var blue = _v0.blue;
-	return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, red, green, blue);
-};
-var $ianmackenzie$elm_3d_scene$Scene3d$Material$color = function (givenColor) {
-	return A2(
-		$ianmackenzie$elm_3d_scene$Scene3d$Types$UnlitMaterial,
-		$ianmackenzie$elm_3d_scene$Scene3d$Types$UseMeshUvs,
-		$ianmackenzie$elm_3d_scene$Scene3d$Types$Constant(
-			$ianmackenzie$elm_3d_scene$Scene3d$Material$toVec3(givenColor)));
-};
-var $author$project$GrowingSquares$Main$drawSquare = function (square) {
-	return A2(
-		$author$project$Scene$block,
-		$ianmackenzie$elm_3d_scene$Scene3d$Material$color(square.color),
-		_Utils_Tuple3(square.sideLength, square.sideLength, 1 / square.sideLength));
+var $elm$core$Basics$degrees = function (angleInDegrees) {
+	return (angleInDegrees * $elm$core$Basics$pi) / 180;
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$group = function (entities) {
 	return $ianmackenzie$elm_3d_scene$Scene3d$Entity$group(entities);
 };
 var $author$project$Scene$group = $ianmackenzie$elm_3d_scene$Scene3d$group;
-var $author$project$GrowingSquares$Main$squares = F2(
-	function (computer, model) {
-		return $author$project$Scene$group(
-			A2($elm$core$List$map, $author$project$GrowingSquares$Main$drawSquare, model));
+var $avh4$elm_color$Color$hsla = F4(
+	function (hue, sat, light, alpha) {
+		var _v0 = _Utils_Tuple3(hue, sat, light);
+		var h = _v0.a;
+		var s = _v0.b;
+		var l = _v0.c;
+		var m2 = (l <= 0.5) ? (l * (s + 1)) : ((l + s) - (l * s));
+		var m1 = (l * 2) - m2;
+		var hueToRgb = function (h__) {
+			var h_ = (h__ < 0) ? (h__ + 1) : ((h__ > 1) ? (h__ - 1) : h__);
+			return ((h_ * 6) < 1) ? (m1 + (((m2 - m1) * h_) * 6)) : (((h_ * 2) < 1) ? m2 : (((h_ * 3) < 2) ? (m1 + (((m2 - m1) * ((2 / 3) - h_)) * 6)) : m1));
+		};
+		var b = hueToRgb(h - (1 / 3));
+		var g = hueToRgb(h);
+		var r = hueToRgb(h + (1 / 3));
+		return A4($avh4$elm_color$Color$RgbaSpace, r, g, b, alpha);
 	});
-var $author$project$GrowingSquares$Main$shapes = F2(
-	function (computer, model) {
-		return _List_fromArray(
+var $avh4$elm_color$Color$hsl = F3(
+	function (h, s, l) {
+		return A4($avh4$elm_color$Color$hsla, h, s, l, 1.0);
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$Types$Constant = function (a) {
+	return {$: 'Constant', a: a};
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$Types$LambertianMaterial = F3(
+	function (a, b, c) {
+		return {$: 'LambertianMaterial', a: a, b: b, c: c};
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$Types$UseMeshUvs = {$: 'UseMeshUvs'};
+var $ianmackenzie$elm_3d_scene$Scene3d$Types$VerticalNormal = {$: 'VerticalNormal'};
+var $ianmackenzie$elm_3d_scene$Scene3d$Types$LinearRgb = function (a) {
+	return {$: 'LinearRgb', a: a};
+};
+var $elm$core$Basics$clamp = F3(
+	function (low, high, number) {
+		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$inverseGamma = function (u) {
+	return A3(
+		$elm$core$Basics$clamp,
+		0,
+		1,
+		(u <= 0.04045) ? (u / 12.92) : A2($elm$core$Basics$pow, (u + 0.055) / 1.055, 2.4));
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$colorToLinearRgb = function (color) {
+	var _v0 = $avh4$elm_color$Color$toRgba(color);
+	var red = _v0.red;
+	var green = _v0.green;
+	var blue = _v0.blue;
+	return $ianmackenzie$elm_3d_scene$Scene3d$Types$LinearRgb(
+		A3(
+			$elm_explorations$linear_algebra$Math$Vector3$vec3,
+			$ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$inverseGamma(red),
+			$ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$inverseGamma(green),
+			$ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$inverseGamma(blue)));
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$Material$matte = function (materialColor) {
+	return A3(
+		$ianmackenzie$elm_3d_scene$Scene3d$Types$LambertianMaterial,
+		$ianmackenzie$elm_3d_scene$Scene3d$Types$UseMeshUvs,
+		$ianmackenzie$elm_3d_scene$Scene3d$Types$Constant(
+			$ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$colorToLinearRgb(materialColor)),
+		$ianmackenzie$elm_3d_scene$Scene3d$Types$Constant($ianmackenzie$elm_3d_scene$Scene3d$Types$VerticalNormal));
+};
+var $ianmackenzie$elm_geometry$Vector3d$meters = F3(
+	function (x, y, z) {
+		return $ianmackenzie$elm_geometry$Geometry$Types$Vector3d(
+			{x: x, y: y, z: z});
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$translateBy = function (displacement) {
+	var v = $ianmackenzie$elm_geometry$Vector3d$unwrap(displacement);
+	return {isRightHanded: true, ix: 1, iy: 0, iz: 0, jx: 0, jy: 1, jz: 0, kx: 0, ky: 0, kz: 1, px: v.x, py: v.y, pz: v.z, scale: 1};
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$Entity$translateBy = F2(
+	function (displacement, givenDrawable) {
+		return A2(
+			$ianmackenzie$elm_3d_scene$Scene3d$Entity$transformBy,
+			$ianmackenzie$elm_3d_scene$Scene3d$Transformation$translateBy(displacement),
+			givenDrawable);
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$translateBy = F2(
+	function (displacement, entity) {
+		return A2($ianmackenzie$elm_3d_scene$Scene3d$Entity$translateBy, displacement, entity);
+	});
+var $author$project$Scene$move = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	var z = _v0.c;
+	return $ianmackenzie$elm_3d_scene$Scene3d$translateBy(
+		A3($ianmackenzie$elm_geometry$Vector3d$meters, x, y, z));
+};
+var $author$project$Scene$moveX = function (x) {
+	return $author$project$Scene$move(
+		_Utils_Tuple3(x, 0, 0));
+};
+var $author$project$Scene$moveZ = function (z) {
+	return $author$project$Scene$move(
+		_Utils_Tuple3(0, 0, z));
+};
+var $ianmackenzie$elm_geometry$Axis3d$originPoint = function (_v0) {
+	var axis = _v0.a;
+	return axis.originPoint;
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$rotateAround = F2(
+	function (axis, _v0) {
+		var angle = _v0.a;
+		var p0 = $ianmackenzie$elm_geometry$Point3d$unwrap(
+			$ianmackenzie$elm_geometry$Axis3d$originPoint(axis));
+		var halfAngle = 0.5 * angle;
+		var qw = $elm$core$Basics$cos(halfAngle);
+		var sinHalfAngle = $elm$core$Basics$sin(halfAngle);
+		var a = $ianmackenzie$elm_geometry$Direction3d$unwrap(
+			$ianmackenzie$elm_geometry$Axis3d$direction(axis));
+		var qx = a.x * sinHalfAngle;
+		var wx = qw * qx;
+		var xx = qx * qx;
+		var qy = a.y * sinHalfAngle;
+		var wy = qw * qy;
+		var xy = qx * qy;
+		var yy = qy * qy;
+		var a22 = 1 - (2 * (xx + yy));
+		var qz = a.z * sinHalfAngle;
+		var wz = qw * qz;
+		var a01 = 2 * (xy - wz);
+		var a10 = 2 * (xy + wz);
+		var xz = qx * qz;
+		var a02 = 2 * (xz + wy);
+		var a20 = 2 * (xz - wy);
+		var yz = qy * qz;
+		var a12 = 2 * (yz - wx);
+		var a21 = 2 * (yz + wx);
+		var zz = qz * qz;
+		var a00 = 1 - (2 * (yy + zz));
+		var a11 = 1 - (2 * (xx + zz));
+		return {isRightHanded: true, ix: a00, iy: a10, iz: a20, jx: a01, jy: a11, jz: a21, kx: a02, ky: a12, kz: a22, px: ((p0.x - (a00 * p0.x)) - (a01 * p0.y)) - (a02 * p0.z), py: ((p0.y - (a10 * p0.x)) - (a11 * p0.y)) - (a12 * p0.z), pz: ((p0.z - (a20 * p0.x)) - (a21 * p0.y)) - (a22 * p0.z), scale: 1};
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$Entity$rotateAround = F3(
+	function (axis, angle, givenDrawable) {
+		return A2(
+			$ianmackenzie$elm_3d_scene$Scene3d$Entity$transformBy,
+			A2($ianmackenzie$elm_3d_scene$Scene3d$Transformation$rotateAround, axis, angle),
+			givenDrawable);
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$rotateAround = F3(
+	function (axis, angle, entity) {
+		return A3($ianmackenzie$elm_3d_scene$Scene3d$Entity$rotateAround, axis, angle, entity);
+	});
+var $ianmackenzie$elm_geometry$Axis3d$x = A2($ianmackenzie$elm_geometry$Axis3d$through, $ianmackenzie$elm_geometry$Point3d$origin, $ianmackenzie$elm_geometry$Direction3d$x);
+var $author$project$Scene$rotateX = F2(
+	function (angle, shape) {
+		return A3(
+			$ianmackenzie$elm_3d_scene$Scene3d$rotateAround,
+			$ianmackenzie$elm_geometry$Axis3d$x,
+			$ianmackenzie$elm_units$Angle$radians(angle),
+			shape);
+	});
+var $ianmackenzie$elm_geometry$Direction3d$y = $ianmackenzie$elm_geometry$Direction3d$positiveY;
+var $ianmackenzie$elm_geometry$Axis3d$y = A2($ianmackenzie$elm_geometry$Axis3d$through, $ianmackenzie$elm_geometry$Point3d$origin, $ianmackenzie$elm_geometry$Direction3d$y);
+var $author$project$Scene$rotateY = F2(
+	function (angle, shape) {
+		return A3(
+			$ianmackenzie$elm_3d_scene$Scene3d$rotateAround,
+			$ianmackenzie$elm_geometry$Axis3d$y,
+			$ianmackenzie$elm_units$Angle$radians(angle),
+			shape);
+	});
+var $ianmackenzie$elm_geometry$Axis3d$z = A2($ianmackenzie$elm_geometry$Axis3d$through, $ianmackenzie$elm_geometry$Point3d$origin, $ianmackenzie$elm_geometry$Direction3d$z);
+var $author$project$Scene$rotateZ = F2(
+	function (angle, shape) {
+		return A3(
+			$ianmackenzie$elm_3d_scene$Scene3d$rotateAround,
+			$ianmackenzie$elm_geometry$Axis3d$z,
+			$ianmackenzie$elm_units$Angle$radians(angle),
+			shape);
+	});
+var $author$project$Playground$Animation$toFrac = F2(
+	function (period, time) {
+		return (time - ($elm$core$Basics$floor(time / period) * period)) / period;
+	});
+var $elm$core$Basics$turns = function (angleInTurns) {
+	return (2 * $elm$core$Basics$pi) * angleInTurns;
+};
+var $author$project$Playground$Animation$wave = F4(
+	function (lo, hi, period, time) {
+		return lo + (((hi - lo) * (1 + $elm$core$Basics$cos(
+			$elm$core$Basics$turns(
+				A2($author$project$Playground$Animation$toFrac, period, time))))) / 2);
+	});
+var $author$project$TheSomaCube$Main$drawBigCube = function (computer) {
+	var edgeWidth = A2($author$project$Playground$getFloat, 'edge width', computer);
+	var color = A3(
+		$avh4$elm_color$Color$hsl,
+		A4($author$project$Playground$Animation$wave, 0, 1, 7, computer.clock),
+		A2($author$project$Playground$getFloat, 'saturation', computer),
+		A2($author$project$Playground$getFloat, 'lightning', computer));
+	var edge = A2(
+		$author$project$Scene$block,
+		$ianmackenzie$elm_3d_scene$Scene3d$Material$matte(color),
+		_Utils_Tuple3(edgeWidth, 3 + edgeWidth, edgeWidth));
+	var edgesParallelToYAxis = $author$project$Scene$group(
+		_List_fromArray(
 			[
-				A2($author$project$GrowingSquares$Main$squares, computer, model)
-			]);
+				A2(
+				$author$project$Scene$moveX,
+				1.5,
+				A2($author$project$Scene$moveZ, 1.5, edge)),
+				A2(
+				$author$project$Scene$rotateY,
+				$elm$core$Basics$degrees(90),
+				A2(
+					$author$project$Scene$moveX,
+					1.5,
+					A2($author$project$Scene$moveZ, 1.5, edge))),
+				A2(
+				$author$project$Scene$rotateY,
+				$elm$core$Basics$degrees(180),
+				A2(
+					$author$project$Scene$moveX,
+					1.5,
+					A2($author$project$Scene$moveZ, 1.5, edge))),
+				A2(
+				$author$project$Scene$rotateY,
+				$elm$core$Basics$degrees(270),
+				A2(
+					$author$project$Scene$moveX,
+					1.5,
+					A2($author$project$Scene$moveZ, 1.5, edge)))
+			]));
+	return $author$project$Scene$group(
+		_List_fromArray(
+			[
+				edgesParallelToYAxis,
+				A2(
+				$author$project$Scene$rotateX,
+				$elm$core$Basics$degrees(90),
+				edgesParallelToYAxis),
+				A2(
+				$author$project$Scene$rotateZ,
+				$elm$core$Basics$degrees(90),
+				edgesParallelToYAxis)
+			]));
+};
+var $author$project$Scene$cube = F2(
+	function (material_, width) {
+		var hw = width / 2;
+		return A2(
+			$ianmackenzie$elm_3d_scene$Scene3d$blockWithShadow,
+			material_,
+			A2(
+				$ianmackenzie$elm_geometry$Block3d$from,
+				A3($ianmackenzie$elm_geometry$Point3d$meters, -hw, -hw, -hw),
+				A3($ianmackenzie$elm_geometry$Point3d$meters, hw, hw, hw)));
 	});
-var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Scene$moveY = function (y) {
+	return $author$project$Scene$move(
+		_Utils_Tuple3(0, y, 0));
+};
+var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$scaleAbout = F2(
+	function (point, k) {
+		var p = $ianmackenzie$elm_geometry$Point3d$unwrap(point);
+		var oneMinusK = 1 - k;
+		return {isRightHanded: k >= 0, ix: 1, iy: 0, iz: 0, jx: 0, jy: 1, jz: 0, kx: 0, ky: 0, kz: 1, px: oneMinusK * p.x, py: oneMinusK * p.y, pz: oneMinusK * p.z, scale: k};
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$Entity$scaleAbout = F3(
+	function (centerPoint, scale, givenDrawable) {
+		return A2(
+			$ianmackenzie$elm_3d_scene$Scene3d$Entity$transformBy,
+			A2($ianmackenzie$elm_3d_scene$Scene3d$Transformation$scaleAbout, centerPoint, scale),
+			givenDrawable);
+	});
+var $ianmackenzie$elm_3d_scene$Scene3d$scaleAbout = F3(
+	function (centerPoint, scale, entity) {
+		return A3($ianmackenzie$elm_3d_scene$Scene3d$Entity$scaleAbout, centerPoint, scale, entity);
+	});
+var $author$project$Scene$scale = $ianmackenzie$elm_3d_scene$Scene3d$scaleAbout($ianmackenzie$elm_geometry$Point3d$origin);
+var $author$project$TheSomaCube$Main$drawCube = F3(
+	function (computer, color, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var z = _v0.c;
+		return A2(
+			$author$project$Scene$moveZ,
+			z,
+			A2(
+				$author$project$Scene$moveY,
+				y,
+				A2(
+					$author$project$Scene$moveX,
+					x,
+					A2(
+						$author$project$Scene$scale,
+						A2($author$project$Playground$getFloat, 'cube scale', computer),
+						A2(
+							$author$project$Scene$cube,
+							$ianmackenzie$elm_3d_scene$Scene3d$Material$matte(color),
+							1)))));
+	});
+var $author$project$TheSomaCube$Main$drawPiece = F3(
+	function (computer, color, piece) {
+		var _v0 = piece.rotation_in_90;
+		var rotX = _v0.a;
+		var rotY = _v0.b;
+		var rotZ = _v0.c;
+		var _v1 = piece.position;
+		var posX = _v1.a;
+		var posY = _v1.b;
+		var posZ = _v1.c;
+		return A2(
+			$author$project$Scene$moveZ,
+			posZ,
+			A2(
+				$author$project$Scene$moveY,
+				posY,
+				A2(
+					$author$project$Scene$moveX,
+					posX,
+					A2(
+						$author$project$Scene$rotateZ,
+						rotZ * $elm$core$Basics$degrees(90),
+						A2(
+							$author$project$Scene$rotateY,
+							rotY * $elm$core$Basics$degrees(90),
+							A2(
+								$author$project$Scene$rotateX,
+								rotX * $elm$core$Basics$degrees(90),
+								$author$project$Scene$group(
+									A2(
+										$elm$core$List$map,
+										A2($author$project$TheSomaCube$Main$drawCube, computer, color),
+										piece.cubesInLocalCoordinates))))))));
+	});
+var $avh4$elm_color$Color$gray = A4($avh4$elm_color$Color$RgbaSpace, 211 / 255, 215 / 255, 207 / 255, 1.0);
+var $author$project$TheSomaCube$Palette$get = F2(
+	function (index, palette) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			$avh4$elm_color$Color$gray,
+			A2(
+				$elm$core$Array$get,
+				A2(
+					$elm$core$Basics$modBy,
+					$elm$core$Array$length(palette),
+					index),
+				palette));
+	});
+var $author$project$TheSomaCube$Palette$palette1 = function (computer) {
+	var n = 8;
+	var col = function (i) {
+		return A3(
+			$avh4$elm_color$Color$hsl,
+			i / n,
+			A2($author$project$Playground$getFloat, 'saturation', computer),
+			A2($author$project$Playground$getFloat, 'lightning', computer));
+	};
+	return $elm$core$Array$fromList(
+		A2(
+			$elm$core$List$map,
+			col,
+			A2($elm$core$List$range, 0, n)));
+};
+var $author$project$TheSomaCube$Main$drawPieces = F2(
+	function (computer, model) {
+		var drawPieceWithColor = function (pieceIndex) {
+			return A2(
+				$author$project$TheSomaCube$Main$drawPiece,
+				computer,
+				A2(
+					$author$project$TheSomaCube$Palette$get,
+					pieceIndex,
+					$author$project$TheSomaCube$Palette$palette1(computer)));
+		};
+		return $author$project$Scene$group(
+			A2($elm$core$List$indexedMap, drawPieceWithColor, model.world.pieces));
+	});
 var $ianmackenzie$elm_3d_scene$Scene3d$BackgroundColor = function (a) {
 	return {$: 'BackgroundColor', a: a};
 };
@@ -16322,9 +13775,6 @@ var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$chromaticityToCieXyz = F
 		var y = _v1.a.y;
 		return A3($ianmackenzie$elm_3d_scene$Scene3d$Types$CieXyz, (intensity * x) / y, intensity, (intensity * ((1 - x) - y)) / y);
 	});
-var $ianmackenzie$elm_3d_scene$Scene3d$Types$LinearRgb = function (a) {
-	return {$: 'LinearRgb', a: a};
-};
 var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$cieXyzToLinearRgb = function (_v0) {
 	var bigX = _v0.a;
 	var bigY = _v0.b;
@@ -16866,6 +14316,7 @@ var $ianmackenzie$elm_units$Length$inMeters = function (_v0) {
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$initStencil = $ianmackenzie$elm_3d_scene$Scene3d$updateStencil(
 	{fail: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace, mask: 0, ref: $ianmackenzie$elm_3d_scene$Scene3d$initialStencilCount, test: $elm_explorations$webgl$WebGL$Settings$StencilTest$always, writeMask: 255, zfail: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace, zpass: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace});
+var $ianmackenzie$elm_units$Quantity$zero = $ianmackenzie$elm_units$Quantity$Quantity(0);
 var $ianmackenzie$elm_geometry$Vector3d$length = function (_v0) {
 	var v = _v0.a;
 	var largestComponent = A2(
@@ -16905,10 +14356,6 @@ var $ianmackenzie$elm_3d_scene$Scene3d$lightingDisabled = _Utils_Tuple2(
 		lights78: A2($ianmackenzie$elm_3d_scene$Scene3d$lightPair, $ianmackenzie$elm_3d_scene$Scene3d$Light$disabled, $ianmackenzie$elm_3d_scene$Scene3d$Light$disabled)
 	},
 	A4($elm_explorations$linear_algebra$Math$Vector4$vec4, 0, 0, 0, 0));
-var $ianmackenzie$elm_units$Quantity$negate = function (_v0) {
-	var value = _v0.a;
-	return $ianmackenzie$elm_units$Quantity$Quantity(-value);
-};
 var $elm_explorations$webgl$WebGL$Settings$StencilTest$equal = $elm_explorations$webgl$WebGL$Settings$StencilTest$Test(514);
 var $elm_explorations$webgl$WebGL$Settings$DepthTest$lessOrEqual = function (_v0) {
 	var write = _v0.write;
@@ -16997,9 +14444,6 @@ var $ianmackenzie$elm_3d_camera$Viewpoint3d$viewDirection = function (_v0) {
 	return $ianmackenzie$elm_geometry$Direction3d$reverse(
 		$ianmackenzie$elm_geometry$Frame3d$zDirection(frame));
 };
-var $ianmackenzie$elm_geometry$Direction3d$x = $ianmackenzie$elm_geometry$Direction3d$positiveX;
-var $ianmackenzie$elm_geometry$Direction3d$y = $ianmackenzie$elm_geometry$Direction3d$positiveY;
-var $ianmackenzie$elm_geometry$Direction3d$z = $ianmackenzie$elm_geometry$Direction3d$positiveZ;
 var $ianmackenzie$elm_geometry$Frame3d$atOrigin = $ianmackenzie$elm_geometry$Geometry$Types$Frame3d(
 	{originPoint: $ianmackenzie$elm_geometry$Point3d$origin, xDirection: $ianmackenzie$elm_geometry$Direction3d$x, yDirection: $ianmackenzie$elm_geometry$Direction3d$y, zDirection: $ianmackenzie$elm_geometry$Direction3d$z});
 var $ianmackenzie$elm_geometry_linear_algebra_interop$Geometry$Interop$LinearAlgebra$Frame3d$toMat4 = function (frame) {
@@ -17350,6 +14794,12 @@ var $ianmackenzie$elm_units$Illuminance$lux = function (numLux) {
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$NoToneMapping = {$: 'NoToneMapping'};
 var $ianmackenzie$elm_3d_scene$Scene3d$noToneMapping = $ianmackenzie$elm_3d_scene$Scene3d$NoToneMapping;
+var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
+	function (_v0, _v1) {
+		var y = _v0.a;
+		var x = _v1.a;
+		return _Utils_cmp(x, y) > 0;
+	});
 var $ianmackenzie$elm_units$Illuminance$inLux = function (_v0) {
 	var numLux = _v0.a;
 	return numLux;
@@ -17406,10 +14856,6 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Light$overhead = function (_arguments) {
 	return $ianmackenzie$elm_3d_scene$Scene3d$Light$soft(
 		{chromaticity: _arguments.chromaticity, intensityAbove: _arguments.intensity, intensityBelow: $ianmackenzie$elm_units$Quantity$zero, upDirection: _arguments.upDirection});
 };
-var $elm$core$Basics$clamp = F3(
-	function (low, high, number) {
-		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
-	});
 var $ianmackenzie$elm_units$Temperature$inKelvins = function (_v0) {
 	var numKelvins = _v0.a;
 	return numKelvins;
@@ -17600,31 +15046,47 @@ var $author$project$Scene$sunny = F2(
 				upDirection: $ianmackenzie$elm_geometry$Direction3d$z
 			});
 	});
-var $author$project$GrowingSquares$Main$view = F2(
+var $author$project$TheSomaCube$Main$viewShapes = F2(
 	function (computer, model) {
 		return A2(
 			$author$project$Scene$sunny,
 			{
-				backgroundColor: A3($avh4$elm_color$Color$rgb255, 46, 46, 46),
-				camera: $author$project$Camera$perspective(
-					{
-						eyePoint: {
-							x: $elm$core$Basics$sin(computer.clock),
-							y: -2,
-							z: 4
-						},
-						focalPoint: {x: 0, y: 0, z: 0},
-						upDirection: {x: 0, y: 0, z: 1}
-					}),
+				backgroundColor: A4($avh4$elm_color$Color$rgba, 0, 0, 0, 0),
+				camera: $author$project$TheSomaCube$Main$camera(computer),
 				devicePixelRatio: computer.devicePixelRatio,
 				screen: computer.screen,
-				sunlightAzimuth: -$elm$core$Basics$degrees(20),
-				sunlightElevation: -$elm$core$Basics$degrees(45)
+				sunlightAzimuth: A2($author$project$Playground$getFloat, 'sunlight azimuth', computer),
+				sunlightElevation: A2($author$project$Playground$getFloat, 'sunlight elevation', computer)
 			},
-			A2($author$project$GrowingSquares$Main$shapes, computer, model));
+			_List_fromArray(
+				[
+					A2($author$project$TheSomaCube$Main$drawPieces, computer, model),
+					$author$project$TheSomaCube$Main$drawBigCube(computer)
+				]));
 	});
-var $author$project$GrowingSquares$Main$main = A3($author$project$Playground$game, $author$project$GrowingSquares$Main$view, $author$project$GrowingSquares$Main$update, $author$project$GrowingSquares$Main$init);
-_Platform_export({'GrowingSquares':{'Main':{'init':$author$project$GrowingSquares$Main$main(
+var $author$project$TheSomaCube$Main$view = F2(
+	function (computer, model) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+							A2($elm$html$Html$Attributes$style, 'width', '100%')
+						]),
+					_List_fromArray(
+						[
+							A2($author$project$TheSomaCube$Main$explanationText, computer, model)
+						])),
+					A2($author$project$TheSomaCube$Main$viewShapes, computer, model)
+				]));
+	});
+var $author$project$TheSomaCube$Main$main = A4($author$project$Playground$gameWithConfigurations, $author$project$TheSomaCube$Main$view, $author$project$TheSomaCube$Main$update, $author$project$TheSomaCube$Main$initialConfigurations, $author$project$TheSomaCube$Main$init);
+_Platform_export({'TheSomaCube':{'Main':{'init':$author$project$TheSomaCube$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (inputs) {

@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.2";
   var TARGET_NAME = "TheSomaCube";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1688322089914"
+    "1688322672837"
   );
   var ORIGINAL_COMPILATION_MODE = "proxy";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";

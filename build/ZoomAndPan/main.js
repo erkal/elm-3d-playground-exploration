@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.2";
   var TARGET_NAME = "ZoomAndPan";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1688322089915"
+    "1688322672838"
   );
   var ORIGINAL_COMPILATION_MODE = "proxy";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";

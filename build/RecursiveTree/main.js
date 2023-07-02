@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.2";
   var TARGET_NAME = "RecursiveTree";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1688322089913"
+    "1688322672835"
   );
   var ORIGINAL_COMPILATION_MODE = "proxy";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";
