@@ -1,4 +1,4 @@
-This is an experimental playground for making games with elm.
+This is an experimental playground for making games with [Elm](https://elm-lang.org/).
 It is a modification of [evancz/elm-playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/) where elm/svg is replaced by [ianmackenzie/elm-3d-scene](https://package.elm-lang.org/packages/ianmackenzie/elm-3d-scene/latest/).
 
 ## [Click here to see the examples](https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html)
