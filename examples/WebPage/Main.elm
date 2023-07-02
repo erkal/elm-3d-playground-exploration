@@ -1,8 +1,7 @@
 module WebPage.Main exposing (main)
 
-import Color exposing (white)
 import Html exposing (Html, a, div, h2, i, img, span, text)
-import Html.Attributes exposing (class, href, src, target)
+import Html.Attributes exposing (class, href, src)
 import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor)
 
 
@@ -87,11 +86,31 @@ viewExamples : Computer -> Model -> Html EditorMsg
 viewExamples computer model =
     div
         [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
-        [ viewExample "Carousel"
-        , viewExample "Carousel"
-        , viewExample "Carousel"
-        , viewExample "Carousel"
-        ]
+        (List.map viewExample
+            [ "BallGame"
+            , "Carousel"
+            , "ColorShower"
+            , "DancingCubes"
+            , "GooeyEffect"
+            , "GrowingSquares"
+            , "HappyBirthdayAndrey"
+            , "IsomorphismGame"
+            , "JohnHarrisEightRollingCubes"
+            , "MultipleShadowsFromIanMackenzie"
+            , "PlanetarySystem"
+            , "RecursiveRotation"
+            , "RecursiveTree"
+            , "RedFacedCube"
+            , "RotatingBlocks"
+            , "Template"
+            , "TemplateWithConfigs"
+            , "TheSomaCube"
+            , "TrixelEditor"
+            , "TurningBlocks"
+            , "WaveInWave"
+            , "ZoomAndPan"
+            ]
+        )
 
 
 viewExample : String -> Html EditorMsg
@@ -125,5 +144,5 @@ viewExample exampleName =
             , href sourceCodeLink
             ]
             [ text "Source code" ]
-        , div [ class "mt-2 text-sm text-white" ] [ text "Here goes the longer description for your example that should fit well without stretching the cards too much. Adjust text size to fit more content, if necessary." ]
+        , div [ class "mt-2 text-sm text-white" ] [ text "TODO: Write a description here" ]
         ]

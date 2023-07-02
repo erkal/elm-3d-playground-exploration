@@ -54,7 +54,7 @@ view computer model =
                     }
                 , upDirection = { x = 0, y = 1, z = 0 }
                 }
-        , backgroundColor = rgba 0 0 0 0
+        , backgroundColor = hsl 0.6 0.5 0.2
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
