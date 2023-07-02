@@ -8199,7 +8199,6 @@ var $author$project$WebPage$Main$updateFromEditor = F3(
 		return model;
 	});
 var $elm$html$Html$span = _VirtualDom_node('span');
-var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$i = _VirtualDom_node('i');
 var $elm$html$Html$img = _VirtualDom_node('img');
 var $elm$html$Html$Attributes$src = function (url) {
@@ -8222,16 +8221,6 @@ var $author$project$WebPage$Main$viewExample = F2(
 				]),
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$h2,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('text-2xl font-semibold mb-4 text-white')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text(exampleName)
-						])),
 					A2(
 					$elm$html$Html$a,
 					_List_fromArray(
