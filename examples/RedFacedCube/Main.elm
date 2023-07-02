@@ -18,6 +18,7 @@ import RedFacedCube.Editor as Editor exposing (Editor)
 import RedFacedCube.HardcodedLevels exposing (hardcodedLevels)
 import RedFacedCube.Path as Path exposing (Path)
 import RedFacedCube.Swipe as Swipe exposing (Swipe)
+import RedFacedCube.Wall exposing (Wall(..), WallDirection(..))
 import RedFacedCube.World as World exposing (RollResultForLevelEditing(..), Rule(..), StepResult(..), World)
 import RedFacedCube.World.Decode
 import RedFacedCube.World.Encode
@@ -29,7 +30,6 @@ import Svg exposing (svg)
 import Svg.Attributes as SA
 import Temperature
 import Tools.Pages as Pages exposing (Pages)
-import Wall exposing (Wall(..), WallDirection(..))
 
 
 

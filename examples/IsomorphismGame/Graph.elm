@@ -20,7 +20,7 @@ module IsomorphismGame.Graph exposing
     )
 
 import Dict exposing (Dict)
-import GeometryHelpers exposing (Point, distanceXY)
+import IsomorphismGame.GeometryHelpers exposing (Point, distanceXY)
 import Set exposing (Set)
 
 

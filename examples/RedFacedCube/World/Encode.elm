@@ -1,10 +1,10 @@
 module RedFacedCube.World.Encode exposing (encodeWorld)
 
-import Cell exposing (Cell)
-import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import Json.Encode as Encode exposing (Value)
-import Path exposing (Path)
-import World exposing (World)
+import RedFacedCube.Cell exposing (Cell)
+import RedFacedCube.Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
+import RedFacedCube.Path exposing (Path)
+import RedFacedCube.World exposing (World)
 
 
 

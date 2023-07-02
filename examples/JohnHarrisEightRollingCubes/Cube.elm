@@ -1,4 +1,4 @@
-module HohnHarrisEightRollingCubes.Cube exposing (..)
+module JohnHarrisEightRollingCubes.Cube exposing (..)
 
 
 type Cube

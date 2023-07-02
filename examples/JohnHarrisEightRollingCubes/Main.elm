@@ -1,12 +1,12 @@
-module HohnHarrisEightRollingCubes.Main exposing (main)
+module JohnHarrisEightRollingCubes.Main exposing (main)
 
 import Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Color exposing (rgb255, rgba)
-import Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import Dict
-import HohnHarrisEightRollingCubes.World exposing (RollResult(..), World)
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (class, style)
+import JohnHarrisEightRollingCubes.Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
+import JohnHarrisEightRollingCubes.World as World exposing (RollResult(..), World)
 import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)

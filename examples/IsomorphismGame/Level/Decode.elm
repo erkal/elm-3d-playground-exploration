@@ -1,10 +1,10 @@
 module IsomorphismGame.Level.Decode exposing (decoder)
 
 import Geometry
-import Graph exposing (VertexId)
+import IsomorphismGame.Graph as Graph exposing (VertexId)
+import IsomorphismGame.Level as Level exposing (BaseGraph, Level, Level_PreEncoded, PlayerGraph, PlayerGraphVertexData)
 import Json.Decode exposing (Decoder, Error, Value)
 import Json.Decode.Pipeline exposing (required)
-import Level exposing (BaseGraph, Level, Level_PreEncoded, PlayerGraph, PlayerGraphVertexData)
 import Set exposing (Set(..))
 
 

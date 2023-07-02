@@ -1,6 +1,6 @@
-module HohnHarrisEightRollingCubes.World exposing (..)
+module JohnHarrisEightRollingCubes.World exposing (..)
 
-import HohnHarrisEightRollingCubes.Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
+import JohnHarrisEightRollingCubes.Cube as Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 
 
 type alias World =

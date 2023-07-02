@@ -1,7 +1,7 @@
 module RedFacedCube.Path exposing (..)
 
-import RedFacedCube.Cell exposing (Cell)
-import RedFacedCube.Wall exposing (Wall(..), WallDirection(..))
+import RedFacedCube.Cell as Cell exposing (Cell)
+import RedFacedCube.Wall as Wall exposing (Wall(..), WallDirection(..))
 
 
 type alias Path =

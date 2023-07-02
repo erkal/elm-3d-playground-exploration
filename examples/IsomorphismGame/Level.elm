@@ -1,7 +1,7 @@
 module IsomorphismGame.Level exposing (..)
 
 import Geometry exposing (Point)
-import Graph exposing (Graph(..), Graph_PreEncoded, VertexId, insertEdge, insertVertex)
+import IsomorphismGame.Graph as Graph exposing (Graph(..), Graph_PreEncoded, VertexId, insertEdge, insertVertex)
 
 
 type alias Level =

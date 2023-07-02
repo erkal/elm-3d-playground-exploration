@@ -1,6 +1,6 @@
 module RedFacedCube.Editor exposing (..)
 
-import Path exposing (Path)
+import RedFacedCube.Path exposing (Path)
 
 
 type alias Editor =

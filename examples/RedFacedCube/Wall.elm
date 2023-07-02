@@ -1,6 +1,6 @@
-module Wall exposing (..)
+module RedFacedCube.Wall exposing (..)
 
-import RedFacedCube.Cell exposing (Cell, RollDirection(..))
+import RedFacedCube.Cell as Cell exposing (Cell, RollDirection(..))
 
 
 type Wall

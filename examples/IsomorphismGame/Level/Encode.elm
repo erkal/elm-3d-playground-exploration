@@ -1,9 +1,9 @@
 module IsomorphismGame.Level.Encode exposing (encode)
 
 import Geometry
-import Graph exposing (Graph_PreEncoded, VertexData, VertexId)
+import IsomorphismGame.Graph as Graph exposing (Graph_PreEncoded, VertexData, VertexId)
+import IsomorphismGame.Level as Level exposing (BaseGraph, Level, Level_PreEncoded)
 import Json.Encode exposing (Value)
-import Level exposing (BaseGraph, Level, Level_PreEncoded)
 
 
 encode : Level -> Value

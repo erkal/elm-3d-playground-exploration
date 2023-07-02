@@ -2,13 +2,13 @@ module IsomorphismGame.Main exposing (main)
 
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (blue, green, lightBlue, red, rgb255, white, yellow)
-import HardcodedLevels exposing (hardcodedLevels)
 import Html exposing (Html, button, div, input, p, pre, span, text, textarea)
 import Html.Attributes exposing (checked, class, cols, for, id, name, rows, style, type_, value)
 import Html.Events exposing (onClick)
 import Illuminance
 import IsomorphismGame.GeometryHelpers as GeometryHelpers exposing (Point, lerp)
 import IsomorphismGame.Graph as Graph exposing (Graph, VertexData, VertexId)
+import IsomorphismGame.HardcodedLevels exposing (hardcodedLevels)
 import IsomorphismGame.Level as Level exposing (BaseGraph, Level, PlayerGraph)
 import IsomorphismGame.Level.Decode
 import IsomorphismGame.Level.Encode

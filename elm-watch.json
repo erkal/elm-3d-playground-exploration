@@ -42,17 +42,17 @@
       ],
       "output": "build/HappyBirthdayAndrey/main.js"
     },
-    "HohnHarrisEightRollingCubes": {
-      "inputs": [
-        "examples/HohnHarrisEightRollingCubes/Main.elm"
-      ],
-      "output": "build/HohnHarrisEightRollingCubes/main.js"
-    },
     "IsomorphismGame": {
       "inputs": [
         "examples/IsomorphismGame/Main.elm"
       ],
       "output": "build/IsomorphismGame/main.js"
+    },
+    "JohnHarrisEightRollingCubes": {
+      "inputs": [
+        "examples/JohnHarrisEightRollingCubes/Main.elm"
+      ],
+      "output": "build/JohnHarrisEightRollingCubes/main.js"
     },
     "MultipleShadowsFromIanMackenzie": {
       "inputs": [
