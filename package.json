@@ -16,6 +16,7 @@
     "concurrently": "^8.2.0",
     "elm-tooling": "^1.14.0",
     "elm-watch": "^1.1.2",
+    "gh-pages": "^5.0.0",
     "http-server": "^14.1.1",
     "prettier": "^2.8.8",
     "tailwindcss": "^3.3.2"
