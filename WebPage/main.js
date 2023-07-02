@@ -7962,7 +7962,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
@@ -8208,96 +8208,97 @@ var $elm$html$Html$Attributes$src = function (url) {
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
-var $author$project$WebPage$Main$viewExample = function (exampleName) {
-	var sourceCodeLink = 'https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/' + exampleName;
-	var imageLink = '../' + (exampleName + '/image.png');
-	var exampleLink = '../' + (exampleName + '/index.html');
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl'),
-				$elm$html$Html$Attributes$class('bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$h2,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('text-xl font-semibold mb-4 text-white')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(exampleName)
-					])),
-				A2(
-				$elm$html$Html$a,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$href(exampleLink),
-						$elm$html$Html$Attributes$target('_blank')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('relative cursor-pointer group')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$img,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$src(imageLink),
-										$elm$html$Html$Attributes$class('rounded-xl transition-all duration-300 hover:opacity-75')
-									]),
-								_List_Nil),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$i,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$class('fas fa-expand')
-											]),
-										_List_Nil)
-									]))
-							]))
-					])),
-				A2(
-				$elm$html$Html$a,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg'),
-						$elm$html$Html$Attributes$href(sourceCodeLink),
-						$elm$html$Html$Attributes$target('_blank')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Source code')
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('mt-2 text-sm text-white')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('TODO: Write a description here')
-					]))
-			]));
-};
+var $author$project$WebPage$Main$viewExample = F2(
+	function (exampleName, descriptionText) {
+		var sourceCodeLink = 'https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/' + exampleName;
+		var imageLink = '../' + (exampleName + '/image.png');
+		var exampleLink = '../' + (exampleName + '/index.html');
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl'),
+					$elm$html$Html$Attributes$class('bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$h2,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-2xl font-semibold mb-4 text-white')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(exampleName)
+						])),
+					A2(
+					$elm$html$Html$a,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$href(exampleLink),
+							$elm$html$Html$Attributes$target('_blank')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('relative cursor-pointer group')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$img,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$src(imageLink),
+											$elm$html$Html$Attributes$class('rounded-xl transition-all duration-300 hover:opacity-75')
+										]),
+									_List_Nil),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$i,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$class('fas fa-expand')
+												]),
+											_List_Nil)
+										]))
+								]))
+						])),
+					A2(
+					$elm$html$Html$a,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg'),
+							$elm$html$Html$Attributes$href(sourceCodeLink),
+							$elm$html$Html$Attributes$target('_blank')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Source code')
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('mt-2 text-white')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(descriptionText)
+						]))
+				]));
+	});
 var $author$project$WebPage$Main$viewExamples = F2(
 	function (computer, model) {
 		return A2(
@@ -8306,11 +8307,28 @@ var $author$project$WebPage$Main$viewExamples = F2(
 				[
 					$elm$html$Html$Attributes$class('grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8')
 				]),
-			A2(
-				$elm$core$List$map,
-				$author$project$WebPage$Main$viewExample,
-				_List_fromArray(
-					['BallGame', 'Carousel', 'ColorShower', 'DancingCubes', 'GooeyEffect', 'GrowingSquares', 'HappyBirthdayAndrey', 'IsomorphismGame', 'JohnHarrisEightRollingCubes', 'MultipleShadowsFromIanMackenzie', 'PlanetarySystem', 'RecursiveRotation', 'RecursiveTree', 'RedFacedCube', 'RotatingBlocks', 'Template', 'TemplateWithConfigs', 'TheSomaCube', 'TrixelEditor', 'TurningBlocks', 'WaveInWave', 'ZoomAndPan'])));
+			_List_fromArray(
+				[
+					A2($author$project$WebPage$Main$viewExample, 'TrixelEditor', 'A trixel editor with zoom and pan.'),
+					A2($author$project$WebPage$Main$viewExample, 'RedFacedCube', 'One of the puzzles from Martin Gardner\'s column. The solution is unique!'),
+					A2($author$project$WebPage$Main$viewExample, 'WaveInWave', 'A Creative coding example.'),
+					A2($author$project$WebPage$Main$viewExample, 'ColorShower', 'A Creative coding example.'),
+					A2($author$project$WebPage$Main$viewExample, 'DancingCubes', 'A Creative coding example.'),
+					A2($author$project$WebPage$Main$viewExample, 'BallGame', 'Continuous collision detection for 2d sphere to polygon. Roll the ball with arrow keys.'),
+					A2($author$project$WebPage$Main$viewExample, 'Carousel', 'A carousel that works with mouse, keyboard and touch.'),
+					A2($author$project$WebPage$Main$viewExample, 'HappyBirthdayAndrey', 'This was a birthday card made for Andrey Kuzmin.'),
+					A2($author$project$WebPage$Main$viewExample, 'IsomorphismGame', 'A prototype for a game on graph isomorphism.'),
+					A2($author$project$WebPage$Main$viewExample, 'JohnHarrisEightRollingCubes', 'One of the puzzles from Martin Gardner\'s column.'),
+					A2($author$project$WebPage$Main$viewExample, 'MultipleShadowsFromIanMackenzie', 'Using the lighting from an example by Ian Mackenzie.'),
+					A2($author$project$WebPage$Main$viewExample, 'PlanetarySystem', 'Simple example for grouping objects.'),
+					A2($author$project$WebPage$Main$viewExample, 'RecursiveRotation', 'Simple example for recursion.'),
+					A2($author$project$WebPage$Main$viewExample, 'RecursiveTree', 'Simple example for recursion.'),
+					A2($author$project$WebPage$Main$viewExample, 'TheSomaCube', 'Just a start for a puzzle game. It is not working yet.'),
+					A2($author$project$WebPage$Main$viewExample, 'GooeyEffect', 'An example showing the use of GLSL shaders.'),
+					A2($author$project$WebPage$Main$viewExample, 'GrowingSquares', 'A Creative coding example.'),
+					A2($author$project$WebPage$Main$viewExample, 'TurningBlocks', 'A Creative coding example.'),
+					A2($author$project$WebPage$Main$viewExample, 'ZoomAndPan', 'Figma quality zoom and pan implemented in Elm.')
+				]));
 	});
 var $author$project$WebPage$Main$viewEditor = F2(
 	function (computer, model) {

@@ -9817,7 +9817,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
@@ -10221,78 +10221,6 @@ var $author$project$TheSomaCube$Main$initialConfigurations = _List_fromArray(
 var $author$project$TheSomaCube$Main$update = F2(
 	function (computer, model) {
 		return model;
-	});
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $author$project$TheSomaCube$Main$explanationText = F2(
-	function (computer, model) {
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'min-width', '320px'),
-					A2($elm$html$Html$Attributes$style, 'max-width', '500px'),
-					A2($elm$html$Html$Attributes$style, 'margin', '0 auto')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('m-2 text-center')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('The Soma Cube')
-						])),
-					A2(
-					$elm$html$Html$p,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('p-2 text-xs')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A2($elm$html$Html$Attributes$style, 'color', 'darkred')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Following controls are not implemented yet')
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Space Key to chose the next piece')
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Arrow keys to rotate the cube')
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('WASDQE to move the cube')
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Shift + Arrow Keys to rotate the camera')
-								]))
-						]))
-				]));
 	});
 var $author$project$Playground$Configurations$getFloatFromBlock = F2(
 	function (key, block) {
@@ -14946,12 +14874,58 @@ var $author$project$TheSomaCube$Main$view = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
-							A2($elm$html$Html$Attributes$style, 'width', '100%')
+							$elm$html$Html$Attributes$class('fixed ml-[340px]')
 						]),
 					_List_fromArray(
 						[
-							A2($author$project$TheSomaCube$Main$explanationText, computer, model)
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('text-2xl my-4')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('The Soma Cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'color', 'darkred')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('(These controls are not implemented yet)')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Space Key to chose the next piece')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Arrow keys to rotate the cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('WASDQE to move the cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Shift + Arrow Keys to rotate the camera')
+								]))
 						])),
 					A2($author$project$TheSomaCube$Main$viewShapes, computer, model)
 				]));

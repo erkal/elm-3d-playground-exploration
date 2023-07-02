@@ -9817,7 +9817,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
@@ -14886,22 +14886,51 @@ var $author$project$HappyBirthdayAndrey$Main$view = F2(
 				et: {gz: -2, gD: 4, dx: 3}
 			});
 		return A2(
-			$author$project$Scene$custom,
-			{
-				eT: $ianmackenzie$elm_3d_scene$Scene3d$multisampling,
-				eX: $avh4$elm_color$Color$black,
-				e$: $author$project$HappyBirthdayAndrey$Main$camera(computer),
-				e5: 0.1,
-				cx: computer.cx,
-				fm: $ianmackenzie$elm_3d_scene$Scene3d$exposureValue(6),
-				fO: A4($ianmackenzie$elm_3d_scene$Scene3d$fourLights, firstLight, secondLight, thirdLight, fourthLight),
-				bB: computer.bB,
-				gp: $ianmackenzie$elm_3d_scene$Scene3d$hableFilmicToneMapping,
-				gw: $ianmackenzie$elm_3d_scene$Scene3d$Light$fluorescent
-			},
+			$elm$html$Html$div,
+			_List_Nil,
 			_List_fromArray(
 				[
-					A2($author$project$HappyBirthdayAndrey$Main$cubes, computer, model)
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('fixed text-white/50 ml-[320px] mt-8')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Press mouse to add new cube')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Shift + Press to remove')
+								]))
+						])),
+					A2(
+					$author$project$Scene$custom,
+					{
+						eT: $ianmackenzie$elm_3d_scene$Scene3d$multisampling,
+						eX: $avh4$elm_color$Color$black,
+						e$: $author$project$HappyBirthdayAndrey$Main$camera(computer),
+						e5: 0.1,
+						cx: computer.cx,
+						fm: $ianmackenzie$elm_3d_scene$Scene3d$exposureValue(6),
+						fO: A4($ianmackenzie$elm_3d_scene$Scene3d$fourLights, firstLight, secondLight, thirdLight, fourthLight),
+						bB: computer.bB,
+						gp: $ianmackenzie$elm_3d_scene$Scene3d$hableFilmicToneMapping,
+						gw: $ianmackenzie$elm_3d_scene$Scene3d$Light$fluorescent
+					},
+					_List_fromArray(
+						[
+							A2($author$project$HappyBirthdayAndrey$Main$cubes, computer, model)
+						]))
 				]));
 	});
 var $author$project$HappyBirthdayAndrey$Main$main = A4($author$project$Playground$gameWithConfigurations, $author$project$HappyBirthdayAndrey$Main$view, $author$project$HappyBirthdayAndrey$Main$update, _List_Nil, $author$project$HappyBirthdayAndrey$Main$init);

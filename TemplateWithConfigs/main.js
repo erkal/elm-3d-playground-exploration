@@ -9817,7 +9817,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),

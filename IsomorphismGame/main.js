@@ -9817,7 +9817,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
@@ -17328,26 +17328,62 @@ var $author$project$IsomorphismGame$Main$view = F2(
 				bK: {gX: -2, g$: 4, dO: 4}
 			});
 		return A2(
-			$author$project$Scene$custom,
-			{
-				fa: $ianmackenzie$elm_3d_scene$Scene3d$multisampling,
-				fe: $avh4$elm_color$Color$lightBlue,
-				fi: $author$project$IsomorphismGame$Main$camera(computer),
-				fo: 0.1,
-				cO: computer.cO,
-				fF: $ianmackenzie$elm_3d_scene$Scene3d$exposureValue(6),
-				f5: A4($ianmackenzie$elm_3d_scene$Scene3d$fourLights, firstLight, secondLight, thirdLight, fourthLight),
-				bN: computer.bN,
-				gN: $ianmackenzie$elm_3d_scene$Scene3d$hableFilmicToneMapping,
-				gU: $ianmackenzie$elm_3d_scene$Scene3d$Light$fluorescent
-			},
+			$elm$html$Html$div,
+			_List_Nil,
 			_List_fromArray(
 				[
-					A2($author$project$IsomorphismGame$Main$drawBaseGraph, computer, model),
-					A2($author$project$IsomorphismGame$Main$drawPlayerGraph, computer, model),
-					A2($author$project$IsomorphismGame$Main$drawDraggedBaseEdge, computer, model),
-					$author$project$IsomorphismGame$Main$floor(computer),
-					A2($author$project$IsomorphismGame$Main$drawPointerReach, computer, model)
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('fixed text-white/50 ml-[320px] mt-8')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('A game prototype for graph isomorphism problem')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Drag vertices to match the edges')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Create new levels using the level editor on the top-right')
+								]))
+						])),
+					A2(
+					$author$project$Scene$custom,
+					{
+						fa: $ianmackenzie$elm_3d_scene$Scene3d$multisampling,
+						fe: $avh4$elm_color$Color$lightBlue,
+						fi: $author$project$IsomorphismGame$Main$camera(computer),
+						fo: 0.1,
+						cO: computer.cO,
+						fF: $ianmackenzie$elm_3d_scene$Scene3d$exposureValue(6),
+						f5: A4($ianmackenzie$elm_3d_scene$Scene3d$fourLights, firstLight, secondLight, thirdLight, fourthLight),
+						bN: computer.bN,
+						gN: $ianmackenzie$elm_3d_scene$Scene3d$hableFilmicToneMapping,
+						gU: $ianmackenzie$elm_3d_scene$Scene3d$Light$fluorescent
+					},
+					_List_fromArray(
+						[
+							A2($author$project$IsomorphismGame$Main$drawBaseGraph, computer, model),
+							A2($author$project$IsomorphismGame$Main$drawPlayerGraph, computer, model),
+							A2($author$project$IsomorphismGame$Main$drawDraggedBaseEdge, computer, model),
+							$author$project$IsomorphismGame$Main$floor(computer),
+							A2($author$project$IsomorphismGame$Main$drawPointerReach, computer, model)
+						]))
 				]));
 	});
 var $author$project$IsomorphismGame$Main$PressedResetPlayerGraphButton = {$: 1};

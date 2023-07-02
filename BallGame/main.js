@@ -9817,7 +9817,7 @@ var $author$project$Playground$viewGUI = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-							$elm$html$Html$Attributes$href('https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html'),
+							$elm$html$Html$Attributes$href('../WebPage/index.html'),
 							$elm$html$Html$Attributes$target('_blank'),
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
@@ -18979,7 +18979,43 @@ var $author$project$BallGame$Main$viewGame = F2(
 	});
 var $author$project$BallGame$Main$view = F2(
 	function (computer, model) {
-		return A2($author$project$BallGame$Main$viewGame, computer, model);
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('fixed text-white/50 ml-[320px] mt-8')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Roll the ball with arrow keys')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Draw polygons with polygon editor on right bar')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Play with `friction` and `gas force` on the left bar')
+								]))
+						])),
+					A2($author$project$BallGame$Main$viewGame, computer, model)
+				]));
 	});
 var $author$project$BallGame$Main$FromLevelEditor = function (a) {
 	return {$: 3, a: a};
