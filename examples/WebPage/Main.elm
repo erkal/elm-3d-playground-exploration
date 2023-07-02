@@ -87,35 +87,30 @@ viewExamples : Computer -> Model -> Html EditorMsg
 viewExamples computer model =
     div
         [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
-        (List.map viewExample
-            [ "BallGame"
-            , "Carousel"
-            , "ColorShower"
-            , "DancingCubes"
-            , "GooeyEffect"
-            , "GrowingSquares"
-            , "HappyBirthdayAndrey"
-            , "IsomorphismGame"
-            , "JohnHarrisEightRollingCubes"
-            , "MultipleShadowsFromIanMackenzie"
-            , "PlanetarySystem"
-            , "RecursiveRotation"
-            , "RecursiveTree"
-            , "RedFacedCube"
-            , "RotatingBlocks"
-            , "Template"
-            , "TemplateWithConfigs"
-            , "TheSomaCube"
-            , "TrixelEditor"
-            , "TurningBlocks"
-            , "WaveInWave"
-            , "ZoomAndPan"
-            ]
-        )
+        [ viewExample "TrixelEditor" "A trixel editor with zoom and pan."
+        , viewExample "RedFacedCube" "One of the puzzles from Martin Gardner's column. The solution is unique!"
+        , viewExample "WaveInWave" "A Creative coding example."
+        , viewExample "ColorShower" "A Creative coding example."
+        , viewExample "DancingCubes" "A Creative coding example."
+        , viewExample "BallGame" "Continuous collision detection for 2d sphere to polygon. Roll the ball with arrow keys."
+        , viewExample "Carousel" "A carousel that works with mouse, keyboard and touch."
+        , viewExample "HappyBirthdayAndrey" "This was a birthday card made for Andrey Kuzmin."
+        , viewExample "IsomorphismGame" "A prototype for a game on graph isomorphism."
+        , viewExample "JohnHarrisEightRollingCubes" "One of the puzzles from Martin Gardner's column."
+        , viewExample "MultipleShadowsFromIanMackenzie" "Using the lighting from an example by Ian Mackenzie."
+        , viewExample "PlanetarySystem" "Simple example for grouping objects."
+        , viewExample "RecursiveRotation" "Simple example for recursion."
+        , viewExample "RecursiveTree" "Simple example for recursion."
+        , viewExample "TheSomaCube" "Just a start for a puzzle game. It is not working yet."
+        , viewExample "GooeyEffect" "An example showing the use of GLSL shaders."
+        , viewExample "GrowingSquares" "A Creative coding example."
+        , viewExample "TurningBlocks" "A Creative coding example."
+        , viewExample "ZoomAndPan" "Figma quality zoom and pan implemented in Elm."
+        ]
 
 
-viewExample : String -> Html EditorMsg
-viewExample exampleName =
+viewExample : String -> String -> Html EditorMsg
+viewExample exampleName descriptionText =
     let
         exampleLink =
             "../" ++ exampleName ++ "/index.html"
@@ -130,7 +125,7 @@ viewExample exampleName =
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
         , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
         ]
-        [ h2 [ class "text-xl font-semibold mb-4 text-white" ] [ text exampleName ]
+        [ h2 [ class "text-2xl font-semibold mb-4 text-white" ] [ text exampleName ]
         , a
             [ href exampleLink
             , target "_blank"
@@ -149,5 +144,5 @@ viewExample exampleName =
             , target "_blank"
             ]
             [ text "Source code" ]
-        , div [ class "mt-2 text-sm text-white" ] [ text "TODO: Write a description here" ]
+        , div [ class "mt-2 text-white" ] [ text descriptionText ]
         ]

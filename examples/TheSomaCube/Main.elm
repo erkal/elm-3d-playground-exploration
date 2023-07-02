@@ -79,37 +79,15 @@ view : Computer -> Model -> Html Never
 view computer model =
     div
         []
-        [ div
-            [ style "position" "absolute"
-            , style "width" "100%"
-            ]
-            [ explanationText computer model ]
-        , viewShapes computer model
-        ]
-
-
-explanationText : Computer -> Model -> Html Never
-explanationText computer model =
-    div
-        [ style "min-width" "320px"
-        , style "max-width" "500px"
-        , style "margin" "0 auto"
-        ]
-        [ div
-            [ class "m-2 text-center" ]
-            [ text "The Soma Cube" ]
-
-        --, p
-        --    [ style "margin" "10px", style "text-align" "center", style "font-weight" "bold" ]
-        --    [ text "..." ]
-        , p
-            [ class "p-2 text-xs" ]
-            [ div [ style "color" "darkred" ] [ text "Following controls are not implemented yet" ]
+        [ div [ class "fixed ml-[340px]" ]
+            [ div [ class "text-2xl my-4" ] [ text "The Soma Cube" ]
+            , div [ style "color" "darkred" ] [ text "(These controls are not implemented yet)" ]
             , div [] [ text "Space Key to chose the next piece" ]
             , div [] [ text "Arrow keys to rotate the cube" ]
             , div [] [ text "WASDQE to move the cube" ]
             , div [] [ text "Shift + Arrow Keys to rotate the camera" ]
             ]
+        , viewShapes computer model
         ]
 
 

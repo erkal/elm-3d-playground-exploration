@@ -544,26 +544,33 @@ view computer model =
                 , intensityBelow = Illuminance.lux 10
                 }
     in
-    Scene.custom
-        { devicePixelRatio = computer.devicePixelRatio
-        , screen = computer.screen
-        , camera = camera computer
-        , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
-        , clipDepth = 0.1
-        , exposure = Scene3d.exposureValue 6
-        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
-        , whiteBalance = Scene3d.Light.fluorescent
-        , antialiasing = Scene3d.multisampling
-        , backgroundColor = lightBlue
-        }
-        [ drawBaseGraph computer model
-        , drawPlayerGraph computer model
-        , drawDraggedBaseEdge computer model
+    div []
+        [ div [ class "fixed text-white/50 ml-[320px] mt-8" ]
+            [ div [] [ text "A game prototype for graph isomorphism problem" ]
+            , div [] [ text "Drag vertices to match the edges" ]
+            , div [] [ text "Create new levels using the level editor on the top-right" ]
+            ]
+        , Scene.custom
+            { devicePixelRatio = computer.devicePixelRatio
+            , screen = computer.screen
+            , camera = camera computer
+            , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
+            , clipDepth = 0.1
+            , exposure = Scene3d.exposureValue 6
+            , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+            , whiteBalance = Scene3d.Light.fluorescent
+            , antialiasing = Scene3d.multisampling
+            , backgroundColor = lightBlue
+            }
+            [ drawBaseGraph computer model
+            , drawPlayerGraph computer model
+            , drawDraggedBaseEdge computer model
 
-        --, axes
-        --, sphere red 0.1
-        , floor computer
-        , drawPointerReach computer model
+            --, axes
+            --, sphere red 0.1
+            , floor computer
+            , drawPointerReach computer model
+            ]
         ]
 
 

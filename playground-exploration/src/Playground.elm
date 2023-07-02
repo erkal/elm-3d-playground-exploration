@@ -345,7 +345,7 @@ viewGUI computer model =
             div [ class "absolute w-8 top-12" ]
                 [ a
                     [ class "text-white/40 hover:text-white/80"
-                    , href "https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html"
+                    , href "../WebPage/index.html"
                     , target "_blank"
                     , HA.title "Home of all examples"
                     ]

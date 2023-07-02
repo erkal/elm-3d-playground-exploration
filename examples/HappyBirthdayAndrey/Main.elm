@@ -2,7 +2,8 @@ module HappyBirthdayAndrey.Main exposing (main)
 
 import Camera exposing (Camera, perspective)
 import Color exposing (Color, black, yellow)
-import Html exposing (Html)
+import Html exposing (Html, div, text)
+import Html.Attributes exposing (class)
 import Illuminance
 import Light
 import LuminousFlux
@@ -126,24 +127,30 @@ view computer model =
                 , intensityBelow = Illuminance.lux 10
                 }
     in
-    Scene.custom
-        { devicePixelRatio = computer.devicePixelRatio
-        , screen = computer.screen
-        , camera = camera computer
-        , lights =
-            Scene3d.fourLights
-                firstLight
-                secondLight
-                thirdLight
-                fourthLight
-        , clipDepth = 0.1
-        , exposure = Scene3d.exposureValue 6
-        , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
-        , whiteBalance = Scene3d.Light.fluorescent
-        , antialiasing = Scene3d.multisampling
-        , backgroundColor = black
-        }
-        [ cubes computer model ]
+    div []
+        [ div [ class "fixed text-white/50 ml-[320px] mt-8" ]
+            [ div [] [ text "Press mouse to add new cube" ]
+            , div [] [ text "Shift + Press to remove" ]
+            ]
+        , Scene.custom
+            { devicePixelRatio = computer.devicePixelRatio
+            , screen = computer.screen
+            , camera = camera computer
+            , lights =
+                Scene3d.fourLights
+                    firstLight
+                    secondLight
+                    thirdLight
+                    fourthLight
+            , clipDepth = 0.1
+            , exposure = Scene3d.exposureValue 6
+            , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+            , whiteBalance = Scene3d.Light.fluorescent
+            , antialiasing = Scene3d.multisampling
+            , backgroundColor = black
+            }
+            [ cubes computer model ]
+        ]
 
 
 cubes : Computer -> Model -> Shape

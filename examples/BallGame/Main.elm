@@ -199,7 +199,14 @@ tickWorld computer model =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    viewGame computer model
+    div []
+        [ div [ class "fixed text-white/50 ml-[320px] mt-8" ]
+            [ div [] [ text "Roll the ball with arrow keys" ]
+            , div [] [ text "Draw polygons with polygon editor on right bar" ]
+            , div [] [ text "Play with `friction` and `gas force` on the left bar" ]
+            ]
+        , viewGame computer model
+        ]
 
 
 viewGame : Computer -> Model -> Html Never

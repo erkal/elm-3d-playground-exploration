@@ -8,6 +8,10 @@ fi
 # Make a fresh build directory
 mkdir -p build
 
+# Copy the input.js and preventEvents.js files to the build directory
+cp playground-exploration/src/input.js build/
+cp playground-exploration/src/preventEvents.js build/
+
 # Initialize a variable for targets JSON
 targets_json=""
 
@@ -43,10 +47,6 @@ targets_json=${targets_json%?}
 if [ -f "elm-watch.json" ]; then
     rm "elm-watch.json"
 fi
-
-# Copy the input.js and preventEvents.js files to the build directory
-cp playground-exploration/src/input.js build/
-cp playground-exploration/src/preventEvents.js build/
 
 # Create the JSON object and write it into elm-watch.json using Node.js
 node -e "const fs = require('fs'); const data = { targets: { ${targets_json} } }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"
