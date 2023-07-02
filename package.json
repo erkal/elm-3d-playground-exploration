@@ -14,7 +14,7 @@
     "build-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css",
     "build-elm": "npx elm-watch make --optimize",
     "build": "bash ./scripts/prebuild.sh && npm run build-tailwind && npm run build-elm",
-    "deploy": "npm run build && gh-pages -d build"
+    "deploy": "npm run build && gh-pages -d build && open https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
