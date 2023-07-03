@@ -90,9 +90,9 @@ initialConfigurations =
     , configBlock "Parameters"
         True
         [ floatConfig "cubes side length" ( 0.5, 1 ) 0.95
+        , floatConfig "height of following lights" ( 0.1, 8 ) 5
         , floatConfig "duration of step animation" ( 0.1, 1 ) 0.23
         , floatConfig "duration of mistake animation" ( 0.1, 1 ) 0.5
-        , floatConfig "height of following lights" ( 0.1, 8 ) 5
         ]
     , configBlock "Colors and light"
         True

@@ -19,12 +19,12 @@ viewBlock : Block -> Html Msg
 viewBlock block =
     div [ class "p-4 border-y-[0.5px] border-white/20" ]
         [ div [ class "text-lg pb-2" ] [ Html.text block.name ]
-        , div [ class "pl-2 pr-2" ] (block.configs |> Dict.map viewConfig |> Dict.values)
+        , div [ class "pl-2 pr-2" ] (block.configs |> List.map viewConfig)
         ]
 
 
-viewConfig : String -> Config -> Html Msg
-viewConfig key config =
+viewConfig : ( String, Config ) -> Html Msg
+viewConfig ( key, config ) =
     case config of
         BoolConfig value ->
             div [ class "h-12 py-4" ]

@@ -64,8 +64,8 @@ currentPalette =
 initialConfigurations =
     [ configBlock "Parameters"
         True
-        [ floatConfig "trixel scale" ( 0.5, 1 ) 1
-        , floatConfig "grid dot size" ( 0, 0.4 ) 0
+        [ floatConfig "grid dot size" ( 0, 0.4 ) 0
+        , floatConfig "trixel scale" ( 0.5, 1 ) 1
         , colorConfig "grid color" black
         ]
     ]

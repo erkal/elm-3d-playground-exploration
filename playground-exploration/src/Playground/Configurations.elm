@@ -1,7 +1,7 @@
 module Playground.Configurations exposing (..)
 
 import Color exposing (Color)
-import Dict exposing (Dict)
+import List.Extra
 import Round
 
 
@@ -12,7 +12,7 @@ type alias Configurations =
 type alias Block =
     { name : String
     , isOpen : Bool
-    , configs : Dict String Config
+    , configs : List ( String, Config )
     }
 
 
@@ -25,7 +25,7 @@ type Config
 
 configBlock : String -> Bool -> List ( String, Config ) -> Block
 configBlock name isOn configList =
-    Block name isOn (Dict.fromList configList)
+    Block name isOn configList
 
 
 
@@ -35,92 +35,84 @@ configBlock name isOn configList =
 getBool : String -> Configurations -> Bool
 getBool key configurations =
     configurations
-        |> List.filterMap (getBoolFromBlock key)
-        |> List.head
+        |> List.Extra.findMap (getBoolFromBlock key)
         |> Maybe.withDefault False
 
 
 getBoolFromBlock : String -> Block -> Maybe Bool
 getBoolFromBlock key block =
     block.configs
-        |> Dict.get key
-        |> Maybe.map
-            (\config ->
-                case config of
-                    BoolConfig value ->
-                        value
+        |> List.Extra.findMap
+            (\( k, config ) ->
+                case ( k == key, config ) of
+                    ( True, BoolConfig value ) ->
+                        Just value
 
                     _ ->
-                        False
+                        Nothing
             )
 
 
 getInt : String -> Configurations -> Int
 getInt key configurations =
     configurations
-        |> List.filterMap (getIntFromBlock key)
-        |> List.head
+        |> List.Extra.findMap (getIntFromBlock key)
         |> Maybe.withDefault 0
 
 
 getIntFromBlock : String -> Block -> Maybe Int
 getIntFromBlock key block =
     block.configs
-        |> Dict.get key
-        |> Maybe.map
-            (\config ->
-                case config of
-                    IntConfig _ value ->
-                        value
+        |> List.Extra.findMap
+            (\( k, config ) ->
+                case ( k == key, config ) of
+                    ( True, IntConfig _ value ) ->
+                        Just value
 
                     _ ->
-                        0
+                        Nothing
             )
 
 
 getFloat : String -> Configurations -> Float
 getFloat key configurations =
     configurations
-        |> List.filterMap (getFloatFromBlock key)
-        |> List.head
+        |> List.Extra.findMap (getFloatFromBlock key)
         |> Maybe.withDefault 0
 
 
 getFloatFromBlock : String -> Block -> Maybe Float
 getFloatFromBlock key block =
     block.configs
-        |> Dict.get key
-        |> Maybe.map
-            (\config ->
-                case config of
-                    FloatConfig _ value ->
-                        value
+        |> List.Extra.findMap
+            (\( k, config ) ->
+                case ( k == key, config ) of
+                    ( True, FloatConfig _ value ) ->
+                        Just value
 
                     _ ->
-                        0
+                        Nothing
             )
 
 
 getColor : String -> Configurations -> Color
 getColor key configurations =
     configurations
-        |> List.filterMap (getColorFromBlock key)
-        |> List.head
+        |> List.Extra.findMap (getColorFromBlock key)
         |> Maybe.withDefault Color.black
 
 
 getColorFromBlock : String -> Block -> Maybe Color
 getColorFromBlock key block =
     block.configs
-        |> Dict.get key
-        |> Maybe.map
-            (\config ->
-                case config of
-                    ColorConfig value ->
-                        value
+        |> List.Extra.findMap
+            (\( k, config ) ->
+                case ( k == key, config ) of
+                    ( True, ColorConfig value ) ->
+                        Just value
 
                     _ ->
-                        Color.black
+                        Nothing
             )
 
 
@@ -145,17 +137,17 @@ updateBlock msg =
     mapConfigs (updateConfigs msg)
 
 
-mapConfigs : (Dict String Config -> Dict String Config) -> Block -> Block
+mapConfigs : (List ( String, Config ) -> List ( String, Config )) -> Block -> Block
 mapConfigs up block =
     { block | configs = up block.configs }
 
 
-updateConfigs : Msg -> Dict String Config -> Dict String Config
+updateConfigs : Msg -> List ( String, Config ) -> List ( String, Config )
 updateConfigs msg =
     case msg of
         SetInt key newValue ->
-            Dict.update key
-                (Maybe.map
+            List.Extra.updateIf (Tuple.first >> (==) key)
+                (Tuple.mapSecond
                     (\config ->
                         case config of
                             IntConfig ( min, max ) _ ->
@@ -167,8 +159,8 @@ updateConfigs msg =
                 )
 
         SetFloat key newValue ->
-            Dict.update key
-                (Maybe.map
+            List.Extra.updateIf (Tuple.first >> (==) key)
+                (Tuple.mapSecond
                     (\config ->
                         case config of
                             FloatConfig ( min, max ) _ ->
@@ -180,8 +172,8 @@ updateConfigs msg =
                 )
 
         SetBool key newValue ->
-            Dict.update key
-                (Maybe.map
+            List.Extra.updateIf (Tuple.first >> (==) key)
+                (Tuple.mapSecond
                     (\config ->
                         case config of
                             BoolConfig _ ->
@@ -193,8 +185,8 @@ updateConfigs msg =
                 )
 
         SetColor key newValue ->
-            Dict.update key
-                (Maybe.map
+            List.Extra.updateIf (Tuple.first >> (==) key)
+                (Tuple.mapSecond
                     (\config ->
                         case config of
                             ColorConfig _ ->
