@@ -7,7 +7,7 @@ import BallGame.World.Encode
 import BallGame.World.Physics.Collision.Primitives.Geometry2d exposing (Point2d, Vector2d, distance, edgesOfPolygon, edgesOfPolyline)
 import BallGame.World.Physics.Tick
 import Camera exposing (Camera, orthographic, perspectiveWithOrbit)
-import Color exposing (Color, black, blue, darkGreen, green, red, rgb255, white, yellow)
+import Color exposing (Color, black, blue, darkGreen, green, hsl, red, rgb255, white, yellow)
 import Geometry exposing (Point, Vector)
 import Html exposing (Html, button, div, p, text)
 import Html.Attributes exposing (class, style)
@@ -53,8 +53,8 @@ initialConfigurations =
         True
         [ boolConfig "draw speed vector" False
         , boolConfig "draw ball trail" True
-        , boolConfig "orthographic" True
-        , boolConfig "unlit" True
+        , boolConfig "orthographic" False
+        , boolConfig "unlit" False
         ]
     , configBlock "Camera"
         True
@@ -264,7 +264,7 @@ viewGame computer model =
                     , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
                     , whiteBalance = Scene3d.Light.fluorescent
                     , antialiasing = Scene3d.multisampling
-                    , backgroundColor = rgb255 46 46 46
+                    , backgroundColor = hsl 0.5 0.3 0.3
                     }
     in
     viewScene
@@ -357,7 +357,7 @@ drawPolygons : Computer -> Model -> Shape
 drawPolygons computer model =
     let
         material_ =
-            material computer blue
+            material computer (hsl 0.6 0.5 0.5)
 
         height =
             2
