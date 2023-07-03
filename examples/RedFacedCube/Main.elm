@@ -924,7 +924,7 @@ viewEditor computer model =
 editorToggleButton : Model -> Html EditorMsg
 editorToggleButton model =
     div
-        [ class "fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60"
+        [ class "fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60"
         ]
         [ button
             [ class "w-6"
@@ -945,14 +945,14 @@ editorContent computer model =
         div
             [ class "fixed top-0 right-0 w-[300px]"
             , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
-            , class "bg-black20"
-            , class "border-[0.5px] border-white20"
+            , class "bg-black/20"
+            , class "border-[0.5px] border-white/20"
             , class "overflow-y-scroll"
-            , class "text-xs text-white60"
+            , class "text-xs text-white/60"
             ]
             [ div [ class "p-4" ]
                 [ viewSolutions computer model ]
-            , div [ class "p-4 border-[0.5px] border-white20" ]
+            , div [ class "p-4 border-[0.5px] border-white/20" ]
                 [ levelSelection model ]
             ]
 
@@ -972,7 +972,7 @@ viewSolutions computer model =
                     |> List.indexedMap
                         (\i p ->
                             div
-                                [ class "m-2 p-2 w-24 bg-black60 hover:bg-black cursor-crosshair"
+                                [ class "m-2 p-2 w-24 bg-black/60 hover:bg-black cursor-crosshair"
                                 , Html.Events.onMouseEnter (MouseEnterSolution p)
                                 , Html.Events.onMouseLeave MouseLeftSolution
                                 ]
@@ -1002,7 +1002,7 @@ makeCheckBox msg isChecked string_ =
 makeButton : msg -> String -> Html msg
 makeButton msg string =
     Html.button
-        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        [ class "m-1 p-2 rounded bg-black/40 hover:bg-black/80"
         , Html.Events.onClick msg
         ]
         [ Html.text string ]

@@ -189,7 +189,7 @@ view computer model =
         [ div [ class "fixed w-full h-full" ]
             [ viewWebGLCanvas computer model ]
         , div
-            [ class "absolute w-screen h-screen text-center text-lg text-white60"
+            [ class "absolute w-screen h-screen text-center text-lg text-white/60"
             ]
             [ div [ class "p-1" ] [ text "TRIXELS" ]
             ]
@@ -402,7 +402,7 @@ viewEditor computer model =
 editorToggleButton : Model -> Html EditorMsg
 editorToggleButton model =
     div
-        [ class "fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60"
+        [ class "fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60"
         ]
         [ button
             [ class "w-6"
@@ -423,10 +423,10 @@ editorContent computer model =
         div
             [ class "fixed top-0 right-0 w-[300px]"
             , style "height" <| String.fromFloat (computer.screen.height - 80) ++ "px"
-            , class "bg-black20"
-            , class "border-[0.5px] border-white20"
+            , class "bg-black/20"
+            , class "border-[0.5px] border-white/20"
             , class "overflow-y-scroll"
-            , class "text-xs text-white60"
+            , class "text-xs text-white/60"
             ]
             [ viewInstructions
             , viewColorSelection model
@@ -439,7 +439,7 @@ editorContent computer model =
 
 viewInstructions : Html EditorMsg
 viewInstructions =
-    div [ class "p-4 border-[0.5px] border-white20" ]
+    div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Instructions" ]
         , div [ class "pl-2" ] [ text "- Press mouse to add trixel" ]
         , div [ class "pl-2" ] [ text "- Hold shift and press mouse to remove trixel" ]
@@ -450,7 +450,7 @@ viewInstructions =
 
 viewColorSelection : Model -> Html EditorMsg
 viewColorSelection model =
-    div [ class "p-4 border-[0.5px] border-white20" ]
+    div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Color Palette" ]
         , selectColorPalette model
         , makeButton PressedButtonForSettingBackgroundColor "Set selected as background"
@@ -461,7 +461,7 @@ viewColorSelection model =
 
 pageSelection : Model -> Html EditorMsg
 pageSelection model =
-    div [ class "p-4 border-[0.5px] border-white20" ]
+    div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Pages" ]
         , div [ class "p-4" ]
             [ Html.map FromLevelEditor
@@ -472,7 +472,7 @@ pageSelection model =
 
 makeButton msg string =
     button
-        [ class "m-1 p-2 rounded bg-black40 hover:bg-black80"
+        [ class "m-1 p-2 rounded bg-black/40 hover:bg-black/80"
         , onClick msg
         ]
         [ text string ]
@@ -490,7 +490,7 @@ selectColorPalette model =
     div [ class "p-2" ]
         [ span [ class "p-2" ] [ text "Choose a palette:" ]
         , select
-            [ class "p-2 text-white80 bg-black20"
+            [ class "p-2 text-white/80 bg-black/20"
             , onChange (ColorPalette.fromString >> SelectPalette)
             , value (ColorPalette.toString (currentPalette model))
             ]

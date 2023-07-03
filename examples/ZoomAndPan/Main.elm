@@ -56,7 +56,7 @@ view computer model =
     div [ cursorForSpaceDragging computer model ]
         [ div [ class "fixed w-full h-full" ]
             [ viewWebGLCanvas computer model ]
-        , div [ class "absolute w-screen h-screen text-center text-xs text-white60" ]
+        , div [ class "absolute w-screen h-screen text-center text-xs text-white/60" ]
             [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoomUI.get model.panAndZoomUI).zoom)) ++ "%") ]
             , div [ class "p-1" ] [ text "Panning: SCROLL or SPACE + DRAG" ]
             , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
