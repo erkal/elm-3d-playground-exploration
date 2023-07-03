@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.dq.bF === region.dQ.bF)
+	if (region.dr.bF === region.dS.bF)
 	{
-		return 'on line ' + region.dq.bF;
+		return 'on line ' + region.dr.bF;
 	}
-	return 'on lines ' + region.dq.bF + ' through ' + region.dQ.bF;
+	return 'on lines ' + region.dr.bF + ' through ' + region.dS.bF;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fC,
-		impl.gq,
-		impl.gl,
+		impl.fE,
+		impl.gs,
+		impl.gn,
 		function() { return function() {} }
 	);
 });
@@ -2705,8 +2705,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		aD: func(record.aD),
-		ds: record.ds,
-		de: record.de
+		dt: record.dt,
+		df: record.df
 	}
 });
 
@@ -2975,10 +2975,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.aD;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.ds;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.dt;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.de) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.df) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fC,
-		impl.gq,
-		impl.gl,
+		impl.fE,
+		impl.gs,
+		impl.gn,
 		function(sendToApp, initialModel) {
-			var view = impl.gt;
+			var view = impl.gv;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.fC,
-		impl.gq,
-		impl.gl,
+		impl.fE,
+		impl.gs,
+		impl.gn,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.dp && impl.dp(sendToApp)
-			var view = impl.gt;
+			var divertHrefToApp = impl.dq && impl.dq(sendToApp)
+			var view = impl.gv;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.e1);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.e3);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.gn) && (_VirtualDom_doc.title = title = doc.gn);
+				(title !== doc.gp) && (_VirtualDom_doc.title = title = doc.gp);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.f_;
-	var onUrlRequest = impl.f$;
+	var onUrlChange = impl.f0;
+	var onUrlRequest = impl.f1;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		dp: function(sendToApp)
+		dq: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.eC === next.eC
-							&& curr.dV === next.dV
-							&& curr.ez.a === next.ez.a
+							&& curr.eE === next.eE
+							&& curr.dX === next.dX
+							&& curr.eB.a === next.eB.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		fC: function(flags)
+		fE: function(flags)
 		{
-			return A3(impl.fC, flags, _Browser_getUrl(), key);
+			return A3(impl.fE, flags, _Browser_getUrl(), key);
 		},
-		gt: impl.gt,
-		gq: impl.gq,
-		gl: impl.gl
+		gv: impl.gv,
+		gs: impl.gs,
+		gn: impl.gn
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { fx: 'hidden', e5: 'visibilitychange' }
+		? { fz: 'hidden', e7: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { fx: 'mozHidden', e5: 'mozvisibilitychange' }
+		? { fz: 'mozHidden', e7: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { fx: 'msHidden', e5: 'msvisibilitychange' }
+		? { fz: 'msHidden', e7: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { fx: 'webkitHidden', e5: 'webkitvisibilitychange' }
-		: { fx: 'hidden', e5: 'visibilitychange' };
+		? { fz: 'webkitHidden', e7: 'webkitvisibilitychange' }
+		: { fz: 'hidden', e7: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		eI: _Browser_getScene(),
-		eT: {
-			gx: _Browser_window.pageXOffset,
-			gB: _Browser_window.pageYOffset,
-			eV: _Browser_doc.documentElement.clientWidth,
-			dU: _Browser_doc.documentElement.clientHeight
+		eK: _Browser_getScene(),
+		eV: {
+			gz: _Browser_window.pageXOffset,
+			gD: _Browser_window.pageYOffset,
+			eX: _Browser_doc.documentElement.clientWidth,
+			dW: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		eV: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		dU: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		eX: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		dW: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			eI: {
-				eV: node.scrollWidth,
-				dU: node.scrollHeight
+			eK: {
+				eX: node.scrollWidth,
+				dW: node.scrollHeight
 			},
-			eT: {
-				gx: node.scrollLeft,
-				gB: node.scrollTop,
-				eV: node.clientWidth,
-				dU: node.clientHeight
+			eV: {
+				gz: node.scrollLeft,
+				gD: node.scrollTop,
+				eX: node.clientWidth,
+				dW: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			eI: _Browser_getScene(),
-			eT: {
-				gx: x,
-				gB: y,
-				eV: _Browser_doc.documentElement.clientWidth,
-				dU: _Browser_doc.documentElement.clientHeight
+			eK: _Browser_getScene(),
+			eV: {
+				gz: x,
+				gD: y,
+				eX: _Browser_doc.documentElement.clientWidth,
+				dW: _Browser_doc.documentElement.clientHeight
 			},
-			fl: {
-				gx: x + rect.left,
-				gB: y + rect.top,
-				eV: rect.width,
-				dU: rect.height
+			fn: {
+				gz: x + rect.left,
+				gD: y + rect.top,
+				eX: rect.width,
+				dW: rect.height
 			}
 		};
 	});
@@ -4401,8 +4401,8 @@ var _Regex_never = /.^/;
 var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
-	if (options.fV) { flags += 'm'; }
-	if (options.e2) { flags += 'i'; }
+	if (options.fX) { flags += 'm'; }
+	if (options.e4) { flags += 'i'; }
 
 	try
 	{
@@ -4836,7 +4836,7 @@ function _WebGL_doBindAttribute(gl, attribute, mesh, attributes) {
   // The length of the number of vertices that
   // complete one 'thing' based on the drawing mode.
   // ie, 2 for Lines, 3 for Triangles, etc.
-  var elemSize = mesh.a.dP;
+  var elemSize = mesh.a.dR;
 
   var idxKeys = [];
   for (var i = 0; i < elemSize; i++) {
@@ -4897,9 +4897,9 @@ function _WebGL_doBindAttribute(gl, attribute, mesh, attributes) {
  *  @return {Object} buffer.buffers - will be used to buffer attributes
  */
 function _WebGL_doBindSetup(gl, mesh) {
-  if (mesh.a.dX > 0) {
+  if (mesh.a.dZ > 0) {
     var indexBuffer = gl.createBuffer();
-    var indices = _WebGL_makeIndexedBuffer(mesh.c, mesh.a.dX);
+    var indices = _WebGL_makeIndexedBuffer(mesh.c, mesh.a.dZ);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     return {
@@ -4909,7 +4909,7 @@ function _WebGL_doBindSetup(gl, mesh) {
     };
   } else {
     return {
-      numIndices: mesh.a.dP * _WebGL_listLength(mesh.b),
+      numIndices: mesh.a.dR * _WebGL_listLength(mesh.b),
       indexBuffer: null,
       buffers: {}
     };
@@ -5088,9 +5088,9 @@ var _WebGL_drawGL = F2(function (model, domNode) {
 
     if (buffer.indexBuffer) {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indexBuffer);
-      gl.drawElements(entity.d.a.es, buffer.numIndices, gl.UNSIGNED_INT, 0);
+      gl.drawElements(entity.d.a.eu, buffer.numIndices, gl.UNSIGNED_INT, 0);
     } else {
-      gl.drawArrays(entity.d.a.es, 0, buffer.numIndices);
+      gl.drawArrays(entity.d.a.eu, 0, buffer.numIndices);
     }
   }
 
@@ -5155,7 +5155,7 @@ function _WebGL_createUniformSetters(gl, model, program, uniformsMap) {
           gl.activeTexture(gl.TEXTURE0 + currentTexture);
           var tex = cache.textures.get(texture);
           if (!tex) {
-            tex = texture.e9(gl);
+            tex = texture.fb(gl);
             cache.textures.set(texture, tex);
           }
           gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -5387,11 +5387,11 @@ var _MJS_v2setY = F2(function(y, a) {
 });
 
 var _MJS_v2toRecord = function(a) {
-    return { gx: a[0], gB: a[1] };
+    return { gz: a[0], gD: a[1] };
 };
 
 var _MJS_v2fromRecord = function(r) {
-    return new Float64Array([r.gx, r.gB]);
+    return new Float64Array([r.gz, r.gD]);
 };
 
 var _MJS_v2add = F2(function(a, b) {
@@ -5500,11 +5500,11 @@ var _MJS_v3setZ = F2(function(z, a) {
 });
 
 var _MJS_v3toRecord = function(a) {
-    return { gx: a[0], gB: a[1], cv: a[2] };
+    return { gz: a[0], gD: a[1], cv: a[2] };
 };
 
 var _MJS_v3fromRecord = function(r) {
-    return new Float64Array([r.gx, r.gB, r.cv]);
+    return new Float64Array([r.gz, r.gD, r.cv]);
 };
 
 var _MJS_v3add = F2(function(a, b) {
@@ -5660,11 +5660,11 @@ var _MJS_v4setW = F2(function(w, a) {
 });
 
 var _MJS_v4toRecord = function(a) {
-    return { gx: a[0], gB: a[1], cv: a[2], eU: a[3] };
+    return { gz: a[0], gD: a[1], cv: a[2], eW: a[3] };
 };
 
 var _MJS_v4fromRecord = function(r) {
-    return new Float64Array([r.gx, r.gB, r.cv, r.eU]);
+    return new Float64Array([r.gz, r.gD, r.cv, r.eW]);
 };
 
 var _MJS_v4add = F2(function(a, b) {
@@ -5770,31 +5770,31 @@ var _MJS_m4x4identity = new Float64Array([
 
 var _MJS_m4x4fromRecord = function(r) {
     var m = new Float64Array(16);
-    m[0] = r.d4;
-    m[1] = r.d8;
-    m[2] = r.ec;
-    m[3] = r.eg;
-    m[4] = r.d5;
-    m[5] = r.d9;
-    m[6] = r.ed;
-    m[7] = r.eh;
-    m[8] = r.d6;
-    m[9] = r.ea;
-    m[10] = r.ee;
-    m[11] = r.ei;
-    m[12] = r.d7;
-    m[13] = r.eb;
-    m[14] = r.ef;
-    m[15] = r.ej;
+    m[0] = r.d6;
+    m[1] = r.ea;
+    m[2] = r.ee;
+    m[3] = r.ei;
+    m[4] = r.d7;
+    m[5] = r.eb;
+    m[6] = r.ef;
+    m[7] = r.ej;
+    m[8] = r.d8;
+    m[9] = r.ec;
+    m[10] = r.eg;
+    m[11] = r.ek;
+    m[12] = r.d9;
+    m[13] = r.ed;
+    m[14] = r.eh;
+    m[15] = r.el;
     return m;
 };
 
 var _MJS_m4x4toRecord = function(m) {
     return {
-        d4: m[0], d8: m[1], ec: m[2], eg: m[3],
-        d5: m[4], d9: m[5], ed: m[6], eh: m[7],
-        d6: m[8], ea: m[9], ee: m[10], ei: m[11],
-        d7: m[12], eb: m[13], ef: m[14], ej: m[15]
+        d6: m[0], ea: m[1], ee: m[2], ei: m[3],
+        d7: m[4], eb: m[5], ef: m[6], ej: m[7],
+        d8: m[8], ec: m[9], eg: m[10], ek: m[11],
+        d9: m[12], ed: m[13], eh: m[14], el: m[15]
     };
 };
 
@@ -6852,7 +6852,7 @@ var $elm$core$Basics$always = F2(
 	});
 var $author$project$Playground$Computer$assignConfigurations = F2(
 	function (initialConfigurations, inputs) {
-		return {dL: inputs.dL, e7: initialConfigurations, ff: inputs.ff, fj: inputs.fj, fJ: inputs.fJ, f6: inputs.f6, $7: inputs.$7, gv: inputs.gv};
+		return {dN: inputs.dN, e9: initialConfigurations, fh: inputs.fh, fl: inputs.fl, fL: inputs.fL, f8: inputs.f8, dp: inputs.dp, gx: inputs.gx};
 	});
 var $elm$browser$Browser$External = function (a) {
 	return {$: 1, a: a};
@@ -6868,7 +6868,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {dT: fragment, dV: host, ew: path, ez: port_, eC: protocol, eD: query};
+		return {dV: fragment, dX: host, ey: path, eB: port_, eE: protocol, eF: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -7206,12 +7206,12 @@ var $author$project$Playground$Tape$tick = F3(
 		var pastCurrentFuture = tape.b;
 		switch (state.$) {
 			case 1:
-				return inputs.f6.dO ? $author$project$Playground$Tape$startRecording(tape) : tape;
+				return inputs.f8.dQ ? $author$project$Playground$Tape$startRecording(tape) : tape;
 			case 2:
-				var tapeClock = state.a.du;
+				var tapeClock = state.a.dv;
 				return ((_Utils_cmp(
-					tapeClock + inputs.fj,
-					$author$project$Playground$Tape$currentComputer(tape).dL) > 0) ? A2(
+					tapeClock + inputs.fl,
+					$author$project$Playground$Tape$currentComputer(tape).dN) > 0) ? A2(
 					$elm$core$Basics$composeR,
 					$author$project$Playground$Tape$goToNext,
 					$elm$core$Maybe$withDefault(
@@ -7219,7 +7219,7 @@ var $author$project$Playground$Tape$tick = F3(
 					A2(
 						$author$project$Playground$Tape$Tape,
 						$author$project$Playground$Tape$Playing(
-							{du: tapeClock + inputs.fj}),
+							{dv: tapeClock + inputs.fl}),
 						pastCurrentFuture));
 			default:
 				var _v1 = pastCurrentFuture.D;
@@ -7227,10 +7227,10 @@ var $author$project$Playground$Tape$tick = F3(
 				var lastGameModel = _v1.b;
 				var newComputer = A2(
 					$author$project$Playground$Computer$assignConfigurations,
-					lastComputer.e7,
+					lastComputer.e9,
 					_Utils_update(
 						inputs,
-						{dL: lastComputer.dL + inputs.fj}));
+						{dN: lastComputer.dN + inputs.fl}));
 				var newGameModel = A2(updateGameModel, newComputer, lastGameModel);
 				return A2(
 					$author$project$Playground$Tape$Tape,
@@ -7437,7 +7437,7 @@ var $author$project$Playground$Tape$startPlaying = function (tape) {
 		$author$project$Playground$Tape$Tape,
 		$author$project$Playground$Tape$Playing(
 			{
-				du: $author$project$Playground$Tape$currentComputer(tape).dL
+				dv: $author$project$Playground$Tape$currentComputer(tape).dN
 			}),
 		pastCurrentFuture);
 };
@@ -7485,15 +7485,13 @@ var $author$project$Playground$Configurations$IntConfig = F2(
 	function (a, b) {
 		return {$: 1, a: a, b: b};
 	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
+var $elm$core$Tuple$mapSecond = F2(
+	function (func, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			x,
+			func(y));
 	});
 var $elm$core$Basics$negate = function (n) {
 	return -n;
@@ -7576,6 +7574,16 @@ var $myrho$elm_round$Round$increaseNum = function (_v0) {
 };
 var $elm$core$Basics$isInfinite = _Basics_isInfinite;
 var $elm$core$Basics$isNaN = _Basics_isNaN;
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
 };
@@ -7756,519 +7764,14 @@ var $author$project$Playground$Configurations$roundFloatValue = F3(
 		var n = (scale < 0) ? 3 : ((scale < 1) ? 2 : ((scale < 2) ? 1 : 0));
 		return A2($myrho$elm_round$Round$roundNum, n, value);
 	});
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === -2) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1) {
-					case 0:
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 1:
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
-var $elm$core$Dict$Black = 1;
-var $elm$core$Dict$RBNode_elm_builtin = F5(
-	function (a, b, c, d, e) {
-		return {$: -1, a: a, b: b, c: c, d: d, e: e};
-	});
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
-var $elm$core$Dict$Red = 0;
-var $elm$core$Dict$balance = F5(
-	function (color, key, value, left, right) {
-		if ((right.$ === -1) && (!right.a)) {
-			var _v1 = right.a;
-			var rK = right.b;
-			var rV = right.c;
-			var rLeft = right.d;
-			var rRight = right.e;
-			if ((left.$ === -1) && (!left.a)) {
-				var _v3 = left.a;
-				var lK = left.b;
-				var lV = left.c;
-				var lLeft = left.d;
-				var lRight = left.e;
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					0,
-					key,
-					value,
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rLeft, rRight));
-			} else {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					color,
-					rK,
-					rV,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, left, rLeft),
-					rRight);
-			}
-		} else {
-			if ((((left.$ === -1) && (!left.a)) && (left.d.$ === -1)) && (!left.d.a)) {
-				var _v5 = left.a;
-				var lK = left.b;
-				var lV = left.c;
-				var _v6 = left.d;
-				var _v7 = _v6.a;
-				var llK = _v6.b;
-				var llV = _v6.c;
-				var llLeft = _v6.d;
-				var llRight = _v6.e;
-				var lRight = left.e;
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					0,
-					lK,
-					lV,
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, key, value, lRight, right));
-			} else {
-				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
-			}
-		}
-	});
-var $elm$core$Dict$insertHelp = F3(
-	function (key, value, dict) {
-		if (dict.$ === -2) {
-			return A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
-		} else {
-			var nColor = dict.a;
-			var nKey = dict.b;
-			var nValue = dict.c;
-			var nLeft = dict.d;
-			var nRight = dict.e;
-			var _v1 = A2($elm$core$Basics$compare, key, nKey);
-			switch (_v1) {
-				case 0:
-					return A5(
-						$elm$core$Dict$balance,
-						nColor,
-						nKey,
-						nValue,
-						A3($elm$core$Dict$insertHelp, key, value, nLeft),
-						nRight);
-				case 1:
-					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
-				default:
-					return A5(
-						$elm$core$Dict$balance,
-						nColor,
-						nKey,
-						nValue,
-						nLeft,
-						A3($elm$core$Dict$insertHelp, key, value, nRight));
-			}
-		}
-	});
-var $elm$core$Dict$insert = F3(
-	function (key, value, dict) {
-		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
-		if ((_v0.$ === -1) && (!_v0.a)) {
-			var _v1 = _v0.a;
-			var k = _v0.b;
-			var v = _v0.c;
-			var l = _v0.d;
-			var r = _v0.e;
-			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
-		} else {
-			var x = _v0;
-			return x;
-		}
-	});
-var $elm$core$Dict$getMin = function (dict) {
-	getMin:
-	while (true) {
-		if ((dict.$ === -1) && (dict.d.$ === -1)) {
-			var left = dict.d;
-			var $temp$dict = left;
-			dict = $temp$dict;
-			continue getMin;
-		} else {
-			return dict;
-		}
-	}
-};
-var $elm$core$Dict$moveRedLeft = function (dict) {
-	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
-		if ((dict.e.d.$ === -1) && (!dict.e.d.a)) {
-			var clr = dict.a;
-			var k = dict.b;
-			var v = dict.c;
-			var _v1 = dict.d;
-			var lClr = _v1.a;
-			var lK = _v1.b;
-			var lV = _v1.c;
-			var lLeft = _v1.d;
-			var lRight = _v1.e;
-			var _v2 = dict.e;
-			var rClr = _v2.a;
-			var rK = _v2.b;
-			var rV = _v2.c;
-			var rLeft = _v2.d;
-			var _v3 = rLeft.a;
-			var rlK = rLeft.b;
-			var rlV = rLeft.c;
-			var rlL = rLeft.d;
-			var rlR = rLeft.e;
-			var rRight = _v2.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				0,
-				rlK,
-				rlV,
-				A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					rlL),
-				A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rlR, rRight));
-		} else {
-			var clr = dict.a;
-			var k = dict.b;
-			var v = dict.c;
-			var _v4 = dict.d;
-			var lClr = _v4.a;
-			var lK = _v4.b;
-			var lV = _v4.c;
-			var lLeft = _v4.d;
-			var lRight = _v4.e;
-			var _v5 = dict.e;
-			var rClr = _v5.a;
-			var rK = _v5.b;
-			var rV = _v5.c;
-			var rLeft = _v5.d;
-			var rRight = _v5.e;
-			if (clr === 1) {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
-			} else {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
-			}
-		}
-	} else {
-		return dict;
-	}
-};
-var $elm$core$Dict$moveRedRight = function (dict) {
-	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
-		if ((dict.d.d.$ === -1) && (!dict.d.d.a)) {
-			var clr = dict.a;
-			var k = dict.b;
-			var v = dict.c;
-			var _v1 = dict.d;
-			var lClr = _v1.a;
-			var lK = _v1.b;
-			var lV = _v1.c;
-			var _v2 = _v1.d;
-			var _v3 = _v2.a;
-			var llK = _v2.b;
-			var llV = _v2.c;
-			var llLeft = _v2.d;
-			var llRight = _v2.e;
-			var lRight = _v1.e;
-			var _v4 = dict.e;
-			var rClr = _v4.a;
-			var rK = _v4.b;
-			var rV = _v4.c;
-			var rLeft = _v4.d;
-			var rRight = _v4.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				0,
-				lK,
-				lV,
-				A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
-				A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					lRight,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight)));
-		} else {
-			var clr = dict.a;
-			var k = dict.b;
-			var v = dict.c;
-			var _v5 = dict.d;
-			var lClr = _v5.a;
-			var lK = _v5.b;
-			var lV = _v5.c;
-			var lLeft = _v5.d;
-			var lRight = _v5.e;
-			var _v6 = dict.e;
-			var rClr = _v6.a;
-			var rK = _v6.b;
-			var rV = _v6.c;
-			var rLeft = _v6.d;
-			var rRight = _v6.e;
-			if (clr === 1) {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
-			} else {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					1,
-					k,
-					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
-			}
-		}
-	} else {
-		return dict;
-	}
-};
-var $elm$core$Dict$removeHelpPrepEQGT = F7(
-	function (targetKey, dict, color, key, value, left, right) {
-		if ((left.$ === -1) && (!left.a)) {
-			var _v1 = left.a;
-			var lK = left.b;
-			var lV = left.c;
-			var lLeft = left.d;
-			var lRight = left.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				color,
-				lK,
-				lV,
-				lLeft,
-				A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, lRight, right));
-		} else {
-			_v2$2:
-			while (true) {
-				if ((right.$ === -1) && (right.a === 1)) {
-					if (right.d.$ === -1) {
-						if (right.d.a === 1) {
-							var _v3 = right.a;
-							var _v4 = right.d;
-							var _v5 = _v4.a;
-							return $elm$core$Dict$moveRedRight(dict);
-						} else {
-							break _v2$2;
-						}
-					} else {
-						var _v6 = right.a;
-						var _v7 = right.d;
-						return $elm$core$Dict$moveRedRight(dict);
-					}
-				} else {
-					break _v2$2;
-				}
-			}
-			return dict;
-		}
-	});
-var $elm$core$Dict$removeMin = function (dict) {
-	if ((dict.$ === -1) && (dict.d.$ === -1)) {
-		var color = dict.a;
-		var key = dict.b;
-		var value = dict.c;
-		var left = dict.d;
-		var lColor = left.a;
-		var lLeft = left.d;
-		var right = dict.e;
-		if (lColor === 1) {
-			if ((lLeft.$ === -1) && (!lLeft.a)) {
-				var _v3 = lLeft.a;
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					color,
-					key,
-					value,
-					$elm$core$Dict$removeMin(left),
-					right);
-			} else {
-				var _v4 = $elm$core$Dict$moveRedLeft(dict);
-				if (_v4.$ === -1) {
-					var nColor = _v4.a;
-					var nKey = _v4.b;
-					var nValue = _v4.c;
-					var nLeft = _v4.d;
-					var nRight = _v4.e;
-					return A5(
-						$elm$core$Dict$balance,
-						nColor,
-						nKey,
-						nValue,
-						$elm$core$Dict$removeMin(nLeft),
-						nRight);
-				} else {
-					return $elm$core$Dict$RBEmpty_elm_builtin;
-				}
-			}
-		} else {
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				color,
-				key,
-				value,
-				$elm$core$Dict$removeMin(left),
-				right);
-		}
-	} else {
-		return $elm$core$Dict$RBEmpty_elm_builtin;
-	}
-};
-var $elm$core$Dict$removeHelp = F2(
-	function (targetKey, dict) {
-		if (dict.$ === -2) {
-			return $elm$core$Dict$RBEmpty_elm_builtin;
-		} else {
-			var color = dict.a;
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
-			if (_Utils_cmp(targetKey, key) < 0) {
-				if ((left.$ === -1) && (left.a === 1)) {
-					var _v4 = left.a;
-					var lLeft = left.d;
-					if ((lLeft.$ === -1) && (!lLeft.a)) {
-						var _v6 = lLeft.a;
-						return A5(
-							$elm$core$Dict$RBNode_elm_builtin,
-							color,
-							key,
-							value,
-							A2($elm$core$Dict$removeHelp, targetKey, left),
-							right);
-					} else {
-						var _v7 = $elm$core$Dict$moveRedLeft(dict);
-						if (_v7.$ === -1) {
-							var nColor = _v7.a;
-							var nKey = _v7.b;
-							var nValue = _v7.c;
-							var nLeft = _v7.d;
-							var nRight = _v7.e;
-							return A5(
-								$elm$core$Dict$balance,
-								nColor,
-								nKey,
-								nValue,
-								A2($elm$core$Dict$removeHelp, targetKey, nLeft),
-								nRight);
-						} else {
-							return $elm$core$Dict$RBEmpty_elm_builtin;
-						}
-					}
-				} else {
-					return A5(
-						$elm$core$Dict$RBNode_elm_builtin,
-						color,
-						key,
-						value,
-						A2($elm$core$Dict$removeHelp, targetKey, left),
-						right);
-				}
-			} else {
-				return A2(
-					$elm$core$Dict$removeHelpEQGT,
-					targetKey,
-					A7($elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
-			}
-		}
-	});
-var $elm$core$Dict$removeHelpEQGT = F2(
-	function (targetKey, dict) {
-		if (dict.$ === -1) {
-			var color = dict.a;
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
-			if (_Utils_eq(targetKey, key)) {
-				var _v1 = $elm$core$Dict$getMin(right);
-				if (_v1.$ === -1) {
-					var minKey = _v1.b;
-					var minValue = _v1.c;
-					return A5(
-						$elm$core$Dict$balance,
-						color,
-						minKey,
-						minValue,
-						left,
-						$elm$core$Dict$removeMin(right));
-				} else {
-					return $elm$core$Dict$RBEmpty_elm_builtin;
-				}
-			} else {
-				return A5(
-					$elm$core$Dict$balance,
-					color,
-					key,
-					value,
-					left,
-					A2($elm$core$Dict$removeHelp, targetKey, right));
-			}
-		} else {
-			return $elm$core$Dict$RBEmpty_elm_builtin;
-		}
-	});
-var $elm$core$Dict$remove = F2(
-	function (key, dict) {
-		var _v0 = A2($elm$core$Dict$removeHelp, key, dict);
-		if ((_v0.$ === -1) && (!_v0.a)) {
-			var _v1 = _v0.a;
-			var k = _v0.b;
-			var v = _v0.c;
-			var l = _v0.d;
-			var r = _v0.e;
-			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
-		} else {
-			var x = _v0;
-			return x;
-		}
-	});
-var $elm$core$Dict$update = F3(
-	function (targetKey, alter, dictionary) {
-		var _v0 = alter(
-			A2($elm$core$Dict$get, targetKey, dictionary));
-		if (!_v0.$) {
-			var value = _v0.a;
-			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
-		} else {
-			return A2($elm$core$Dict$remove, targetKey, dictionary);
-		}
+var $elm_community$list_extra$List$Extra$updateIf = F3(
+	function (predicate, update, list) {
+		return A2(
+			$elm$core$List$map,
+			function (item) {
+				return predicate(item) ? update(item) : item;
+			},
+			list);
 	});
 var $author$project$Playground$Configurations$updateConfigs = function (msg) {
 	switch (msg.$) {
@@ -8276,9 +7779,12 @@ var $author$project$Playground$Configurations$updateConfigs = function (msg) {
 			var key = msg.a;
 			var newValue = msg.b;
 			return A2(
-				$elm$core$Dict$update,
-				key,
-				$elm$core$Maybe$map(
+				$elm_community$list_extra$List$Extra$updateIf,
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$Tuple$first,
+					$elm$core$Basics$eq(key)),
+				$elm$core$Tuple$mapSecond(
 					function (config) {
 						if (config.$ === 1) {
 							var _v2 = config.a;
@@ -8296,9 +7802,12 @@ var $author$project$Playground$Configurations$updateConfigs = function (msg) {
 			var key = msg.a;
 			var newValue = msg.b;
 			return A2(
-				$elm$core$Dict$update,
-				key,
-				$elm$core$Maybe$map(
+				$elm_community$list_extra$List$Extra$updateIf,
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$Tuple$first,
+					$elm$core$Basics$eq(key)),
+				$elm$core$Tuple$mapSecond(
 					function (config) {
 						if (!config.$) {
 							var _v4 = config.a;
@@ -8316,9 +7825,12 @@ var $author$project$Playground$Configurations$updateConfigs = function (msg) {
 			var key = msg.a;
 			var newValue = msg.b;
 			return A2(
-				$elm$core$Dict$update,
-				key,
-				$elm$core$Maybe$map(
+				$elm_community$list_extra$List$Extra$updateIf,
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$Tuple$first,
+					$elm$core$Basics$eq(key)),
+				$elm$core$Tuple$mapSecond(
 					function (config) {
 						if (config.$ === 3) {
 							return $author$project$Playground$Configurations$BoolConfig(newValue);
@@ -8330,9 +7842,12 @@ var $author$project$Playground$Configurations$updateConfigs = function (msg) {
 			var key = msg.a;
 			var newValue = msg.b;
 			return A2(
-				$elm$core$Dict$update,
-				key,
-				$elm$core$Maybe$map(
+				$elm_community$list_extra$List$Extra$updateIf,
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$Tuple$first,
+					$elm$core$Basics$eq(key)),
+				$elm$core$Tuple$mapSecond(
 					function (config) {
 						if (config.$ === 2) {
 							return $author$project$Playground$Configurations$ColorConfig(newValue);
@@ -8358,7 +7873,7 @@ var $author$project$Playground$Computer$updateConfigurations = F2(
 		return _Utils_update(
 			computer,
 			{
-				e7: A2($author$project$Playground$Configurations$update, configurationsMsg, computer.e7)
+				e9: A2($author$project$Playground$Configurations$update, configurationsMsg, computer.e9)
 			});
 	});
 var $author$project$Playground$Tape$updateConfigurations = F2(
@@ -8376,14 +7891,6 @@ var $author$project$Playground$Tape$updateConfigurations = F2(
 						$author$project$Playground$Computer$updateConfigurations(configurationsMsg),
 						pastCurrentFuture.D)
 				}));
-	});
-var $elm$core$Tuple$mapSecond = F2(
-	function (func, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(
-			x,
-			func(y));
 	});
 var $author$project$Playground$Tape$updateCurrentGameModelWithEditorMsg = F3(
 	function (updateFromEditor, editorMsg, _v0) {
@@ -8482,7 +7989,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (clock) {
 															return $elm$json$Json$Decode$succeed(
-																{dL: clock, ff: devicePixelRatio, fj: dt, fJ: keyboard, f6: pointer, $7: screen, gv: wheel});
+																{dN: clock, fh: devicePixelRatio, fl: dt, fL: keyboard, f8: pointer, dp: screen, gx: wheel});
 														},
 														A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 												},
@@ -8521,7 +8028,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 																										$elm$json$Json$Decode$andThen,
 																										function (alt) {
 																											return $elm$json$Json$Decode$succeed(
-																												{eX: alt, e8: control, dO: down, fi: downs, fM: left, f8: pressedKeys, gc: right, gg: shift, eS: up});
+																												{eZ: alt, fa: control, dQ: down, fk: downs, fO: left, ga: pressedKeys, ge: right, gi: shift, eU: up});
 																										},
 																										A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																								},
@@ -8575,7 +8082,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 																						$elm$json$Json$Decode$andThen,
 																						function (down) {
 																							return $elm$json$Json$Decode$succeed(
-																								{dO: down, fG: isDown, fS: move, gd: rightDown, ge: rightUp, eS: up, gx: x, gB: y});
+																								{dQ: down, fI: isDown, fU: move, gf: rightDown, gg: rightUp, eU: up, gz: x, gD: y});
 																						},
 																						A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																				},
@@ -8603,7 +8110,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 								$elm$json$Json$Decode$andThen,
 								function (height) {
 									return $elm$json$Json$Decode$succeed(
-										{dU: height, eV: width});
+										{dW: height, eX: width});
 								},
 								A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 						},
@@ -8619,7 +8126,7 @@ var $author$project$Playground$tick = _Platform_incomingPort(
 						$elm$json$Json$Decode$andThen,
 						function (deltaX) {
 							return $elm$json$Json$Decode$succeed(
-								{fc: deltaX, fd: deltaY});
+								{fe: deltaX, ff: deltaY});
 						},
 						A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 				},
@@ -8684,7 +8191,7 @@ var $author$project$Playground$Icons$draw = $elm$svg$Svg$svg(
 var $elm$svg$Svg$Attributes$fillRule = _VirtualDom_attribute('fill-rule');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $author$project$Playground$Icons$icons = {
-	fa: $author$project$Playground$Icons$draw(
+	fc: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8695,7 +8202,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fq: $author$project$Playground$Icons$draw(
+	fs: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8706,7 +8213,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fv: $author$project$Playground$Icons$draw(
+	fx: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8717,7 +8224,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fy: $author$project$Playground$Icons$draw(
+	fA: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8728,7 +8235,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fT: $author$project$Playground$Icons$draw(
+	fV: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8746,7 +8253,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	fU: $author$project$Playground$Icons$draw(
+	fW: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8764,7 +8271,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f3: $author$project$Playground$Icons$draw(
+	f5: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8775,7 +8282,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f4: $author$project$Playground$Icons$draw(
+	f6: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8786,7 +8293,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f5: $author$project$Playground$Icons$draw(
+	f7: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8797,7 +8304,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	f6: $author$project$Playground$Icons$draw(
+	f8: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8808,7 +8315,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	go: $author$project$Playground$Icons$draw(
+	gq: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8821,7 +8328,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	gp: $author$project$Playground$Icons$draw(
+	gr: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8832,7 +8339,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	gG: $author$project$Playground$Icons$draw(
+	gI: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8863,37 +8370,8 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
 var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
-var $elm$core$Dict$map = F2(
-	function (func, dict) {
-		if (dict.$ === -2) {
-			return $elm$core$Dict$RBEmpty_elm_builtin;
-		} else {
-			var color = dict.a;
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				color,
-				key,
-				A2(func, key, value),
-				A2($elm$core$Dict$map, func, left),
-				A2($elm$core$Dict$map, func, right));
-		}
-	});
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Dict$values = function (dict) {
-	return A3(
-		$elm$core$Dict$foldr,
-		F3(
-			function (key, value, valueList) {
-				return A2($elm$core$List$cons, value, valueList);
-			}),
-		_List_Nil,
-		dict);
-};
 var $author$project$Playground$Configurations$SetBool = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
@@ -8954,12 +8432,12 @@ var $avh4$elm_color$Color$toRgba = function (_v0) {
 	var g = _v0.b;
 	var b = _v0.c;
 	var a = _v0.d;
-	return {a4: a, cB: b, cI: g, di: r};
+	return {a4: a, cB: b, cJ: g, dj: r};
 };
 var $noahzgordon$elm_color_extra$Color$Convert$colorToHex = function (cl) {
 	var _v0 = $avh4$elm_color$Color$toRgba(cl);
-	var red = _v0.di;
-	var green = _v0.cI;
+	var red = _v0.dj;
+	var green = _v0.cJ;
 	var blue = _v0.cB;
 	return A2(
 		$elm$core$String$join,
@@ -9013,7 +8491,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {fB: index, fQ: match, fZ: number, gk: submatches};
+		return {fD: index, fS: match, f$: number, gm: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -9030,7 +8508,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{e2: false, fV: false},
+		{e4: false, fX: false},
 		string);
 };
 var $elm$core$List$head = function (list) {
@@ -9167,7 +8645,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.gk;
+							return $.gm;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -9279,15 +8757,18 @@ var $elm$html$Html$Attributes$step = function (n) {
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Playground$ConfigurationsGUI$sliderInput = function (_v0) {
-	var labelText = _v0.cL;
-	var value = _v0.dA;
-	var min = _v0.c$;
-	var max = _v0.cX;
-	var step = _v0.dr;
-	var onChange = _v0.c3;
+	var labelText = _v0.cM;
+	var value = _v0.dB;
+	var min = _v0.c0;
+	var max = _v0.cY;
+	var step = _v0.ds;
+	var onChange = _v0.c4;
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('flex flex-col gap-2')
+			]),
 		_List_fromArray(
 			[
 				A2(
@@ -9366,134 +8847,135 @@ var $elm$core$Result$withDefault = F2(
 			return def;
 		}
 	});
-var $author$project$Playground$ConfigurationsGUI$viewConfig = F2(
-	function (key, config) {
-		switch (config.$) {
-			case 3:
-				var value = config.a;
-				return A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('h-12 py-4')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$label,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('block'),
-									$elm$html$Html$Attributes$for(key)
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$input,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('relative bottom-[1px] align-middle mr-2'),
-											$elm$html$Html$Attributes$type_('checkbox'),
-											$elm$html$Html$Attributes$id(key),
-											$elm$html$Html$Attributes$name(key),
-											$elm$html$Html$Events$onCheck(
-											$author$project$Playground$Configurations$SetBool(key)),
-											$elm$html$Html$Attributes$checked(value)
-										]),
-									_List_Nil),
-									$elm$html$Html$text(key)
-								]))
-						]));
-			case 0:
-				var _v1 = config.a;
-				var min = _v1.a;
-				var max = _v1.b;
-				var value = config.b;
-				return $author$project$Playground$ConfigurationsGUI$sliderInput(
-					{
-						cL: key,
-						cX: max,
-						c$: min,
-						c3: $author$project$Playground$Configurations$SetFloat(key),
-						dr: 0.01 * (max - min),
-						dA: value
-					});
-			case 1:
-				var _v2 = config.a;
-				var min = _v2.a;
-				var max = _v2.b;
-				var value = config.b;
-				return $author$project$Playground$ConfigurationsGUI$sliderInput(
-					{
-						cL: key,
-						cX: max,
-						c$: min,
-						c3: A2(
-							$elm$core$Basics$composeR,
-							$elm$core$Basics$round,
-							$author$project$Playground$Configurations$SetInt(key)),
-						dr: 1,
-						dA: value
-					});
-			default:
-				var value = config.a;
-				return A2(
-					$elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$label,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$for(key)
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text(key)
-										]))
-								])),
-							A2(
-							$elm$html$Html$input,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$type_('color'),
-									A2($elm$html$Html$Attributes$style, 'width', '100%'),
-									A2($elm$html$Html$Attributes$style, 'height', '26px'),
-									A2($elm$html$Html$Attributes$style, 'padding', '0px'),
-									$elm$html$Html$Attributes$id(key),
-									$elm$html$Html$Attributes$name(key),
-									$elm$html$Html$Events$onInput(
-									function (newValue) {
-										return A2(
-											$author$project$Playground$Configurations$SetColor,
-											key,
-											A2(
-												$elm$core$Result$withDefault,
-												$avh4$elm_color$Color$black,
-												$noahzgordon$elm_color_extra$Color$Convert$hexToColor(newValue)));
-									}),
-									$elm$html$Html$Attributes$value(
-									$noahzgordon$elm_color_extra$Color$Convert$colorToHex(value))
-								]),
-							_List_Nil)
-						]));
-		}
-	});
+var $author$project$Playground$ConfigurationsGUI$viewConfig = function (_v0) {
+	var key = _v0.a;
+	var config = _v0.b;
+	switch (config.$) {
+		case 3:
+			var value = config.a;
+			return A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('h-12 py-4')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('block'),
+								$elm$html$Html$Attributes$for(key)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$input,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('relative bottom-[1px] align-middle mr-2'),
+										$elm$html$Html$Attributes$type_('checkbox'),
+										$elm$html$Html$Attributes$id(key),
+										$elm$html$Html$Attributes$name(key),
+										$elm$html$Html$Events$onCheck(
+										$author$project$Playground$Configurations$SetBool(key)),
+										$elm$html$Html$Attributes$checked(value)
+									]),
+								_List_Nil),
+								$elm$html$Html$text(key)
+							]))
+					]));
+		case 0:
+			var _v2 = config.a;
+			var min = _v2.a;
+			var max = _v2.b;
+			var value = config.b;
+			return $author$project$Playground$ConfigurationsGUI$sliderInput(
+				{
+					cM: key,
+					cY: max,
+					c0: min,
+					c4: $author$project$Playground$Configurations$SetFloat(key),
+					ds: 0.01 * (max - min),
+					dB: value
+				});
+		case 1:
+			var _v3 = config.a;
+			var min = _v3.a;
+			var max = _v3.b;
+			var value = config.b;
+			return $author$project$Playground$ConfigurationsGUI$sliderInput(
+				{
+					cM: key,
+					cY: max,
+					c0: min,
+					c4: A2(
+						$elm$core$Basics$composeR,
+						$elm$core$Basics$round,
+						$author$project$Playground$Configurations$SetInt(key)),
+					ds: 1,
+					dB: value
+				});
+		default:
+			var value = config.a;
+			return A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$label,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$for(key)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(key)
+									]))
+							])),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$type_('color'),
+								A2($elm$html$Html$Attributes$style, 'width', '100%'),
+								A2($elm$html$Html$Attributes$style, 'height', '26px'),
+								A2($elm$html$Html$Attributes$style, 'padding', '0px'),
+								$elm$html$Html$Attributes$id(key),
+								$elm$html$Html$Attributes$name(key),
+								$elm$html$Html$Events$onInput(
+								function (newValue) {
+									return A2(
+										$author$project$Playground$Configurations$SetColor,
+										key,
+										A2(
+											$elm$core$Result$withDefault,
+											$avh4$elm_color$Color$black,
+											$noahzgordon$elm_color_extra$Color$Convert$hexToColor(newValue)));
+								}),
+								$elm$html$Html$Attributes$value(
+								$noahzgordon$elm_color_extra$Color$Convert$colorToHex(value))
+							]),
+						_List_Nil)
+					]));
+	}
+};
 var $author$project$Playground$ConfigurationsGUI$viewBlock = function (block) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('p-4 border-y-[0.5px] border-white/20')
+				$elm$html$Html$Attributes$class('flex flex-col gap-4')
 			]),
 		_List_fromArray(
 			[
@@ -9501,20 +8983,20 @@ var $author$project$Playground$ConfigurationsGUI$viewBlock = function (block) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('text-lg pb-2')
+						$elm$html$Html$Attributes$class('text-2xl font-bold')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(block.fW)
+						$elm$html$Html$text(block.fY)
 					])),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('pl-2 pr-2')
+						$elm$html$Html$Attributes$class('text-sm'),
+						$elm$html$Html$Attributes$class('flex flex-col gap-4')
 					]),
-				$elm$core$Dict$values(
-					A2($elm$core$Dict$map, $author$project$Playground$ConfigurationsGUI$viewConfig, block.aR)))
+				A2($elm$core$List$map, $author$project$Playground$ConfigurationsGUI$viewConfig, block.aR))
 			]));
 };
 var $author$project$Playground$ConfigurationsGUI$view = function (configurations) {
@@ -9522,7 +9004,8 @@ var $author$project$Playground$ConfigurationsGUI$view = function (configurations
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('text-xs text-white/60')
+				$elm$html$Html$Attributes$class('p-6 text-gray-300'),
+				$elm$html$Html$Attributes$class('flex flex-col gap-12')
 			]),
 		A2($elm$core$List$map, $author$project$Playground$ConfigurationsGUI$viewBlock, configurations));
 };
@@ -9539,7 +9022,7 @@ var $author$project$Playground$Tape$viewClock = function (tape) {
 				'clock: ' + A2(
 					$myrho$elm_round$Round$round,
 					3,
-					$author$project$Playground$Tape$currentComputer(tape).dL))
+					$author$project$Playground$Tape$currentComputer(tape).dN))
 			]));
 };
 var $author$project$Playground$Tape$fpsMeter = function (tape) {
@@ -9549,7 +9032,7 @@ var $author$project$Playground$Tape$fpsMeter = function (tape) {
 		$elm$core$Maybe$map,
 		function (t) {
 			return $elm$core$Basics$round(
-				60 / ($author$project$Playground$Tape$currentComputer(tape).dL - t));
+				60 / ($author$project$Playground$Tape$currentComputer(tape).dN - t));
 		},
 		A2(
 			$elm$core$Maybe$map,
@@ -9557,7 +9040,7 @@ var $author$project$Playground$Tape$fpsMeter = function (tape) {
 				$elm$core$Basics$composeR,
 				$elm$core$Tuple$first,
 				function ($) {
-					return $.dL;
+					return $.dN;
 				}),
 			$elm$core$List$head(
 				A2($elm$core$List$drop, 59, pastReversed))));
@@ -9703,16 +9186,16 @@ var $author$project$Playground$Tape$viewTapeButtons = function (_v0) {
 						return A3(
 							$author$project$Playground$Tape$tapeButtonWithIcon,
 							$elm$core$List$isEmpty(future),
-							$author$project$Playground$Icons$icons.f4,
+							$author$project$Playground$Icons$icons.f6,
 							$author$project$Playground$Tape$PressedPlayButton);
 					case 1:
 						return A3(
 							$author$project$Playground$Tape$tapeButtonWithIcon,
 							$elm$core$List$isEmpty(future),
-							$author$project$Playground$Icons$icons.f4,
+							$author$project$Playground$Icons$icons.f6,
 							$author$project$Playground$Tape$PressedPlayButton);
 					default:
-						return A3($author$project$Playground$Tape$tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.f3, $author$project$Playground$Tape$PressedPauseButton);
+						return A3($author$project$Playground$Tape$tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.f5, $author$project$Playground$Tape$PressedPauseButton);
 				}
 			}()
 			]));
@@ -9746,11 +9229,11 @@ var $author$project$Playground$viewComputer = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'left',
-					$elm$core$String$fromFloat(computer.f6.gx + (0.5 * computer.$7.eV)) + 'px'),
+					$elm$core$String$fromFloat(computer.f8.gz + (0.5 * computer.dp.eX)) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'top',
-					$elm$core$String$fromFloat((-computer.f6.gB) + (0.5 * computer.$7.dU)) + 'px')
+					$elm$core$String$fromFloat((-computer.f8.gD) + (0.5 * computer.dp.dW)) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -9759,10 +9242,10 @@ var $author$project$Playground$viewComputer = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							computer.f6.fG ? 'text-black/80' : 'text-black/40')
+							computer.f8.fI ? 'text-black/80' : 'text-black/40')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.f6]))
+						[$author$project$Playground$Icons$icons.f8]))
 				]));
 		return A2(
 			$elm$html$Html$div,
@@ -9782,7 +9265,7 @@ var $author$project$Playground$viewGUI = F2(
 					$elm$html$Html$Attributes$title('Distraction Free Mode')
 				]),
 			_List_fromArray(
-				[$author$project$Playground$Icons$icons.gG]));
+				[$author$project$Playground$Icons$icons.gI]));
 		var widthOfLeftStripe = 40;
 		var widthOfConfigurationsEditor = 260;
 		var twitterLink = A2(
@@ -9802,7 +9285,7 @@ var $author$project$Playground$viewGUI = F2(
 							$elm$html$Html$Attributes$target('_blank')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.gp]))
+						[$author$project$Playground$Icons$icons.gr]))
 				]));
 		var homeButton = A2(
 			$elm$html$Html$div,
@@ -9822,7 +9305,7 @@ var $author$project$Playground$viewGUI = F2(
 							$elm$html$Html$Attributes$title('Home of all examples')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.fy]))
+						[$author$project$Playground$Icons$icons.fA]))
 				]));
 		var heightOfTape = 80;
 		var githubLink = A2(
@@ -9842,9 +9325,9 @@ var $author$project$Playground$viewGUI = F2(
 							$elm$html$Html$Attributes$target('_blank')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.fq]))
+						[$author$project$Playground$Icons$icons.fs]))
 				]));
-		var _v0 = (computer.$7.eV > 640) ? _Utils_Tuple3(computer.$7.dU, widthOfLeftStripe + widthOfConfigurationsEditor, computer.$7.eV - (widthOfLeftStripe + widthOfConfigurationsEditor)) : _Utils_Tuple3(computer.$7.dU - heightOfTape, widthOfLeftStripe, computer.$7.eV - widthOfLeftStripe);
+		var _v0 = (computer.dp.eX > 640) ? _Utils_Tuple3(computer.dp.dW, widthOfLeftStripe + widthOfConfigurationsEditor, computer.dp.eX - (widthOfLeftStripe + widthOfConfigurationsEditor)) : _Utils_Tuple3(computer.dp.dW - heightOfTape, widthOfLeftStripe, computer.dp.eX - widthOfLeftStripe);
 		var heightOfConfigurationsEditor = _v0.a;
 		var leftOfTape = _v0.b;
 		var widthOfTape = _v0.c;
@@ -9892,7 +9375,7 @@ var $author$project$Playground$viewGUI = F2(
 							$elm$html$Html$map,
 							$author$project$Playground$FromConfigurationsEditor,
 							$author$project$Playground$ConfigurationsGUI$view(
-								$author$project$Playground$Tape$currentComputer(model.I).e7))
+								$author$project$Playground$Tape$currentComputer(model.I).e9))
 						])),
 					A2(
 					$elm$html$Html$div,
@@ -9936,11 +9419,11 @@ var $author$project$Playground$view = F3(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'width',
-					$elm$core$String$fromFloat(computer.$7.eV) + 'px'),
+					$elm$core$String$fromFloat(computer.dp.eX) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.$7.dU) + 'px')
+					$elm$core$String$fromFloat(computer.dp.dW) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -9982,21 +9465,21 @@ var $author$project$Playground$gameWithConfigurationsAndEditor = F6(
 					$elm$core$Platform$Cmd$none);
 			});
 		var init = function (flags) {
-			var initialComputer = A2($author$project$Playground$Computer$assignConfigurations, initialConfigurations, flags.fD);
+			var initialComputer = A2($author$project$Playground$Computer$assignConfigurations, initialConfigurations, flags.fF);
 			return _Utils_Tuple2(
 				{
-					a6: flags.fD.$7.eV < 500,
+					a6: flags.fF.dp.eX < 500,
 					I: A2($author$project$Playground$Tape$init, initialComputer, initGameModel)
 				},
 				$elm$core$Platform$Cmd$none);
 		};
 		return $elm$browser$Browser$element(
 			{
-				fC: init,
-				gl: $elm$core$Basics$always(
+				fE: init,
+				gn: $elm$core$Basics$always(
 					$author$project$Playground$tick($author$project$Playground$Tick)),
-				gq: update,
-				gt: A2($author$project$Playground$view, viewGameModel, viewEditor)
+				gs: update,
+				gv: A2($author$project$Playground$view, viewGameModel, viewEditor)
 			});
 	});
 var $author$project$Playground$gameWithConfigurations = F4(
@@ -10021,28 +9504,11 @@ var $author$project$GooeyEffect$Main$init = function (computer) {
 };
 var $author$project$Playground$Configurations$Block = F3(
 	function (name, isOpen, configs) {
-		return {aR: configs, fH: isOpen, fW: name};
+		return {aR: configs, fJ: isOpen, fY: name};
 	});
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
 var $author$project$Playground$Configurations$configBlock = F3(
 	function (name, isOn, configList) {
-		return A3(
-			$author$project$Playground$Configurations$Block,
-			name,
-			isOn,
-			$elm$core$Dict$fromList(configList));
+		return A3($author$project$Playground$Configurations$Block, name, isOn, configList);
 	});
 var $author$project$Playground$configBlock = $author$project$Playground$Configurations$configBlock;
 var $author$project$Playground$floatConfig = F3(
@@ -10134,36 +9600,64 @@ var $elm_explorations$webgl$WebGL$entity = $elm_explorations$webgl$WebGL$entityW
 var $author$project$GooeyEffect$Main$fragmentShader = {
 	src: '\n        precision mediump float;\n\n        uniform float time;\n        uniform vec2 resolution;\n        uniform float ballRadius;\n\n        void main () {\n            vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);\n\n            vec2 centers[3];\n            centers[0] = vec2(sin(time * 0.5) * 0.2, cos(time * 0.2) * 0.3);\n            centers[1] = vec2(sin(time * 0.6) * 0.3, cos(time * 0.7) * 0.2);\n            centers[2] = vec2(sin(time * 0.4) * 0.3, cos(time * 0.3) * 0.3);\n\n            vec3 pixel = vec3(0.0, 0.0, 0.0);\n            for	(int i = 0; i < 3; i++)\n                pixel += vec3(ballRadius / distance(uv, centers[i]));\n\n            pixel = step(1.0, pixel);\n\n            gl_FragColor = vec4(pixel, 1.0);\n        }\n    ',
 	attributes: {},
-	uniforms: {ballRadius: 'dI', resolution: 'eG', time: 'eP'}
+	uniforms: {ballRadius: 'dK', resolution: 'eI', time: 'eR'}
 };
+var $elm_community$list_extra$List$Extra$findMap = F2(
+	function (f, list) {
+		findMap:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var a = list.a;
+				var tail = list.b;
+				var _v1 = f(a);
+				if (!_v1.$) {
+					var b = _v1.a;
+					return $elm$core$Maybe$Just(b);
+				} else {
+					var $temp$f = f,
+						$temp$list = tail;
+					f = $temp$f;
+					list = $temp$list;
+					continue findMap;
+				}
+			}
+		}
+	});
 var $author$project$Playground$Configurations$getFloatFromBlock = F2(
 	function (key, block) {
 		return A2(
-			$elm$core$Maybe$map,
-			function (config) {
-				if (!config.$) {
-					var value = config.b;
-					return value;
+			$elm_community$list_extra$List$Extra$findMap,
+			function (_v0) {
+				var k = _v0.a;
+				var config = _v0.b;
+				var _v1 = _Utils_Tuple2(
+					_Utils_eq(k, key),
+					config);
+				if (_v1.a && (!_v1.b.$)) {
+					var _v2 = _v1.b;
+					var value = _v2.b;
+					return $elm$core$Maybe$Just(value);
 				} else {
-					return 0;
+					return $elm$core$Maybe$Nothing;
 				}
 			},
-			A2($elm$core$Dict$get, key, block.aR));
+			block.aR);
 	});
 var $author$project$Playground$Configurations$getFloat = F2(
 	function (key, configurations) {
 		return A2(
 			$elm$core$Maybe$withDefault,
 			0,
-			$elm$core$List$head(
-				A2(
-					$elm$core$List$filterMap,
-					$author$project$Playground$Configurations$getFloatFromBlock(key),
-					configurations)));
+			A2(
+				$elm_community$list_extra$List$Extra$findMap,
+				$author$project$Playground$Configurations$getFloatFromBlock(key),
+				configurations));
 	});
 var $author$project$Playground$Computer$getFloat = F2(
 	function (key, computer) {
-		return A2($author$project$Playground$Configurations$getFloat, key, computer.e7);
+		return A2($author$project$Playground$Configurations$getFloat, key, computer.e9);
 	});
 var $author$project$Playground$getFloat = $author$project$Playground$Computer$getFloat;
 var $elm$html$Html$Attributes$height = function (n) {
@@ -10173,14 +9667,14 @@ var $elm$html$Html$Attributes$height = function (n) {
 		$elm$core$String$fromInt(n));
 };
 var $author$project$GooeyEffect$Main$Vertex = function (position) {
-	return {f7: position};
+	return {f9: position};
 };
 var $elm_explorations$webgl$WebGL$MeshIndexed3 = F3(
 	function (a, b, c) {
 		return {$: 3, a: a, b: b, c: c};
 	});
 var $elm_explorations$webgl$WebGL$indexedTriangles = $elm_explorations$webgl$WebGL$MeshIndexed3(
-	{dP: 1, dX: 3, es: 4});
+	{dR: 1, dZ: 3, eu: 4});
 var $elm_explorations$linear_algebra$Math$Vector2$vec2 = _MJS_v2;
 var $author$project$GooeyEffect$Main$mesh = A2(
 	$elm_explorations$webgl$WebGL$indexedTriangles,
@@ -10223,7 +9717,7 @@ var $elm_explorations$webgl$WebGL$toHtml = $elm_explorations$webgl$WebGL$toHtmlW
 		]));
 var $author$project$GooeyEffect$Main$vertexShader = {
 	src: '\n        attribute vec2 position;\n\n        void main () {\n            gl_Position = vec4(position, 0.0, 1.0);\n        }\n    ',
-	attributes: {position: 'f7'},
+	attributes: {position: 'f9'},
 	uniforms: {}
 };
 var $elm$html$Html$Attributes$width = function (n) {
@@ -10234,7 +9728,7 @@ var $elm$html$Html$Attributes$width = function (n) {
 };
 var $author$project$GooeyEffect$Main$view = F2(
 	function (computer, model) {
-		var _v0 = _Utils_Tuple2(computer.$7.eV, computer.$7.dU);
+		var _v0 = _Utils_Tuple2(computer.dp.eX, computer.dp.dW);
 		var w = _v0.a;
 		var h = _v0.b;
 		return A2(
@@ -10254,9 +9748,9 @@ var $author$project$GooeyEffect$Main$view = F2(
 					$author$project$GooeyEffect$Main$fragmentShader,
 					$author$project$GooeyEffect$Main$mesh,
 					{
-						dI: A2($author$project$Playground$getFloat, 'ball radius', computer),
-						eG: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, w, h),
-						eP: computer.dL
+						dK: A2($author$project$Playground$getFloat, 'ball radius', computer),
+						eI: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, w, h),
+						eR: computer.dN
 					})
 				]));
 	});
@@ -10266,7 +9760,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 		$elm$json$Json$Decode$andThen,
 		function (inputs) {
 			return $elm$json$Json$Decode$succeed(
-				{fD: inputs});
+				{fF: inputs});
 		},
 		A2(
 			$elm$json$Json$Decode$field,
@@ -10293,7 +9787,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{dL: clock, ff: devicePixelRatio, fj: dt, fJ: keyboard, f6: pointer, $7: screen, gv: wheel});
+																		{dN: clock, fh: devicePixelRatio, fl: dt, fL: keyboard, f8: pointer, dp: screen, gx: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -10332,7 +9826,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{eX: alt, e8: control, dO: down, fi: downs, fM: left, f8: pressedKeys, gc: right, gg: shift, eS: up});
+																														{eZ: alt, fa: control, dQ: down, fk: downs, fO: left, ga: pressedKeys, ge: right, gi: shift, eU: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -10386,7 +9880,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{dO: down, fG: isDown, fS: move, gd: rightDown, ge: rightUp, eS: up, gx: x, gB: y});
+																										{dQ: down, fI: isDown, fU: move, gf: rightDown, gg: rightUp, eU: up, gz: x, gD: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
@@ -10414,7 +9908,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 										$elm$json$Json$Decode$andThen,
 										function (height) {
 											return $elm$json$Json$Decode$succeed(
-												{dU: height, eV: width});
+												{dW: height, eX: width});
 										},
 										A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 								},
@@ -10430,7 +9924,7 @@ _Platform_export({'GooeyEffect':{'Main':{'init':$author$project$GooeyEffect$Main
 								$elm$json$Json$Decode$andThen,
 								function (deltaX) {
 									return $elm$json$Json$Decode$succeed(
-										{fc: deltaX, fd: deltaY});
+										{fe: deltaX, ff: deltaY});
 								},
 								A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 						},
