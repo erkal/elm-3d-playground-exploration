@@ -64,7 +64,7 @@ viewEditor computer model =
         , class "overflow-y-auto"
         ]
         [ div
-            [ class "mx-auto container max-w-5xl h-full py-6 px-6 sm:px-12 text-lg text-white"
+            [ class "mx-auto container max-w-5xl h-full p-12 sm:px-12 text-lg text-white"
             , class "flex flex-col items-center"
             ]
             [ div [ class "text-3xl font-extrabold mb-8 tracking-tight" ]
