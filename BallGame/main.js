@@ -10327,8 +10327,8 @@ var $author$project$BallGame$Main$initialConfigurations = _List_fromArray(
 			[
 				A2($author$project$Playground$boolConfig, 'draw speed vector', false),
 				A2($author$project$Playground$boolConfig, 'draw ball trail', true),
-				A2($author$project$Playground$boolConfig, 'orthographic', true),
-				A2($author$project$Playground$boolConfig, 'unlit', true)
+				A2($author$project$Playground$boolConfig, 'orthographic', false),
+				A2($author$project$Playground$boolConfig, 'unlit', false)
 			])),
 		A3(
 		$author$project$Playground$configBlock,
@@ -16824,6 +16824,27 @@ var $author$project$BallGame$Main$drawPolygonBeingEdited = F2(
 			return $author$project$Scene$group(_List_Nil);
 		}
 	});
+var $avh4$elm_color$Color$hsla = F4(
+	function (hue, sat, light, alpha) {
+		var _v0 = _Utils_Tuple3(hue, sat, light);
+		var h = _v0.a;
+		var s = _v0.b;
+		var l = _v0.c;
+		var m2 = (l <= 0.5) ? (l * (s + 1)) : ((l + s) - (l * s));
+		var m1 = (l * 2) - m2;
+		var hueToRgb = function (h__) {
+			var h_ = (h__ < 0) ? (h__ + 1) : ((h__ > 1) ? (h__ - 1) : h__);
+			return ((h_ * 6) < 1) ? (m1 + (((m2 - m1) * h_) * 6)) : (((h_ * 2) < 1) ? m2 : (((h_ * 3) < 2) ? (m1 + (((m2 - m1) * ((2 / 3) - h_)) * 6)) : m1));
+		};
+		var b = hueToRgb(h - (1 / 3));
+		var g = hueToRgb(h);
+		var r = hueToRgb(h + (1 / 3));
+		return A4($avh4$elm_color$Color$RgbaSpace, r, g, b, alpha);
+	});
+var $avh4$elm_color$Color$hsl = F3(
+	function (h, s, l) {
+		return A4($avh4$elm_color$Color$hsla, h, s, l, 1.0);
+	});
 var $author$project$Geometry$translateBy = F2(
 	function (_v0, p) {
 		var dx = _v0.a;
@@ -18210,7 +18231,10 @@ var $author$project$BallGame$Triangulate$triangulate = function (vertices) {
 };
 var $author$project$BallGame$Main$drawPolygons = F2(
 	function (computer, model) {
-		var material_ = A2($author$project$BallGame$Main$material, computer, $avh4$elm_color$Color$blue);
+		var material_ = A2(
+			$author$project$BallGame$Main$material,
+			computer,
+			A3($avh4$elm_color$Color$hsl, 0.6, 0.5, 0.5));
 		var height = 2;
 		var to3dPoint = function (_v2) {
 			var x = _v2.J;
@@ -18596,7 +18620,7 @@ var $author$project$BallGame$Main$viewGame = F2(
 			}) : $author$project$Scene$custom(
 			{
 				fm: $ianmackenzie$elm_3d_scene$Scene3d$multisampling,
-				fr: A3($avh4$elm_color$Color$rgb255, 46, 46, 46),
+				fr: A3($avh4$elm_color$Color$hsl, 0.5, 0.3, 0.3),
 				aA: model.aA,
 				dX: 0.1,
 				by: computer.by,
