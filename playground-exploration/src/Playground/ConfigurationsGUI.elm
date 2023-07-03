@@ -11,15 +11,22 @@ import Playground.Configurations exposing (..)
 
 view : Configurations -> Html Msg
 view configurations =
-    div [ class "text-xs text-white/60" ]
+    div
+        [ class "p-6 text-gray-300"
+        , class "flex flex-col gap-12"
+        ]
         (List.map viewBlock configurations)
 
 
 viewBlock : Block -> Html Msg
 viewBlock block =
-    div [ class "p-4 border-y-[0.5px] border-white/20" ]
-        [ div [ class "text-lg pb-2" ] [ Html.text block.name ]
-        , div [ class "pl-2 pr-2" ] (block.configs |> List.map viewConfig)
+    div [ class "flex flex-col gap-4" ]
+        [ div [ class "text-2xl font-bold" ] [ Html.text block.name ]
+        , div
+            [ class "text-sm"
+            , class "flex flex-col gap-4"
+            ]
+            (block.configs |> List.map viewConfig)
         ]
 
 
@@ -91,7 +98,7 @@ viewConfig ( key, config ) =
 
 sliderInput : { labelText : String, value : Float, min : Float, max : Float, step : Float, onChange : Float -> Msg } -> Html Msg
 sliderInput { labelText, value, min, max, step, onChange } =
-    div []
+    div [ class "flex flex-col gap-2" ]
         [ label
             [ for labelText ]
             [ div [ class "relative w-full" ]
