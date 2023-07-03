@@ -15067,7 +15067,7 @@ var $author$project$ZoomAndPan$Main$view = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('absolute w-screen h-screen text-center text-xs text-white60')
+							$elm$html$Html$Attributes$class('absolute w-screen h-screen text-center text-xs text-white/60')
 						]),
 					_List_fromArray(
 						[

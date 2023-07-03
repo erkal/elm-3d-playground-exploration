@@ -18313,7 +18313,7 @@ var $author$project$RedFacedCube$Main$makeButton = F2(
 			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('m-1 p-2 rounded bg-black40 hover:bg-black80'),
+					$elm$html$Html$Attributes$class('m-1 p-2 rounded bg-black/40 hover:bg-black/80'),
 					$elm$html$Html$Events$onClick(msg)
 				]),
 			_List_fromArray(
@@ -18370,7 +18370,7 @@ var $author$project$RedFacedCube$Main$viewSolutions = F2(
 											$elm$html$Html$div,
 											_List_fromArray(
 												[
-													$elm$html$Html$Attributes$class('m-2 p-2 w-24 bg-black60 hover:bg-black cursor-crosshair'),
+													$elm$html$Html$Attributes$class('m-2 p-2 w-24 bg-black/60 hover:bg-black cursor-crosshair'),
 													$elm$html$Html$Events$onMouseEnter(
 													$author$project$RedFacedCube$Main$MouseEnterSolution(p)),
 													$elm$html$Html$Events$onMouseLeave($author$project$RedFacedCube$Main$MouseLeftSolution)
@@ -18396,10 +18396,10 @@ var $author$project$RedFacedCube$Main$editorContent = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(computer.ae.f_ - 80) + 'px'),
-					$elm$html$Html$Attributes$class('bg-black20'),
-					$elm$html$Html$Attributes$class('border-[0.5px] border-white20'),
+					$elm$html$Html$Attributes$class('bg-black/20'),
+					$elm$html$Html$Attributes$class('border-[0.5px] border-white/20'),
 					$elm$html$Html$Attributes$class('overflow-y-scroll'),
-					$elm$html$Html$Attributes$class('text-xs text-white60')
+					$elm$html$Html$Attributes$class('text-xs text-white/60')
 				]),
 			_List_fromArray(
 				[
@@ -18417,7 +18417,7 @@ var $author$project$RedFacedCube$Main$editorContent = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white20')
+							$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white/20')
 						]),
 					_List_fromArray(
 						[
@@ -18467,7 +18467,7 @@ var $author$project$RedFacedCube$Main$editorToggleButton = function (model) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60')
+				$elm$html$Html$Attributes$class('fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60')
 			]),
 		_List_fromArray(
 			[

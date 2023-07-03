@@ -17537,7 +17537,7 @@ var $author$project$TrixelEditor$Main$view = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('absolute w-screen h-screen text-center text-lg text-white60')
+							$elm$html$Html$Attributes$class('absolute w-screen h-screen text-center text-lg text-white/60')
 						]),
 					_List_fromArray(
 						[
@@ -17809,7 +17809,7 @@ var $author$project$TrixelEditor$Main$pageSelection = function (model) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white20')
+				$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white/20')
 			]),
 		_List_fromArray(
 			[
@@ -17845,7 +17845,7 @@ var $author$project$TrixelEditor$Main$makeButton = F2(
 			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('m-1 p-2 rounded bg-black40 hover:bg-black80'),
+					$elm$html$Html$Attributes$class('m-1 p-2 rounded bg-black/40 hover:bg-black/80'),
 					$elm$html$Html$Events$onClick(msg)
 				]),
 			_List_fromArray(
@@ -17947,7 +17947,7 @@ var $author$project$TrixelEditor$Main$selectColorPalette = function (model) {
 				$elm$html$Html$select,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('p-2 text-white80 bg-black20'),
+						$elm$html$Html$Attributes$class('p-2 text-white/80 bg-black/20'),
 						$elm_community$html_extra$Html$Events$Extra$onChange(
 						A2($elm$core$Basics$composeR, $author$project$TrixelEditor$ColorPalette$fromString, $author$project$TrixelEditor$Main$SelectPalette)),
 						$elm$html$Html$Attributes$value(
@@ -18039,7 +18039,7 @@ var $author$project$TrixelEditor$Main$viewColorSelection = function (model) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white20')
+				$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white/20')
 			]),
 		_List_fromArray(
 			[
@@ -18070,7 +18070,7 @@ var $author$project$TrixelEditor$Main$viewInstructions = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
 		[
-			$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white20')
+			$elm$html$Html$Attributes$class('p-4 border-[0.5px] border-white/20')
 		]),
 	_List_fromArray(
 		[
@@ -18136,10 +18136,10 @@ var $author$project$TrixelEditor$Main$editorContent = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(computer.ae.fX - 80) + 'px'),
-					$elm$html$Html$Attributes$class('bg-black20'),
-					$elm$html$Html$Attributes$class('border-[0.5px] border-white20'),
+					$elm$html$Html$Attributes$class('bg-black/20'),
+					$elm$html$Html$Attributes$class('border-[0.5px] border-white/20'),
 					$elm$html$Html$Attributes$class('overflow-y-scroll'),
-					$elm$html$Html$Attributes$class('text-xs text-white60')
+					$elm$html$Html$Attributes$class('text-xs text-white/60')
 				]),
 			_List_fromArray(
 				[
@@ -18190,7 +18190,7 @@ var $author$project$TrixelEditor$Main$editorToggleButton = function (model) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('fixed top-0 right-0 p-2 text-white20 hover:text-white active:text-white60')
+				$elm$html$Html$Attributes$class('fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60')
 			]),
 		_List_fromArray(
 			[
