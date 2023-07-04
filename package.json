@@ -9,8 +9,7 @@
     "prebuild": "elm-tooling install",
     "watch-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css --watch",
     "watch-elm": "npx elm-watch hot",
-    "serve": "npx http-server .",
-    "dev": "bash ./scripts/prebuild.sh && npx run-pty % npm run watch-tailwind % npm run watch-elm % npm run serve % open http://127.0.0.1:8080/build/WebPage/index.html",
+    "dev": "bash ./scripts/prebuild.sh && npx run-pty % npm run watch-tailwind % npm run watch-elm",
     "build-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css",
     "build-elm": "npx elm-watch make --optimize",
     "build": "bash ./scripts/prebuild.sh && npm run build-tailwind && npm run build-elm",
@@ -18,9 +17,8 @@
   },
   "devDependencies": {
     "elm-tooling": "^1.14.0",
-    "elm-watch": "^1.1.2",
+    "elm-watch": "^1.2.0-beta.1",
     "gh-pages": "^5.0.0",
-    "http-server": "^14.1.1",
     "prettier": "^2.8.8",
     "run-pty": "^4.0.3",
     "tailwindcss": "^3.3.2"

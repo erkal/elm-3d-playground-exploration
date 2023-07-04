@@ -36,6 +36,10 @@ npm install
 npm run dev
 ```
 
-In case the development server gets stuck occasionally, you may need to hard-refresh your browser. This issue may be solved in the future.
+6. **Open examples page in browser**
+
+```bash
+open http://localhost:59856/build/WebPage/index.html
+```
 
 The project uses the fast and reliable [lydell/elm-watch](https://github.com/lydell/elm-watch), which handles hot reloading seamlessly.
