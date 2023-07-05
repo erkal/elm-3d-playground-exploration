@@ -30,12 +30,11 @@ If you haven't installed Node.js yet, you can download it from [here](https://no
 npm install
 ```
 
-5. **Run a development server:**
+5. **Run the development server:**
 
 ```bash
 npm run dev
 ```
-
-6. **Open [http://localhost:59856/build/?](http://localhost:59856/build/?) in your browser and navigate to the `index.html` in your example** 
+This starts serving all examples. Open your browser and navigate to the served page. Then, navigate to the `index.html` of your example inside the `build` folder.
 
 This setup uses the fast and reliable [lydell/elm-watch](https://github.com/lydell/elm-watch), which handles hot reloading seamlessly.
