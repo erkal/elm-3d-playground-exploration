@@ -84,6 +84,12 @@
       ],
       "output": "build/RedFacedCube/main.js"
     },
+    "TailwindTest": {
+      "inputs": [
+        "examples/TailwindTest/Main.elm"
+      ],
+      "output": "build/TailwindTest/main.js"
+    },
     "Template": {
       "inputs": [
         "examples/Template/Main.elm"
