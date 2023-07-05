@@ -3,15 +3,14 @@ module TailwindTest.Main exposing (main)
 import Camera exposing (Camera, perspective)
 import Color exposing (blue, gray, green, red, rgb255)
 import Css.Global
-import Html exposing (Html)
-import Html.Styled exposing (div, toUnstyled)
+import Html.Styled exposing (Html, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Playground exposing (Computer, game)
 import Playground.Animation exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
-import Tailwind.Theme exposing (blue_500, red_500, slate_100)
-import Tailwind.Utilities as Tw exposing (bg_color, globalStyles)
+import Tailwind.Theme as Tw
+import Tailwind.Utilities as Tw
 
 
 main =
@@ -43,16 +42,24 @@ update computer model =
 -- VIEW
 
 
-view : Computer -> Model -> Html Never
 view computer model =
     toUnstyled <|
         div []
-            [ Css.Global.global globalStyles
+            [ Css.Global.global Tw.globalStyles
             , div
                 [ css
-                    [ Tw.bg_color blue_500, Tw.w_60, Tw.h_60 ]
+                    [ Tw.absolute
+                    , Tw.m_40
+                    , Tw.p_10
+                    , Tw.bg_color Tw.blue_500
+                    , Tw.bg_opacity_40
+                    , Tw.w_96
+                    , Tw.h_96
+                    , Tw.text_color Tw.white
+                    , Tw.text_3xl
+                    ]
                 ]
-                []
+                [ text "Hello Tailwind!" ]
 
             -- Continue with any other Html
             ]
