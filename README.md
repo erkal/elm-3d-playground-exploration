@@ -36,10 +36,8 @@ npm install
 npm run dev
 ```
 
-6. **Open examples page in browser**
+6. **Open `http://localhost:59856/build/?` in your browser**
 
-```bash
-open http://localhost:59856/build/WebPage/index.html
-```
+7. **Open the `index.html` of your example**
 
 The project uses the fast and reliable [lydell/elm-watch](https://github.com/lydell/elm-watch), which handles hot reloading seamlessly.
