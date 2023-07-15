@@ -18,6 +18,12 @@
       ],
       "output": "build/ColorShower/main.js"
     },
+    "CubeAndCube": {
+      "inputs": [
+        "examples/CubeAndCube/Main.elm"
+      ],
+      "output": "build/CubeAndCube/main.js"
+    },
     "DancingCubes": {
       "inputs": [
         "examples/DancingCubes/Main.elm"

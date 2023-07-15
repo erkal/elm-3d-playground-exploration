@@ -24,8 +24,8 @@ for example in examples/*; do
     mkdir -p "build/${example_name}"
 
     # Make a copy of scripts/index.html and replace every occurrence of
-    # {{ EXAMPLE_NAME }} with the example directory name
-    cat playground-exploration/src/index-template.html | sed "s/{{ EXAMPLE_NAME }}/${example_name}/g" >"build/${example_name}/index.html"
+    # EXAMPLE_NAME with the example directory name
+    cat playground-exploration/src/index-template.html | sed "s/EXAMPLE_NAME/${example_name}/g" >"build/${example_name}/index.html"
 
     # Check if image.png exists, if yes, copy it to the build directory
     if [ -f "${example}/image.png" ]; then

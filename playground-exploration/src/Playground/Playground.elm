@@ -368,7 +368,11 @@ viewWithMsg computer model =
             40
 
         widthOfConfigurationsEditor =
-            260
+            if List.isEmpty computer.configurations then
+                0
+
+            else
+                260
 
         heightOfTape =
             80

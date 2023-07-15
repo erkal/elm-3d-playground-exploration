@@ -113,6 +113,7 @@ viewExamples computer model =
         , viewExample "GrowingSquares" "A Creative coding example."
         , viewExample "TurningBlocks" "A Creative coding example."
         , viewExample "ZoomAndPan" "Figma quality zoom and pan implemented in Elm."
+        , viewExample "CubeAndCube" "Another simple example with pastel colors"
         ]
 
 
