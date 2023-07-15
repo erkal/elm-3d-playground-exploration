@@ -3,9 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../output.css" />
-    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Elm_logo.svg/1200px-Elm_logo.svg.png" type="image/png">
+    <link
+      rel="icon"
+      href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Elm_logo.svg/1200px-Elm_logo.svg.png"
+      type="image/png"
+    />
   </head>
   <body class="overflow-hidden">
     <div id="app"></div>
@@ -13,51 +20,13 @@
     <script src="main.js"></script>
 
     <script type="module">
-      import { sendInputsToElmApp } from "../input.js";
+      import { sendInputsToElmApp, inputs } from "../input.js";
       import { preventEvents } from "../preventEvents.js";
 
       const app = Elm.Carousel.Main.init({
         node: document.querySelector("#app"),
         flags: {
-          inputs: {
-            dt: 0,
-            clock: 0,
-            keyboard: {
-              // states
-              pressedKeys: [],
-              control: false,
-              alt: false,
-              shift: false,
-              left: false,
-              right: false,
-              up: false,
-              down: false,
-              // actions
-              downs: [],
-            },
-            pointer: {
-              // states
-              x: 0,
-              y: 0,
-              isDown: false,
-              // actions
-              down: false,
-              move: false,
-              up: false,
-              rightDown: false,
-              rightUp: false,
-            },
-            wheel: {
-              // actions
-              deltaX: 0,
-              deltaY: 0,
-            },
-            screen: {
-              width: window.innerWidth,
-              height: window.innerHeight,
-            },
-            devicePixelRatio: window.devicePixelRatio,
-          },
+          inputs,
         },
       });
 
