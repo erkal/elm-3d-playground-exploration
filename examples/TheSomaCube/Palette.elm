@@ -2,7 +2,7 @@ module TheSomaCube.Palette exposing (..)
 
 import Array exposing (Array)
 import Color exposing (Color, gray, hsl, hsla)
-import Playground exposing (Computer, getFloat)
+import Playground.Playground as Playground exposing (Computer, getFloat)
 
 
 type alias Palette =

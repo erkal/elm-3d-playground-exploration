@@ -7,18 +7,23 @@ import Html.Attributes exposing (class)
 import Illuminance
 import Light
 import LuminousFlux
-import Playground exposing (Computer, gameWithConfigurations)
-import Playground.Animation exposing (wave)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
 import Set exposing (Set)
 import Temperature
+import Tools.Animation.Animation exposing (wave)
 
 
 main =
-    gameWithConfigurations view update [] init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
@@ -28,6 +33,10 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    []
 
 
 init : Computer -> Model

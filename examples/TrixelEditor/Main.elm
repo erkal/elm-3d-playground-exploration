@@ -14,13 +14,13 @@ import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import List.Nonempty as Nonempty
-import Playground exposing (Computer, Screen, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getColor, getFloat)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Svg exposing (svg)
 import Svg.Attributes as SA
-import Tools.Pages as Pages exposing (Pages)
-import Tools.PanAndZoomUI as PanAndZoomUI exposing (PanAndZoomUI)
+import Tools.Pages.Pages as Pages exposing (Pages)
+import Tools.PanAndZoom.UI as PanAndZoom exposing (PanAndZoom)
 import TrixelEditor.ColorPalette as ColorPalette exposing (Palette(..))
 import TrixelEditor.TrixelGrid.CoordinateTransformations exposing (fromCanvasCoordinates, toCanvasCoordinates)
 import TrixelEditor.TrixelGrid.Face as Face exposing (Face(..), LR(..))
@@ -29,18 +29,19 @@ import TrixelEditor.World as World exposing (ColorIndex, World)
 
 
 main =
-    gameWithConfigurationsAndEditor
-        view
-        update
-        initialConfigurations
-        init
-        viewEditor
-        updateFromEditor
+    Playground.advanced
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        , updateWithMsg = updateFromEditor
+        , viewWithMsg = viewEditor
+        }
 
 
 type alias Model =
     { pages : Pages World
-    , panAndZoomUI : PanAndZoomUI
+    , panAndZoomUI : PanAndZoom
     , editorIsOn : Bool
     , selectedColorIndex : Int
     , mouseOveredUV : { u : Float, v : Float }
@@ -80,7 +81,7 @@ init computer =
             (Decode.succeed World.empty)
             { name = "1", page = World.empty }
             []
-    , panAndZoomUI = PanAndZoomUI.init { minZoom = 10, maxZoom = 70 }
+    , panAndZoomUI = PanAndZoom.init { minZoom = 10, maxZoom = 70 }
     , editorIsOn = True
     , mouseOveredUV = { u = 0, v = 0 }
     , selectedColorIndex = 0
@@ -100,11 +101,11 @@ update computer model =
         |> removeTrixelOnShiftMouseDown computer
 
 
-toPerspectiveCamera : Screen -> PanAndZoomUI -> Camera
+toPerspectiveCamera : Screen -> PanAndZoom -> Camera
 toPerspectiveCamera screen panAndZoomUI =
     let
         { panX, panY, zoom } =
-            PanAndZoomUI.get panAndZoomUI
+            PanAndZoom.get panAndZoomUI
     in
     Camera.perspective
         { focalPoint =
@@ -155,7 +156,7 @@ updateCamera computer model =
                 |> Maybe.map (\p -> { x = p.x, y = p.y })
                 |> Maybe.withDefault { x = 0, y = 0 }
     in
-    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoomUI.tick computer zoomCenter }
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer zoomCenter }
 
 
 updateMouseOverUV : Computer -> Model -> Model
@@ -200,7 +201,7 @@ cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
-            if PanAndZoomUI.isPanningWithSpaceBar model.panAndZoomUI then
+            if PanAndZoom.isPanningWithSpaceBar model.panAndZoomUI then
                 "grabbing"
 
             else

@@ -1,8 +1,6 @@
-port module Playground exposing
-    ( game, gameWithConfigurations, gameWithConfigurationsAndEditor
-    , getColor, getFloat, getBool
-    , Computer, Pointer, Screen, Keyboard, toX, toY, toXY
-    , boolConfig, colorConfig, configBlock, floatConfig, getInt, intConfig
+port module Playground.Playground exposing
+    ( basic, webApp, advanced
+    , Computer, Keyboard, Pointer, Screen, boolConfig, colorConfig, configBlock, floatConfig, getBool, getColor, getFloat, getInt, intConfig, toX, toXY, toY
     )
 
 {-|
@@ -10,32 +8,12 @@ port module Playground exposing
 
 # Playground
 
-@docs game, gameWithConfigurations, gameWithConfigurationsAndEditor
-
-
-# Configurations
-
-@docs configurations, getColor, getFloat, getBool
-
-
-# Groups
-
-@docs group
-
-
-# Time
-
-@docs spin, wave, zigzag
-
-
-# Computer
-
-@docs Computer, Pointer, Screen, Keyboard, toX, toY, toXY
+@docs basic, webApp, advanced
 
 -}
 
 import Browser
-import Html exposing (Html, a, button, div, p, pre)
+import Html exposing (Html, a, button, div, p, pre, text)
 import Html.Attributes as HA exposing (class, href, id, style, target)
 import Html.Events
 import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
@@ -43,7 +21,6 @@ import Playground.Configurations as Configurations exposing (Block, Config(..), 
 import Playground.ConfigurationsGUI as ConfigurationsGUI
 import Playground.Icons as Icons
 import Playground.Tape as Tape exposing (Tape, currentComputer, currentGameModel)
-import Round
 
 
 
@@ -54,7 +31,7 @@ port tick : (Inputs -> msg) -> Sub msg
 
 
 
--- FOR EXPOSING
+-- FOR EXPOSING TO THE USER OF THIS MODULE
 
 
 type alias Computer =
@@ -122,121 +99,135 @@ getFloat =
 
 
 
--- GAME
+-- CREATE APP
 
 
 type alias Flags =
     { inputs : Inputs }
 
 
+{-|
 
---
+    defines an app which cannot use HTML interactivity.
+    It uses `Html Never` for view.
+    Apps made with `basic` are done with porting them to other platforms (other than web) in mind.
 
-
-game :
-    (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> gameModel)
-    -> (Computer -> gameModel)
-    -> Program Flags (Model gameModel) (Msg Never)
-game viewGameModel updateGameModel initGameModel =
-    gameWithConfigurations
-        viewGameModel
-        updateGameModel
-        []
-        initGameModel
-
-
-gameWithConfigurations :
-    (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> gameModel)
-    -> Configurations
-    -> (Computer -> gameModel)
-    -> Program Flags (Model gameModel) (Msg Never)
-gameWithConfigurations viewGameModel updateGameModel initialConfigurations initGameModel =
-    gameWithConfigurationsAndEditor
-        viewGameModel
-        updateGameModel
-        initialConfigurations
-        initGameModel
-        (\_ _ -> div [] [])
-        (\_ _ gameModel -> gameModel)
+-}
+basic :
+    { initialConfigurations : Configurations
+    , init : Computer -> model
+    , update : Computer -> model -> model
+    , view : Computer -> model -> Html Never
+    }
+    -> Program Flags (Model model) (Msg Never)
+basic r =
+    advanced
+        { initialConfigurations = r.initialConfigurations
+        , init = r.init
+        , update = r.update
+        , view = r.view
+        , updateWithMsg = \_ _ model -> model
+        , viewWithMsg = \_ _ -> div [] []
+        }
 
 
-gameWithConfigurationsAndEditor :
-    (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> gameModel)
-    -> Configurations
-    -> (Computer -> gameModel)
-    -> (Computer -> gameModel -> Html editorMsg)
-    -> (Computer -> editorMsg -> gameModel -> gameModel)
-    -> Program Flags (Model gameModel) (Msg editorMsg)
-gameWithConfigurationsAndEditor viewGameModel updateGameModel initialConfigurations initGameModel viewEditor updateFromEditor =
+{-|
+
+    defines an app with the ability to use HTML interactivity.
+
+-}
+webApp :
+    { initialConfigurations : Configurations
+    , init : Computer -> model
+    , update : Computer -> msg -> model -> model
+    , view : Computer -> model -> Html msg
+    }
+    -> Program Flags (Model model) (Msg msg)
+webApp r =
+    advanced
+        { initialConfigurations = r.initialConfigurations
+        , init = r.init
+        , update = \_ model -> model
+        , view = \_ _ -> text ""
+        , updateWithMsg = r.update
+        , viewWithMsg = r.view
+        }
+
+
+{-| Use this type of app if you want to create a game with an editor built in HTML.
+-}
+advanced :
+    { initialConfigurations : Configurations
+    , init : Computer -> model
+    , update : Computer -> model -> model
+    , view : Computer -> model -> Html Never
+    , updateWithMsg : Computer -> msg -> model -> model
+    , viewWithMsg : Computer -> model -> Html msg
+    }
+    -> Program Flags (Model model) (Msg msg)
+advanced r =
     let
         init flags =
             let
                 initialComputer =
-                    flags.inputs |> Computer.assignConfigurations initialConfigurations
+                    flags.inputs |> Computer.assignConfigurations r.initialConfigurations
             in
-            ( { tape = Tape.init initialComputer initGameModel
+            ( { tape = Tape.init initialComputer r.init
               , distractionFree = flags.inputs.screen.width < 500
               }
             , Cmd.none
             )
 
         update msg model =
-            ( gameUpdate updateGameModel updateFromEditor msg model
+            ( appUpdate r.update r.updateWithMsg msg model
             , Cmd.none
             )
     in
     Browser.element
         { init = init
-        , view = view viewGameModel viewEditor
+        , view = view r.view r.viewWithMsg
         , update = update
         , subscriptions = always (tick Tick)
         }
 
 
-
--- SUBSCRIPTIONS
-
-
-type alias Model gameModel =
-    { tape : Tape gameModel
+type alias Model model =
+    { tape : Tape model
     , distractionFree : Bool
     }
 
 
-type Msg editorMsg
-    = NoOp
-    | ClickOnDistractionFreeButton
+type Msg msg
+    = ClickOnDistractionFreeButton
     | Tick Inputs
     | FromConfigurationsEditor Configurations.Msg
-    | FromLevelEditor editorMsg
+    | FromLevelEditor msg
     | FromTape Tape.Msg
 
 
-gameUpdate :
-    (Computer -> gameModel -> gameModel)
-    -> (Computer -> editorMsg -> gameModel -> gameModel)
-    -> Msg editorMsg
-    -> Model gameModel
-    -> Model gameModel
-gameUpdate updateGameModel updateFromEditor msg model =
-    case msg of
-        NoOp ->
-            model
 
+-- UPDATE
+
+
+appUpdate :
+    (Computer -> model -> model)
+    -> (Computer -> msg -> model -> model)
+    -> Msg msg
+    -> Model model
+    -> Model model
+appUpdate update updateWithMsg msg model =
+    case msg of
         ClickOnDistractionFreeButton ->
             { model | distractionFree = not model.distractionFree }
 
         Tick inputs ->
-            { model | tape = model.tape |> Tape.tick updateGameModel inputs }
+            { model | tape = model.tape |> Tape.tick update inputs }
 
         FromConfigurationsEditor computerMsg ->
             { model | tape = model.tape |> Tape.updateConfigurations computerMsg }
 
         FromLevelEditor editorMsg ->
-            { model | tape = model.tape |> Tape.updateCurrentGameModelWithEditorMsg updateFromEditor editorMsg }
+            { model | tape = model.tape |> Tape.updateWithMsg updateWithMsg editorMsg }
 
         FromTape tapeMsg ->
             { model | tape = model.tape |> Tape.update tapeMsg }
@@ -247,17 +238,17 @@ gameUpdate updateGameModel updateFromEditor msg model =
 
 
 view :
-    (Computer -> gameModel -> Html Never)
-    -> (Computer -> gameModel -> Html editorMsg)
-    -> Model gameModel
-    -> Html (Msg editorMsg)
-view viewGameModel viewLevelEditor model =
+    (Computer -> model -> Html Never)
+    -> (Computer -> model -> Html msg)
+    -> Model model
+    -> Html (Msg msg)
+view viewWithoutMsg viewLevelEditor appModel =
     let
         computer =
-            currentComputer model.tape
+            currentComputer appModel.tape
 
-        gameModel =
-            currentGameModel model.tape
+        model =
+            currentGameModel appModel.tape
     in
     div
         [ class "bg-black/40"
@@ -266,15 +257,16 @@ view viewGameModel viewLevelEditor model =
         , style "width" (String.fromFloat computer.screen.width ++ "px")
         , style "height" (String.fromFloat computer.screen.height ++ "px")
         ]
-        [ div [ class "fixed" ] [ Html.map (always NoOp) (viewGameModel computer gameModel) ]
+        [ div [ class "fixed" ]
+            [ Html.map never (viewWithoutMsg computer model) ]
         , div [ id "gui" ]
-            [ viewGUI computer model
-            , Html.map FromLevelEditor (viewLevelEditor computer gameModel)
+            [ viewWithMsg computer appModel
+            , Html.map FromLevelEditor (viewLevelEditor computer model)
             ]
         ]
 
 
-viewComputer : Computer -> Model gameModel -> Html msg
+viewComputer : Computer -> Model model -> Html msg
 viewComputer computer model =
     let
         viewPointer =
@@ -325,8 +317,8 @@ viewComputer computer model =
         ]
 
 
-viewGUI : Computer -> Model gameModel -> Html (Msg editorMsg)
-viewGUI computer model =
+viewWithMsg : Computer -> Model model -> Html (Msg msg)
+viewWithMsg computer model =
     let
         yingYangButton =
             button

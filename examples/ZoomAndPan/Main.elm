@@ -4,18 +4,23 @@ import Camera exposing (Camera)
 import Color exposing (hsl, lightBlue, rgb255)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
-import Playground exposing (Computer, Screen, gameWithConfigurations)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
-import Tools.PanAndZoomUI as PanAndZoomUI exposing (PanAndZoomUI)
+import Tools.PanAndZoom.UI as PanAndZoom exposing (PanAndZoom)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
-    { panAndZoomUI : PanAndZoomUI }
+    { panAndZoomUI : PanAndZoom }
 
 
 
@@ -28,7 +33,7 @@ initialConfigurations =
 
 init : Computer -> Model
 init computer =
-    { panAndZoomUI = PanAndZoomUI.init { minZoom = 0.1, maxZoom = 1 } }
+    { panAndZoomUI = PanAndZoom.init { minZoom = 0.1, maxZoom = 1 } }
 
 
 
@@ -44,7 +49,7 @@ update computer model =
                 |> Maybe.map (\p -> { x = p.x, y = p.y })
                 |> Maybe.withDefault { x = 0, y = 0 }
     in
-    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoomUI.tick computer zoomCenter }
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer zoomCenter }
 
 
 
@@ -57,7 +62,7 @@ view computer model =
         [ div [ class "fixed w-full h-full" ]
             [ viewWebGLCanvas computer model ]
         , div [ class "absolute w-screen h-screen text-center text-xs text-white/60" ]
-            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoomUI.get model.panAndZoomUI).zoom)) ++ "%") ]
+            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoom.get model.panAndZoomUI).zoom)) ++ "%") ]
             , div [ class "p-1" ] [ text "Panning: SCROLL or SPACE + DRAG" ]
             , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
             ]
@@ -68,7 +73,7 @@ cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
-            if PanAndZoomUI.isPanningWithSpaceBar model.panAndZoomUI then
+            if PanAndZoom.isPanningWithSpaceBar model.panAndZoomUI then
                 "grabbing"
 
             else
@@ -120,11 +125,11 @@ makeSquare index ( i, j ) =
         |> moveZ -21
 
 
-toPerspectiveCamera : Screen -> PanAndZoomUI -> Camera
+toPerspectiveCamera : Screen -> PanAndZoom -> Camera
 toPerspectiveCamera screen panAndZoomUI =
     let
         { panX, panY, zoom } =
-            PanAndZoomUI.get panAndZoomUI
+            PanAndZoom.get panAndZoomUI
     in
     Camera.perspective
         { focalPoint =

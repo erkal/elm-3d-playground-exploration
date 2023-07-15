@@ -25,7 +25,7 @@ for example in examples/*; do
 
     # Make a copy of scripts/index.html and replace every occurrence of
     # {{ EXAMPLE_NAME }} with the example directory name
-    cat scripts/index.html | sed "s/{{ EXAMPLE_NAME }}/${example_name}/g" >"build/${example_name}/index.html"
+    cat playground-exploration/src/index-template.html | sed "s/{{ EXAMPLE_NAME }}/${example_name}/g" >"build/${example_name}/index.html"
 
     # Check if image.png exists, if yes, copy it to the build directory
     if [ -f "${example}/image.png" ]; then
@@ -49,4 +49,5 @@ if [ -f "elm-watch.json" ]; then
 fi
 
 # Create the JSON object and write it into elm-watch.json using Node.js
-node -e "const fs = require('fs'); const data = { targets: { ${targets_json} } }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"
+
+node -e "const fs = require('fs'); const data = { targets: { ${targets_json} }, serve: 'build' }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"

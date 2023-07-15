@@ -3,7 +3,7 @@ module BallGame.World.Physics.Collision.BallToPolygons exposing (collide)
 import BallGame.World as World exposing (PolygonBody, World)
 import BallGame.World.Physics.Collision.Primitives.CircleToPolygon as CircleToPolygon
 import BallGame.World.Physics.Collision.Primitives.Geometry2d as Geometry2d exposing (Circle2d, Point2d, Vector2d, componentIn, length, scaleBy, subtract)
-import Playground exposing (Computer)
+import Playground.Playground as Playground exposing (Computer)
 
 
 type alias CollisionResult =

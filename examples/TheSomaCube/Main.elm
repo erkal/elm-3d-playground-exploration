@@ -4,16 +4,21 @@ import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (Color, black, hsl, rgba, white)
 import Html exposing (Html, div, h2, p, text)
 import Html.Attributes exposing (class, style)
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
-import Playground.Animation exposing (wave)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import TheSomaCube.Palette as Palette
 import TheSomaCube.World as World exposing (Piece, World)
+import Tools.Animation.Animation exposing (wave)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

@@ -15,7 +15,7 @@ import Html.Events exposing (onClick)
 import Illuminance
 import Light
 import LuminousFlux
-import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor, getBool, getColor, getFloat)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -23,11 +23,18 @@ import Scene3d.Material as Material
 import Svg exposing (svg)
 import Svg.Attributes as SA
 import Temperature
-import Tools.Pages as Pages exposing (Pages)
+import Tools.Pages.Pages as Pages exposing (Pages)
 
 
 main =
-    gameWithConfigurationsAndEditor view update initialConfigurations init viewEditor updateFromEditor
+    Playground.advanced
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        , updateWithMsg = updateFromEditor
+        , viewWithMsg = viewEditor
+        }
 
 
 type alias Model =

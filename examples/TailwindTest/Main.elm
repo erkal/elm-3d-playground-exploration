@@ -5,16 +5,21 @@ import Color exposing (blue, gray, green, red, rgb255)
 import Css.Global
 import Html.Styled exposing (Html, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
-import Playground exposing (Computer, game)
-import Playground.Animation exposing (..)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
+import Tools.Animation.Animation exposing (..)
 
 
 main =
-    game view update init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
@@ -23,6 +28,10 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    []
 
 
 init : Computer -> Model

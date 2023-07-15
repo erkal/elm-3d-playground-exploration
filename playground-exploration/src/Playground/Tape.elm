@@ -8,7 +8,7 @@ module Playground.Tape exposing
     , tick
     , update
     , updateConfigurations
-    , updateCurrentGameModelWithEditorMsg
+    , updateWithMsg
     , view
     )
 
@@ -19,6 +19,10 @@ import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
 import Playground.Icons as Icons
 import Round
+
+
+
+{- TODO: Use SelectList here -}
 
 
 type Tape gameModel
@@ -73,12 +77,12 @@ isRecording (Tape state _) =
 -- UPDATE
 
 
-updateCurrentGameModelWithEditorMsg :
+updateWithMsg :
     (Computer -> editorMsg -> gameModel -> gameModel)
     -> editorMsg
     -> Tape gameModel
     -> Tape gameModel
-updateCurrentGameModelWithEditorMsg updateFromEditor editorMsg (Tape state ({ current } as pastCurrentFuture)) =
+updateWithMsg updateFromEditor editorMsg (Tape state ({ current } as pastCurrentFuture)) =
     Tape state
         { pastCurrentFuture
             | current =

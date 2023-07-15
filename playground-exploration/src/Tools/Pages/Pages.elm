@@ -1,4 +1,4 @@
-module Tools.Pages exposing
+module Tools.Pages.Pages exposing
     ( Msg
     , Pages
     , current

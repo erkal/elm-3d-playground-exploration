@@ -3,14 +3,19 @@ module RecursiveTree.Main exposing (main)
 import Camera exposing (Camera, perspective)
 import Color exposing (blue, gray, hsl, lightBlue)
 import Html exposing (Html)
-import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
-import Playground.Animation exposing (spin, wave)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
+import Tools.Animation.Animation exposing (spin, wave)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

@@ -24,6 +24,12 @@
       ],
       "output": "build/DancingCubes/main.js"
     },
+    "ElmViz": {
+      "inputs": [
+        "examples/ElmViz/Main.elm"
+      ],
+      "output": "build/ElmViz/main.js"
+    },
     "GooeyEffect": {
       "inputs": [
         "examples/GooeyEffect/Main.elm"
@@ -138,5 +144,6 @@
       ],
       "output": "build/ZoomAndPan/main.js"
     }
-  }
+  },
+  "serve": "build"
 }

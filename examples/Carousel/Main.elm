@@ -5,13 +5,18 @@ import Carousel.Carousel as Carousel exposing (Carousel)
 import Color exposing (Color, blue, charcoal, darkBlue, gray, green, lightBlue, lightBrown, orange, purple, red, rgb255)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Playground exposing (Computer, game)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
 
 main =
-    game view update init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
@@ -20,6 +25,10 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    []
 
 
 init : Computer -> Model

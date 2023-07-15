@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../output.css" />
+    <link
+      rel="icon"
+      href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Elm_logo.svg/1200px-Elm_logo.svg.png"
+      type="image/png"
+    />
+  </head>
+  <body class="overflow-hidden">
+    <div id="app"></div>
+
+    <script src="main.js"></script>
+
+    <script type="module">
+      import { sendInputsToElmApp, inputs } from "../input.js";
+      import { preventEvents } from "../preventEvents.js";
+
+      const app = Elm.{{ EXAMPLE_NAME }}.Main.init({
+        node: document.querySelector("#app"),
+        flags: {
+          inputs,
+        },
+      });
+
+      preventEvents();
+      sendInputsToElmApp(app);
+    </script>
+  </body>
+</html>

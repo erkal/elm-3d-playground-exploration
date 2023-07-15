@@ -1,8 +1,5 @@
 module.exports = {
   content: ["./**/*.{elm, js, html}"],
-  fontFamily: {
-    sans: ["Public Sans", "sans-serif"],
-  },
   theme: {
     extend: {
       colors: {

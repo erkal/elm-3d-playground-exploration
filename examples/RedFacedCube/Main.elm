@@ -10,8 +10,7 @@ import Html.Events exposing (onClick)
 import Illuminance
 import Light
 import LuminousFlux
-import Playground exposing (..)
-import Playground.Animation exposing (wave)
+import Playground.Playground as Playground exposing (..)
 import RedFacedCube.Cell exposing (Cell, RollDirection(..))
 import RedFacedCube.Cube as Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), Sign(..))
 import RedFacedCube.Editor as Editor exposing (Editor)
@@ -29,7 +28,8 @@ import Scene3d.Material exposing (matte)
 import Svg exposing (svg)
 import Svg.Attributes as SA
 import Temperature
-import Tools.Pages as Pages exposing (Pages)
+import Tools.Animation.Animation exposing (wave)
+import Tools.Pages.Pages as Pages exposing (Pages)
 
 
 
@@ -41,12 +41,14 @@ import Tools.Pages as Pages exposing (Pages)
 
 
 main =
-    gameWithConfigurationsAndEditor view
-        update
-        initialConfigurations
-        init
-        viewEditor
-        updateFromEditor
+    Playground.advanced
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        , updateWithMsg = updateFromEditor
+        , viewWithMsg = viewEditor
+        }
 
 
 type alias Model =

@@ -141,7 +141,7 @@ toX keyboard =
 
 This can be used to move characters around in games just like [`toX`](#toX):
 
-    import Playground exposing (..)
+    import Playground.Playground as Playground exposing (..)
 
     main =
         game view update ( 0, 0 )
@@ -186,7 +186,7 @@ normalized:
 
 Now when you go up/right, you are still going 1 pixel per update.
 
-    import Playground exposing (..)
+    import Playground.Playground as Playground exposing (..)
 
     main =
         game view update ( 0, 0 )

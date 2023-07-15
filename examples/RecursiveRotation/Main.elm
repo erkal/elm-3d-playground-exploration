@@ -3,14 +3,19 @@ module RecursiveRotation.Main exposing (main)
 import Camera exposing (Camera, orthographic)
 import Color exposing (rgb255, rgba, white)
 import Html exposing (Html)
-import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat)
-import Playground.Animation exposing (spin)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
+import Tools.Animation.Animation exposing (spin)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

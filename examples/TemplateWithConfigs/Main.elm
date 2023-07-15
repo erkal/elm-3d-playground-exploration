@@ -3,14 +3,19 @@ module TemplateWithConfigs.Main exposing (main)
 import Camera exposing (Camera, perspectiveWithOrbit)
 import Color exposing (hsl, rgb255)
 import Html exposing (Html)
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
-import Playground.Animation exposing (..)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
+import Tools.Animation.Animation exposing (..)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

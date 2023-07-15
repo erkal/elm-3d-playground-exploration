@@ -3,14 +3,19 @@ module DancingCubes.Main exposing (main)
 import Camera exposing (Camera, perspective)
 import Color exposing (hsl, rgba, white)
 import Html exposing (Html)
-import Playground exposing (Computer, configBlock, floatConfig, gameWithConfigurations, getFloat, getInt, intConfig)
-import Playground.Animation exposing (wave)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
+import Tools.Animation.Animation exposing (wave)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

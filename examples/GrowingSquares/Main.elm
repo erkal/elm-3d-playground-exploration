@@ -4,14 +4,19 @@ import Camera exposing (Camera, perspective)
 import Color exposing (Color, blue, gray, green, red, rgb255)
 import Geometry exposing (Point)
 import Html exposing (Html)
-import Playground exposing (Computer, game)
-import Playground.Animation exposing (..)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material as Material exposing (matte)
+import Tools.Animation.Animation exposing (..)
 
 
 main =
-    game view update init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
@@ -33,6 +38,10 @@ constants =
 
 
 -- INIT
+
+
+initialConfigurations =
+    []
 
 
 init : Computer -> Model

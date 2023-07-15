@@ -2,11 +2,18 @@ module WebPage.Main exposing (main)
 
 import Html exposing (Html, a, div, h2, i, img, span, text)
 import Html.Attributes exposing (class, href, src, target)
-import Playground exposing (Computer, boolConfig, colorConfig, configBlock, floatConfig, gameWithConfigurationsAndEditor)
+import Playground.Playground as Playground exposing (..)
 
 
 main =
-    gameWithConfigurationsAndEditor viewGameModel update initialConfigurations init viewEditor updateFromEditor
+    Playground.advanced
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = viewGameModel
+        , updateWithMsg = updateFromEditor
+        , viewWithMsg = viewEditor
+        }
 
 
 type alias Model =

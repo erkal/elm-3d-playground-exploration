@@ -1,5 +1,5 @@
-module Tools.PanAndZoomUI exposing
-    ( PanAndZoomUI
+module Tools.PanAndZoom.UI exposing
+    ( PanAndZoom
     , PartialScreen
     , get
     , init
@@ -14,11 +14,11 @@ module Tools.PanAndZoomUI exposing
     , zoomToFit
     )
 
-import Playground exposing (Computer, Screen)
-import Tools.PanAndZoomUI.Geometry2d exposing (BoundingBox, Point2d, scaleAbout, scaleBy, translateBy, vectorFrom)
+import Playground.Playground as Playground exposing (Computer, Screen)
+import Tools.PanAndZoom.Geometry2d exposing (BoundingBox, Point2d, scaleAbout, scaleBy, translateBy, vectorFrom)
 
 
-type PanAndZoomUI
+type PanAndZoom
     = PAZ
         { pan : Point2d
         , zoom : Float
@@ -44,7 +44,7 @@ type alias PartialScreen =
     }
 
 
-init : { minZoom : Float, maxZoom : Float } -> PanAndZoomUI
+init : { minZoom : Float, maxZoom : Float } -> PanAndZoom
 init { minZoom, maxZoom } =
     PAZ
         { pan = Point2d 0 0
@@ -55,7 +55,7 @@ init { minZoom, maxZoom } =
         }
 
 
-isPanningWithSpaceBar : PanAndZoomUI -> Bool
+isPanningWithSpaceBar : PanAndZoom -> Bool
 isPanningWithSpaceBar (PAZ p) =
     case p.state of
         PanningWithSpaceBar _ ->
@@ -65,7 +65,7 @@ isPanningWithSpaceBar (PAZ p) =
             False
 
 
-get : PanAndZoomUI -> { panX : Float, panY : Float, zoom : Float }
+get : PanAndZoom -> { panX : Float, panY : Float, zoom : Float }
 get (PAZ p) =
     { panX = p.pan.x
     , panY = p.pan.y
@@ -73,40 +73,40 @@ get (PAZ p) =
     }
 
 
-setPan : Point2d -> PanAndZoomUI -> PanAndZoomUI
+setPan : Point2d -> PanAndZoom -> PanAndZoom
 setPan pan (PAZ p) =
     PAZ
         { p | pan = pan }
 
 
-setZoom : Float -> PanAndZoomUI -> PanAndZoomUI
+setZoom : Float -> PanAndZoom -> PanAndZoom
 setZoom zoom (PAZ p) =
     PAZ
         { p | zoom = zoom }
 
 
-setState : State -> PanAndZoomUI -> PanAndZoomUI
+setState : State -> PanAndZoom -> PanAndZoom
 setState state (PAZ p) =
     PAZ
         { p | state = state }
 
 
-zoomTo100 : PanAndZoomUI -> PanAndZoomUI
+zoomTo100 : PanAndZoom -> PanAndZoom
 zoomTo100 (PAZ p) =
     PAZ { p | zoom = 1 }
 
 
-zoomInBy : Float -> PanAndZoomUI -> PanAndZoomUI
+zoomInBy : Float -> PanAndZoom -> PanAndZoom
 zoomInBy factor (PAZ p) =
     PAZ { p | zoom = p.zoom |> (*) factor |> clamp p.minZoom p.maxZoom }
 
 
-zoomOutBy : Float -> PanAndZoomUI -> PanAndZoomUI
+zoomOutBy : Float -> PanAndZoom -> PanAndZoom
 zoomOutBy factor (PAZ p) =
     PAZ { p | zoom = p.zoom |> (*) (1 / factor) |> clamp p.minZoom p.maxZoom }
 
 
-zoomToFit : Screen -> PartialScreen -> BoundingBox -> PanAndZoomUI -> PanAndZoomUI
+zoomToFit : Screen -> PartialScreen -> BoundingBox -> PanAndZoom -> PanAndZoom
 zoomToFit windowSize partialScreen boundingBoxOfObjects (PAZ p) =
     let
         zoomToFitWidth =
@@ -148,7 +148,7 @@ zoomToFit windowSize partialScreen boundingBoxOfObjects (PAZ p) =
         |> setZoom targetZoom
 
 
-zoomAround : Float -> Point2d -> PanAndZoomUI -> PanAndZoomUI
+zoomAround : Float -> Point2d -> PanAndZoom -> PanAndZoom
 zoomAround zoomDelta zoomCenter (PAZ p) =
     let
         newZoom =
@@ -166,7 +166,7 @@ zoomAround zoomDelta zoomCenter (PAZ p) =
 -- TICK
 
 
-tick : Computer -> Point2d -> PanAndZoomUI -> PanAndZoomUI
+tick : Computer -> Point2d -> PanAndZoom -> PanAndZoom
 tick computer zoomCenter panAndZoomUI =
     panAndZoomUI
         -- zoom with wheel
@@ -182,7 +182,7 @@ tick computer zoomCenter panAndZoomUI =
         |> stopPanningWithSpaceBar computer
 
 
-startZoomingWithWheel : Computer -> PanAndZoomUI -> PanAndZoomUI
+startZoomingWithWheel : Computer -> PanAndZoom -> PanAndZoom
 startZoomingWithWheel { wheel, keyboard, clock } (PAZ p) =
     case ( keyboard.control, p.state ) of
         ( True, Idle ) ->
@@ -193,7 +193,7 @@ startZoomingWithWheel { wheel, keyboard, clock } (PAZ p) =
             PAZ p
 
 
-continueZoomingWithWheel : Computer -> Point2d -> PanAndZoomUI -> PanAndZoomUI
+continueZoomingWithWheel : Computer -> Point2d -> PanAndZoom -> PanAndZoom
 continueZoomingWithWheel { wheel, clock } zoomCenter (PAZ p) =
     case ( wheel.deltaX /= 0 || wheel.deltaY /= 0, p.state ) of
         ( True, ZoomingWithWheel { lastWheelDeltaYArrivedAt } ) ->
@@ -218,7 +218,7 @@ continueZoomingWithWheel { wheel, clock } zoomCenter (PAZ p) =
             PAZ p
 
 
-stopZoomingWithWheelByDeltaX : Computer -> PanAndZoomUI -> PanAndZoomUI
+stopZoomingWithWheelByDeltaX : Computer -> PanAndZoom -> PanAndZoom
 stopZoomingWithWheelByDeltaX { wheel, clock } (PAZ p) =
     case ( wheel.deltaX /= 0, p.state ) of
         ( True, ZoomingWithWheel { lastWheelDeltaYArrivedAt } ) ->
@@ -232,7 +232,7 @@ stopZoomingWithWheelByDeltaX { wheel, clock } (PAZ p) =
             PAZ p
 
 
-stopZoomingWithWheelByTime : Computer -> PanAndZoomUI -> PanAndZoomUI
+stopZoomingWithWheelByTime : Computer -> PanAndZoom -> PanAndZoom
 stopZoomingWithWheelByTime { clock } (PAZ p) =
     case p.state of
         ZoomingWithWheel { lastWheelDeltaYArrivedAt } ->
@@ -246,7 +246,7 @@ stopZoomingWithWheelByTime { clock } (PAZ p) =
             PAZ p
 
 
-panWithWheel : Computer -> PanAndZoomUI -> PanAndZoomUI
+panWithWheel : Computer -> PanAndZoom -> PanAndZoom
 panWithWheel { wheel, keyboard } (PAZ p) =
     case ( p.state, keyboard.control ) of
         ( Idle, False ) ->
@@ -262,7 +262,7 @@ panWithWheel { wheel, keyboard } (PAZ p) =
             PAZ p
 
 
-startPanningWithSpaceBar : Computer -> PanAndZoomUI -> PanAndZoomUI
+startPanningWithSpaceBar : Computer -> PanAndZoom -> PanAndZoom
 startPanningWithSpaceBar { keyboard, pointer } (PAZ p) =
     if List.member "Space" keyboard.pressedKeys && pointer.down then
         PAZ p
@@ -277,7 +277,7 @@ startPanningWithSpaceBar { keyboard, pointer } (PAZ p) =
         PAZ p
 
 
-panWithSpaceBar : Computer -> PanAndZoomUI -> PanAndZoomUI
+panWithSpaceBar : Computer -> PanAndZoom -> PanAndZoom
 panWithSpaceBar { keyboard, pointer } (PAZ p) =
     case p.state of
         PanningWithSpaceBar { pointerPositionAtPanStart, panAtStart } ->
@@ -292,7 +292,7 @@ panWithSpaceBar { keyboard, pointer } (PAZ p) =
             PAZ p
 
 
-stopPanningWithSpaceBar : Computer -> PanAndZoomUI -> PanAndZoomUI
+stopPanningWithSpaceBar : Computer -> PanAndZoom -> PanAndZoom
 stopPanningWithSpaceBar { pointer } (PAZ p) =
     if pointer.up then
         PAZ p |> setState Idle

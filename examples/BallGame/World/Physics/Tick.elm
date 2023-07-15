@@ -4,7 +4,7 @@ import BallGame.World exposing (Ball, World, mapBall)
 import BallGame.World.Physics.Collision.BallToPolygons as BallToPolygons
 import BallGame.World.Physics.Collision.Primitives.Geometry2d exposing (Vector2d, add, distance, dotProduct, scaleBy, translateBy)
 import BallGame.World.Physics.Collision.PushBallOut as PushBallOut
-import Playground exposing (Computer, getFloat, toX, toY)
+import Playground.Playground as Playground exposing (Computer, getFloat, toX, toY)
 
 
 tick : Computer -> World -> World

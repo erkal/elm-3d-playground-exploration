@@ -3,14 +3,19 @@ module Template.Main exposing (main)
 import Camera exposing (Camera, perspective)
 import Color exposing (blue, gray, green, red, rgb255)
 import Html exposing (Html)
-import Playground exposing (Computer, game)
-import Playground.Animation exposing (..)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
+import Tools.Animation.Animation exposing (..)
 
 
 main =
-    game view update init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =
@@ -19,6 +24,10 @@ type alias Model =
 
 
 -- INIT
+
+
+initialConfigurations =
+    []
 
 
 init : Computer -> Model

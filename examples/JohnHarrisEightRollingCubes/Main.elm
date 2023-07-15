@@ -2,12 +2,11 @@ module JohnHarrisEightRollingCubes.Main exposing (main)
 
 import Camera exposing (Camera, perspective, perspectiveWithOrbit)
 import Color exposing (rgb255, rgba)
-import Dict
 import Html exposing (Html, br, div, p, text)
 import Html.Attributes exposing (class, style)
 import JohnHarrisEightRollingCubes.Cube exposing (Axis(..), Cube(..), RedFaceDirection(..), RollDirection(..), Sign(..))
 import JohnHarrisEightRollingCubes.World as World exposing (RollResult(..), World)
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getColor, getFloat)
+import Playground.Playground as Playground exposing (..)
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
@@ -21,7 +20,12 @@ import Scene3d.Material exposing (matte)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

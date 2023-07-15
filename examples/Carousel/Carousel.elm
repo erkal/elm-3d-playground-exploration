@@ -12,7 +12,7 @@ module Carousel.Carousel exposing
     )
 
 import Array exposing (Array)
-import Playground exposing (Computer)
+import Playground.Playground as Playground exposing (Computer)
 
 
 

@@ -3,12 +3,17 @@ module GooeyEffect.Main exposing (main)
 import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Math.Vector2 exposing (Vec2, vec2)
-import Playground exposing (Computer, colorConfig, configBlock, floatConfig, gameWithConfigurations, getFloat)
+import Playground.Playground as Playground exposing (..)
 import WebGL exposing (Mesh, Shader)
 
 
 main =
-    gameWithConfigurations view update initialConfigurations init
+    Playground.basic
+        { initialConfigurations = initialConfigurations
+        , init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model =

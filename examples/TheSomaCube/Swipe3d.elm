@@ -11,7 +11,7 @@ module TheSomaCube.Swipe3d exposing
 
 import Camera exposing (Camera)
 import Dict
-import Playground exposing (Computer)
+import Playground.Playground as Playground exposing (Computer)
 
 
 type SwipeState
