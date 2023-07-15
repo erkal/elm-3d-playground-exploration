@@ -6493,6 +6493,13 @@ var $author$project$Playground$Icons$icons = {
 				_List_Nil)
 			]))
 };
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
 };
@@ -7255,13 +7262,6 @@ var $author$project$Playground$Tape$viewSlider = function (tape) {
 var $author$project$Playground$Tape$PressedPauseButton = {$: 1};
 var $author$project$Playground$Tape$PressedPlayButton = {$: 3};
 var $author$project$Playground$Tape$PressedRecordButton = {$: 2};
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $author$project$Playground$Tape$recButton = F3(
 	function (isDisabled, msg, conditionalStyle) {
@@ -7409,7 +7409,7 @@ var $author$project$Playground$Playground$viewWithMsg = F2(
 			_List_fromArray(
 				[$author$project$Playground$Icons$icons.jl]));
 		var widthOfLeftStripe = 40;
-		var widthOfConfigurationsEditor = 260;
+		var widthOfConfigurationsEditor = $elm$core$List$isEmpty(computer.aZ) ? 0 : 260;
 		var twitterLink = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -7778,7 +7778,8 @@ var $author$project$WebPage$Main$viewExamples = F2(
 					A2($author$project$WebPage$Main$viewExample, 'GooeyEffect', 'An example showing the use of GLSL shaders.'),
 					A2($author$project$WebPage$Main$viewExample, 'GrowingSquares', 'A Creative coding example.'),
 					A2($author$project$WebPage$Main$viewExample, 'TurningBlocks', 'A Creative coding example.'),
-					A2($author$project$WebPage$Main$viewExample, 'ZoomAndPan', 'Figma quality zoom and pan implemented in Elm.')
+					A2($author$project$WebPage$Main$viewExample, 'ZoomAndPan', 'Figma quality zoom and pan implemented in Elm.'),
+					A2($author$project$WebPage$Main$viewExample, 'CubeAndCube', 'Another simple example with pastel colors')
 				]));
 	});
 var $author$project$WebPage$Main$viewEditor = F2(

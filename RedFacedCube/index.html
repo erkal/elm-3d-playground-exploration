@@ -20,13 +20,57 @@
     <script src="main.js"></script>
 
     <script type="module">
-      import { sendInputsToElmApp, inputs } from "../input.js";
+      import { sendInputsToElmApp } from "../input.js";
       import { preventEvents } from "../preventEvents.js";
 
       const app = Elm.RedFacedCube.Main.init({
         node: document.querySelector("#app"),
         flags: {
-          inputs,
+          inputs:
+            /* 
+              the following is a copy of the `inputs` object in `input.js`
+              it is here to make hot-reloading work in development
+              (for some reason, elm-watch cannot make it if the `inputs` object is imported from `input.js`)
+            */
+            {
+              dt: 0,
+              clock: 0,
+              keyboard: {
+                // states
+                pressedKeys: [],
+                control: false,
+                alt: false,
+                shift: false,
+                left: false,
+                right: false,
+                up: false,
+                down: false,
+                // actions
+                downs: [],
+              },
+              pointer: {
+                // states
+                x: 0,
+                y: 0,
+                isDown: false,
+                // actions
+                down: false,
+                move: false,
+                up: false,
+                rightDown: false,
+                rightUp: false,
+              },
+              wheel: {
+                // actions
+                deltaX: 0,
+                deltaY: 0,
+              },
+              screen: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+              },
+              devicePixelRatio: window.devicePixelRatio,
+            },
         },
       });
 
