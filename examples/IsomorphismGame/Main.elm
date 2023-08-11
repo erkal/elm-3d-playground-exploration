@@ -14,25 +14,25 @@ import IsomorphismGame.Level.Decode
 import IsomorphismGame.Level.Encode
 import Light
 import LuminousFlux
+import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material exposing (matte)
-import Svg exposing (svg)
-import Svg.Attributes as SA
 import Temperature
 import Tools.Pages.Pages as Pages exposing (Pages)
 
 
 main =
-    Playground.advanced
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
-        , updateWithMsg = updateFromEditor
-        , viewWithMsg = viewEditor
+        , hasTape = True
         }
 
 
@@ -136,8 +136,8 @@ mapCurrentPlayerGraph up model =
     }
 
 
-update : Computer -> Model -> Model
-update computer model =
+update : Computer -> Message EditorMsg -> Model -> Model
+update computer message model =
     let
         handleInput =
             if model.editorIsOn then
@@ -146,12 +146,18 @@ update computer model =
             else
                 handlePlayerInput computer
     in
-    model
-        |> updatePointerPosition computer
-        |> updateDragTarget computer
-        |> tickPlayerVertices computer
-        |> tickBaseVertices computer
-        |> handleInput
+    case message of
+        Tick ->
+            model
+                |> updatePointerPosition computer
+                |> updateDragTarget computer
+                |> tickPlayerVertices computer
+                |> tickBaseVertices computer
+                |> handleInput
+
+        Message editorMsg ->
+            model
+                |> handleMsgFromEditor editorMsg
 
 
 updateDragTarget : Computer -> Model -> Model
@@ -503,7 +509,7 @@ camera computer =
         }
 
 
-view : Computer -> Model -> Html Never
+view : Computer -> Model -> Html EditorMsg
 view computer model =
     --Scene.sunny
     --    { devicePixelRatio = computer.devicePixelRatio
@@ -551,27 +557,29 @@ view computer model =
             , div [] [ text "Drag vertices to match the edges" ]
             , div [] [ text "Create new levels using the level editor on the top-right" ]
             ]
-        , Scene.custom
-            { devicePixelRatio = computer.devicePixelRatio
-            , screen = computer.screen
-            , camera = camera computer
-            , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
-            , clipDepth = 0.1
-            , exposure = Scene3d.exposureValue 6
-            , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
-            , whiteBalance = Scene3d.Light.fluorescent
-            , antialiasing = Scene3d.multisampling
-            , backgroundColor = lightBlue
-            }
-            [ drawBaseGraph computer model
-            , drawPlayerGraph computer model
-            , drawDraggedBaseEdge computer model
+        , Html.map never <|
+            Scene.custom
+                { devicePixelRatio = computer.devicePixelRatio
+                , screen = computer.screen
+                , camera = camera computer
+                , lights = Scene3d.fourLights firstLight secondLight thirdLight fourthLight
+                , clipDepth = 0.1
+                , exposure = Scene3d.exposureValue 6
+                , toneMapping = Scene3d.hableFilmicToneMapping -- See ExposureAndToneMapping.elm for details
+                , whiteBalance = Scene3d.Light.fluorescent
+                , antialiasing = Scene3d.multisampling
+                , backgroundColor = lightBlue
+                }
+                [ drawBaseGraph computer model
+                , drawPlayerGraph computer model
+                , drawDraggedBaseEdge computer model
 
-            --, axes
-            --, sphere red 0.1
-            , floor computer
-            , drawPointerReach computer model
-            ]
+                --, axes
+                --, sphere red 0.1
+                , floor computer
+                , drawPointerReach computer model
+                ]
+        , viewEditor computer model
         ]
 
 
@@ -820,8 +828,8 @@ type EditorMsg
     | FromLevelEditor Pages.Msg
 
 
-updateFromEditor : Computer -> EditorMsg -> Model -> Model
-updateFromEditor computer editorMsg model =
+handleMsgFromEditor : EditorMsg -> Model -> Model
+handleMsgFromEditor editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
             { model | editorIsOn = not model.editorIsOn }
@@ -831,14 +839,6 @@ updateFromEditor computer editorMsg model =
 
         FromLevelEditor levelEditorMsg ->
             { model | levels = model.levels |> Pages.update levelEditorMsg }
-
-
-icons =
-    { edit =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M 18 2 L 15.585938 4.4140625 L 19.585938 8.4140625 L 22 6 L 18 2 z M 14.076172 5.9238281 L 3 17 L 3 21 L 7 21 L 18.076172 9.9238281 L 14.076172 5.9238281 z" ] [] ]
-    , cross =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M12 10.5858L16.2426 6.34313L17.6569 7.75735L13.4142 12L17.6569 16.2426L16.2426 17.6568L12 13.4142L7.75736 17.6568L6.34315 16.2426L10.5858 12L6.34315 7.75735L7.75736 6.34313L12 10.5858Z" ] [] ]
-    }
 
 
 viewEditor : Computer -> Model -> Html EditorMsg
@@ -853,17 +853,17 @@ viewEditor computer model =
 editorToggleButton : Model -> Html EditorMsg
 editorToggleButton model =
     div
-        [ class "fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60"
+        [ class "fixed top-0 right-0"
         ]
         [ button
-            [ class "w-6"
+            [ class "w-10 p-2 text-white/20 hover:text-white active:text-white/60"
             , onClick PressedEditorOnOffButton
             ]
             [ if model.editorIsOn then
-                icons.cross
+                Icons.icons.cross
 
               else
-                icons.edit
+                Icons.icons.pen
             ]
         ]
 

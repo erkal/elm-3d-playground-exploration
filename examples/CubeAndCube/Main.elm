@@ -10,11 +10,13 @@ import Tools.Animation.Animation exposing (..)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = []
         , init = \_ -> {}
-        , update = \_ _ -> {}
+        , subscriptions = \_ -> Sub.none
+        , update = \_ _ _ -> {}
         , view = view
+        , hasTape = True
         }
 
 

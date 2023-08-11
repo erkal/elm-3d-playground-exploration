@@ -4,15 +4,18 @@ import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
 import Math.Vector2 exposing (Vec2, vec2)
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import WebGL exposing (Mesh, Shader)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -41,8 +44,8 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer model =
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
     model
 
 

@@ -15,7 +15,7 @@ import Html.Events exposing (onClick, onInput, onMouseDown)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Playground.Icons as Icons
-import Tools.Pages.SelectList as SelectList exposing (SelectList)
+import Tools.SelectList.SelectList as SelectList exposing (SelectList)
 
 
 type Pages page
@@ -39,7 +39,7 @@ type alias Item page =
 init : (page -> Value) -> Decoder page -> Item page -> List (Item page) -> Pages page
 init encodePage pageDecoder first rest =
     Pages
-        { selectList = SelectList.init first rest
+        { selectList = SelectList.init ( first, rest )
 
         --
         , encodePage = encodePage
@@ -51,7 +51,7 @@ init encodePage pageDecoder first rest =
 
 current : Pages page -> page
 current (Pages p) =
-    p.selectList |> SelectList.current |> .page
+    p.selectList |> SelectList.getCurrent |> .page
 
 
 
@@ -160,7 +160,7 @@ importJSON jSONString (Pages p) =
                                             JD.fail "List of pages is empty"
 
                                         first :: rest ->
-                                            JD.succeed (SelectList.init first rest)
+                                            JD.succeed (SelectList.init ( first, rest ))
                                 )
                         )
                     |> Result.withDefault p.selectList
@@ -217,7 +217,7 @@ addNewLevel msg (Pages p) =
         PressedAddLevelButton ->
             let
                 currentLevel =
-                    SelectList.current p.selectList
+                    SelectList.getCurrent p.selectList
             in
             Pages p
                 |> mapSelectList (SelectList.add { currentLevel | name = currentLevel.name ++ " copy" })
@@ -269,7 +269,7 @@ view (Pages p) =
             button
                 [ class "w-full h-8 p-2 text-left text-white/80 border-b border-white/20"
                 , class
-                    (if index == SelectList.currentIndex p.selectList then
+                    (if index == SelectList.getCurrentIndex p.selectList then
                         "bg-black/40 hover:bg-black/60 active:bg-black/80"
 
                      else
@@ -278,12 +278,12 @@ view (Pages p) =
                 , style "transition" "background-color 0.3s ease"
                 , onMouseDown (MouseDownOnLevelItem index)
                 ]
-                [ if index == SelectList.currentIndex p.selectList then
+                [ if index == SelectList.getCurrentIndex p.selectList then
                     div []
                         [ input
                             [ class "w-[100px] bg-transparent"
                             , placeholder "Enter Level Name"
-                            , value (p.selectList |> SelectList.current |> .name)
+                            , value (p.selectList |> SelectList.getCurrent |> .name)
                             , onInput ChangedCurrentLevelsNameTo
                             , autocomplete False
                             ]

@@ -27,6 +27,8 @@ type alias Computer =
     , wheel : Wheel
     , screen : Screen
     , devicePixelRatio : Float
+
+    --
     , configurations : Configurations
     }
 
@@ -72,8 +74,8 @@ type alias Screen =
     }
 
 
-assignConfigurations : Configurations -> Inputs -> Computer
-assignConfigurations initialConfigurations inputs =
+init : Configurations -> Inputs -> Computer
+init initialConfigurations inputs =
     { dt = inputs.dt
     , clock = inputs.clock
     , keyboard = inputs.keyboard
@@ -85,11 +87,24 @@ assignConfigurations initialConfigurations inputs =
     }
 
 
+tick : Inputs -> Computer -> Computer
+tick inputs computer =
+    { computer
+        | dt = inputs.dt
+        , clock =
+            -- Note that we don't use the clock from the inputs! This is important for the `Tape` work correctly.
+            computer.clock + inputs.dt
+        , keyboard = inputs.keyboard
+        , pointer = inputs.pointer
+        , wheel = inputs.wheel
+        , screen = inputs.screen
+        , devicePixelRatio = inputs.devicePixelRatio
+    }
+
+
 updateConfigurations : Configurations.Msg -> Computer -> Computer
 updateConfigurations configurationsMsg computer =
-    { computer
-        | configurations = computer.configurations |> Configurations.update configurationsMsg
-    }
+    { computer | configurations = computer.configurations |> Configurations.update configurationsMsg }
 
 
 
@@ -116,6 +131,10 @@ getColor key computer =
     computer.configurations |> Configurations.getColor key
 
 
+
+-- Getting directions from the keyboard
+
+
 toX : Keyboard -> Float
 toX keyboard =
     (if keyboard.right then
@@ -132,31 +151,6 @@ toX keyboard =
           )
 
 
-{-| Turn the UP and DOWN arrows into a number.
-
-    toY { up = False, down = False, ... } == 0
-    toY { up = True , down = False, ... } == 1
-    toY { up = False, down = True , ... } == -1
-    toY { up = True , down = True , ... } == 0
-
-This can be used to move characters around in games just like [`toX`](#toX):
-
-    import Playground.Playground as Playground exposing (..)
-
-    main =
-        game view update ( 0, 0 )
-
-    view computer ( x, y ) =
-        [ square blue 40
-            |> move x y
-        ]
-
-    update computer ( x, y ) =
-        ( x + toX computer.keyboard
-        , y + toY computer.keyboard
-        )
-
--}
 toY : Keyboard -> Float
 toY keyboard =
     (if keyboard.up then
@@ -173,37 +167,6 @@ toY keyboard =
           )
 
 
-{-| If you just use `toX` and `toY`, you will move diagonal too fast. You will go
-right at 1 pixel per update, but you will go up/right at 1.41421 pixels per
-update.
-
-So `toXY` turns the arrow keys into an `(x,y)` pair such that the distance is
-normalized:
-
-    toXY { up = True , down = False, left = False, right = False, ... } == (1, 0)
-    toXY { up = True , down = False, left = False, right = True , ... } == (0.707, 0.707)
-    toXY { up = False, down = False, left = False, right = True , ... } == (0, 1)
-
-Now when you go up/right, you are still going 1 pixel per update.
-
-    import Playground.Playground as Playground exposing (..)
-
-    main =
-        game view update ( 0, 0 )
-
-    view computer ( x, y ) =
-        [ square green 40
-            |> move x y
-        ]
-
-    update computer ( x, y ) =
-        let
-            ( dx, dy ) =
-                toXY computer.keyboard
-        in
-        ( x + dx, y + dy )
-
--}
 toXY : Keyboard -> ( Float, Float )
 toXY keyboard =
     let

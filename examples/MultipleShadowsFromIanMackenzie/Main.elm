@@ -7,6 +7,7 @@ import Illuminance
 import Light
 import LuminousFlux
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -16,11 +17,13 @@ import Tools.Animation.Animation exposing (spin, wave)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -57,8 +60,8 @@ initialConfigurations =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer model =
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
     model
 
 

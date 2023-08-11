@@ -1,4 +1,4 @@
-module Tools.PanAndZoom.Geometry2d exposing (..)
+module Tools.Geometry.Geometry exposing (..)
 
 
 type alias Point2d =

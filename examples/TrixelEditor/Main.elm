@@ -14,13 +14,13 @@ import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import List.Nonempty as Nonempty
+import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
-import Svg exposing (svg)
-import Svg.Attributes as SA
 import Tools.Pages.Pages as Pages exposing (Pages)
-import Tools.PanAndZoom.UI as PanAndZoom exposing (PanAndZoom)
+import Tools.PanAndZoom.PanAndZoom as PanAndZoom exposing (PanAndZoom)
 import TrixelEditor.ColorPalette as ColorPalette exposing (Palette(..))
 import TrixelEditor.TrixelGrid.CoordinateTransformations exposing (fromCanvasCoordinates, toCanvasCoordinates)
 import TrixelEditor.TrixelGrid.Face as Face exposing (Face(..), LR(..))
@@ -29,13 +29,13 @@ import TrixelEditor.World as World exposing (ColorIndex, World)
 
 
 main =
-    Playground.advanced
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
-        , updateWithMsg = updateFromEditor
-        , viewWithMsg = viewEditor
+        , hasTape = True
         }
 
 
@@ -92,20 +92,26 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer model =
-    model
-        |> updateCamera computer
-        |> updateMouseOverUV computer
-        |> insertTrixelOnPointerDown computer
-        |> removeTrixelOnShiftMouseDown computer
+update : Computer -> Message EditorMsg -> Model -> Model
+update computer message model =
+    case message of
+        Tick ->
+            model
+                |> updatePanAndZoomUI computer
+                |> updateMouseOverUV computer
+                |> insertTrixelOnPointerDown computer
+                |> removeTrixelOnShiftMouseDown computer
+
+        Message editorMsg ->
+            model
+                |> handleMsgFromEditor editorMsg
 
 
 toPerspectiveCamera : Screen -> PanAndZoom -> Camera
 toPerspectiveCamera screen panAndZoomUI =
     let
         { panX, panY, zoom } =
-            PanAndZoom.get panAndZoomUI
+            PanAndZoom.get { yIsUp = True } panAndZoomUI
     in
     Camera.perspective
         { focalPoint =
@@ -147,16 +153,9 @@ removeTrixelOnShiftMouseDown computer model =
         model
 
 
-updateCamera : Computer -> Model -> Model
-updateCamera computer model =
-    let
-        zoomCenter =
-            computer.pointer
-                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.panAndZoomUI) computer.screen
-                |> Maybe.map (\p -> { x = p.x, y = p.y })
-                |> Maybe.withDefault { x = 0, y = 0 }
-    in
-    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer zoomCenter }
+updatePanAndZoomUI : Computer -> Model -> Model
+updatePanAndZoomUI computer model =
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer }
 
 
 updateMouseOverUV : Computer -> Model -> Model
@@ -184,20 +183,21 @@ updateMouseOverUV computer model =
 -- VIEW
 
 
-view : Computer -> Model -> Html Never
+view : Computer -> Model -> Html EditorMsg
 view computer model =
     div [ cursorForSpaceDragging computer model ]
         [ div [ class "fixed w-full h-full" ]
-            [ viewWebGLCanvas computer model ]
+            [ Html.map never (viewWebGLCanvas computer model) ]
         , div
             [ class "absolute w-screen h-screen text-center text-lg text-white/60"
             ]
             [ div [ class "p-1" ] [ text "TRIXELS" ]
             ]
+        , viewEditor computer model
         ]
 
 
-cursorForSpaceDragging : Computer -> Model -> Html.Attribute Never
+cursorForSpaceDragging : Computer -> Model -> Html.Attribute EditorMsg
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
@@ -362,8 +362,8 @@ type EditorMsg
     | FromLevelEditor Pages.Msg
 
 
-updateFromEditor : Computer -> EditorMsg -> Model -> Model
-updateFromEditor computer editorMsg model =
+handleMsgFromEditor : EditorMsg -> Model -> Model
+handleMsgFromEditor editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
             { model | editorIsOn = not model.editorIsOn }
@@ -383,14 +383,6 @@ updateFromEditor computer editorMsg model =
             { model | pages = model.pages |> Pages.update levelEditorMsg }
 
 
-icons =
-    { edit =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M 18 2 L 15.585938 4.4140625 L 19.585938 8.4140625 L 22 6 L 18 2 z M 14.076172 5.9238281 L 3 17 L 3 21 L 7 21 L 18.076172 9.9238281 L 14.076172 5.9238281 z" ] [] ]
-    , cross =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M12 9.71428L18.8571 2.85714L21.1429 5.14285L14.2857 12L21.1429 18.8571L18.8571 21.1428L12 14.2857L5.14286 21.1428L2.85715 18.8571L9.71429 12L2.85715 5.14285L5.14286 2.85714L12 9.71428Z" ] [] ]
-    }
-
-
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
@@ -403,17 +395,17 @@ viewEditor computer model =
 editorToggleButton : Model -> Html EditorMsg
 editorToggleButton model =
     div
-        [ class "fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60"
+        [ class "fixed top-0 right-0"
         ]
         [ button
-            [ class "w-6"
+            [ class "w-10 p-2 text-white/20 hover:text-white active:text-white/60"
             , onClick PressedEditorOnOffButton
             ]
             [ if model.editorIsOn then
-                icons.cross
+                Icons.icons.cross
 
               else
-                icons.edit
+                Icons.icons.pen
             ]
         ]
 

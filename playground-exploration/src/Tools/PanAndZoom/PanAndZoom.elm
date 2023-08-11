@@ -1,7 +1,9 @@
-module Tools.PanAndZoom.UI exposing
+module Tools.PanAndZoom.PanAndZoom exposing
     ( PanAndZoom
     , PartialScreen
     , get
+    , getPointerPositionInLocalCoordinates
+    , getZoom
     , init
     , isPanningWithSpaceBar
     , panWithWheel
@@ -14,8 +16,8 @@ module Tools.PanAndZoom.UI exposing
     , zoomToFit
     )
 
-import Playground.Playground as Playground exposing (Computer, Screen)
-import Tools.PanAndZoom.Geometry2d exposing (BoundingBox, Point2d, scaleAbout, scaleBy, translateBy, vectorFrom)
+import Playground.Playground exposing (Computer, Screen)
+import Tools.Geometry.Geometry exposing (BoundingBox, Point2d, scaleAbout, scaleBy, translateBy, vectorFrom)
 
 
 type PanAndZoom
@@ -55,6 +57,23 @@ init { minZoom, maxZoom } =
         }
 
 
+
+-- HELPERS
+
+
+negativeIf : Bool -> (Float -> Float)
+negativeIf bool =
+    if bool then
+        (*) -1
+
+    else
+        identity
+
+
+
+-- GET
+
+
 isPanningWithSpaceBar : PanAndZoom -> Bool
 isPanningWithSpaceBar (PAZ p) =
     case p.state of
@@ -65,12 +84,24 @@ isPanningWithSpaceBar (PAZ p) =
             False
 
 
-get : PanAndZoom -> { panX : Float, panY : Float, zoom : Float }
-get (PAZ p) =
+get : { yIsUp : Bool } -> PanAndZoom -> { panX : Float, panY : Float, zoom : Float }
+get { yIsUp } (PAZ p) =
     { panX = p.pan.x
-    , panY = p.pan.y
+    , panY = p.pan.y |> negativeIf (not yIsUp)
     , zoom = p.zoom
     }
+
+
+getZoom : PanAndZoom -> Float
+getZoom (PAZ p) =
+    p.zoom
+
+
+getPointerPositionInLocalCoordinates : Computer -> { yIsUp : Bool } -> PanAndZoom -> Point2d
+getPointerPositionInLocalCoordinates computer { yIsUp } (PAZ { pan, zoom }) =
+    Point2d
+        (pan.x + (computer.pointer.x / zoom))
+        ((pan.y + (computer.pointer.y / zoom)) |> negativeIf (not yIsUp))
 
 
 setPan : Point2d -> PanAndZoom -> PanAndZoom
@@ -106,16 +137,27 @@ zoomOutBy factor (PAZ p) =
     PAZ { p | zoom = p.zoom |> (*) (1 / factor) |> clamp p.minZoom p.maxZoom }
 
 
-zoomToFit : Screen -> PartialScreen -> BoundingBox -> PanAndZoom -> PanAndZoom
-zoomToFit windowSize partialScreen boundingBoxOfObjects (PAZ p) =
+zoomToFit : Screen -> PartialScreen -> BoundingBox -> { yIsUp : Bool } -> PanAndZoom -> PanAndZoom
+zoomToFit windowSize partialScreen boundingBoxOfObjects { yIsUp } (PAZ p) =
     let
+        flipY : BoundingBox -> BoundingBox
+        flipY box =
+            { box | minY = -box.maxY, maxY = -box.minY }
+
+        boundingBoxOfObjects_ =
+            if yIsUp then
+                boundingBoxOfObjects
+
+            else
+                flipY boundingBoxOfObjects
+
         zoomToFitWidth =
             partialScreen.width
-                / (boundingBoxOfObjects.maxX - boundingBoxOfObjects.minX)
+                / (boundingBoxOfObjects_.maxX - boundingBoxOfObjects_.minX)
 
         zoomToFitHeight =
             partialScreen.height
-                / (boundingBoxOfObjects.maxY - boundingBoxOfObjects.minY)
+                / (boundingBoxOfObjects_.maxY - boundingBoxOfObjects_.minY)
 
         targetZoom =
             min zoomToFitWidth zoomToFitHeight
@@ -133,8 +175,8 @@ zoomToFit windowSize partialScreen boundingBoxOfObjects (PAZ p) =
 
         centerOfGraph =
             Point2d
-                (0.5 * (boundingBoxOfObjects.minX + boundingBoxOfObjects.maxX))
-                (0.5 * (boundingBoxOfObjects.minY + boundingBoxOfObjects.maxY))
+                (0.5 * (boundingBoxOfObjects_.minX + boundingBoxOfObjects_.maxX))
+                (0.5 * (boundingBoxOfObjects_.minY + boundingBoxOfObjects_.maxY))
 
         targetPan =
             centerOfGraph
@@ -166,12 +208,12 @@ zoomAround zoomDelta zoomCenter (PAZ p) =
 -- TICK
 
 
-tick : Computer -> Point2d -> PanAndZoom -> PanAndZoom
-tick computer zoomCenter panAndZoomUI =
+tick : Computer -> PanAndZoom -> PanAndZoom
+tick computer panAndZoomUI =
     panAndZoomUI
         -- zoom with wheel
         |> startZoomingWithWheel computer
-        |> continueZoomingWithWheel computer zoomCenter
+        |> continueZoomingWithWheel computer
         |> stopZoomingWithWheelByDeltaX computer
         |> stopZoomingWithWheelByTime computer
         -- pan with wheel
@@ -193,8 +235,8 @@ startZoomingWithWheel { wheel, keyboard, clock } (PAZ p) =
             PAZ p
 
 
-continueZoomingWithWheel : Computer -> Point2d -> PanAndZoom -> PanAndZoom
-continueZoomingWithWheel { wheel, clock } zoomCenter (PAZ p) =
+continueZoomingWithWheel : Computer -> PanAndZoom -> PanAndZoom
+continueZoomingWithWheel ({ wheel, clock } as computer) (PAZ p) =
     case ( wheel.deltaX /= 0 || wheel.deltaY /= 0, p.state ) of
         ( True, ZoomingWithWheel { lastWheelDeltaYArrivedAt } ) ->
             let
@@ -212,7 +254,7 @@ continueZoomingWithWheel { wheel, clock } zoomCenter (PAZ p) =
                                 clock
                         }
                     )
-                |> zoomAround (zoomSpeed * -wheel.deltaY) zoomCenter
+                |> zoomAround (zoomSpeed * -wheel.deltaY) (getPointerPositionInLocalCoordinates computer { yIsUp = True } (PAZ p))
 
         _ ->
             PAZ p

@@ -4,17 +4,20 @@ import Camera exposing (Camera, orthographic)
 import Color exposing (rgb255, rgba, white)
 import Html exposing (Html)
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Tools.Animation.Animation exposing (spin)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -43,8 +46,8 @@ init _ =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update _ model =
+update : Computer -> Message Never -> Model -> Model
+update _ _ model =
     model
 
 

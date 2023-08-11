@@ -2,17 +2,19 @@ module WebPage.Main exposing (main)
 
 import Html exposing (Html, a, div, h2, i, img, span, text)
 import Html.Attributes exposing (class, href, src, target)
+import Playground.Icons
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 
 
 main =
-    Playground.advanced
-        { initialConfigurations = initialConfigurations
-        , init = init
-        , update = update
-        , view = viewGameModel
-        , updateWithMsg = updateFromEditor
-        , viewWithMsg = viewEditor
+    Playground.application
+        { initialConfigurations = []
+        , init = \_ -> {}
+        , subscriptions = \_ -> Sub.none
+        , update = \_ _ _ -> {}
+        , view = view
+        , hasTape = False
         }
 
 
@@ -21,52 +23,13 @@ type alias Model =
 
 
 
--- INIT
-
-
-init : Computer -> Model
-init computer =
-    {}
-
-
-initialConfigurations =
-    [ configBlock "Configurations"
-        True
-        [ boolConfig "example check box" False
-        ]
-    ]
-
-
-
--- UPDATE
-
-
-update computer model =
-    model
-
-
-
 -- VIEW
 
 
-type EditorMsg
-    = NoOp
-
-
-updateFromEditor : Computer -> EditorMsg -> Model -> Model
-updateFromEditor computer editorMsg model =
-    model
-
-
-viewGameModel : Computer -> Model -> Html Never
-viewGameModel computer model =
-    div [] []
-
-
-viewEditor : Computer -> Model -> Html EditorMsg
-viewEditor computer model =
+view : Computer -> Model -> Html Never
+view computer model =
     div
-        [ class "fixed w-full h-full"
+        [ class "absolute z-10 w-full h-full"
         , class "bg-gradient-to-br from-blue-400 via-lightBlue-500 to-cyan-700"
         , class "overflow-y-auto"
         ]
@@ -90,12 +53,12 @@ viewEditor computer model =
         ]
 
 
-viewExamples : Computer -> Model -> Html EditorMsg
+viewExamples : Computer -> Model -> Html Never
 viewExamples computer model =
     div
         [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
         [ viewExample "TrixelEditor" "A trixel editor with zoom and pan."
-        , viewExample "RedFacedCube" "One of the puzzles from Martin Gardner's column. The solution is unique!"
+        , viewExample "RedFacedCube" "The Red-Faced Cube: One of the puzzles from Martin Gardner's column. It has a unique solution!"
         , viewExample "WaveInWave" "A Creative coding example."
         , viewExample "ColorShower" "A Creative coding example."
         , viewExample "DancingCubes" "A Creative coding example."
@@ -117,7 +80,7 @@ viewExamples computer model =
         ]
 
 
-viewExample : String -> String -> Html EditorMsg
+viewExample : String -> String -> Html Never
 viewExample exampleName descriptionText =
     let
         exampleLink =
@@ -135,14 +98,13 @@ viewExample exampleName descriptionText =
         ]
         [ a
             [ href exampleLink
-            , target "_blank"
             ]
             [ div
                 [ class "relative cursor-pointer group" ]
                 [ img [ src imageLink, class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
                 , div
                     [ class "flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100" ]
-                    [ i [ class "fas fa-expand" ] [] ]
+                    [ div [ class "w-20 h-20" ] [ Playground.Icons.icons.zoomToFit ] ]
                 ]
             ]
         , a
