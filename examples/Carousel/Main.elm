@@ -6,16 +6,19 @@ import Color exposing (Color, blue, charcoal, darkBlue, gray, green, lightBlue, 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -40,11 +43,16 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update ({ pointer } as computer) model =
-    model
-        |> handleKeyPresses computer
-        |> tickCarousel computer
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
+    case message of
+        Tick ->
+            model
+                |> handleKeyPresses computer
+                |> tickCarousel computer
+
+        _ ->
+            model
 
 
 handleKeyPresses : Computer -> Model -> Model
@@ -89,7 +97,7 @@ camera =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    div [ class "w-full" ]
+    div [ class "absolute" ]
         [ div
             [ class "absolute p-4 text-white/80"
             , class "grid place-items-center w-full"

@@ -1,14 +1,19 @@
 module Playground.Tape exposing
-    ( Msg
+    ( Message(..)
+    , Msg
     , Tape
+    , currentAppModel
     , currentComputer
-    , currentGameModel
+    , getCurrentFrameIndex
+    , getFps
     , init
+    , initNoTape
+    , isNoTape
     , isRecording
-    , tick
-    , update
     , updateConfigurations
-    , updateWithMsg
+    , updateOnAppMsg
+    , updateOnTapeMsg
+    , updateOnTick
     , view
     )
 
@@ -18,105 +23,113 @@ import Html.Events exposing (onClick)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
 import Playground.Icons as Icons
-import Round
+import Tools.SelectList.SelectList as SelectList exposing (SelectList)
 
 
-
-{- TODO: Use SelectList here -}
-
-
-type Tape gameModel
-    = Tape
-        State
-        { pastReversed : List ( Computer, gameModel )
-        , current : ( Computer, gameModel )
-        , future : List ( Computer, gameModel )
-        }
+type Tape appModel
+    = Tape State (SelectList ( Computer, appModel ))
 
 
 type State
-    = Recording
+    = NoTape
+    | Recording
     | Paused
     | Playing { tapeClock : Float }
 
 
 
--- INIT
+--  INIT
 
 
-init : Computer -> (Computer -> gameModel) -> Tape gameModel
-init initialComputer initGameModel =
-    Tape
-        Recording
-        { pastReversed = []
-        , current = ( initialComputer, initGameModel initialComputer )
-        , future = []
-        }
+initNoTape : Computer -> (Computer -> appModel) -> Tape appModel
+initNoTape initialComputer initAppModel =
+    Tape NoTape
+        (SelectList.singleton ( initialComputer, initAppModel initialComputer ))
+
+
+init : Computer -> (Computer -> appModel) -> Tape appModel
+init initialComputer initAppModel =
+    Tape Recording
+        (SelectList.singleton ( initialComputer, initAppModel initialComputer ))
 
 
 
--- GET (ONLY USED FOR VIEW)
+-- QUERY
 
 
-currentComputer : Tape gameModel -> Computer
-currentComputer (Tape _ { current }) =
-    Tuple.first current
+currentComputer : Tape appModel -> Computer
+currentComputer (Tape _ timeline) =
+    timeline
+        |> SelectList.getCurrent
+        |> Tuple.first
 
 
-currentGameModel : Tape gameModel -> gameModel
-currentGameModel (Tape _ { current }) =
-    Tuple.second current
+currentAppModel : Tape appModel -> appModel
+currentAppModel (Tape _ timeline) =
+    timeline
+        |> SelectList.getCurrent
+        |> Tuple.second
 
 
-isRecording : Tape gameModel -> Bool
+isRecording : Tape appModel -> Bool
 isRecording (Tape state _) =
     state == Recording
+
+
+isNoTape : Tape appModel -> Bool
+isNoTape (Tape state _) =
+    state == NoTape
+
+
+getCurrentFrameIndex : Tape appModel -> Int
+getCurrentFrameIndex (Tape _ timeline) =
+    SelectList.getCurrentIndex timeline
+
+
+getFps : Tape appModel -> Maybe Int
+getFps ((Tape state timeline) as tape) =
+    timeline
+        |> SelectList.getBeforeReversed
+        |> List.drop 59
+        |> List.head
+        |> Maybe.map (Tuple.first >> .clock)
+        |> Maybe.map (\t -> round (60 / ((currentComputer tape).clock - t)))
+
+
+getTotalSize : Tape appModel -> Int
+getTotalSize (Tape _ timeline) =
+    SelectList.size timeline
 
 
 
 -- UPDATE
 
 
-updateWithMsg :
-    (Computer -> editorMsg -> gameModel -> gameModel)
-    -> editorMsg
-    -> Tape gameModel
-    -> Tape gameModel
-updateWithMsg updateFromEditor editorMsg (Tape state ({ current } as pastCurrentFuture)) =
+type Message appMsg
+    = Tick
+    | Message appMsg
+
+
+updateConfigurations : Configurations.Msg -> Tape appModel -> Tape appModel
+updateConfigurations configurationsMsg (Tape state timeLine) =
     Tape state
-        { pastCurrentFuture
-            | current =
-                current
-                    |> Tuple.mapSecond (updateFromEditor (Tuple.first current) editorMsg)
-        }
+        (timeLine |> SelectList.mapCurrent (Tuple.mapFirst (Computer.updateConfigurations configurationsMsg)))
 
 
-updateConfigurations : Configurations.Msg -> Tape gameModel -> Tape gameModel
-updateConfigurations configurationsMsg (Tape state pastCurrentFuture) =
-    Tape state
-        { pastCurrentFuture
-            | current =
-                pastCurrentFuture.current
-                    |> Tuple.mapFirst (Computer.updateConfigurations configurationsMsg)
-        }
-
-
-tick : (Computer -> gameModel -> gameModel) -> Inputs -> Tape gameModel -> Tape gameModel
-tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
+updateOnTick : (Computer -> Message appMsg -> appModel -> appModel) -> Inputs -> Tape appModel -> Tape appModel
+updateOnTick updateApp inputs ((Tape state timeLine) as tape) =
     case state of
         Paused ->
             if inputs.pointer.down then
-                tape
-                    |> startRecording
+                tape |> startRecording
 
             else
                 tape
 
         Playing { tapeClock } ->
-            Tape (Playing { tapeClock = tapeClock + inputs.dt }) pastCurrentFuture
+            Tape (Playing { tapeClock = tapeClock + inputs.dt }) timeLine
                 |> (if tapeClock + inputs.dt > (currentComputer tape).clock then
-                        goToNext
-                            >> Maybe.withDefault (Tape Paused pastCurrentFuture)
+                        goToNext >> Maybe.withDefault (Tape Paused timeLine)
 
                     else
                         identity
@@ -124,28 +137,47 @@ tick updateGameModel inputs ((Tape state pastCurrentFuture) as tape) =
 
         Recording ->
             let
-                ( lastComputer, lastGameModel ) =
-                    pastCurrentFuture.current
+                ( lastComputer, lastAppModel ) =
+                    SelectList.getCurrent timeLine
 
                 newComputer =
-                    -- Here, we trick the computer.clock.
-                    -- It ticks only when recording (This is subject to change)
-                    { inputs | clock = lastComputer.clock + inputs.dt }
-                        |> Computer.assignConfigurations lastComputer.configurations
-
-                newGameModel =
-                    lastGameModel |> updateGameModel newComputer
+                    lastComputer |> Computer.tick inputs
             in
-            Tape
-                Recording
-                { pastReversed = pastCurrentFuture.current :: pastCurrentFuture.pastReversed
-                , current = ( newComputer, newGameModel )
-                , future = []
-                }
+            Tape Recording
+                (timeLine
+                    |> SelectList.add ( newComputer, lastAppModel |> updateApp newComputer Tick )
+                    |> SelectList.removeAfter
+                )
+
+        NoTape ->
+            let
+                ( lastComputer, lastAppModel ) =
+                    SelectList.getCurrent timeLine
+
+                newComputer =
+                    lastComputer |> Computer.tick inputs
+            in
+            Tape NoTape
+                (timeLine
+                    |> SelectList.setCurrent ( newComputer, lastAppModel |> updateApp newComputer Tick )
+                )
+
+
+updateOnAppMsg : (Computer -> Message appMsg -> appModel -> appModel) -> appMsg -> Tape appModel -> Tape appModel
+updateOnAppMsg updateApp appMsg (Tape state timeLine) =
+    Tape state
+        (timeLine
+            |> SelectList.mapCurrent
+                (\( computer, appModel ) ->
+                    ( computer
+                    , appModel |> updateApp computer (Message appMsg)
+                    )
+                )
+        )
 
 
 
--- UPDATES FOR USER INTERACTION WITH RECORD-PLAYER
+-- Update on Tape Control Messages
 
 
 type Msg
@@ -155,125 +187,100 @@ type Msg
     | PressedPlayButton
 
 
-update : Msg -> Tape gameModel -> Tape gameModel
-update msg tape =
+updateOnTapeMsg : Msg -> Tape appModel -> Tape appModel
+updateOnTapeMsg msg tape =
     case msg of
         PressedPauseButton ->
-            tape
-                |> pause
+            tape |> pause
 
         PressedRecordButton ->
-            tape
-                |> startRecording
+            tape |> startRecording
 
         PressedPlayButton ->
-            tape
-                |> startPlaying
+            tape |> startPlaying
 
         SliderMovedTo tickIndex ->
-            tape
-                |> jumpTo tickIndex
+            tape |> goTo tickIndex
 
 
-pause : Tape gameModel -> Tape gameModel
-pause (Tape _ pastCurrentFuture) =
-    Tape Paused pastCurrentFuture
+pause : Tape appModel -> Tape appModel
+pause (Tape _ timeLine) =
+    Tape Paused
+        timeLine
 
 
-startRecording : Tape gameModel -> Tape gameModel
-startRecording (Tape _ pastCurrentFuture) =
-    Tape Recording pastCurrentFuture
+startRecording : Tape appModel -> Tape appModel
+startRecording (Tape _ timeLine) =
+    Tape Recording
+        timeLine
 
 
-startPlaying : Tape gameModel -> Tape gameModel
-startPlaying ((Tape _ pastCurrentFuture) as tape) =
-    Tape
-        (Playing { tapeClock = (currentComputer tape).clock })
-        pastCurrentFuture
+startPlaying : Tape appModel -> Tape appModel
+startPlaying ((Tape _ timeLine) as tape) =
+    Tape (Playing { tapeClock = (currentComputer tape).clock })
+        timeLine
 
 
-goToNext : Tape gameModel -> Maybe (Tape gameModel)
-goToNext (Tape state { pastReversed, current, future }) =
-    case future of
-        next :: rest ->
-            Just
-                (Tape state
-                    { pastReversed = current :: pastReversed
-                    , current = next
-                    , future = rest
-                    }
-                )
+goToNext : Tape appModel -> Maybe (Tape appModel)
+goToNext (Tape state timeline) =
+    if SelectList.isAtEnd timeline then
+        Nothing
 
-        [] ->
-            Nothing
+    else
+        Just
+            (Tape state
+                (SelectList.goToNext timeline)
+            )
 
 
-jumpTo : Int -> Tape gameModel -> Tape gameModel
-jumpTo tickIndex ((Tape _ { pastReversed, current, future }) as tape) =
-    let
-        allLoaded =
-            List.reverse pastReversed ++ [ current ] ++ future
-
-        l =
-            List.take tickIndex allLoaded
-
-        r =
-            List.drop tickIndex allLoaded
-    in
-    case r of
-        head :: tail ->
-            Tape Paused
-                { pastReversed = List.reverse l
-                , current = head
-                , future = tail
-                }
-
-        [] ->
-            case List.reverse l of
-                lastOfl :: rest ->
-                    Tape Paused
-                        { pastReversed = rest
-                        , current = lastOfl
-                        , future = []
-                        }
-
-                [] ->
-                    tape
+goTo : Int -> Tape appModel -> Tape appModel
+goTo tickIndex ((Tape _ timeline) as tape) =
+    Tape Paused
+        (timeline |> SelectList.goTo tickIndex)
 
 
 
 -- VIEW
 
 
-view : Tape gameModel -> Html Msg
-view tape =
-    div [ class "w-full h-full p-4 border-[0.5px] border-white/20 bg-black/20" ]
-        [ viewSlider tape
-        , viewTapeButtons tape
-        , viewFpsMeter tape
-        , viewClock tape
+view : Tape appModel -> Html Msg
+view ((Tape state _) as tape) =
+    div
+        [ class "w-full h-full px-4 border-[0.5px] border-white/20 bg-black/20"
+        , class "flex flex-row items-center gap-4"
+        , case state of
+            NoTape ->
+                class "hidden"
+
+            _ ->
+                class ""
+        ]
+        [ viewTapeButtons tape
+        , viewSlider tape
         ]
 
 
-viewSlider : Tape gameModel -> Html Msg
+viewSlider : Tape appModel -> Html Msg
 viewSlider tape =
     input
-        [ class "absolute w-full"
-        , type_ "range"
+        [ type_ "range"
         , HA.min (String.fromInt 0)
-        , HA.max (String.fromInt (totalSize tape - 1))
-        , HA.value (String.fromInt (lengthOfPast tape))
+        , HA.max (String.fromInt (getTotalSize tape - 1))
+        , HA.value (String.fromInt (getCurrentFrameIndex tape))
         , HA.step (String.fromInt 1)
         , Html.Events.onInput (String.toFloat >> Maybe.withDefault 42 >> round >> SliderMovedTo)
         ]
         []
 
 
-viewTapeButtons : Tape gameModel -> Html Msg
-viewTapeButtons (Tape state { future }) =
+viewTapeButtons : Tape appModel -> Html Msg
+viewTapeButtons (Tape state timeline) =
     div
-        [ class "py-1" ]
+        [ class "flex flex-row gap-1" ]
         [ case state of
+            NoTape ->
+                text ""
+
             Recording ->
                 recButton False PressedPauseButton "text-red-500 font-bold"
 
@@ -283,11 +290,14 @@ viewTapeButtons (Tape state { future }) =
             Playing _ ->
                 recButton True PressedRecordButton "text-white/60 hover:text-white/80 font-bold"
         , case state of
+            NoTape ->
+                text ""
+
             Recording ->
-                tapeButtonWithIcon (List.isEmpty future) Icons.icons.play PressedPlayButton
+                tapeButtonWithIcon (SelectList.isAtEnd timeline) Icons.icons.play PressedPlayButton
 
             Paused ->
-                tapeButtonWithIcon (List.isEmpty future) Icons.icons.play PressedPlayButton
+                tapeButtonWithIcon (SelectList.isAtEnd timeline) Icons.icons.play PressedPlayButton
 
             Playing _ ->
                 tapeButtonWithIcon False Icons.icons.pause PressedPauseButton
@@ -297,7 +307,7 @@ viewTapeButtons (Tape state { future }) =
 recButton : Bool -> Msg -> String -> Html Msg
 recButton isDisabled msg conditionalStyle =
     button
-        [ class "px-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
+        [ class "p-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
         , class conditionalStyle
         , disabled isDisabled
         , onClick msg
@@ -308,49 +318,8 @@ recButton isDisabled msg conditionalStyle =
 tapeButtonWithIcon : Bool -> Html msg -> msg -> Html msg
 tapeButtonWithIcon isDisabled iconD msg =
     button
-        [ class "absolute left-[60px] mx-1 px-1 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
+        [ class "p-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
         , disabled isDisabled
         , onClick msg
         ]
-        [ div [ class "w-4 h-6 text-white/60 hover:text-white/80" ] [ iconD ] ]
-
-
-fpsMeter : Tape gameModel -> Maybe Int
-fpsMeter ((Tape state { pastReversed }) as tape) =
-    pastReversed
-        |> List.drop 59
-        |> List.head
-        |> Maybe.map (Tuple.first >> .clock)
-        |> Maybe.map (\t -> round (60 / ((currentComputer tape).clock - t)))
-
-
-viewFpsMeter : Tape gameModel -> Html Msg
-viewFpsMeter tape =
-    div [ class "absolute bottom-2 right-4 text-sm text-white/40" ] <|
-        case fpsMeter tape of
-            Nothing ->
-                [ text "... Fps" ]
-
-            Just fps ->
-                [ text (String.fromInt fps ++ " Fps") ]
-
-
-viewClock : Tape gameModel -> Html Msg
-viewClock tape =
-    div
-        [ class "absolute left-[104px] bottom-2 text-sm text-white/40"
-        ]
-        [ text <|
-            "clock: "
-                ++ ((currentComputer tape).clock |> Round.round 3)
-        ]
-
-
-totalSize : Tape gameModel -> Int
-totalSize (Tape _ { pastReversed, current, future }) =
-    List.length pastReversed + 1 + List.length future
-
-
-lengthOfPast : Tape gameModel -> Int
-lengthOfPast (Tape _ { pastReversed }) =
-    List.length pastReversed
+        [ div [ class "w-6 h-6 text-white/60 hover:text-white/80" ] [ iconD ] ]

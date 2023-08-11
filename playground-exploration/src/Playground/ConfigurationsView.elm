@@ -1,16 +1,15 @@
-module Playground.ConfigurationsGUI exposing (..)
+module Playground.ConfigurationsView exposing (..)
 
 import Color exposing (black)
 import Color.Convert exposing (colorToHex, hexToColor)
-import Dict
-import Html exposing (Html, div, input, label, span, text)
+import Html exposing (Html, div, input, label, text)
 import Html.Attributes as HA exposing (checked, class, for, id, name, style, type_)
 import Html.Events
 import Playground.Configurations exposing (..)
 
 
-view : Configurations -> Html Msg
-view configurations =
+viewConfigurations : Configurations -> Html Msg
+viewConfigurations configurations =
     div
         [ class "p-6 text-gray-300"
         , class "flex flex-col gap-12"
@@ -36,11 +35,11 @@ viewConfig ( key, config ) =
         BoolConfig value ->
             div [ class "h-12 py-4" ]
                 [ Html.label
-                    [ class "block"
+                    [ class "block cursor-pointer"
                     , for key
                     ]
                     [ Html.input
-                        [ class "relative bottom-[1px] align-middle mr-2"
+                        [ class "relative bottom-[1px] align-middle mr-2 cursor-pointer"
                         , type_ "checkbox"
                         , id key
                         , name key
@@ -53,7 +52,7 @@ viewConfig ( key, config ) =
                 ]
 
         FloatConfig ( min, max ) value ->
-            sliderInput
+            viewSliderInput
                 { labelText = key
                 , value = value
                 , min = min
@@ -63,7 +62,7 @@ viewConfig ( key, config ) =
                 }
 
         IntConfig ( min, max ) value ->
-            sliderInput
+            viewSliderInput
                 { labelText = key
                 , value = toFloat value
                 , min = toFloat min
@@ -74,12 +73,14 @@ viewConfig ( key, config ) =
 
         ColorConfig value ->
             div []
-                [ div [ style "margin-bottom" "6px" ] [ Html.label [ for key ] [ Html.text key ] ]
+                [ div [ class "mb-2" ]
+                    [ Html.label
+                        [ for key, class "cursor-pointer" ]
+                        [ Html.text key ]
+                    ]
                 , Html.input
                     [ type_ "color"
-                    , style "width" "100%"
-                    , style "height" "26px"
-                    , style "padding" "0px"
+                    , class "w-full h-8 p-0 cursor-pointer"
                     , id key
                     , name key
                     , Html.Events.onInput
@@ -96,8 +97,8 @@ viewConfig ( key, config ) =
                 ]
 
 
-sliderInput : { labelText : String, value : Float, min : Float, max : Float, step : Float, onChange : Float -> Msg } -> Html Msg
-sliderInput { labelText, value, min, max, step, onChange } =
+viewSliderInput : { labelText : String, value : Float, min : Float, max : Float, step : Float, onChange : Float -> Msg } -> Html Msg
+viewSliderInput { labelText, value, min, max, step, onChange } =
     div [ class "flex flex-col gap-2" ]
         [ label
             [ for labelText ]

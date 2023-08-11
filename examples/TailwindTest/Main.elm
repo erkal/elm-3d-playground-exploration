@@ -6,6 +6,7 @@ import Css.Global
 import Html.Styled exposing (Html, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Tailwind.Theme as Tw
@@ -14,11 +15,13 @@ import Tools.Animation.Animation exposing (..)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = False
         }
 
 
@@ -43,7 +46,8 @@ init computer =
 -- UPDATE
 
 
-update computer model =
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
     model
 
 

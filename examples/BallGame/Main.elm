@@ -15,25 +15,25 @@ import Html.Events exposing (onClick)
 import Illuminance
 import Light
 import LuminousFlux
+import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
 import Scene3d.Material as Material
-import Svg exposing (svg)
-import Svg.Attributes as SA
 import Temperature
 import Tools.Pages.Pages as Pages exposing (Pages)
 
 
 main =
-    Playground.advanced
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
         , update = update
         , view = view
-        , updateWithMsg = updateFromEditor
-        , viewWithMsg = viewEditor
+        , subscriptions = always Sub.none
+        , hasTape = True
         }
 
 
@@ -116,8 +116,8 @@ camera computer focalPoint =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer_ model =
+update : Computer -> Message EditorMsg -> Model -> Model
+update computer_ message model =
     let
         computer =
             if getBool "fix time steps" computer_ then
@@ -133,11 +133,17 @@ update computer_ model =
             else
                 identity
     in
-    model
-        |> handleEditorInput
-        |> updateMouseOverXY computer
-        |> tickWorld computer
-        |> moveCamera computer
+    case message of
+        Tick ->
+            model
+                |> handleEditorInput
+                |> updateMouseOverXY computer
+                |> tickWorld computer
+                |> moveCamera computer
+
+        Message editorMsg ->
+            model
+                |> handleEditorMsg editorMsg
 
 
 handleDrawingPolygon : Computer -> Model -> Model
@@ -204,7 +210,7 @@ tickWorld computer model =
 -- VIEW
 
 
-view : Computer -> Model -> Html Never
+view : Computer -> Model -> Html EditorMsg
 view computer model =
     div []
         [ div [ class "fixed text-white/50 ml-[320px] mt-8" ]
@@ -212,7 +218,8 @@ view computer model =
             , div [] [ text "Draw polygons with polygon editor on right bar" ]
             , div [] [ text "Play with `friction` and `gas force` on the left bar" ]
             ]
-        , viewGame computer model
+        , Html.map never (viewGame computer model)
+        , viewEditor computer model
         ]
 
 
@@ -487,9 +494,9 @@ type EditorMsg
     | FromLevelEditor Pages.Msg
 
 
-updateFromEditor : Computer -> EditorMsg -> Model -> Model
-updateFromEditor computer editorMsg model =
-    case editorMsg of
+handleEditorMsg : EditorMsg -> Model -> Model
+handleEditorMsg editorMessage model =
+    case editorMessage of
         PressedEditorOnOffButton ->
             { model
                 | editorIsOn = not model.editorIsOn
@@ -509,14 +516,6 @@ updateFromEditor computer editorMsg model =
             { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
-icons =
-    { edit =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M 18 2 L 15.585938 4.4140625 L 19.585938 8.4140625 L 22 6 L 18 2 z M 14.076172 5.9238281 L 3 17 L 3 21 L 7 21 L 18.076172 9.9238281 L 14.076172 5.9238281 z" ] [] ]
-    , cross =
-        svg [ SA.viewBox "0 0 24 24", SA.fill "currentColor" ] [ Svg.path [ SA.d "M12 9.71428L18.8571 2.85714L21.1429 5.14285L14.2857 12L21.1429 18.8571L18.8571 21.1428L12 14.2857L5.14286 21.1428L2.85715 18.8571L9.71429 12L2.85715 5.14285L5.14286 2.85714L12 9.71428Z" ] [] ]
-    }
-
-
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
@@ -529,17 +528,17 @@ viewEditor computer model =
 editorToggleButton : Model -> Html EditorMsg
 editorToggleButton model =
     div
-        [ class "fixed top-0 right-0 p-2 text-white/20 hover:text-white active:text-white/60"
+        [ class "fixed top-0 right-0"
         ]
         [ button
-            [ class "w-6"
+            [ class "w-10 p-2 text-white/20 hover:text-white active:text-white/60"
             , onClick PressedEditorOnOffButton
             ]
             [ if model.editorIsOn then
-                icons.cross
+                Icons.icons.cross
 
               else
-                icons.edit
+                Icons.icons.pen
             ]
         ]
 

@@ -8,6 +8,7 @@ import Illuminance
 import Light
 import LuminousFlux
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d
 import Scene3d.Light
@@ -18,11 +19,13 @@ import Tools.Animation.Animation exposing (wave)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -54,8 +57,8 @@ andreysBrithDayCubes =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer model =
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
     if computer.keyboard.shift && computer.pointer.isDown then
         removeCube computer model
 
@@ -80,10 +83,6 @@ insertCube : Computer -> Model -> Model
 insertCube computer model =
     case Camera.mouseOverXY (camera computer) computer.screen computer.pointer of
         Just p ->
-            --let
-            --    e =
-            --        model.cubes |> Debug.log ""
-            --in
             { model | cubes = Set.insert ( round p.x, round p.y ) model.cubes }
 
         Nothing ->

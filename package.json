@@ -7,22 +7,24 @@
   "scripts": {
     "postinstall": "elm-tooling install",
     "prebuild": "elm-tooling install",
-    "watch-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css --watch",
     "watch-elm": "npx elm-watch hot",
-    "dev": "bash ./scripts/prebuild.sh && npx run-pty % npm run watch-tailwind % npm run watch-elm",
     "build-tailwind": "npx tailwindcss -i ./playground-exploration/src/style.css -o ./build/output.css",
+    "watch-tailwind": "npm run build-tailwind && chokidar './**/*.elm' './**/*.css' -c 'npm run build-tailwind'",
+    "dev": "bash ./scripts/prebuild.sh && npx run-pty % npm run watch-tailwind % npm run watch-elm % open http://localhost:8000/",
     "build-elm": "npx elm-watch make --optimize",
     "build": "bash ./scripts/prebuild.sh && npm run build-tailwind && npm run build-elm",
-    "deploy": "npm run build && gh-pages -d build && open https://erkal.github.io/elm-3d-playground-exploration/WebPage/index.html"
+    "deploy": "npm run build && gh-pages -d build"
   },
   "devDependencies": {
-    "elm-json": "^0.2.13",
+    "@lydell/elm": "^0.19.1-12",
+    "@lydell/elm-json": "^0.2.13-1",
+    "chokidar-cli": "^3.0.0",
     "elm-tooling": "^1.14.0",
     "elm-watch": "^1.2.0-beta.2",
     "gh-pages": "^5.0.0",
-    "http-server": "^14.1.1",
+    "postcss-cli": "^10.1.0",
     "prettier": "^2.8.8",
     "run-pty": "^4.0.3",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^3.3.3"
   }
 }

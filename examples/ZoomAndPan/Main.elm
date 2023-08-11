@@ -5,17 +5,20 @@ import Color exposing (hsl, lightBlue, rgb255)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
 import Playground.Playground as Playground exposing (..)
+import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
-import Tools.PanAndZoom.UI as PanAndZoom exposing (PanAndZoom)
+import Tools.PanAndZoom.PanAndZoom as PanAndZoom exposing (PanAndZoom)
 
 
 main =
-    Playground.basic
+    Playground.application
         { initialConfigurations = initialConfigurations
         , init = init
+        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
+        , hasTape = True
         }
 
 
@@ -40,16 +43,9 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Model -> Model
-update computer model =
-    let
-        zoomCenter =
-            computer.pointer
-                |> Camera.mouseOverXY (toPerspectiveCamera computer.screen model.panAndZoomUI) computer.screen
-                |> Maybe.map (\p -> { x = p.x, y = p.y })
-                |> Maybe.withDefault { x = 0, y = 0 }
-    in
-    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer zoomCenter }
+update : Computer -> Message Never -> Model -> Model
+update computer message model =
+    { model | panAndZoomUI = model.panAndZoomUI |> PanAndZoom.tick computer }
 
 
 
@@ -62,7 +58,7 @@ view computer model =
         [ div [ class "fixed w-full h-full" ]
             [ viewWebGLCanvas computer model ]
         , div [ class "absolute w-screen h-screen text-center text-xs text-white/60" ]
-            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * (PanAndZoom.get model.panAndZoomUI).zoom)) ++ "%") ]
+            [ div [ class "p-2" ] [ text ("zoom: " ++ String.fromInt (round (100 * PanAndZoom.getZoom model.panAndZoomUI)) ++ "%") ]
             , div [ class "p-1" ] [ text "Panning: SCROLL or SPACE + DRAG" ]
             , div [ class "p-1" ] [ text "Zooming: CTRL + SCROLL" ]
             ]
@@ -129,7 +125,7 @@ toPerspectiveCamera : Screen -> PanAndZoom -> Camera
 toPerspectiveCamera screen panAndZoomUI =
     let
         { panX, panY, zoom } =
-            PanAndZoom.get panAndZoomUI
+            PanAndZoom.get { yIsUp = True } panAndZoomUI
     in
     Camera.perspective
         { focalPoint =

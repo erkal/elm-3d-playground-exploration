@@ -145,5 +145,6 @@
       "output": "build/ZoomAndPan/main.js"
     }
   },
-  "serve": "build"
+  "serve": "build",
+  "port": 8000
 }

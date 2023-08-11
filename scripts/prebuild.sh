@@ -50,4 +50,4 @@ fi
 
 # Create the JSON object and write it into elm-watch.json using Node.js
 
-node -e "const fs = require('fs'); const data = { targets: { ${targets_json} }, serve: 'build' }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"
+node -e "const fs = require('fs'); const data = { targets: { ${targets_json} }, serve: 'build', port: 8000 }; fs.writeFileSync('elm-watch.json', JSON.stringify(data, null, 2));"
