@@ -2,11 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      rel="stylesheet"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="../output.css" />
     <link
       rel="icon"
@@ -27,7 +23,7 @@
         node: document.querySelector("#app"),
         flags: {
           inputs:
-            /* 
+            /*
               the following is a copy of the `inputs` object in `input.js`
               it is here to make hot-reloading work in development
               (for some reason, elm-watch cannot make it if the `inputs` object is imported from `input.js`)
@@ -76,6 +72,39 @@
 
       preventEvents();
       sendInputsToElmApp(app);
+
+      /*
+        The following code send the sizes and positions of the code `layout-element`s to the Elm app. They must live in `layout-canvas`.
+      */
+      (function getSizesAndPositions() {
+        function getPositionRelativeToParent(element) {
+          let dx = element.offsetLeft - element.scrollLeft + element.clientLeft;
+          let dy = element.offsetTop - element.scrollTop + element.clientTop;
+          return { dx, dy };
+        }
+
+        let acc = [];
+        function recurse(children, parentXY) {
+          Array.from(children).forEach((element) => {
+            const { dx, dy } = getPositionRelativeToParent(element);
+            const { x, y } = { x: parentXY.x + dx, y: parentXY.y + dy };
+            if (element.classList.contains("layout-element")) {
+              const { id, offsetWidth: width, offsetHeight: height } = element;
+              acc.push({ id, width, height, x, y });
+            }
+            recurse(element.children, { x, y });
+          });
+        }
+
+        const canvas = document.getElementById("layout-canvas");
+
+        if (canvas) recurse(canvas.children, { x: 0, y: 0 });
+
+        if (app.ports && app.ports.sizesAndPositionsFromDom)
+          app.ports.sizesAndPositionsFromDom.send(acc);
+
+        requestAnimationFrame(getSizesAndPositions);
+      })();
     </script>
   </body>
 </html>
