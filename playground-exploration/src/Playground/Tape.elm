@@ -9,7 +9,10 @@ module Playground.Tape exposing
     , init
     , initNoTape
     , isNoTape
+    , isPaused
+    , isPlaying
     , isRecording
+    , startRecording
     , updateConfigurations
     , updateOnAppMsg
     , updateOnTapeMsg
@@ -17,12 +20,13 @@ module Playground.Tape exposing
     , view
     )
 
-import Html exposing (Html, button, div, input, text)
+import Html exposing (Attribute, Html, button, div, input, text)
 import Html.Attributes as HA exposing (class, disabled, type_)
 import Html.Events exposing (onClick)
 import Playground.Computer as Computer exposing (Computer, Inputs)
 import Playground.Configurations as Configurations
 import Playground.Icons as Icons
+import Tools.HtmlHelpers.HtmlHelpers exposing (classIf, hiddenIf)
 import Tools.SelectList.SelectList as SelectList exposing (SelectList)
 
 
@@ -81,6 +85,21 @@ isNoTape (Tape state _) =
     state == NoTape
 
 
+isPaused : Tape appModel -> Bool
+isPaused (Tape state _) =
+    state == Paused
+
+
+isPlaying : Tape appModel -> Bool
+isPlaying (Tape state _) =
+    case state of
+        Playing _ ->
+            True
+
+        _ ->
+            False
+
+
 getCurrentFrameIndex : Tape appModel -> Int
 getCurrentFrameIndex (Tape _ timeline) =
     SelectList.getCurrentIndex timeline
@@ -120,11 +139,7 @@ updateOnTick : (Computer -> Message appMsg -> appModel -> appModel) -> Inputs ->
 updateOnTick updateApp inputs ((Tape state timeLine) as tape) =
     case state of
         Paused ->
-            if inputs.pointer.down then
-                tape |> startRecording
-
-            else
-                tape
+            tape
 
         Playing { tapeClock } ->
             Tape (Playing { tapeClock = tapeClock + inputs.dt }) timeLine
@@ -205,20 +220,17 @@ updateOnTapeMsg msg tape =
 
 pause : Tape appModel -> Tape appModel
 pause (Tape _ timeLine) =
-    Tape Paused
-        timeLine
+    Tape Paused timeLine
 
 
 startRecording : Tape appModel -> Tape appModel
 startRecording (Tape _ timeLine) =
-    Tape Recording
-        timeLine
+    Tape Recording timeLine
 
 
 startPlaying : Tape appModel -> Tape appModel
 startPlaying ((Tape _ timeLine) as tape) =
-    Tape (Playing { tapeClock = (currentComputer tape).clock })
-        timeLine
+    Tape (Playing { tapeClock = (currentComputer tape).clock }) timeLine
 
 
 goToNext : Tape appModel -> Maybe (Tape appModel)
@@ -228,15 +240,12 @@ goToNext (Tape state timeline) =
 
     else
         Just
-            (Tape state
-                (SelectList.goToNext timeline)
-            )
+            (Tape state (SelectList.goToNext timeline))
 
 
 goTo : Int -> Tape appModel -> Tape appModel
 goTo tickIndex ((Tape _ timeline) as tape) =
-    Tape Paused
-        (timeline |> SelectList.goTo tickIndex)
+    Tape Paused (timeline |> SelectList.goTo tickIndex)
 
 
 
@@ -244,82 +253,88 @@ goTo tickIndex ((Tape _ timeline) as tape) =
 
 
 view : Tape appModel -> Html Msg
-view ((Tape state _) as tape) =
+view tape =
     div
-        [ class "w-full h-full px-4 border-[0.5px] border-white/20 bg-black/20"
+        [ class "w-full h-full px-2 rounded-tl-lg"
         , class "flex flex-row items-center gap-4"
-        , case state of
-            NoTape ->
-                class "hidden"
-
-            _ ->
-                class ""
+        , hiddenIf (isNoTape tape)
         ]
-        [ viewTapeButtons tape
-        , viewSlider tape
+        [ div
+            [ class "flex flex-row items-center gap-2"
+            , hiddenIf (isRecording tape)
+            ]
+            [ playPauseButton tape
+            , viewSlider tape
+            ]
+        , tapeToggleButton tape
         ]
 
 
 viewSlider : Tape appModel -> Html Msg
 viewSlider tape =
-    input
-        [ type_ "range"
-        , HA.min (String.fromInt 0)
-        , HA.max (String.fromInt (getTotalSize tape - 1))
-        , HA.value (String.fromInt (getCurrentFrameIndex tape))
-        , HA.step (String.fromInt 1)
-        , Html.Events.onInput (String.toFloat >> Maybe.withDefault 42 >> round >> SliderMovedTo)
-        ]
-        []
-
-
-viewTapeButtons : Tape appModel -> Html Msg
-viewTapeButtons (Tape state timeline) =
     div
-        [ class "flex flex-row gap-1" ]
-        [ case state of
-            NoTape ->
-                text ""
-
-            Recording ->
-                recButton False PressedPauseButton "text-red-500 font-bold"
-
-            Paused ->
-                recButton False PressedRecordButton "text-white/60 hover:text-white/80 font-bold"
-
-            Playing _ ->
-                recButton True PressedRecordButton "text-white/60 hover:text-white/80 font-bold"
-        , case state of
-            NoTape ->
-                text ""
-
-            Recording ->
-                tapeButtonWithIcon (SelectList.isAtEnd timeline) Icons.icons.play PressedPlayButton
-
-            Paused ->
-                tapeButtonWithIcon (SelectList.isAtEnd timeline) Icons.icons.play PressedPlayButton
-
-            Playing _ ->
-                tapeButtonWithIcon False Icons.icons.pause PressedPauseButton
+        [ class "w-[220px]"
+        , class "flex flex-row items-center"
+        ]
+        [ input
+            [ type_ "range"
+            , HA.min (String.fromInt 0)
+            , HA.max (String.fromInt (getTotalSize tape - 1))
+            , HA.value (String.fromInt (getCurrentFrameIndex tape))
+            , HA.step (String.fromInt 1)
+            , Html.Events.onInput (String.toFloat >> Maybe.withDefault 42 >> round >> SliderMovedTo)
+            ]
+            []
         ]
 
 
-recButton : Bool -> Msg -> String -> Html Msg
-recButton isDisabled msg conditionalStyle =
-    button
-        [ class "p-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
-        , class conditionalStyle
-        , disabled isDisabled
-        , onClick msg
-        ]
-        [ text "REC" ]
+tapeToggleButton : Tape appModel -> Html Msg
+tapeToggleButton (Tape state timeline) =
+    let
+        recButton : Msg -> Html Msg -> Html Msg
+        recButton msg icon =
+            button
+                [ class "w-8 h-8"
+                , class "text-white/60 hover:text-white/80"
+                , onClick msg
+                ]
+                [ icon ]
+    in
+    case state of
+        NoTape ->
+            text ""
+
+        Recording ->
+            recButton PressedPauseButton Icons.icons.tape
+
+        Paused ->
+            recButton PressedRecordButton Icons.icons.cross
+
+        Playing _ ->
+            recButton PressedRecordButton Icons.icons.cross
 
 
-tapeButtonWithIcon : Bool -> Html msg -> msg -> Html msg
-tapeButtonWithIcon isDisabled iconD msg =
-    button
-        [ class "p-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60"
-        , disabled isDisabled
-        , onClick msg
-        ]
-        [ div [ class "w-6 h-6 text-white/60 hover:text-white/80" ] [ iconD ] ]
+playPauseButton : Tape appModel -> Html Msg
+playPauseButton (Tape state timeline) =
+    let
+        tapeButtonWithIcon : Bool -> Html msg -> msg -> Html msg
+        tapeButtonWithIcon isDisabled icon msg =
+            button
+                [ class "p-2 bg-black/60 hover:bg-black/80 active:bg-black disabled:opacity-30 disabled:bg-black/60 rounded-lg"
+                , disabled isDisabled
+                , onClick msg
+                ]
+                [ div [ class "w-6 h-6 text-white/60 hover:text-white/80" ] [ icon ] ]
+    in
+    case state of
+        NoTape ->
+            text ""
+
+        Recording ->
+            text ""
+
+        Paused ->
+            tapeButtonWithIcon (SelectList.isAtEnd timeline) Icons.icons.play PressedPlayButton
+
+        Playing _ ->
+            tapeButtonWithIcon False Icons.icons.pause PressedPauseButton
