@@ -39,7 +39,7 @@ npm install
 npm run dev
 ```
 
-This starts serving all examples. Open `http://localhost:8000/` in your browser and navigate to the served page.
+This starts serving all examples. Open [http://localhost:8000/](http://localhost:8000/) in your browser and navigate to the served page.
 Then, navigate to the `index.html` of your example.
 
 This setup uses the fast and reliable [lydell/elm-watch](https://github.com/lydell/elm-watch), which handles hot
