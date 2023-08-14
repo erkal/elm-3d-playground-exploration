@@ -76,10 +76,6 @@ initialConfigurations =
         , floatConfig "friction" ( 0, 1 ) 0.4
         , floatConfig "direction change speed" ( 1, 5 ) 3
         ]
-    , configBlock "Color"
-        True
-        [ colorConfig "floor color" white
-        ]
     ]
 
 

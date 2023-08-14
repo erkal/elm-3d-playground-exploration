@@ -2,88 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --track: rgba(0, 0, 0, 0.4);
-  --sliderthumb: rgba(0, 0, 0, 0.7);
-  --thumbboxshadow: -3000px 0 0 3000px rgba(0, 0, 0, 0.5);
-  /*--sliderborder: 3px solid red;*/
-  --sliderborder: 0;
-  --height: 24px;
-  --thumbheight: 24px;
-  --thumbwidth: 24px;
-}
+@layer components {
+  input[type="range"] {
+    @apply w-full cursor-pointer appearance-none bg-transparent;
+  }
 
-input[type='range'] {
-  margin: auto;
-  -webkit-appearance: none;
-  position: relative;
-  overflow: hidden;
-  height: var(--height);
-  width: 100%;
-  cursor: pointer;
-  border-radius: 0;
-}
+  input[type="range"]::-webkit-slider-runnable-track {
+    @apply m-3 h-1 rounded-full bg-gray-300;
+  }
 
-::-webkit-slider-runnable-track {
-  background: var(--track);
-}
+  input[type="range"]::-webkit-slider-thumb {
+    @apply -mt-2 h-5 w-5 cursor-pointer appearance-none rounded-full border-none bg-gray-200;
+  }
 
-/*
- * 1. Set to 0 width and remove border for a slider without a thumb
- * 2. Shadow is negative the full width of the input and has a spread 
- *    of the width of the input.
- */
-::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: var(--thumbwidth);
-  height: var(--thumbheight);
-  background: var(--sliderthumb);
-  box-shadow: var(--thumbboxshadow);
-  border: var(--sliderborder);
-}
+  /* Styles for the filled part of the track */
+  input[type="range"]::-moz-range-progress {
+    @apply bg-gray-200 h-1 rounded-l-full;
+  }
 
-::-moz-range-track {
-  height: var(--trackheight);
-  background: var(--track);
-}
+  /* Styles for the not filled part of the track */
+  input[type="range"]::-moz-range-track {
+    @apply bg-gray-300 h-1 rounded-r-full;
+  }
 
-::-moz-range-thumb {
-  background: var(--sliderthumb);
-  height: var(--thumbheight);
-  width: var(--thumbwidth);
-  border: var(--sliderborder) 9;
-  border-radius: 0 !important;
-  box-shadow: var(--thumbboxshadow);
-  box-sizing: border-box;
-}
-
-::-ms-fill-lower {
-  background: var(--sliderthumb);
-}
-
-::-ms-thumb {
-  background: var(--sliderthumb);
-  border: var(--sliderborder) 9;
-  height: var(--thumbheight);
-  width: var(--thumbwidth);
-  box-sizing: border-box;
-}
-
-::-ms-ticks-after {
-  display: none;
-}
-
-::-ms-ticks-before {
-  display: none;
-}
-
-::-ms-track {
-  background: var(--track);
-  color: transparent;
-  height: var(--height);
-  border: none;
-}
-
-::-ms-tooltip {
-  display: none;
+  input[type="range"]::-moz-range-thumb {
+    @apply -mt-2 h-5 w-5 cursor-pointer appearance-none rounded-full border-none bg-gray-200;
+  }
 }

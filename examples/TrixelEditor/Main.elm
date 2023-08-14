@@ -65,9 +65,7 @@ currentPalette =
 initialConfigurations =
     [ configBlock "Parameters"
         True
-        [ floatConfig "grid dot size" ( 0, 0.4 ) 0
-        , floatConfig "trixel scale" ( 0.5, 1 ) 1
-        , colorConfig "grid color" black
+        [ floatConfig "trixel scale" ( 0.5, 1 ) 1
         ]
     ]
 
@@ -225,8 +223,8 @@ viewWebGLCanvas computer model =
         }
         [ group
             [ drawFaces computer model
-            , drawGrid computer
 
+            --, drawGrid computer
             --, axes
             --, drawMouseOveredFace computer model
             ]
@@ -332,22 +330,18 @@ drawGrid computer =
             List.concatMap row
 
         gridDotSize =
-            getFloat "grid dot size" computer
+            0.05
 
         gridColor =
-            getColor "grid color" computer
+            Color.black
     in
-    if gridDotSize == 0 then
-        group []
-
-    else
-        group
-            (cartesianProduct
-                (List.range -3 3)
-                (List.range -2 2)
-                |> List.map vertex
-                |> List.map (drawGridDot gridColor gridDotSize)
-            )
+    group
+        (cartesianProduct
+            (List.range -3 3)
+            (List.range -2 2)
+            |> List.map vertex
+            |> List.map (drawGridDot gridColor gridDotSize)
+        )
 
 
 
@@ -386,7 +380,7 @@ handleMsgFromEditor editorMsg model =
 viewEditor : Computer -> Model -> Html EditorMsg
 viewEditor computer model =
     div
-        []
+        [ class "prevent-elm-inputs" ]
         [ editorContent computer model
         , editorToggleButton model
         ]
