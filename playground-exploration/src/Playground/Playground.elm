@@ -30,9 +30,8 @@ port module Playground.Playground exposing
 -}
 
 import Browser
-import Color
-import Html exposing (Attribute, Html, a, button, div, hr, pre, text)
-import Html.Attributes as HA exposing (class, href, id, style, target)
+import Html exposing (Attribute, Html, a, button, div, text)
+import Html.Attributes as HA exposing (class, href, style, target)
 import Html.Events
 import Playground.Computer as Computer exposing (Computer, Inputs, Wheel)
 import Playground.Configurations as Configurations exposing (Block, Config(..), Configurations)

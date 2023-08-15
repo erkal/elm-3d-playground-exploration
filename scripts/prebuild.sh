@@ -8,8 +8,9 @@ fi
 # Make a fresh build directory
 mkdir -p build
 
-# Copy the input.js to the build directory
+# Copy the helper. js files to the build directory
 cp playground-exploration/src/input.js build/
+cp playground-exploration/src/reload-css.js build/
 
 # Initialize a variable for targets JSON
 targets_json=""
