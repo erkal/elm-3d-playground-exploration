@@ -6348,7 +6348,7 @@ function _WebGL_diff(oldModel, newModel) {
   newModel.f = oldModel.f;
   return _WebGL_drawGL(newModel);
 }
-var $elm$core$Basics$True = 0;
+var $elm$core$Basics$False = 1;
 var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
@@ -6450,7 +6450,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 2, a: a};
 };
-var $elm$core$Basics$False = 1;
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 0, a: a};
@@ -6816,6 +6815,7 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
+var $elm$core$Basics$True = 0;
 var $elm$core$Result$isOk = function (result) {
 	if (!result.$) {
 		return true;
@@ -14956,7 +14956,7 @@ var $author$project$Carousel$Main$view = F2(
 	});
 var $author$project$Carousel$Main$main = $author$project$Playground$Playground$application(
 	{
-		id: true,
+		id: false,
 		io: $author$project$Carousel$Main$init,
 		ip: $author$project$Carousel$Main$initialConfigurations,
 		jg: function (_v0) {
