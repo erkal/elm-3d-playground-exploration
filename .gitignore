@@ -5,3 +5,5 @@ elm-stuff
 build
 dist
 *.local
+elm-watch.json
+scripts/copy_all.sh
