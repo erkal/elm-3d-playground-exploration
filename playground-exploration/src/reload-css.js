@@ -82,11 +82,13 @@ const parseCss = (css) => {
 };
 
 const watchCssChanges = () => {
-  window.__ELM_WATCH.ON_REACHED_IDLE_STATE = () => {
-    console.log("Reloading CSS files!");
-    setTimeout(function () {
+  if (window.__ELM_WATCH && window.__ELM_WATCH.ON_REACHED_IDLE_STATE) {
+    window.__ELM_WATCH.ON_REACHED_IDLE_STATE = () => {
       console.log("Reloading CSS files!");
-      reloadAllCssIfNeeded();
-    }, 1000);
-  };
+      setTimeout(function () {
+        console.log("Reloading CSS files!");
+        reloadAllCssIfNeeded();
+      }, 1000);
+    };
+  }
 };

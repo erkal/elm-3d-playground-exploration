@@ -18,7 +18,7 @@ main =
         , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
-        , hasTape = True
+        , hasTape = False
         }
 
 
