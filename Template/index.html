@@ -20,7 +20,6 @@
 
     <script type="module">
       import { sendInputsToElmApp } from "../input.js";
-      import { watchCssChanges } from "../reload-css.js";
 
       const app = Elm.Template.Main.init({
         node: document.querySelector("#app"),
@@ -72,7 +71,7 @@
             },
         },
       });
-      watchCssChanges();
+
       sendInputsToElmApp(app);
 
       /*

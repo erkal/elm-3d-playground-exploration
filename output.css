@@ -659,6 +659,10 @@ input[type="range"]::-moz-range-thumb {
   bottom: 0px;
 }
 
+.bottom-8 {
+  bottom: 2rem;
+}
+
 .bottom-\[1px\] {
   bottom: 1px;
 }
@@ -914,6 +918,10 @@ input[type="range"]::-moz-range-thumb {
   justify-content: space-between;
 }
 
+.gap-1 {
+  gap: 0.25rem;
+}
+
 .gap-12 {
   gap: 3rem;
 }
@@ -1008,6 +1016,11 @@ input[type="range"]::-moz-range-thumb {
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
 }
 
+.bg-red-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(252 165 165 / var(--tw-bg-opacity));
+}
+
 .bg-transparent {
   background-color: transparent;
 }
@@ -1019,6 +1032,10 @@ input[type="range"]::-moz-range-thumb {
 
 .bg-white\/10 {
   background-color: rgb(255 255 255 / 0.1);
+}
+
+.bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.2);
 }
 
 .bg-opacity-75 {
@@ -1350,6 +1367,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @media (min-width: 768px) {
+  .md\:w-1\/2 {
+    width: 50%;
+  }
+
   .md\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

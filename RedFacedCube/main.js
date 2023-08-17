@@ -12831,19 +12831,33 @@ var $author$project$RedFacedCube$Main$update = F3(
 			return A2($author$project$RedFacedCube$Main$handleMsgFromEditor, editorMsg, model);
 		}
 	});
-var $elm$html$Html$br = _VirtualDom_node('br');
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$RedFacedCube$Main$explanationText = F2(
 	function (computer, model) {
+		var animatingMistakeForTopFaceCannotBeRed = function () {
+			var _v1 = model.fh;
+			if (_v1.$ === 2) {
+				var startedAt = _v1.a.aO;
+				var violatedRule = _v1.a.fz;
+				return violatedRule === 1;
+			} else {
+				return false;
+			}
+		}();
+		var animatingMistakeForMustVisitEachCellBeforeReachingFinishCell = function () {
+			var _v0 = model.fh;
+			if (_v0.$ === 2) {
+				var startedAt = _v0.a.aO;
+				var violatedRule = _v0.a.fz;
+				return !violatedRule;
+			} else {
+				return false;
+			}
+		}();
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
-					A2($elm$html$Html$Attributes$style, 'width', '100%'),
-					A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-					A2($elm$html$Html$Attributes$style, 'font-size', '14px')
+					$elm$html$Html$Attributes$class('mx-auto w-full md:w-1/2 mt-4')
 				]),
 			_List_fromArray(
 				[
@@ -12851,107 +12865,86 @@ var $author$project$RedFacedCube$Main$explanationText = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('text-lg font-bold')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('The Red-Faced Cube')
-						])),
-					A2(
-					$elm$html$Html$p,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('font-bold italic')
+							$elm$html$Html$Attributes$class('p-4 bg-white/20 rounded-xl'),
+							$elm$html$Html$Attributes$class('flex flex-col gap-4')
 						]),
 					_List_fromArray(
 						[
 							A2(
-							$elm$html$Html$p,
-							_List_Nil,
+							$elm$html$Html$div,
 							_List_fromArray(
 								[
-									$elm$html$Html$text('A puzzle from the book Mathematical Carnival')
+									$elm$html$Html$Attributes$class('flex flex-col gap-1'),
+									$elm$html$Html$Attributes$class('text-center')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('text-2xl font-bold')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('The Red-Faced Cube')
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('font-bold italic')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('A puzzle from the book Mathematical Carnival')
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('font-bold')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('(1975, Martin Gardner)')
+										]))
 								])),
 							A2(
-							$elm$html$Html$p,
-							_List_Nil,
+							$elm$html$Html$div,
 							_List_fromArray(
 								[
-									$elm$html$Html$text('(1975, Martin Gardner)')
-								]))
-						])),
-					A2(
-					$elm$html$Html$p,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('text-xs')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$span,
-							function () {
-								var _v0 = model.fh;
-								if (_v0.$ === 2) {
-									var startedAt = _v0.a.aO;
-									var violatedRule = _v0.a.fz;
-									if (!violatedRule) {
-										return _List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'background-color', 'red')
-											]);
-									} else {
-										return _List_Nil;
-									}
-								} else {
-									return _List_Nil;
-								}
-							}(),
+									$elm$html$Html$Attributes$class('flex flex-col gap-2')
+								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(' Visit each cell exactly once.')
-								])),
-							A2($elm$html$Html$br, _List_Nil, _List_Nil),
-							A2(
-							$elm$html$Html$span,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('End with the cube red side up on the (marked) finish cell.')
-								])),
-							A2($elm$html$Html$br, _List_Nil, _List_Nil),
-							A2(
-							$elm$html$Html$span,
-							function () {
-								var _v2 = model.fh;
-								if (_v2.$ === 2) {
-									var startedAt = _v2.a.aO;
-									var violatedRule = _v2.a.fz;
-									if (violatedRule === 1) {
-										return _List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'background-color', 'red')
-											]);
-									} else {
-										return _List_Nil;
-									}
-								} else {
-									return _List_Nil;
-								}
-							}(),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('At no time during the tour, however,'),
-									A2($elm$html$Html$br, _List_Nil, _List_Nil),
-									$elm$html$Html$text('is the cube allowed to rest with the red side up.')
-								])),
-							A2($elm$html$Html$br, _List_Nil, _List_Nil),
-							A2(
-							$elm$html$Html$span,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('You can roll the cube via swiping or pressing arrow keys.')
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($author$project$Tools$HtmlHelpers$HtmlHelpers$classIf, animatingMistakeForMustVisitEachCellBeforeReachingFinishCell, 'bg-red-300')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('- Visit each cell exactly once.')
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_Nil,
+									_List_fromArray(
+										[
+											$elm$html$Html$text('- End with the cube red side up on the (marked) finish cell.')
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($author$project$Tools$HtmlHelpers$HtmlHelpers$classIf, animatingMistakeForTopFaceCannotBeRed, 'bg-red-300')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('- At no time during the tour, however, is the cube allowed to rest with the red side up.')
+										]))
 								]))
 						]))
 				]));
@@ -18771,14 +18764,45 @@ var $author$project$RedFacedCube$Main$view = F2(
 	function (computer, model) {
 		return A2(
 			$elm$html$Html$div,
-			_List_Nil,
 			_List_fromArray(
 				[
-					A2($author$project$RedFacedCube$Main$explanationText, computer, model),
+					$elm$html$Html$Attributes$class('fixed w-full h-full')
+				]),
+			_List_fromArray(
+				[
 					A2(
-					$elm$html$Html$map,
-					$elm$core$Basics$never,
-					A2($author$project$RedFacedCube$Main$viewShapes, computer, model)),
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('absolute')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$map,
+							$elm$core$Basics$never,
+							A2($author$project$RedFacedCube$Main$viewShapes, computer, model))
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('absolute w-full h-full')
+						]),
+					_List_fromArray(
+						[
+							A2($author$project$RedFacedCube$Main$explanationText, computer, model)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('absolute bottom-8 w-full text-center text-lg')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Roll the cube via swiping or pressing arrow keys.')
+						])),
 					A2($author$project$RedFacedCube$Main$viewEditor, computer, model)
 				]));
 	});
