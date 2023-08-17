@@ -29,6 +29,7 @@ import Scene3d.Light
 import Scene3d.Material exposing (matte)
 import Temperature
 import Tools.Animation.Animation exposing (wave)
+import Tools.HtmlHelpers.HtmlHelpers exposing (classIf)
 import Tools.Pages.Pages as Pages exposing (Pages)
 
 
@@ -350,67 +351,55 @@ startRollAnimation computer startPosition rollDirection willBeSolved newWorld mo
 view : Computer -> Model -> Html EditorMsg
 view computer model =
     div
-        []
-        [ explanationText computer model
-        , Html.map never <| viewShapes computer model
+        [ class "fixed w-full h-full" ]
+        [ div [ class "absolute" ] [ Html.map never <| viewShapes computer model ]
+        , div [ class "absolute w-full h-full" ] [ explanationText computer model ]
+        , div [ class "absolute bottom-8 w-full text-center text-lg" ]
+            [ text "Roll the cube via swiping or pressing arrow keys." ]
         , viewEditor computer model
         ]
 
 
 explanationText : Computer -> Model -> Html EditorMsg
 explanationText computer model =
-    div
-        [ style "position" "fixed"
-        , style "width" "100%"
-        , style "text-align" "center"
-        , style "font-size" "14px"
-        ]
+    let
+        animatingMistakeForMustVisitEachCellBeforeReachingFinishCell =
+            case model.state of
+                AnimatingMistake { startedAt, violatedRule } ->
+                    violatedRule == MustVisitEachCellBeforeReachingFinishCell
+
+                _ ->
+                    False
+
+        animatingMistakeForTopFaceCannotBeRed =
+            case model.state of
+                AnimatingMistake { startedAt, violatedRule } ->
+                    violatedRule == TopFaceCannotBeRed
+
+                _ ->
+                    False
+    in
+    div [ class "mx-auto w-full md:w-1/2 mt-4" ]
         [ div
-            [ class "text-lg font-bold" ]
-            [ text "The Red-Faced Cube" ]
-        , p
-            [ class "font-bold italic" ]
-            [ p [] [ text "A puzzle from the book Mathematical Carnival" ]
-            , p [] [ text "(1975, Martin Gardner)" ]
+            [ class "p-4 bg-white/20 rounded-xl"
+            , class "flex flex-col gap-4"
             ]
-        , p
-            [ class "text-xs" ]
-            [ span
-                (case model.state of
-                    AnimatingMistake { startedAt, violatedRule } ->
-                        case violatedRule of
-                            MustVisitEachCellBeforeReachingFinishCell ->
-                                [ style "background-color" "red" ]
-
-                            _ ->
-                                []
-
-                    _ ->
-                        []
-                )
-                [ text " Visit each cell exactly once." ]
-            , br [] []
-            , span [] [ text "End with the cube red side up on the (marked) finish cell." ]
-            , br [] []
-            , span
-                (case model.state of
-                    AnimatingMistake { startedAt, violatedRule } ->
-                        case violatedRule of
-                            TopFaceCannotBeRed ->
-                                [ style "background-color" "red" ]
-
-                            _ ->
-                                []
-
-                    _ ->
-                        []
-                )
-                [ text "At no time during the tour, however,"
-                , br [] []
-                , text "is the cube allowed to rest with the red side up."
+            [ div
+                [ class "flex flex-col gap-1"
+                , class "text-center"
                 ]
-            , br [] []
-            , span [] [ text "You can roll the cube via swiping or pressing arrow keys." ]
+                [ div [ class "text-2xl font-bold" ] [ text "The Red-Faced Cube" ]
+                , div [ class "font-bold italic" ] [ text "A puzzle from the book Mathematical Carnival" ]
+                , div [ class "font-bold" ] [ text "(1975, Martin Gardner)" ]
+                ]
+            , div [ class "flex flex-col gap-2" ]
+                [ div [ classIf animatingMistakeForMustVisitEachCellBeforeReachingFinishCell "bg-red-300" ]
+                    [ text "- Visit each cell exactly once." ]
+                , div [] [ text "- End with the cube red side up on the (marked) finish cell." ]
+                , div [ classIf animatingMistakeForTopFaceCannotBeRed "bg-red-300" ]
+                    [ text "- At no time during the tour, however, is the cube allowed to rest with the red side up."
+                    ]
+                ]
             ]
         ]
 
