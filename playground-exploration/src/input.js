@@ -271,7 +271,7 @@ const sendInputsToElmApp = (app) => {
       // console.log("yeeeey", inputs);
 
       // Send the `inputs` to elm app
-      app.ports.tick.send(inputs);
+      app.ports?.tick?.send?.(inputs);
 
       // reset actions
       resetActions(inputs);

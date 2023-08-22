@@ -2,56 +2,70 @@ const fs = require("fs");
 const path = require("path");
 const shell = require("shelljs");
 
-// Remove the build directory if it exists
-shell.rm("-rf", "./build");
+const examplesDir = "./examples";
+const buildDir = "./build";
 
-// Make a fresh build directory
-shell.mkdir("-p", "build");
+// Delete the build directory if it exists
+if (shell.test("-d", buildDir)) {
+  shell.rm("-rf", buildDir);
+}
 
-// Copy the helper. js files to the build directory
-shell.cp("playground-exploration/src/input.js", "build/");
+// Create a new build directory
+shell.mkdir("-p", buildDir);
+
+// Copy helper.js file to the build directory
+shell.cp("playground-exploration/src/input.js", buildDir);
 
 // Initialize a variable for targets JSON
 let targets = {};
 
-// Go through each directory in the examples directory
-const examplesDir = "./examples";
+// Read all directories in the examples directory
+const exampleDirs = fs.readdirSync(examplesDir).filter((file) => {
+  return fs.statSync(path.join(examplesDir, file)).isDirectory();
+});
 
-fs.readdirSync(examplesDir).forEach((file) => {
-  const absolute = path.join(examplesDir, file);
-  if (fs.statSync(absolute).isDirectory()) {
-    // Extract just the name of the example directory
-    const exampleName = file;
+exampleDirs.forEach((exampleName) => {
+  const examplePath = path.join(examplesDir, exampleName);
+  const buildExamplePath = path.join(buildDir, exampleName);
 
-    // Create a new directory under the build directory named as the example
-    shell.mkdir("-p", `build/${exampleName}`);
+  // Create a new directory under the build directory named as the example
+  shell.mkdir("-p", buildExamplePath);
 
-    // Make a copy of scripts/index.html and replace every occurrence of
-    // EXAMPLE_NAME with the example directory name
-    const templateFile = fs.readFileSync(
-      "playground-exploration/src/index-template.html",
-      "utf8"
-    );
-    const resultFile = templateFile.replace(/EXAMPLE_NAME/g, exampleName);
-    fs.writeFileSync(`build/${exampleName}/index.html`, resultFile);
+  // Copy scripts/index.html and replace every occurrence of
+  // EXAMPLE_NAME with the example directory name
+  let templateFile = fs.readFileSync(
+    "playground-exploration/src/index-template.html",
+    "utf8"
+  );
+  let resultFile = templateFile.replace(/EXAMPLE_NAME/g, exampleName);
+  fs.writeFileSync(`${buildExamplePath}/index.html`, resultFile);
 
-    // Check if image.png exists, if yes, copy it to the build directory
-    if (shell.test("-f", `${absolute}/image.png`)) {
-      shell.cp(`${absolute}/image.png`, `build/${exampleName}/image.png`);
-    }
+  // If image.png exists, copy it to the build directory
+  shell.cp("-n", `${examplePath}/image.png`, buildExamplePath);
 
-    // Store the inputs and output strings
-    const input = `examples/${exampleName}/Main.elm`;
-    const output = `build/${exampleName}/main.js`;
+  // If assets directory exists, copy it to the build directory
+  shell.cp("-r", `${examplePath}/assets`, buildExamplePath);
 
-    // Add the new target to the targets object
-    targets[exampleName] = { inputs: [input], output: output };
-  }
+  // Store the inputs and output strings
+  const inputData = `examples/${exampleName}/Main.elm`;
+  const outputData = `build/${exampleName}/main.js`;
+
+  // Add the new target to the targets object
+  targets[exampleName] = {
+    inputs: [inputData],
+    output: outputData,
+  };
 });
 
 // Remove elm-watch.json if it exists already
-shell.rm("-f", "elm-watch.json");
+if (shell.test("-f", "elm-watch.json")) {
+  shell.rm("-f", "elm-watch.json");
+}
 
-// Create the JSON object and write it into elm-watch.json using Node.js
-const data = { targets: targets, serve: "build", port: 8000 };
+// Writing targets data into elm-watch.json
+let data = {
+  targets: targets,
+  serve: buildDir,
+  port: 8000,
+};
 fs.writeFileSync("elm-watch.json", JSON.stringify(data, null, 2));

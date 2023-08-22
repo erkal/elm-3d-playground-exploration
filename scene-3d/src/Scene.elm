@@ -2,6 +2,7 @@ module Scene exposing
     ( Shape, block, cube, cylinder, group, line, sphere, triangle
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , custom, sunny, unlit
+    , square
     )
 
 {-|
@@ -171,6 +172,21 @@ triangle material_ ( p, q, r ) =
             (Point3d.meters q.x q.y q.z)
             (Point3d.meters r.x r.y r.z)
         )
+
+
+square : Material_ -> Float -> Shape
+square material_ sideLength =
+    let
+        h =
+            sideLength / 2
+
+        upperLeftTriangle =
+            triangle material_ ( Point -h -h 0, Point h h 0, Point -h h 0 )
+    in
+    group
+        [ upperLeftTriangle
+        , upperLeftTriangle |> rotateZ pi
+        ]
 
 
 cube : Material_ -> Float -> Shape
