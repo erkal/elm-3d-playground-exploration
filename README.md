@@ -39,7 +39,9 @@ npm install
 npm run dev
 ```
 
-This starts serving all examples. Open [http://localhost:8000/](http://localhost:8000/) in your browser and navigate to the `index.html` of your example.
+This starts serving of all examples. To access them, launch your browser and navigate to [http://localhost:8000/](http://localhost:8000/). From here, proceed to the `index.html` file of your chosen example.
 
-This setup uses the fast and reliable [lydell/elm-watch](https://github.com/lydell/elm-watch), which handles hot
-reloading seamlessly.
+With this setup, when you alter your code, the modifications will take effect immediately, without any loss of the current state. This efficient, seamless functionality is made possible by the exceptional [lydell/elm-watch](https://github.com/lydell/elm-watch), which flawlessly manages hot reloading.
+
+5. Adding a new example
+Copy one of the existing examples and change the module names of the Elm files in it accordingly. And you are ready to go.
