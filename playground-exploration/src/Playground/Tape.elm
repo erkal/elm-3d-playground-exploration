@@ -135,20 +135,22 @@ updateConfigurations configurationsMsg (Tape state timeLine) =
         (timeLine |> SelectList.mapCurrent (Tuple.mapFirst (Computer.updateConfigurations configurationsMsg)))
 
 
-updateOnTick : (Computer -> Message appMsg -> appModel -> appModel) -> Inputs -> Tape appModel -> Tape appModel
+updateOnTick : (Computer -> Message appMsg -> appModel -> ( appModel, Cmd appMsg )) -> Inputs -> Tape appModel -> ( Tape appModel, Cmd appMsg )
 updateOnTick updateApp inputs ((Tape state timeLine) as tape) =
     case state of
         Paused ->
-            tape
+            ( tape, Cmd.none )
 
         Playing { tapeClock } ->
-            Tape (Playing { tapeClock = tapeClock + inputs.dt }) timeLine
+            ( Tape (Playing { tapeClock = tapeClock + inputs.dt }) timeLine
                 |> (if tapeClock + inputs.dt > (currentComputer tape).clock then
                         goToNext >> Maybe.withDefault (Tape Paused timeLine)
 
                     else
                         identity
                    )
+            , Cmd.none
+            )
 
         Recording ->
             let
@@ -157,12 +159,17 @@ updateOnTick updateApp inputs ((Tape state timeLine) as tape) =
 
                 newComputer =
                     lastComputer |> Computer.tick inputs
+
+                ( newAppModel, cmd ) =
+                    lastAppModel |> updateApp newComputer Tick
             in
-            Tape Recording
+            ( Tape Recording
                 (timeLine
-                    |> SelectList.add ( newComputer, lastAppModel |> updateApp newComputer Tick )
+                    |> SelectList.add ( newComputer, newAppModel )
                     |> SelectList.removeAfter
                 )
+            , cmd
+            )
 
         NoTape ->
             let
@@ -171,24 +178,30 @@ updateOnTick updateApp inputs ((Tape state timeLine) as tape) =
 
                 newComputer =
                     lastComputer |> Computer.tick inputs
+
+                ( newAppModel, cmd ) =
+                    lastAppModel |> updateApp newComputer Tick
             in
-            Tape NoTape
+            ( Tape NoTape
                 (timeLine
-                    |> SelectList.setCurrent ( newComputer, lastAppModel |> updateApp newComputer Tick )
+                    |> SelectList.setCurrent ( newComputer, newAppModel )
                 )
+            , cmd
+            )
 
 
-updateOnAppMsg : (Computer -> Message appMsg -> appModel -> appModel) -> appMsg -> Tape appModel -> Tape appModel
+updateOnAppMsg : (Computer -> Message appMsg -> appModel -> ( appModel, Cmd appMsg )) -> appMsg -> Tape appModel -> ( Tape appModel, Cmd appMsg )
 updateOnAppMsg updateApp appMsg (Tape state timeLine) =
-    Tape state
-        (timeLine
-            |> SelectList.mapCurrent
-                (\( computer, appModel ) ->
-                    ( computer
-                    , appModel |> updateApp computer (Message appMsg)
-                    )
-                )
-        )
+    let
+        ( computer, appModel ) =
+            SelectList.getCurrent timeLine
+
+        ( newAppModel, cmd ) =
+            appModel |> updateApp computer (Message appMsg)
+    in
+    ( Tape state (timeLine |> SelectList.setCurrent ( computer, newAppModel ))
+    , cmd
+    )
 
 
 

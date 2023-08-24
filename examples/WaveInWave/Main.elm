@@ -17,10 +17,9 @@ import Tools.Animation.Animation exposing (wave)
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = initialConfigurations
         , init = init
-        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
         , hasTape = True

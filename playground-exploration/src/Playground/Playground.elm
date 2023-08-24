@@ -3,6 +3,7 @@ port module Playground.Playground exposing
     , boolConfig, colorConfig, configBlock, floatConfig, intConfig
     , getBool, getColor, getFloat, getInt
     , Computer, Keyboard, Pointer, Screen, toX, toXY, toY
+    , simpleApplication
     )
 
 {-|
@@ -61,10 +62,19 @@ port tick : (Inputs -> msg) -> Sub msg
 -- API
 
 
-type alias App appModel appMsg =
+type alias SimpleApp appModel appMsg =
     { initialConfigurations : Configurations
     , init : Computer -> appModel
     , update : Computer -> Message appMsg -> appModel -> appModel
+    , view : Computer -> appModel -> Html appMsg
+    , hasTape : Bool
+    }
+
+
+type alias App appModel appMsg =
+    { initialConfigurations : Configurations
+    , init : Computer -> appModel
+    , update : Computer -> Message appMsg -> appModel -> ( appModel, Cmd appMsg )
     , subscriptions : appModel -> Sub appMsg
     , view : Computer -> appModel -> Html appMsg
     , hasTape : Bool
@@ -73,6 +83,18 @@ type alias App appModel appMsg =
 
 
 -- Create
+
+
+simpleApplication : SimpleApp appModel appMsg -> Program Flags (Model appModel) (Msg appMsg)
+simpleApplication simpleApp =
+    application
+        { initialConfigurations = simpleApp.initialConfigurations
+        , init = simpleApp.init
+        , update = \computer msg appModel -> ( simpleApp.update computer msg appModel, Cmd.none )
+        , subscriptions = \_ -> Sub.none
+        , view = simpleApp.view
+        , hasTape = simpleApp.hasTape
+        }
 
 
 application : App appModel appMsg -> Program Flags (Model appModel) (Msg appMsg)
@@ -210,15 +232,8 @@ type Msg appMsg
     | FromTapeControls Tape.Msg
 
 
-update : App appModel appMsg -> Msg appMsg -> Model appModel -> ( Model appModel, Cmd msg )
+update : App appModel appMsg -> Msg appMsg -> Model appModel -> ( Model appModel, Cmd (Msg appMsg) )
 update app msg model =
-    ( updateHelper app msg model
-    , Cmd.none
-    )
-
-
-updateHelper : App appModel appMsg -> Msg appMsg -> Model appModel -> Model appModel
-updateHelper app msg model =
     model
         |> handleClickOnDistractionFreeButton msg
         |> handleClickOnLeftBarButtonsButton msg
@@ -286,17 +301,31 @@ handleTapeScreenControls msg model =
             model
 
 
-handleAppUpdate : App appModel appMsg -> Msg appMsg -> Model appModel -> Model appModel
+handleAppUpdate : App appModel appMsg -> Msg appMsg -> Model appModel -> ( Model appModel, Cmd (Msg appMsg) )
 handleAppUpdate app msg model =
     case msg of
         FromApp appMsg ->
-            { model | tape = model.tape |> Tape.updateOnAppMsg app.update appMsg }
+            let
+                ( newTape, appCmd ) =
+                    model.tape |> Tape.updateOnAppMsg app.update appMsg
+            in
+            ( { model | tape = newTape }
+            , Cmd.map FromApp appCmd
+            )
 
         InputsArrived inputs ->
-            { model | tape = model.tape |> Tape.updateOnTick app.update inputs }
+            let
+                ( newTape, appCmd ) =
+                    model.tape |> Tape.updateOnTick app.update inputs
+            in
+            ( { model | tape = newTape }
+            , Cmd.map FromApp appCmd
+            )
 
         _ ->
-            model
+            ( model
+            , Cmd.none
+            )
 
 
 
@@ -517,6 +546,7 @@ viewComputer model =
         , div [ class "flex flex-col gap-2" ]
             [ div [ class "text-2xl font-bold" ] [ text "Inputs" ]
             , div [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
+            , div [] [ Html.text ("downs: " ++ (computer.keyboard.downs |> List.intersperse " " |> String.concat)) ]
             , div [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
             , div [] [ Html.text ("clock: " ++ Round.round 4 computer.clock) ]
             , div []

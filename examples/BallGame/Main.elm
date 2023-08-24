@@ -27,12 +27,11 @@ import Tools.Pages.Pages as Pages exposing (Pages)
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = initialConfigurations
         , init = init
         , update = update
         , view = view
-        , subscriptions = always Sub.none
         , hasTape = True
         }
 

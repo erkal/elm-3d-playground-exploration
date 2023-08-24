@@ -8,10 +8,9 @@ import Playground.Tape exposing (Message(..))
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = []
         , init = \_ -> {}
-        , subscriptions = \_ -> Sub.none
         , update = \_ _ _ -> {}
         , view = view
         , hasTape = False

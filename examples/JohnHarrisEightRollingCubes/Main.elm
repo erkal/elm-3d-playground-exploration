@@ -21,10 +21,9 @@ import Scene3d.Material exposing (matte)
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = initialConfigurations
         , init = init
-        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
         , hasTape = True

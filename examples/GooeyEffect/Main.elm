@@ -9,10 +9,9 @@ import WebGL exposing (Mesh, Shader)
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = initialConfigurations
         , init = init
-        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
         , hasTape = True

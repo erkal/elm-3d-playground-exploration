@@ -31,6 +31,14 @@ translateBy ( dx, dy ) { x, y } =
     }
 
 
+{-| The angle of the vector from the first point to the second point.
+The angle is measured in radians, clockwise from the positive x-axis.
+-}
+angleOf : Point2d -> Point2d -> Float
+angleOf p q =
+    atan2 (q.y - p.y) (q.x - p.x)
+
+
 add : Vector2d -> Vector2d -> Vector2d
 add ( x1, y1 ) ( x2, y2 ) =
     ( x1 + x2, y1 + y2 )
@@ -64,6 +72,45 @@ length v =
 dotProduct : Vector2d -> Vector2d -> Float
 dotProduct ( x1, y1 ) ( x2, y2 ) =
     x1 * x2 + y1 * y2
+
+
+{-| given an angle alpha in range (-pi, pi) this calculates the vector from center of the rectangle and intersection of rectangle point with the line from center that has the angle alpha with the x-axis
+-}
+vectorFromCenterToRectanglePointAtAngle : Float -> { width : Float, height : Float } -> ( Float, Float )
+vectorFromCenterToRectanglePointAtAngle alpha { width, height } =
+    -- TODO: This is incomplete and takes only the height into account. It should also take the width into account.
+    let
+        intersectsHorizontalEdge =
+            abs alpha > abs (atan2 height width) && abs alpha < pi - abs (atan2 height width)
+    in
+    if intersectsHorizontalEdge then
+        let
+            dy =
+                if alpha > 0 then
+                    height / 2
+
+                else
+                    -height / 2
+
+            dx =
+                dy / tan alpha
+        in
+        ( dx, dy )
+
+    else
+        -- intersects vertical edge
+        let
+            dx =
+                if abs alpha < pi / 2 then
+                    width / 2
+
+                else
+                    -width / 2
+
+            dy =
+                dx * tan alpha
+        in
+        ( dx, dy )
 
 
 boundingBoxFrom : Point2d -> Point2d -> BoundingBox

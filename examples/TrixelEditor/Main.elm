@@ -29,10 +29,9 @@ import TrixelEditor.World as World exposing (ColorIndex, World)
 
 
 main =
-    Playground.application
+    Playground.simpleApplication
         { initialConfigurations = initialConfigurations
         , init = init
-        , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
         , hasTape = True
