@@ -74,45 +74,6 @@ dotProduct ( x1, y1 ) ( x2, y2 ) =
     x1 * x2 + y1 * y2
 
 
-{-| given an angle alpha in range (-pi, pi) this calculates the vector from center of the rectangle and intersection of rectangle point with the line from center that has the angle alpha with the x-axis
--}
-vectorFromCenterToRectanglePointAtAngle : Float -> { width : Float, height : Float } -> ( Float, Float )
-vectorFromCenterToRectanglePointAtAngle alpha { width, height } =
-    -- TODO: This is incomplete and takes only the height into account. It should also take the width into account.
-    let
-        intersectsHorizontalEdge =
-            abs alpha > abs (atan2 height width) && abs alpha < pi - abs (atan2 height width)
-    in
-    if intersectsHorizontalEdge then
-        let
-            dy =
-                if alpha > 0 then
-                    height / 2
-
-                else
-                    -height / 2
-
-            dx =
-                dy / tan alpha
-        in
-        ( dx, dy )
-
-    else
-        -- intersects vertical edge
-        let
-            dx =
-                if abs alpha < pi / 2 then
-                    width / 2
-
-                else
-                    -width / 2
-
-            dy =
-                dx * tan alpha
-        in
-        ( dx, dy )
-
-
 boundingBoxFrom : Point2d -> Point2d -> BoundingBox
 boundingBoxFrom firstPoint secondPoint =
     let

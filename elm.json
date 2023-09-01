@@ -4,7 +4,8 @@
         "examples",
         "examples-private",
         "playground-exploration/src",
-        "scene-3d/src"
+        "scene-3d/src",
+        "scene-2d/src"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
@@ -32,6 +33,7 @@
             "ianmackenzie/elm-geometry": "3.9.0",
             "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units": "2.7.0",
+            "joakin/elm-canvas": "5.0.0",
             "mgold/elm-nonempty-list": "4.2.0",
             "myrho/elm-round": "1.0.5",
             "newmana/chroma-elm": "18.2.0",
