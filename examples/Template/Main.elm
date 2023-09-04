@@ -1,7 +1,7 @@
 module Template.Main exposing (main)
 
-import Camera exposing (Camera, perspective)
-import Color exposing (blue, gray, green, red, rgb255)
+import Camera exposing (Camera, perspectiveWithOrbit)
+import Color exposing (hsl, rgb255)
 import Html exposing (Html)
 import Playground.Playground as Playground exposing (..)
 import Playground.Tape exposing (Message(..))
@@ -29,7 +29,21 @@ type alias Model =
 
 
 initialConfigurations =
-    []
+    [ configBlock "Camera"
+        True
+        [ floatConfig "camera distance" ( 3, 8 ) 8
+        , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0.5
+        ]
+    , configBlock "Color"
+        True
+        [ colorConfig "cube color" (hsl 0 0.36 0.5)
+        ]
+    , configBlock "Time"
+        True
+        [ floatConfig "period" ( 0.1, 5 ) 0.7
+        ]
+    ]
 
 
 init : Computer -> Model
@@ -50,44 +64,33 @@ update computer message model =
 -- VIEW
 
 
+camera : Computer -> Camera
+camera computer =
+    perspectiveWithOrbit
+        { focalPoint = { x = 0, y = 0, z = 0 }
+        , azimuth = getFloat "camera azimuth" computer
+        , elevation = getFloat "camera elevation" computer
+        , distance = getFloat "camera distance" computer
+        }
+
+
 view : Computer -> Model -> Html Never
 view computer model =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
-        , camera =
-            perspective
-                { focalPoint = { x = 0, y = 0, z = 0 }
-                , eyePoint = { x = 0, y = 4, z = 8 }
-                , upDirection = { x = 0, y = 1, z = 0 }
-                }
-        , backgroundColor = rgb255 46 46 46
+        , camera = camera computer
+        , backgroundColor = rgb255 26 46 46
         , sunlightAzimuth = -(degrees 135)
         , sunlightElevation = -(degrees 45)
         }
-        (shapes computer model)
-
-
-shapes : Computer -> Model -> List Shape
-shapes computer model =
-    [ axes
-    , wavingCube computer
-    ]
-
-
-axes : Shape
-axes =
-    group
-        [ line red ( 100, 0, 0 ) -- x axis
-        , line green ( 0, 100, 0 ) -- y axis
-        , line blue ( 0, 0, 100 ) -- z axis
+        [ wavingCube computer
+        , wavingCube computer |> moveX -2
+        , wavingCube computer |> moveX 2
         ]
 
 
 wavingCube : Computer -> Shape
 wavingCube computer =
-    block (matte (Color.hsl (wave 0 1 30 computer.clock) 0.4 0.4)) ( 1, 1, 1 )
-        |> scale (wave 1 2 14 computer.clock)
-        |> rotateX (wave 1 10 30 computer.clock)
-        |> rotateY (wave 1 10 30 computer.clock)
-        |> rotateZ (wave 1 10 30 computer.clock)
+    block (matte (getColor "cube color" computer)) ( 1, 1, 1 )
+        |> scale (wave 1 1.1 (getFloat "period" computer) computer.clock)
