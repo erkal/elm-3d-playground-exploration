@@ -36,6 +36,7 @@
             "ianmackenzie/elm-units": "2.7.0",
             "joakin/elm-canvas": "5.0.0",
             "mgold/elm-nonempty-list": "4.2.0",
+            "miniBill/elm-oklch": "1.0.0",
             "myrho/elm-round": "1.0.5",
             "newmana/chroma-elm": "18.2.0",
             "noahzgordon/elm-color-extra": "1.0.2",
