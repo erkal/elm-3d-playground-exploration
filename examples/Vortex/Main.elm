@@ -34,7 +34,7 @@ initialConfigurations =
         ]
     , configBlock "Time"
         True
-        [ floatConfig "period" ( 0.1, 30 ) 30
+        [ floatConfig "period" ( 0.1, 60 ) 40
         ]
     ]
 
