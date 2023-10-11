@@ -26,6 +26,7 @@ import Temperature
 import Tools.Pages.Pages as Pages exposing (Pages)
 
 
+main : Playground Model Msg
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations
@@ -111,7 +112,7 @@ camera computer focalPoint =
 -- UPDATE
 
 
-update : Computer -> Message EditorMsg -> Model -> Model
+update : Computer -> Message Msg -> Model -> Model
 update computer_ message model =
     let
         computer =
@@ -205,7 +206,7 @@ tickWorld computer model =
 -- VIEW
 
 
-view : Computer -> Model -> Html EditorMsg
+view : Computer -> Model -> Html Msg
 view computer model =
     div []
         [ div [ class "fixed text-white/50 ml-[320px] mt-8" ]
@@ -482,14 +483,14 @@ drawBallTrail computer model =
 --  EDITOR
 
 
-type EditorMsg
+type Msg
     = PressedEditorOnOffButton
     | ClickedButtonStartDrawingPolygon
     | ClickedButtonFinishDrawingPolygon (List Point2d)
     | FromLevelEditor Pages.Msg
 
 
-handleEditorMsg : EditorMsg -> Model -> Model
+handleEditorMsg : Msg -> Model -> Model
 handleEditorMsg editorMessage model =
     case editorMessage of
         PressedEditorOnOffButton ->
@@ -511,7 +512,7 @@ handleEditorMsg editorMessage model =
             { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Html Msg
 viewEditor computer model =
     div
         []
@@ -520,7 +521,7 @@ viewEditor computer model =
         ]
 
 
-editorToggleButton : Model -> Html EditorMsg
+editorToggleButton : Model -> Html Msg
 editorToggleButton model =
     div
         [ class "fixed top-0 right-0"
@@ -538,7 +539,7 @@ editorToggleButton model =
         ]
 
 
-editorContent : Computer -> Model -> Html EditorMsg
+editorContent : Computer -> Model -> Html Msg
 editorContent computer model =
     if model.editorIsOn then
         div
@@ -559,7 +560,7 @@ editorContent computer model =
         div [] []
 
 
-viewPolygonEditor : Computer -> Model -> Html EditorMsg
+viewPolygonEditor : Computer -> Model -> Html Msg
 viewPolygonEditor computer model =
     div []
         [ div [ class "h-40" ]
@@ -587,7 +588,7 @@ makeButton msg string =
         [ Html.text string ]
 
 
-pageSelection : Model -> Html EditorMsg
+pageSelection : Model -> Html Msg
 pageSelection model =
     div []
         [ div [ class "text-lg" ] [ text "Pages" ]

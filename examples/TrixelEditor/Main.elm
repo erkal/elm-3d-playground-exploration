@@ -28,6 +28,7 @@ import TrixelEditor.TrixelGrid.Vertex as Vertex exposing (Vertex, vertex)
 import TrixelEditor.World as World exposing (ColorIndex, World)
 
 
+main : Playground Model Msg
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations
@@ -89,7 +90,7 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Message EditorMsg -> Model -> Model
+update : Computer -> Message Msg -> Model -> Model
 update computer message model =
     case message of
         Tick ->
@@ -180,7 +181,7 @@ updateMouseOverUV computer model =
 -- VIEW
 
 
-view : Computer -> Model -> Html EditorMsg
+view : Computer -> Model -> Html Msg
 view computer model =
     div [ cursorForSpaceDragging computer model ]
         [ div [ class "fixed w-full h-full" ]
@@ -194,7 +195,7 @@ view computer model =
         ]
 
 
-cursorForSpaceDragging : Computer -> Model -> Html.Attribute EditorMsg
+cursorForSpaceDragging : Computer -> Model -> Html.Attribute Msg
 cursorForSpaceDragging computer model =
     style "cursor" <|
         if List.member "Space" computer.keyboard.pressedKeys then
@@ -347,7 +348,7 @@ drawGrid computer =
 -- EDITOR
 
 
-type EditorMsg
+type Msg
     = PressedEditorOnOffButton
     | SelectPalette Palette
     | SelectColor Int
@@ -355,7 +356,7 @@ type EditorMsg
     | FromLevelEditor Pages.Msg
 
 
-handleMsgFromEditor : EditorMsg -> Model -> Model
+handleMsgFromEditor : Msg -> Model -> Model
 handleMsgFromEditor editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
@@ -376,7 +377,7 @@ handleMsgFromEditor editorMsg model =
             { model | pages = model.pages |> Pages.update levelEditorMsg }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Html Msg
 viewEditor computer model =
     div
         [ class "prevent-elm-inputs" ]
@@ -385,7 +386,7 @@ viewEditor computer model =
         ]
 
 
-editorToggleButton : Model -> Html EditorMsg
+editorToggleButton : Model -> Html Msg
 editorToggleButton model =
     div
         [ class "fixed top-0 right-0"
@@ -403,7 +404,7 @@ editorToggleButton model =
         ]
 
 
-editorContent : Computer -> Model -> Html EditorMsg
+editorContent : Computer -> Model -> Html Msg
 editorContent computer model =
     if model.editorIsOn then
         div
@@ -423,7 +424,7 @@ editorContent computer model =
         div [] []
 
 
-viewInstructions : Html EditorMsg
+viewInstructions : Html Msg
 viewInstructions =
     div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Instructions" ]
@@ -434,7 +435,7 @@ viewInstructions =
         ]
 
 
-viewColorSelection : Model -> Html EditorMsg
+viewColorSelection : Model -> Html Msg
 viewColorSelection model =
     div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Color Palette" ]
@@ -445,7 +446,7 @@ viewColorSelection model =
         ]
 
 
-pageSelection : Model -> Html EditorMsg
+pageSelection : Model -> Html Msg
 pageSelection model =
     div [ class "p-4 border-[0.5px] border-white/20" ]
         [ div [ class "text-lg" ] [ text "Pages" ]
@@ -464,14 +465,14 @@ makeButton msg string =
         [ text string ]
 
 
-optionWith : Palette -> Html EditorMsg
+optionWith : Palette -> Html Msg
 optionWith palette =
     option
         [ value (ColorPalette.toString palette) ]
         [ text (ColorPalette.toString palette) ]
 
 
-selectColorPalette : Model -> Html EditorMsg
+selectColorPalette : Model -> Html Msg
 selectColorPalette model =
     div [ class "p-2" ]
         [ span [ class "p-2" ] [ text "Choose a palette:" ]
@@ -484,7 +485,7 @@ selectColorPalette model =
         ]
 
 
-viewColorPalette : Model -> Html EditorMsg
+viewColorPalette : Model -> Html Msg
 viewColorPalette model =
     let
         world =

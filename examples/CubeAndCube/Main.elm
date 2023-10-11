@@ -9,6 +9,7 @@ import Scene3d.Material exposing (matte)
 import Tools.Animation.Animation exposing (..)
 
 
+main : Playground {} Never
 main =
     Playground.simpleApplication
         { initialConfigurations = []

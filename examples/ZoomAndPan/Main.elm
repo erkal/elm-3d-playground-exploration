@@ -11,6 +11,7 @@ import Scene3d.Material exposing (matte)
 import Tools.PanAndZoom.PanAndZoom as PanAndZoom exposing (PanAndZoom)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

@@ -7,6 +7,7 @@ import Playground.Playground as Playground exposing (..)
 import Playground.Tape exposing (Message(..))
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = []

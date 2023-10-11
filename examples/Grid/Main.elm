@@ -8,42 +8,26 @@ import Playground.Tape exposing (Message(..))
 import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 import Tools.Animation.Animation exposing (..)
+import Tools.Geometry.Geometry exposing (Point2d, distance)
 
 
+main : Playground () Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations
-        , init = init
-        , update = update
+        , init = \_ -> ()
+        , update = \_ _ -> identity
         , view = view
         , hasTape = True
         }
 
 
-type alias Model =
-    {}
-
-
-colors =
-    { lightPeach = Color.rgb255 255 204 153
-    , softPink = Color.rgb255 255 153 204
-    , lightMint = Color.rgb255 153 255 204
-    , babyBlue = Color.rgb255 153 204 255
-    , lightLilac = Color.rgb255 204 153 255
-    , lightLemon = Color.rgb255 255 255 153
-    }
-
-
-
--- INIT
-
-
 initialConfigurations =
     [ configBlock "Camera"
         True
-        [ intConfig "n" ( 1, 100 ) 24
+        [ intConfig "n" ( 1, 100 ) 8
         , floatConfig "camera azimuth" ( 0, 2 * pi ) 0
-        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) 0
+        , floatConfig "camera elevation" ( -pi / 2, pi / 2 ) -0.5
         ]
     , configBlock "Color"
         True
@@ -56,36 +40,22 @@ initialConfigurations =
     ]
 
 
-init : Computer -> Model
-init computer =
-    {}
-
-
-
--- UPDATE
-
-
-update : Computer -> Message Never -> Model -> Model
-update computer message model =
-    model
-
-
-
--- VIEW
-
-
 camera : Computer -> Camera
 camera computer =
+    let
+        n =
+            computer |> getInt "n" |> toFloat
+    in
     perspectiveWithOrbit
-        { focalPoint = { x = 0, y = 0, z = 0 }
+        { focalPoint = { x = n / 2, y = n / 2, z = 0 }
         , azimuth = getFloat "camera azimuth" computer
         , elevation = getFloat "camera elevation" computer
-        , distance = toFloat (getInt "n" computer) * 1.1
+        , distance = n * 1.1
         }
 
 
-view : Computer -> Model -> Html Never
-view computer model =
+view : Computer -> () -> Html Never
+view computer _ =
     Scene.sunny
         { devicePixelRatio = computer.devicePixelRatio
         , screen = computer.screen
@@ -105,28 +75,41 @@ squares computer =
             getInt "n" computer
     in
     group
-        (cartesianProduct
-            (List.range 1 n)
-            (List.range 1 n)
+        (cartesianProduct (List.range 1 n) (List.range 1 n)
             |> List.map (makeSquare computer)
         )
-        |> moveX -(toFloat (n + 1) / 2)
-        |> moveY -(toFloat (n + 1) / 2)
 
 
 makeSquare : Computer -> ( Int, Int ) -> Shape
 makeSquare computer ( i, j ) =
     let
-        rotation =
-            wave 0
-                (2 * pi)
-                (getFloat "period" computer + toFloat (i + j))
-                computer.clock
+        x =
+            toFloat j
+
+        y =
+            toFloat i
+
+        pointer =
+            computer.pointer
+                |> Camera.mouseOverXY (camera computer) computer.screen
+                |> Maybe.withDefault { x = 0, y = 0, z = 0 }
+
+        distanceFromMouse =
+            distance
+                (Point2d x y)
+                (Point2d pointer.x pointer.y)
+
+        z =
+            (-0.3 * (distanceFromMouse ^ 2) + 1)
+                |> max 0
     in
-    block (matte colors.babyBlue) ( 0.7, 0.7, 0.7 )
-        |> rotateX rotation
-        |> moveX (toFloat j)
-        |> moveY (toFloat i)
+    block (matte (hsl 0.5 0.36 0.5)) ( 1, 1, 1 )
+        |> rotateX (2 * z)
+        |> rotateY (2 * z)
+        |> rotateZ (2 * z)
+        |> moveX x
+        |> moveY y
+        |> moveZ z
 
 
 cartesianProduct : List a -> List b -> List ( b, a )

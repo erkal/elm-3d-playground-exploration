@@ -18,6 +18,7 @@ import Temperature
 import Tools.Animation.Animation exposing (wave)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

@@ -61,7 +61,6 @@ fromString string =
             Viridis
 
         _ ->
-            -- never happens
             Inferno
 
 

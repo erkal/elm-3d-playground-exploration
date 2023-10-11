@@ -8,6 +8,7 @@ import Playground.Tape exposing (Message(..))
 import WebGL exposing (Mesh, Shader)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

@@ -10,6 +10,7 @@ import Scene3d.Material exposing (matte)
 import Tools.Animation.Animation exposing (spin)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

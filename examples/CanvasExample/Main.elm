@@ -9,6 +9,7 @@ import Scene2d.Camera as Camera exposing (Camera)
 import Tools.Geometry.Geometry exposing (..)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

@@ -3,7 +3,7 @@ port module Playground.Playground exposing
     , boolConfig, colorConfig, configBlock, floatConfig, intConfig
     , getBool, getColor, getFloat, getInt
     , Computer, Keyboard, Pointer, Screen, toX, toXY, toY
-    , simpleApplication
+    , Playground, simpleApplication
     )
 
 {-|
@@ -153,6 +153,10 @@ getFloat =
 
 
 -- Getting Inputs
+
+
+type alias Playground appModel appMsg =
+    Program Flags (Model appModel) (Msg appMsg)
 
 
 type alias Computer =

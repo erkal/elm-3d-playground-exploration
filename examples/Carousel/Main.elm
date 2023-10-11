@@ -11,6 +11,7 @@ import Scene exposing (..)
 import Scene3d.Material exposing (matte)
 
 
+main : Playground Model Never
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations

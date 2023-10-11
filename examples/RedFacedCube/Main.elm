@@ -41,6 +41,7 @@ import Tools.Pages.Pages as Pages exposing (Pages)
 -}
 
 
+main : Playground Model Msg
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations
@@ -130,7 +131,7 @@ init computer =
 -- UPDATE
 
 
-update : Computer -> Message EditorMsg -> Model -> Model
+update : Computer -> Message Msg -> Model -> Model
 update computer message model =
     let
         playerCube =
@@ -347,7 +348,7 @@ startRollAnimation computer startPosition rollDirection willBeSolved newWorld mo
 -- VIEW
 
 
-view : Computer -> Model -> Html EditorMsg
+view : Computer -> Model -> Html Msg
 view computer model =
     div
         [ class "fixed w-full h-full" ]
@@ -359,7 +360,7 @@ view computer model =
         ]
 
 
-explanationText : Computer -> Model -> Html EditorMsg
+explanationText : Computer -> Model -> Html Msg
 explanationText computer model =
     let
         animatingMistakeForMustVisitEachCellBeforeReachingFinishCell =
@@ -849,7 +850,7 @@ rollingAnimation computer model pos =
 --  EDITOR
 
 
-type EditorMsg
+type Msg
     = PressedEditorOnOffButton
     | PressedCalculateSolutionsButton
     | MouseEnterSolution Path
@@ -857,7 +858,7 @@ type EditorMsg
     | FromLevelEditor Pages.Msg
 
 
-handleMsgFromEditor : EditorMsg -> Model -> Model
+handleMsgFromEditor : Msg -> Model -> Model
 handleMsgFromEditor editorMsg ({ editor } as model) =
     case editorMsg of
         PressedEditorOnOffButton ->
@@ -901,7 +902,7 @@ handleMsgFromEditor editorMsg ({ editor } as model) =
             { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Html Msg
 viewEditor computer model =
     div
         []
@@ -910,7 +911,7 @@ viewEditor computer model =
         ]
 
 
-editorToggleButton : Model -> Html EditorMsg
+editorToggleButton : Model -> Html Msg
 editorToggleButton model =
     div
         [ class "fixed top-0 right-0"
@@ -928,7 +929,7 @@ editorToggleButton model =
         ]
 
 
-editorContent : Computer -> Model -> Html EditorMsg
+editorContent : Computer -> Model -> Html Msg
 editorContent computer model =
     if model.editor.isOn then
         div
@@ -949,7 +950,7 @@ editorContent computer model =
         div [] []
 
 
-viewSolutions : Computer -> Model -> Html EditorMsg
+viewSolutions : Computer -> Model -> Html Msg
 viewSolutions computer model =
     div []
         [ div [ class "h-40" ]
@@ -997,7 +998,7 @@ makeButton msg string =
         [ Html.text string ]
 
 
-levelSelection : Model -> Html EditorMsg
+levelSelection : Model -> Html Msg
 levelSelection model =
     div []
         [ div [ class "text-lg" ] [ text "Pages" ]

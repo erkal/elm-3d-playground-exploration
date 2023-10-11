@@ -25,6 +25,7 @@ import Temperature
 import Tools.Pages.Pages as Pages exposing (Pages)
 
 
+main : Playground Model Msg
 main =
     Playground.simpleApplication
         { initialConfigurations = initialConfigurations
@@ -135,7 +136,7 @@ mapCurrentPlayerGraph up model =
     }
 
 
-update : Computer -> Message EditorMsg -> Model -> Model
+update : Computer -> Message Msg -> Model -> Model
 update computer message model =
     let
         handleInput =
@@ -508,7 +509,7 @@ camera computer =
         }
 
 
-view : Computer -> Model -> Html EditorMsg
+view : Computer -> Model -> Html Msg
 view computer model =
     --Scene.sunny
     --    { devicePixelRatio = computer.devicePixelRatio
@@ -821,13 +822,13 @@ drawBaseEdge computer { sourcePosition, targetPosition, sourceId, targetId } =
 -- EDITOR
 
 
-type EditorMsg
+type Msg
     = PressedEditorOnOffButton
     | PressedResetPlayerGraphButton
     | FromLevelEditor Pages.Msg
 
 
-handleMsgFromEditor : EditorMsg -> Model -> Model
+handleMsgFromEditor : Msg -> Model -> Model
 handleMsgFromEditor editorMsg model =
     case editorMsg of
         PressedEditorOnOffButton ->
@@ -840,7 +841,7 @@ handleMsgFromEditor editorMsg model =
             { model | levels = model.levels |> Pages.update levelEditorMsg }
 
 
-viewEditor : Computer -> Model -> Html EditorMsg
+viewEditor : Computer -> Model -> Html Msg
 viewEditor computer model =
     div
         []
@@ -849,7 +850,7 @@ viewEditor computer model =
         ]
 
 
-editorToggleButton : Model -> Html EditorMsg
+editorToggleButton : Model -> Html Msg
 editorToggleButton model =
     div
         [ class "fixed top-0 right-0"
@@ -867,7 +868,7 @@ editorToggleButton model =
         ]
 
 
-editorContent : Computer -> Model -> Html EditorMsg
+editorContent : Computer -> Model -> Html Msg
 editorContent computer model =
     if model.editorIsOn then
         div
@@ -890,7 +891,7 @@ editorContent computer model =
         div [] []
 
 
-levelSelection : Model -> Html EditorMsg
+levelSelection : Model -> Html Msg
 levelSelection model =
     div []
         [ div [ class "text-lg" ] [ text "Pages" ]
@@ -907,7 +908,7 @@ makeButton msg string =
         [ Html.text string ]
 
 
-explanationsForEditor : Computer -> Model -> Html EditorMsg
+explanationsForEditor : Computer -> Model -> Html Msg
 explanationsForEditor computer model =
     div []
         [ div [ class "py-4 text-lg" ] [ Html.text "Editing level" ]
