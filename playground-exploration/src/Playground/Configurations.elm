@@ -3,6 +3,7 @@ module Playground.Configurations exposing (..)
 import Color exposing (Color)
 import List.Extra
 import Round
+import Tools.SelectList.SelectList as SelectList exposing (SelectList)
 
 
 type alias Configurations =
@@ -21,6 +22,7 @@ type Config
     | IntConfig ( Int, Int ) Int
     | ColorConfig Color
     | BoolConfig Bool
+    | OptionsConfig (SelectList String)
 
 
 configBlock : String -> Bool -> List ( String, Config ) -> Block
@@ -33,18 +35,18 @@ configBlock name isOn configList =
 
 
 getBool : String -> Configurations -> Bool
-getBool key configurations =
+getBool name configurations =
     configurations
-        |> List.Extra.findMap (getBoolFromBlock key)
+        |> List.Extra.findMap (getBoolFromBlock name)
         |> Maybe.withDefault False
 
 
 getBoolFromBlock : String -> Block -> Maybe Bool
-getBoolFromBlock key block =
+getBoolFromBlock name block =
     block.configs
         |> List.Extra.findMap
             (\( k, config ) ->
-                case ( k == key, config ) of
+                case ( k == name, config ) of
                     ( True, BoolConfig value ) ->
                         Just value
 
@@ -54,18 +56,18 @@ getBoolFromBlock key block =
 
 
 getInt : String -> Configurations -> Int
-getInt key configurations =
+getInt name configurations =
     configurations
-        |> List.Extra.findMap (getIntFromBlock key)
+        |> List.Extra.findMap (getIntFromBlock name)
         |> Maybe.withDefault 0
 
 
 getIntFromBlock : String -> Block -> Maybe Int
-getIntFromBlock key block =
+getIntFromBlock name block =
     block.configs
         |> List.Extra.findMap
             (\( k, config ) ->
-                case ( k == key, config ) of
+                case ( k == name, config ) of
                     ( True, IntConfig _ value ) ->
                         Just value
 
@@ -75,18 +77,18 @@ getIntFromBlock key block =
 
 
 getFloat : String -> Configurations -> Float
-getFloat key configurations =
+getFloat name configurations =
     configurations
-        |> List.Extra.findMap (getFloatFromBlock key)
+        |> List.Extra.findMap (getFloatFromBlock name)
         |> Maybe.withDefault 0
 
 
 getFloatFromBlock : String -> Block -> Maybe Float
-getFloatFromBlock key block =
+getFloatFromBlock name block =
     block.configs
         |> List.Extra.findMap
             (\( k, config ) ->
-                case ( k == key, config ) of
+                case ( k == name, config ) of
                     ( True, FloatConfig _ value ) ->
                         Just value
 
@@ -96,20 +98,41 @@ getFloatFromBlock key block =
 
 
 getColor : String -> Configurations -> Color
-getColor key configurations =
+getColor name configurations =
     configurations
-        |> List.Extra.findMap (getColorFromBlock key)
+        |> List.Extra.findMap (getColorFromBlock name)
         |> Maybe.withDefault Color.black
 
 
 getColorFromBlock : String -> Block -> Maybe Color
-getColorFromBlock key block =
+getColorFromBlock name block =
     block.configs
         |> List.Extra.findMap
             (\( k, config ) ->
-                case ( k == key, config ) of
+                case ( k == name, config ) of
                     ( True, ColorConfig value ) ->
                         Just value
+
+                    _ ->
+                        Nothing
+            )
+
+
+getOption : String -> Configurations -> String
+getOption name configurations =
+    configurations
+        |> List.Extra.findMap (getSelectedOptionFromBlock name)
+        |> Maybe.withDefault ""
+
+
+getSelectedOptionFromBlock : String -> Block -> Maybe String
+getSelectedOptionFromBlock name block =
+    block.configs
+        |> List.Extra.findMap
+            (\( k, config ) ->
+                case ( k == name, config ) of
+                    ( True, OptionsConfig selectList ) ->
+                        Just (SelectList.getCurrent selectList)
 
                     _ ->
                         Nothing
@@ -125,6 +148,7 @@ type Msg
     | SetInt String Int
     | SetColor String Color
     | SetBool String Bool
+    | SetOption String String
 
 
 update : Msg -> Configurations -> Configurations
@@ -145,8 +169,8 @@ mapConfigs up block =
 updateConfigs : Msg -> List ( String, Config ) -> List ( String, Config )
 updateConfigs msg =
     case msg of
-        SetInt key newValue ->
-            List.Extra.updateIf (Tuple.first >> (==) key)
+        SetInt name newValue ->
+            List.Extra.updateIf (Tuple.first >> (==) name)
                 (Tuple.mapSecond
                     (\config ->
                         case config of
@@ -158,8 +182,8 @@ updateConfigs msg =
                     )
                 )
 
-        SetFloat key newValue ->
-            List.Extra.updateIf (Tuple.first >> (==) key)
+        SetFloat name newValue ->
+            List.Extra.updateIf (Tuple.first >> (==) name)
                 (Tuple.mapSecond
                     (\config ->
                         case config of
@@ -171,8 +195,21 @@ updateConfigs msg =
                     )
                 )
 
-        SetBool key newValue ->
-            List.Extra.updateIf (Tuple.first >> (==) key)
+        SetColor name newValue ->
+            List.Extra.updateIf (Tuple.first >> (==) name)
+                (Tuple.mapSecond
+                    (\config ->
+                        case config of
+                            ColorConfig _ ->
+                                ColorConfig newValue
+
+                            _ ->
+                                config
+                    )
+                )
+
+        SetBool name newValue ->
+            List.Extra.updateIf (Tuple.first >> (==) name)
                 (Tuple.mapSecond
                     (\config ->
                         case config of
@@ -184,13 +221,19 @@ updateConfigs msg =
                     )
                 )
 
-        SetColor key newValue ->
-            List.Extra.updateIf (Tuple.first >> (==) key)
+        SetOption name selectedOption ->
+            List.Extra.updateIf (Tuple.first >> (==) name)
                 (Tuple.mapSecond
                     (\config ->
                         case config of
-                            ColorConfig _ ->
-                                ColorConfig newValue
+                            OptionsConfig value ->
+                                OptionsConfig
+                                    (value
+                                        |> SelectList.toList
+                                        |> List.Extra.findIndex ((==) selectedOption)
+                                        |> Maybe.map (\index -> SelectList.goTo index value)
+                                        |> Maybe.withDefault value
+                                    )
 
                             _ ->
                                 config

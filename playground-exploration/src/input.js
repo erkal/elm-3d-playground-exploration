@@ -58,6 +58,13 @@ const inputs =
       deltaX: 0,
       deltaY: 0,
     },
+    sensoState: {
+      center: { x: 0, y: 0, f: 0 },
+      right: { x: 0, y: 0, f: 0 },
+      up: { x: 0, y: 0, f: 0 },
+      left: { x: 0, y: 0, f: 0 },
+      down: { x: 0, y: 0, f: 0 },
+    },
     screen: {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -109,6 +116,57 @@ const sendInputsToElmApp = (app) => {
     inputs.wheel.deltaX = 0;
     inputs.wheel.deltaY = 0;
   }
+
+  /* 
+    listen to Senso signals
+  */
+  var stateForSensoGame = 0;
+  PlayEGI.onSignal((signal) => {
+    switch (signal.type) {
+      case "Hello":
+        // Play framework is greeting and sending game settings. This signal will be sent multiple times until we respond with ready.
+        console.log(
+          "Got a Hello from Play and some settings:",
+          signal.settings,
+          signal.memory
+        );
+        // We initialize the game's state to the provided memory, which our game may have returned with on its previous run.
+        stateForSensoGame =
+          typeof signal.memory === "number" ? signal.memory : stateForSensoGame;
+        // Once we are ready and loaded we need to inform Play with `PlayEGI.ready()`
+        // Let's simulate a loading time of 500ms and then inform Play that we are ready:
+        setTimeout(PlayEGI.ready, 500);
+        break;
+
+      case "Suspend":
+        // A game can be suspended/paused by Play. Game should be in suspended state until a "Resume" signal is received.
+        console.log("Got Suspend from Play. Game should be paused.");
+        break;
+
+      case "Resume":
+        //  When our game starts it should be in a suspended (paused) state. Only once we get the resume we can start playing.
+        console.log("Got Resume from Play. Let us resume playing.");
+        break;
+
+      case "Ping":
+        // This tests liveliness of the game and should be responded with a pong.
+        PlayEGI.pong();
+        break;
+
+      case "Release":
+        console.log("A release was detected! Direction: ", signal.direction);
+        break;
+
+      case "SensoState":
+        inputs.sensoState = signal.state;
+        console.log("Got Hardware signal from Senso: ", inputs.sensoState);
+        break;
+
+      default:
+        // console.log(signal.type);
+        break;
+    }
+  });
 
   /* 
     listen to events and update the inputs

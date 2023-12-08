@@ -35,13 +35,15 @@
             "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units": "2.7.0",
             "joakin/elm-canvas": "5.0.0",
+            "maca/elm-rose-tree": "1.2.0",
             "mgold/elm-nonempty-list": "4.2.0",
             "miniBill/elm-oklch": "1.0.0",
             "myrho/elm-round": "1.0.5",
             "newmana/chroma-elm": "18.2.0",
             "noahzgordon/elm-color-extra": "1.0.2",
-            "stil4m/elm-syntax": "7.2.9",
-            "turboMaCk/any-dict": "2.6.0"
+            "stil4m/elm-syntax": "7.3.2",
+            "turboMaCk/any-dict": "2.6.0",
+            "zwilias/elm-rosetree": "1.5.0"
         },
         "indirect": {
             "avh4/elm-fifo": "1.0.4",
@@ -50,6 +52,7 @@
             "elm/regex": "1.0.0",
             "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.2",
+            "elm-community/array-extra": "2.6.0",
             "elm-community/intdict": "3.0.0",
             "elm-community/typed-svg": "7.0.0",
             "folkertdev/elm-deque": "3.0.1",

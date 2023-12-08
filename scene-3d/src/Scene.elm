@@ -1,8 +1,7 @@
 module Scene exposing
-    ( Shape, block, cube, cylinder, group, line, sphere, triangle
+    ( Shape, block, cube, cylinder, group, line, sphere, triangle, square
     , move, moveX, moveY, moveZ, rotateX, rotateY, rotateZ, rotateAround, scale, scaleAround
     , custom, sunny, unlit
-    , square
     )
 
 {-|
@@ -10,7 +9,7 @@ module Scene exposing
 
 # Shapes
 
-@docs Shape, block, cube, cylinder, group, line, sphere, triangle
+@docs Shape, block, cube, cylinder, group, line, sphere, triangle, square
 
 
 # Moving Shapes

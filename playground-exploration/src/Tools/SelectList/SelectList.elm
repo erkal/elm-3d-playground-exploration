@@ -1,6 +1,7 @@
 module Tools.SelectList.SelectList exposing
     ( SelectList
     , add
+    , create
     , duplicateCurrent
     , getBeforeReversed
     , getCurrent
@@ -56,6 +57,15 @@ init ( first, rest ) =
 singleton : a -> SelectList a
 singleton el =
     init ( el, [] )
+
+
+create : ( List a, a, List a ) -> SelectList a
+create ( before, current, after ) =
+    SelectList
+        { beforeReversed = before |> List.reverse
+        , current = current
+        , after = after
+        }
 
 
 

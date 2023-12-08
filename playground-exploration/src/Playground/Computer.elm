@@ -2,6 +2,7 @@ module Playground.Computer exposing (..)
 
 import Color exposing (Color)
 import Playground.Configurations as Configurations exposing (Configurations)
+import Playground.Senso as Senso exposing (Senso, SensoState)
 
 
 type alias Inputs =
@@ -12,6 +13,7 @@ type alias Inputs =
     , wheel : Wheel
     , screen : Screen
     , devicePixelRatio : Float
+    , sensoState : SensoState
     }
 
 
@@ -27,6 +29,7 @@ type alias Computer =
     , wheel : Wheel
     , screen : Screen
     , devicePixelRatio : Float
+    , senso : Senso
 
     --
     , configurations : Configurations
@@ -81,6 +84,7 @@ init initialConfigurations inputs =
     , keyboard = inputs.keyboard
     , pointer = inputs.pointer
     , wheel = inputs.wheel
+    , senso = Senso.init
     , screen = inputs.screen
     , devicePixelRatio = inputs.devicePixelRatio
     , configurations = initialConfigurations
@@ -97,6 +101,7 @@ tick inputs computer =
         , keyboard = inputs.keyboard
         , pointer = inputs.pointer
         , wheel = inputs.wheel
+        , senso = computer.senso |> Senso.update inputs.sensoState
         , screen = inputs.screen
         , devicePixelRatio = inputs.devicePixelRatio
     }
@@ -112,23 +117,28 @@ updateConfigurations configurationsMsg computer =
 
 
 getBool : String -> Computer -> Bool
-getBool key computer =
-    computer.configurations |> Configurations.getBool key
+getBool name computer =
+    computer.configurations |> Configurations.getBool name
 
 
 getInt : String -> Computer -> Int
-getInt key computer =
-    computer.configurations |> Configurations.getInt key
+getInt name computer =
+    computer.configurations |> Configurations.getInt name
 
 
 getFloat : String -> Computer -> Float
-getFloat key computer =
-    computer.configurations |> Configurations.getFloat key
+getFloat name computer =
+    computer.configurations |> Configurations.getFloat name
 
 
 getColor : String -> Computer -> Color
-getColor key computer =
-    computer.configurations |> Configurations.getColor key
+getColor name computer =
+    computer.configurations |> Configurations.getColor name
+
+
+getOption : String -> Computer -> String
+getOption name computer =
+    computer.configurations |> Configurations.getOption name
 
 
 

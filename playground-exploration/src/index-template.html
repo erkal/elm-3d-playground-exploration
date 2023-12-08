@@ -16,6 +16,8 @@
       href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Elm_logo.svg/1200px-Elm_logo.svg.png"
       type="image/png"
     />
+
+    <script src="../PlayEGI.js"></script>
   </head>
 
   <body class="overflow-hidden">
@@ -33,10 +35,9 @@
         flags: {
           inputs:
             /*
-                  the following is a copy of the `inputs` object in `input.js`
-                  it is here to make hot-reloading work in development
-                  (for some reason, elm-watch cannot make it if the `inputs` object is imported from `input.js`)
-                */
+                  For some reason, elm-watch cannot hot-reload if the `inputs` object is imported from `input.js`.
+                  The following is a copy of the `inputs` object in `input.js`.
+            */
             {
               dt: 0,
               clock: 0,
@@ -69,6 +70,13 @@
                 // actions
                 deltaX: 0,
                 deltaY: 0,
+              },
+              sensoState: {
+                center: { x: 0, y: 0, f: 0 },
+                right: { x: 0, y: 0, f: 0 },
+                up: { x: 0, y: 0, f: 0 },
+                left: { x: 0, y: 0, f: 0 },
+                down: { x: 0, y: 0, f: 0 },
               },
               screen: {
                 width: window.innerWidth,

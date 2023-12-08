@@ -4,6 +4,9 @@
   "description": "",
   "version": "1.0.0",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "postinstall": "elm-tooling install",
     "prebuild": "elm-tooling install",
@@ -21,10 +24,10 @@
     "chokidar-cli": "^3.0.0",
     "elm-tooling": "^1.14.0",
     "elm-watch": "^1.2.0-beta.3",
-    "gh-pages": "^5.0.0",
-    "prettier": "^2.8.8",
+    "gh-pages": "^6.1.0",
+    "prettier": "^3.1.0",
     "run-pty": "^4.0.3",
     "shelljs": "^0.8.5",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.3.5"
   }
 }

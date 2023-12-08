@@ -38,15 +38,7 @@ view computer model =
             , class "flex flex-col items-center"
             ]
             [ div [ class "text-3xl font-extrabold mb-8 tracking-tight" ]
-                [ span [] [ text "All examples in " ]
-                , span []
-                    [ a
-                        [ href "https://github.com/erkal/elm-3d-playground-exploration"
-                        , target "_blank"
-                        , class "underline transition-all duration-300 hover:text-lightBlue-400"
-                        ]
-                        [ text "elm-3d-playground-exploration" ]
-                    ]
+                [ span [] [ text "Erkal's Home Page" ]
                 ]
             , viewExamples computer model
             ]

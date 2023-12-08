@@ -1,6 +1,5 @@
 module Tools.HtmlHelpers.HtmlHelpers exposing (..)
 
-import Browser.Events
 import Html exposing (Attribute, Html, div, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (on, preventDefaultOn, stopPropagationOn)
@@ -10,16 +9,16 @@ import Json.Decode as Decode
 hiddenIf : Bool -> Attribute msg
 hiddenIf condition =
     if condition then
-        class "hidden"
+        style "display" "none"
 
     else
         class ""
 
 
 classIf : Bool -> String -> Attribute msg
-classIf condition tailwindClass =
+classIf condition className =
     if condition then
-        class tailwindClass
+        class className
 
     else
         class ""

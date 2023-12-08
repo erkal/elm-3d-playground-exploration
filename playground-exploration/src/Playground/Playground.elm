@@ -1,7 +1,7 @@
 port module Playground.Playground exposing
     ( application
-    , boolConfig, colorConfig, configBlock, floatConfig, intConfig
-    , getBool, getColor, getFloat, getInt
+    , boolConfig, colorConfig, configBlock, floatConfig, intConfig, optionsConfig
+    , getBool, getColor, getFloat, getInt, getOption
     , Computer, Keyboard, Pointer, Screen, toX, toXY, toY
     , Playground, simpleApplication
     )
@@ -16,12 +16,12 @@ port module Playground.Playground exposing
 
 # Declaring Configurations
 
-@docs boolConfig, colorConfig, configBlock, floatConfig, intConfig
+@docs boolConfig, colorConfig, configBlock, floatConfig, intConfig, optionsConfig
 
 
 # Getting Configurations
 
-@docs getBool, getColor, getFloat, getInt
+@docs getBool, getColor, getFloat, getInt, getOption
 
 
 # Getting Inputs
@@ -41,6 +41,7 @@ import Playground.Icons as Icons
 import Playground.Tape as Tape exposing (Message, Tape, currentAppModel, currentComputer)
 import Round
 import Tools.HtmlHelpers.HtmlHelpers exposing (classIf, hiddenIf, styleIf)
+import Tools.SelectList.SelectList as SelectList
 
 
 
@@ -115,20 +116,24 @@ configBlock =
     Configurations.configBlock
 
 
-boolConfig key value =
-    ( key, Configurations.BoolConfig value )
+boolConfig name value =
+    ( name, Configurations.BoolConfig value )
 
 
-intConfig key ( min, max ) value =
-    ( key, Configurations.IntConfig ( min, max ) value )
+intConfig name ( min, max ) value =
+    ( name, Configurations.IntConfig ( min, max ) value )
 
 
-floatConfig key ( min, max ) value =
-    ( key, Configurations.FloatConfig ( min, max ) value )
+floatConfig name ( min, max ) value =
+    ( name, Configurations.FloatConfig ( min, max ) value )
 
 
-colorConfig key value =
-    ( key, Configurations.ColorConfig value )
+colorConfig name value =
+    ( name, Configurations.ColorConfig value )
+
+
+optionsConfig name ( optionsBefore, optionSelected, optionsAfter ) =
+    ( name, Configurations.OptionsConfig (SelectList.create ( optionsBefore, optionSelected, optionsAfter )) )
 
 
 
@@ -149,6 +154,10 @@ getInt =
 
 getFloat =
     Computer.getFloat
+
+
+getOption =
+    Computer.getOption
 
 
 

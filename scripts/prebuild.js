@@ -13,8 +13,11 @@ if (shell.test("-d", buildDir)) {
 // Create a new build directory
 shell.mkdir("-p", buildDir);
 
-// Copy helper.js file to the build directory
+// Copy input.js file to the build directory
 shell.cp("playground-exploration/src/input.js", buildDir);
+
+// Copy PlayEGI.js file to the build directory
+shell.cp("playground-exploration/src/PlayEGI.js", buildDir);
 
 // Initialize a variable for targets JSON
 let targets = {};
