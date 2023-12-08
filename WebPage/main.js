@@ -8513,25 +8513,7 @@ var $author$project$WebPage$Main$view = F2(
 									_List_Nil,
 									_List_fromArray(
 										[
-											$elm$html$Html$text('All examples in ')
-										])),
-									A2(
-									$elm$html$Html$span,
-									_List_Nil,
-									_List_fromArray(
-										[
-											A2(
-											$elm$html$Html$a,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$href('https://github.com/erkal/elm-3d-playground-exploration'),
-													$elm$html$Html$Attributes$target('_blank'),
-													$elm$html$Html$Attributes$class('underline transition-all duration-300 hover:text-lightBlue-400')
-												]),
-											_List_fromArray(
-												[
-													$elm$html$Html$text('elm-3d-playground-exploration')
-												]))
+											$elm$html$Html$text('Erkal\'s Home Page')
 										]))
 								])),
 							A2($author$project$WebPage$Main$viewExamples, computer, model)
