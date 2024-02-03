@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -29,6 +29,26 @@
 
     <script type="module">
       import { sendInputsToElmApp } from "../input.js";
+
+      // Patch the `Element` prototype so we can access the bounding client rect
+      // through a decoder. This uses a computed property to call the actual
+      // getBoundingClientRect method automagically.
+      Object.defineProperty(Element.prototype, "boundingClientRect", {
+        configurable: false,
+        enumerable: true,
+        get() {
+          const canvas = document.getElementById("canvas");
+          const elements = canvas.getElementsByClassName("canvas-element");
+          const data = Array.from(elements).map((element) => ({
+            id: element.id,
+            boundingClientRect: element.getBoundingClientRect(),
+          }));
+
+          app.ports.boundingBoxDataFromDom.send(data);
+
+          return this.getBoundingClientRect();
+        },
+      });
 
       const app = Elm.WebPage.Main.init({
         node: document.querySelector("#app"),

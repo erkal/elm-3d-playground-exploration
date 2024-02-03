@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.i4.cy === region.fD.cy)
+	if (region.i3.cx === region.fB.cx)
 	{
-		return 'on line ' + region.i4.cy;
+		return 'on line ' + region.i3.cx;
 	}
-	return 'on lines ' + region.i4.cy + ' through ' + region.fD.cy;
+	return 'on lines ' + region.i3.cx + ' through ' + region.fB.cx;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.h5,
+		impl.h3,
 		impl.jg,
-		impl.dP,
+		impl.dN,
 		function() { return function() {} }
 	);
 });
@@ -2705,8 +2705,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		bg: func(record.bg),
-		e3: record.e3,
-		eR: record.eR
+		e1: record.e1,
+		eP: record.eP
 	}
 });
 
@@ -2975,10 +2975,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.bg;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.e3;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.e1;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.eR) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.eP) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,9 +3928,9 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.h5,
+		impl.h3,
 		impl.jg,
-		impl.dP,
+		impl.dN,
 		function(sendToApp, initialModel) {
 			var view = impl.jk;
 			/**/
@@ -3964,11 +3964,11 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.h5,
+		impl.h3,
 		impl.jg,
-		impl.dP,
+		impl.dN,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.e$ && impl.e$(sendToApp)
+			var divertHrefToApp = impl.eZ && impl.eZ(sendToApp)
 			var view = impl.jk;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.hd);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.hb);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.jb) && (_VirtualDom_doc.title = title = doc.jb);
+				(title !== doc.ja) && (_VirtualDom_doc.title = title = doc.ja);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.iF;
-	var onUrlRequest = impl.iG;
+	var onUrlChange = impl.iD;
+	var onUrlRequest = impl.iE;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		e$: function(sendToApp)
+		eZ: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.gB === next.gB
-							&& curr.fP === next.fP
-							&& curr.gw.a === next.gw.a
+							&& curr.gz === next.gz
+							&& curr.fN === next.fN
+							&& curr.gu.a === next.gu.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		h5: function(flags)
+		h3: function(flags)
 		{
-			return A3(impl.h5, flags, _Browser_getUrl(), key);
+			return A3(impl.h3, flags, _Browser_getUrl(), key);
 		},
 		jk: impl.jk,
 		jg: impl.jg,
-		dP: impl.dP
+		dN: impl.dN
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { h0: 'hidden', hj: 'visibilitychange' }
+		? { h_: 'hidden', hh: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { h0: 'mozHidden', hj: 'mozvisibilitychange' }
+		? { h_: 'mozHidden', hh: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { h0: 'msHidden', hj: 'msvisibilitychange' }
+		? { h_: 'msHidden', hh: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { h0: 'webkitHidden', hj: 'webkitvisibilitychange' }
-		: { h0: 'hidden', hj: 'visibilitychange' };
+		? { h_: 'webkitHidden', hh: 'webkitvisibilitychange' }
+		: { h_: 'hidden', hh: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		gM: _Browser_getScene(),
-		g0: {
+		gK: _Browser_getScene(),
+		g_: {
 			bt: _Browser_window.pageXOffset,
 			bu: _Browser_window.pageYOffset,
-			cY: _Browser_doc.documentElement.clientWidth,
-			fN: _Browser_doc.documentElement.clientHeight
+			cW: _Browser_doc.documentElement.clientWidth,
+			fL: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		cY: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		fN: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		cW: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		fL: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			gM: {
-				cY: node.scrollWidth,
-				fN: node.scrollHeight
+			gK: {
+				cW: node.scrollWidth,
+				fL: node.scrollHeight
 			},
-			g0: {
+			g_: {
 				bt: node.scrollLeft,
 				bu: node.scrollTop,
-				cY: node.clientWidth,
-				fN: node.clientHeight
+				cW: node.clientWidth,
+				fL: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			gM: _Browser_getScene(),
-			g0: {
+			gK: _Browser_getScene(),
+			g_: {
 				bt: x,
 				bu: y,
-				cY: _Browser_doc.documentElement.clientWidth,
-				fN: _Browser_doc.documentElement.clientHeight
+				cW: _Browser_doc.documentElement.clientWidth,
+				fL: _Browser_doc.documentElement.clientHeight
 			},
-			hK: {
+			hI: {
 				bt: x + rect.left,
 				bu: y + rect.top,
-				cY: rect.width,
-				fN: rect.height
+				cW: rect.width,
+				fL: rect.height
 			}
 		};
 	});
@@ -4401,8 +4401,8 @@ var _Regex_never = /.^/;
 var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
-	if (options.iz) { flags += 'm'; }
-	if (options.hf) { flags += 'i'; }
+	if (options.ix) { flags += 'm'; }
+	if (options.hd) { flags += 'i'; }
 
 	try
 	{
@@ -4978,7 +4978,7 @@ var $author$project$Tools$Geometry$Geometry$Point2d = F2(
 	});
 var $author$project$CanvasExample$Main$init = function (computer) {
 	return {
-		cE: A2($author$project$Tools$Geometry$Geometry$Point2d, 0, 0)
+		cD: A2($author$project$Tools$Geometry$Geometry$Point2d, 0, 0)
 	};
 };
 var $author$project$CanvasExample$Main$initialConfigurations = _List_Nil;
@@ -5012,7 +5012,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {fJ: fragment, fP: host, gs: path, gw: port_, gB: protocol, gC: query};
+		return {fH: fragment, fN: host, gq: path, gu: port_, gz: protocol, gA: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5292,18 +5292,18 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Playground$Playground$ShowingNothing = 0;
-var $author$project$Playground$Senso$initSensoPress = {cn: 0, bt: 0, bu: 0};
+var $author$project$Playground$Senso$initSensoPress = {cm: 0, bt: 0, bu: 0};
 var $author$project$Playground$Senso$init = {
-	hh: $author$project$Playground$Senso$initSensoPress,
-	eb: $author$project$Playground$Senso$initSensoPress,
-	fY: $author$project$Playground$Senso$initSensoPress,
-	gI: $author$project$Playground$Senso$initSensoPress,
-	e8: {hh: $author$project$Playground$Senso$initSensoPress, eb: $author$project$Playground$Senso$initSensoPress, fY: $author$project$Playground$Senso$initSensoPress, gI: $author$project$Playground$Senso$initSensoPress, fd: $author$project$Playground$Senso$initSensoPress},
-	fd: $author$project$Playground$Senso$initSensoPress
+	hf: $author$project$Playground$Senso$initSensoPress,
+	d9: $author$project$Playground$Senso$initSensoPress,
+	fW: $author$project$Playground$Senso$initSensoPress,
+	gG: $author$project$Playground$Senso$initSensoPress,
+	e6: {hf: $author$project$Playground$Senso$initSensoPress, d9: $author$project$Playground$Senso$initSensoPress, fW: $author$project$Playground$Senso$initSensoPress, gG: $author$project$Playground$Senso$initSensoPress, fb: $author$project$Playground$Senso$initSensoPress},
+	fb: $author$project$Playground$Senso$initSensoPress
 };
 var $author$project$Playground$Computer$init = F2(
 	function (initialConfigurations, inputs) {
-		return {d4: inputs.d4, aW: initialConfigurations, hA: inputs.hA, hE: inputs.hE, $8: inputs.$8, eQ: inputs.eQ, b2: inputs.b2, dM: $author$project$Playground$Senso$init, jm: inputs.jm};
+		return {d2: inputs.d2, aW: initialConfigurations, hy: inputs.hy, hC: inputs.hC, id: inputs.id, eO: inputs.eO, b1: inputs.b1, dK: $author$project$Playground$Senso$init, jm: inputs.jm};
 	});
 var $author$project$Playground$Tape$Recording = {$: 1};
 var $author$project$Playground$Tape$Tape = F2(
@@ -5347,12 +5347,12 @@ var $author$project$Playground$Playground$init = F2(
 	function (app, flags) {
 		return _Utils_Tuple2(
 			{
-				cl: flags.h7.b2.cY < 500,
+				ck: flags.h5.b1.cW < 500,
 				aL: 0,
-				i9: A2(
-					app.hY ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
-					A2($author$project$Playground$Computer$init, app.h6, flags.h7),
-					app.h5)
+				i8: A2(
+					app.hW ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
+					A2($author$project$Playground$Computer$init, app.h4, flags.h5),
+					app.h3)
 			},
 			$elm$core$Platform$Cmd$none);
 	});
@@ -5404,7 +5404,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{d4: clock, hA: devicePixelRatio, hE: dt, $8: keyboard, eQ: pointer, b2: screen, i$: sensoState, jm: wheel});
+																		{d2: clock, hy: devicePixelRatio, hC: dt, id: keyboard, eO: pointer, b1: screen, i_: sensoState, jm: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -5443,7 +5443,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{g7: alt, ho: control, eb: down, hD: downs, fY: left, iQ: pressedKeys, gI: right, i0: shift, fd: up});
+																														{g5: alt, hm: control, d9: down, hB: downs, fW: left, iO: pressedKeys, gG: right, i$: shift, fb: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -5497,7 +5497,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{eb: down, ic: isDown, iw: move, iV: rightDown, iW: rightUp, fd: up, bt: x, bu: y});
+																										{d9: down, ia: isDown, iu: move, iU: rightDown, iV: rightUp, fb: up, bt: x, bu: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
@@ -5525,7 +5525,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 										$elm$json$Json$Decode$andThen,
 										function (height) {
 											return $elm$json$Json$Decode$succeed(
-												{fN: height, cY: width});
+												{fL: height, cW: width});
 										},
 										A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 								},
@@ -5550,7 +5550,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (center) {
 															return $elm$json$Json$Decode$succeed(
-																{hh: center, eb: down, fY: left, gI: right, fd: up});
+																{hf: center, d9: down, fW: left, gG: right, fb: up});
 														},
 														A2(
 															$elm$json$Json$Decode$field,
@@ -5565,7 +5565,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cn: f, bt: x, bu: y});
+																						{cm: f, bt: x, bu: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -5586,7 +5586,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cn: f, bt: x, bu: y});
+																				{cm: f, bt: x, bu: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -5607,7 +5607,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cn: f, bt: x, bu: y});
+																		{cm: f, bt: x, bu: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -5628,7 +5628,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cn: f, bt: x, bu: y});
+																{cm: f, bt: x, bu: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -5649,7 +5649,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 												$elm$json$Json$Decode$andThen,
 												function (f) {
 													return $elm$json$Json$Decode$succeed(
-														{cn: f, bt: x, bu: y});
+														{cm: f, bt: x, bu: y});
 												},
 												A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 										},
@@ -5667,7 +5667,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 						$elm$json$Json$Decode$andThen,
 						function (deltaX) {
 							return $elm$json$Json$Decode$succeed(
-								{hx: deltaX, hy: deltaY});
+								{hv: deltaX, hw: deltaY});
 						},
 						A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 				},
@@ -5681,8 +5681,8 @@ var $author$project$Playground$Playground$subscriptions = F2(
 					A2(
 					$elm$core$Platform$Sub$map,
 					$author$project$Playground$Playground$FromApp,
-					app.dP(
-						$author$project$Playground$Tape$currentAppModel(model.i9)))
+					app.dN(
+						$author$project$Playground$Tape$currentAppModel(model.i8)))
 				]));
 	});
 var $elm$core$Platform$Cmd$map = _Platform_map;
@@ -5788,7 +5788,7 @@ var $author$project$Tools$SelectList$SelectList$removeAfter = function (_v0) {
 var $author$project$Playground$Senso$lerpTo = F2(
 	function (target, current) {
 		var interpolationFactor = 0.3;
-		return {cn: current.cn + ((target.cn - current.cn) * interpolationFactor), bt: current.bt + ((target.bt - current.bt) * interpolationFactor), bu: current.bu + ((target.bu - current.bu) * interpolationFactor)};
+		return {cm: current.cm + ((target.cm - current.cm) * interpolationFactor), bt: current.bt + ((target.bt - current.bt) * interpolationFactor), bu: current.bu + ((target.bu - current.bu) * interpolationFactor)};
 	});
 var $elm$core$Basics$negate = function (n) {
 	return -n;
@@ -5796,33 +5796,33 @@ var $elm$core$Basics$negate = function (n) {
 var $author$project$Playground$Senso$normalizeCoordinates = function (_v0) {
 	var x = _v0.bt;
 	var y = _v0.bu;
-	var f = _v0.cn;
-	return {cn: f, bt: ((x / 3) * 2) - 1, bu: -(((y / 3) * 2) - 1)};
+	var f = _v0.cm;
+	return {cm: f, bt: ((x / 3) * 2) - 1, bu: -(((y / 3) * 2) - 1)};
 };
 var $author$project$Playground$Senso$update = F2(
 	function (sensoState, senso) {
 		return {
-			hh: A2(
+			hf: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.hh,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.hh)),
-			eb: A2(
+				sensoState.hf,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.hf)),
+			d9: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.eb,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.eb)),
-			fY: A2(
+				sensoState.d9,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.d9)),
+			fW: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.fY,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.fY)),
-			gI: A2(
+				sensoState.fW,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.fW)),
+			gG: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.gI,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.gI)),
-			e8: sensoState,
-			fd: A2(
+				sensoState.gG,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.gG)),
+			e6: sensoState,
+			fb: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.fd,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.fd))
+				sensoState.fb,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.fb))
 		};
 	});
 var $author$project$Playground$Computer$tick = F2(
@@ -5830,13 +5830,13 @@ var $author$project$Playground$Computer$tick = F2(
 		return _Utils_update(
 			computer,
 			{
-				d4: computer.d4 + inputs.hE,
-				hA: inputs.hA,
-				hE: inputs.hE,
-				$8: inputs.$8,
-				eQ: inputs.eQ,
-				b2: inputs.b2,
-				dM: A2($author$project$Playground$Senso$update, inputs.i$, computer.dM),
+				d2: computer.d2 + inputs.hC,
+				hy: inputs.hy,
+				hC: inputs.hC,
+				id: inputs.id,
+				eO: inputs.eO,
+				b1: inputs.b1,
+				dK: A2($author$project$Playground$Senso$update, inputs.i_, computer.dK),
 				jm: inputs.jm
 			});
 	});
@@ -5857,11 +5857,11 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 			case 2:
 				return _Utils_Tuple2(tape, $elm$core$Platform$Cmd$none);
 			case 3:
-				var tapeClock = state.a.e7;
+				var tapeClock = state.a.e5;
 				return _Utils_Tuple2(
 					((_Utils_cmp(
-						tapeClock + inputs.hE,
-						$author$project$Playground$Tape$currentComputer(tape).d4) > 0) ? A2(
+						tapeClock + inputs.hC,
+						$author$project$Playground$Tape$currentComputer(tape).d2) > 0) ? A2(
 						$elm$core$Basics$composeR,
 						$author$project$Playground$Tape$goToNext,
 						$elm$core$Maybe$withDefault(
@@ -5869,7 +5869,7 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 						A2(
 							$author$project$Playground$Tape$Tape,
 							$author$project$Playground$Tape$Playing(
-								{e7: tapeClock + inputs.hE}),
+								{e5: tapeClock + inputs.hC}),
 							timeLine)),
 					$elm$core$Platform$Cmd$none);
 			case 1:
@@ -5914,23 +5914,23 @@ var $author$project$Playground$Playground$handleAppUpdate = F3(
 		switch (msg.$) {
 			case 5:
 				var appMsg = msg.a;
-				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.jg, appMsg, model.i9);
+				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.jg, appMsg, model.i8);
 				var newTape = _v1.a;
 				var appCmd = _v1.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i9: newTape}),
+						{i8: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			case 3:
 				var inputs = msg.a;
-				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.jg, inputs, model.i9);
+				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.jg, inputs, model.i8);
 				var newTape = _v2.a;
 				var appCmd = _v2.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i9: newTape}),
+						{i8: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			default:
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -5942,7 +5942,7 @@ var $author$project$Playground$Playground$handleClickOnDistractionFreeButton = F
 		if (!msg.$) {
 			return _Utils_update(
 				model,
-				{cl: !model.cl});
+				{ck: !model.ck});
 		} else {
 			return model;
 		}
@@ -6662,7 +6662,7 @@ var $author$project$Playground$Playground$handleConfigurationsMsg = F2(
 			return _Utils_update(
 				model,
 				{
-					i9: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i9)
+					i8: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i8)
 				});
 		} else {
 			return model;
@@ -6686,7 +6686,7 @@ var $author$project$Playground$Tape$startPlaying = function (tape) {
 		$author$project$Playground$Tape$Tape,
 		$author$project$Playground$Tape$Playing(
 			{
-				e7: $author$project$Playground$Tape$currentComputer(tape).d4
+				e5: $author$project$Playground$Tape$currentComputer(tape).d2
 			}),
 		timeLine);
 };
@@ -6715,7 +6715,7 @@ var $author$project$Playground$Playground$handleTapeScreenControls = F2(
 			return _Utils_update(
 				model,
 				{
-					i9: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i9)
+					i8: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i8)
 				});
 		} else {
 			return model;
@@ -6783,7 +6783,7 @@ var $author$project$Playground$Icons$draw = $elm$svg$Svg$svg(
 var $elm$svg$Svg$Attributes$fillRule = _VirtualDom_attribute('fill-rule');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $author$project$Playground$Icons$icons = {
-	hl: $author$project$Playground$Icons$draw(
+	hj: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6794,7 +6794,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hs: $author$project$Playground$Icons$draw(
+	hq: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6805,7 +6805,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hS: $author$project$Playground$Icons$draw(
+	hQ: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6816,7 +6816,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hT: $author$project$Playground$Icons$draw(
+	hR: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6827,7 +6827,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hZ: $author$project$Playground$Icons$draw(
+	hX: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6838,7 +6838,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	h1: $author$project$Playground$Icons$draw(
+	h$: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6849,7 +6849,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ii: $author$project$Playground$Icons$draw(
+	ig: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6860,7 +6860,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ix: $author$project$Playground$Icons$draw(
+	iv: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6878,7 +6878,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iy: $author$project$Playground$Icons$draw(
+	iw: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6896,7 +6896,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iL: $author$project$Playground$Icons$draw(
+	iJ: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6907,7 +6907,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iM: $author$project$Playground$Icons$draw(
+	iK: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6918,7 +6918,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iN: $author$project$Playground$Icons$draw(
+	iL: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6929,7 +6929,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iO: $author$project$Playground$Icons$draw(
+	iM: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6940,7 +6940,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	eQ: $author$project$Playground$Icons$draw(
+	eO: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6951,7 +6951,18 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i9: $author$project$Playground$Icons$draw(
+	iS: $author$project$Playground$Icons$draw(
+		_List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$path,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$d('M18.4 10.6C16.55 8.99 14.15 8 11.5 8C7.34001 8 3.76001 10.42 2.06001 13.93C1.74001 14.6 2.10001 15.4 2.81001 15.64C3.40001 15.84 4.04001 15.56 4.31001 15C5.61001 12.34 8.34001 10.5 11.5 10.5C13.45 10.5 15.23 11.22 16.62 12.38L14.71 14.29C14.08 14.92 14.52 16 15.41 16H21C21.55 16 22 15.55 22 15V9.41C22 8.52 20.92 8.07 20.29 8.7L18.4 10.6Z')
+					]),
+				_List_Nil)
+			])),
+	i8: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6964,7 +6975,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jd: $author$project$Playground$Icons$draw(
+	jc: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6977,7 +6988,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	je: $author$project$Playground$Icons$draw(
+	jd: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6985,6 +6996,17 @@ var $author$project$Playground$Icons$icons = {
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$d('M19.894 6.27921C20.7904 5.74329 21.4612 4.89945 21.781 3.90521C20.9387 4.40501 20.017 4.75709 19.056 4.94621C17.7236 3.53673 15.6125 3.19373 13.9024 4.10887C12.1923 5.02399 11.3065 6.9707 11.74 8.86121C8.2896 8.68797 5.07497 7.05813 2.89601 4.37721C1.75884 6.33864 2.33995 8.84599 4.224 10.1072C3.54271 10.0853 2.87652 9.90084 2.281 9.56921C2.281 9.58721 2.281 9.60521 2.281 9.62321C2.2814 11.6664 3.72137 13.4263 5.724 13.8312C5.09206 14.0031 4.4292 14.0285 3.786 13.9052C4.34921 15.6525 5.95956 16.8495 7.79501 16.8852C6.27483 18.0783 4.39747 18.7254 2.46499 18.7222C2.12247 18.7227 1.78021 18.703 1.44 18.6632C3.40239 19.9242 5.68637 20.5936 8.019 20.5912C11.2643 20.6135 14.383 19.3341 16.6777 17.0392C18.9724 14.7443 20.2516 11.6255 20.229 8.3802C20.229 8.1942 20.2247 8.00921 20.216 7.8252C21.0564 7.21781 21.7818 6.46536 22.358 5.60321C21.575 5.95027 20.7445 6.17813 19.894 6.27921Z')
+					]),
+				_List_Nil)
+			])),
+	jf: $author$project$Playground$Icons$draw(
+		_List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$path,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$d('M12.5 8C9.85 8 7.45 8.99 5.6 10.6L3.71 8.71C3.08 8.08 2 8.52 2 9.41V15C2 15.55 2.45 16 3 16H8.59C9.48 16 9.93 14.92 9.3 14.29L7.39 12.38C8.78 11.22 10.55 10.5 12.51 10.5C15.67 10.5 18.4 12.34 19.7 15C19.97 15.56 20.61 15.84 21.2 15.64C21.91 15.41 22.27 14.6 21.95 13.92C20.23 10.42 16.65 8 12.5 8Z')
 					]),
 				_List_Nil)
 			])),
@@ -7128,10 +7150,10 @@ var $author$project$Playground$Tape$playPauseButton = function (_v0) {
 			return A3(
 				tapeButtonWithIcon,
 				$author$project$Tools$SelectList$SelectList$isAtEnd(timeline),
-				$author$project$Playground$Icons$icons.iN,
+				$author$project$Playground$Icons$icons.iL,
 				$author$project$Playground$Tape$PressedPlayButton);
 		default:
-			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iL, $author$project$Playground$Tape$PressedPauseButton);
+			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iJ, $author$project$Playground$Tape$PressedPauseButton);
 	}
 };
 var $author$project$Playground$Tape$PressedRecordButton = {$: 2};
@@ -7155,11 +7177,11 @@ var $author$project$Playground$Tape$tapeToggleButton = function (_v0) {
 		case 0:
 			return $elm$html$Html$text('');
 		case 1:
-			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i9);
+			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i8);
 		case 2:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hs);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hq);
 		default:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hs);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hq);
 	}
 };
 var $author$project$Playground$Tape$SliderMovedTo = function (a) {
@@ -7309,7 +7331,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 		$elm$core$Maybe$map,
 		function (t) {
 			return $elm$core$Basics$round(
-				60 / ($author$project$Playground$Tape$currentComputer(tape).d4 - t));
+				60 / ($author$project$Playground$Tape$currentComputer(tape).d2 - t));
 		},
 		A2(
 			$elm$core$Maybe$map,
@@ -7317,7 +7339,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 				$elm$core$Basics$composeR,
 				$elm$core$Tuple$first,
 				function ($) {
-					return $.d4;
+					return $.d2;
 				}),
 			$elm$core$List$head(
 				A2(
@@ -7353,7 +7375,10 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 			return $elm$core$String$fromInt(fps);
 		}
 	};
-	var computer = $author$project$Playground$Tape$currentComputer(model.i9);
+	var computer = $author$project$Playground$Tape$currentComputer(model.i8);
+	var boolAsText = function (bool) {
+		return bool ? 'True' : 'False';
+	};
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -7387,7 +7412,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'fps: ' + fpsAsText(model.i9))
+								'fps: ' + fpsAsText(model.i8))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7396,7 +7421,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'frame: ' + $elm$core$String$fromInt(
-									$author$project$Playground$Tape$getCurrentFrameIndex(model.i9)))
+									$author$project$Playground$Tape$getCurrentFrameIndex(model.i8)))
 							]))
 					])),
 				A2(
@@ -7424,7 +7449,23 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'pressedKeys: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.$8.iQ)))
+									A2($elm$core$List$intersperse, ' ', computer.id.iO)))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								'keyboard.shift: ' + boolAsText(computer.id.i$))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								'keyboard.control: ' + boolAsText(computer.id.hm))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7433,7 +7474,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'downs: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.$8.hD)))
+									A2($elm$core$List$intersperse, ' ', computer.id.hB)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7441,7 +7482,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.hE))
+								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.hC))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7449,7 +7490,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.d4))
+								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.d2))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7457,7 +7498,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer is down: ' + (computer.eQ.ic ? 'yes' : 'no'))
+								'pointer is down: ' + (computer.eO.ia ? 'yes' : 'no'))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7465,7 +7506,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.eQ.bt))
+								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.eO.bt))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7473,7 +7514,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.eQ.bu))
+								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.eO.bu))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7481,7 +7522,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.jm.hx))
+								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.jm.hv))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7489,7 +7530,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.jm.hy))
+								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.jm.hw))
 							]))
 					]))
 			]));
@@ -7548,13 +7589,13 @@ var $avh4$elm_color$Color$toRgba = function (_v0) {
 	var g = _v0.b;
 	var b = _v0.c;
 	var a = _v0.d;
-	return {bN: a, d1: b, eg: g, eV: r};
+	return {bN: a, d$: b, ee: g, eT: r};
 };
 var $noahzgordon$elm_color_extra$Color$Convert$colorToHex = function (cl) {
 	var _v0 = $avh4$elm_color$Color$toRgba(cl);
-	var red = _v0.eV;
-	var green = _v0.eg;
-	var blue = _v0.d1;
+	var red = _v0.eT;
+	var green = _v0.ee;
+	var blue = _v0.d$;
 	return A2(
 		$elm$core$String$join,
 		'',
@@ -7607,7 +7648,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {h4: index, io: match, iE: number, i6: submatches};
+		return {h2: index, im: match, iC: number, i5: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -7624,7 +7665,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{hf: false, iz: false},
+		{hd: false, ix: false},
 		string);
 };
 var $elm$core$Result$map = F2(
@@ -7752,7 +7793,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.i6;
+							return $.i5;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -7834,12 +7875,12 @@ var $elm$html$Html$Events$onCheck = function (tagger) {
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $author$project$Playground$ConfigurationsView$viewSliderInput = function (_v0) {
-	var name = _v0.iA;
-	var value = _v0.ff;
-	var min = _v0.eB;
-	var max = _v0.ew;
-	var step = _v0.e2;
-	var onChange = _v0.eF;
+	var name = _v0.iy;
+	var value = _v0.fd;
+	var min = _v0.ez;
+	var max = _v0.eu;
+	var step = _v0.e0;
+	var onChange = _v0.eD;
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -7970,12 +8011,12 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 			var value = config.b;
 			return $author$project$Playground$ConfigurationsView$viewSliderInput(
 				{
-					ew: max,
-					eB: min,
-					iA: name,
-					eF: $author$project$Playground$Configurations$SetFloat(name),
-					e2: 0.01 * (max - min),
-					ff: value
+					eu: max,
+					ez: min,
+					iy: name,
+					eD: $author$project$Playground$Configurations$SetFloat(name),
+					e0: 0.01 * (max - min),
+					fd: value
 				});
 		case 1:
 			var _v3 = config.a;
@@ -7984,15 +8025,15 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 			var value = config.b;
 			return $author$project$Playground$ConfigurationsView$viewSliderInput(
 				{
-					ew: max,
-					eB: min,
-					iA: name,
-					eF: A2(
+					eu: max,
+					ez: min,
+					iy: name,
+					eD: A2(
 						$elm$core$Basics$composeR,
 						$elm$core$Basics$round,
 						$author$project$Playground$Configurations$SetInt(name)),
-					e2: 1,
-					ff: value
+					e0: 1,
+					fd: value
 				});
 		case 2:
 			var value = config.a;
@@ -8117,7 +8158,7 @@ var $author$project$Playground$ConfigurationsView$viewBlock = function (block) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(block.iA)
+						$elm$html$Html$text(block.iy)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -8150,11 +8191,11 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'left',
-					$elm$core$String$fromFloat(computer.eQ.bt + (0.5 * computer.b2.cY)) + 'px'),
+					$elm$core$String$fromFloat(computer.eO.bt + (0.5 * computer.b1.cW)) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'top',
-					$elm$core$String$fromFloat((-computer.eQ.bu) + (0.5 * computer.b2.fN)) + 'px')
+					$elm$core$String$fromFloat((-computer.eO.bu) + (0.5 * computer.b1.fL)) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8163,10 +8204,10 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							computer.eQ.ic ? 'text-black/80' : 'text-black/40')
+							computer.eO.ia ? 'text-black/80' : 'text-black/40')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.eQ]))
+						[$author$project$Playground$Icons$icons.eO]))
 				]));
 	});
 var $author$project$Playground$Playground$viewHUD = F2(
@@ -8184,7 +8225,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromTapeControls,
-					$author$project$Playground$Tape$view(model.i9))
+					$author$project$Playground$Tape$view(model.i8))
 				]));
 		var viewInputs = A2(
 			$elm$html$Html$div,
@@ -8196,7 +8237,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(
-						$author$project$Playground$Tape$currentComputer(model.i9).b2.fN) + 'px'),
+						$author$project$Playground$Tape$currentComputer(model.i8).b1.fL) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aL !== 1)
 				]),
@@ -8213,7 +8254,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b2.fN) + 'px'),
+					$elm$core$String$fromFloat(computer.b1.fL) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aL !== 2)
 				]),
@@ -8223,20 +8264,20 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromConfigurationsEditor,
 					$author$project$Playground$ConfigurationsView$viewConfigurations(
-						$author$project$Playground$Tape$currentComputer(model.i9).aW))
+						$author$project$Playground$Tape$currentComputer(model.i8).aW))
 				]));
-		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.je);
-		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aL === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hl);
-		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home of all examples', '../WebPage/index.html', $author$project$Playground$Icons$icons.h1);
-		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hT);
+		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.jd);
+		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aL === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hj);
+		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home of all examples', '../WebPage/index.html', $author$project$Playground$Icons$icons.h$);
+		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hR);
 		var configurationsButton = A5(
 			$author$project$Playground$Playground$leftBarButton,
 			$elm$core$List$isEmpty(
-				$author$project$Playground$Tape$currentComputer(model.i9).aW),
+				$author$project$Playground$Tape$currentComputer(model.i8).aW),
 			model.aL === 2,
 			$author$project$Playground$Playground$ClickedOnShowConfigurationsButton,
 			'Configurations',
-			$author$project$Playground$Icons$icons.hS);
+			$author$project$Playground$Icons$icons.hQ);
 		var leftStripe = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8264,7 +8305,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					_List_fromArray(
 						[twitterLink, githubLink, homeButton]))
 				]));
-		return model.cl ? A2(
+		return model.ck ? A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
@@ -8298,7 +8339,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('absolute left-0 top-0'),
 							$elm$html$Html$Attributes$class('pointer-events-none'),
 							$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
-							$author$project$Playground$Tape$isRecording(model.i9) || $author$project$Playground$Tape$isNoTape(model.i9))
+							$author$project$Playground$Tape$isRecording(model.i8) || $author$project$Playground$Tape$isNoTape(model.i8))
 						]),
 					_List_fromArray(
 						[
@@ -8309,7 +8350,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 	});
 var $author$project$Playground$Playground$view = F2(
 	function (app, model) {
-		var computer = $author$project$Playground$Tape$currentComputer(model.i9);
+		var computer = $author$project$Playground$Tape$currentComputer(model.i8);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8321,11 +8362,11 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'width',
-					$elm$core$String$fromFloat(computer.b2.cY) + 'px'),
+					$elm$core$String$fromFloat(computer.b1.cW) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b2.fN) + 'px')
+					$elm$core$String$fromFloat(computer.b1.fL) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8335,15 +8376,15 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 						app.jk,
 						computer,
-						$author$project$Playground$Tape$currentAppModel(model.i9))),
+						$author$project$Playground$Tape$currentAppModel(model.i8))),
 					A2($author$project$Playground$Playground$viewHUD, computer, model)
 				]));
 	});
 var $author$project$Playground$Playground$application = function (app) {
 	return $elm$browser$Browser$element(
 		{
-			h5: $author$project$Playground$Playground$init(app),
-			dP: $author$project$Playground$Playground$subscriptions(app),
+			h3: $author$project$Playground$Playground$init(app),
+			dN: $author$project$Playground$Playground$subscriptions(app),
 			jg: $author$project$Playground$Playground$update(app),
 			jk: $author$project$Playground$Playground$view(app)
 		});
@@ -8352,10 +8393,10 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Playground$Playground$simpleApplication = function (simpleApp) {
 	return $author$project$Playground$Playground$application(
 		{
-			hY: simpleApp.hY,
-			h5: simpleApp.h5,
-			h6: simpleApp.h6,
-			dP: function (_v0) {
+			hW: simpleApp.hW,
+			h3: simpleApp.h3,
+			h4: simpleApp.h4,
+			dN: function (_v0) {
 				return $elm$core$Platform$Sub$none;
 			},
 			jg: F3(
@@ -8370,19 +8411,19 @@ var $author$project$Playground$Playground$simpleApplication = function (simpleAp
 var $author$project$Scene2d$Camera$Camera = $elm$core$Basics$identity;
 var $elm$core$Basics$atan = _Basics_atan;
 var $author$project$Scene2d$Camera$init = function (_v0) {
-	var aspectRatio = _v0.g9;
-	var gameWidth = _v0.hR;
+	var aspectRatio = _v0.g7;
+	var gameWidth = _v0.hP;
 	var yIsUp = _v0.jv;
 	return {
-		fO: 2 * $elm$core$Basics$atan(0.5),
-		cc: {bt: 0, bu: 0, fk: gameWidth},
-		g1: aspectRatio,
+		fM: 2 * $elm$core$Basics$atan(0.5),
+		cb: {bt: 0, bu: 0, fi: gameWidth},
+		g$: aspectRatio,
 		jv: yIsUp
 	};
 };
 var $author$project$CanvasExample$Main$camera = function (computer) {
 	return $author$project$Scene2d$Camera$init(
-		{g9: computer.b2.cY / computer.b2.fN, hR: 20, jv: false});
+		{g7: computer.b1.cW / computer.b1.fL, hP: 20, jv: false});
 };
 var $author$project$Scene2d$Camera$reverseIfYIsUp = F2(
 	function (_v0, v) {
@@ -8394,10 +8435,10 @@ var $author$project$Scene2d$Camera$toGameCoordinates = F2(
 		var camera = _v0;
 		var x = _v1.bt;
 		var y = _v1.bu;
-		var c = camera.cc;
+		var c = camera.cb;
 		return {
-			bt: ((x - 0.5) * c.fk) + c.bt,
-			bu: (A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, y - 0.5) * c.fk) + c.bu
+			bt: ((x - 0.5) * c.fi) + c.bt,
+			bu: (A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, y - 0.5) * c.fi) + c.bu
 		};
 	});
 var $author$project$CanvasExample$Main$update = F3(
@@ -8406,10 +8447,10 @@ var $author$project$CanvasExample$Main$update = F3(
 			return _Utils_update(
 				model,
 				{
-					cE: A2(
+					cD: A2(
 						$author$project$Scene2d$Camera$toGameCoordinates,
 						$author$project$CanvasExample$Main$camera(computer),
-						A2($author$project$Tools$Geometry$Geometry$Point2d, 0.5 + (computer.eQ.bt / computer.b2.cY), 0.5 - (computer.eQ.bu / computer.b2.cY)))
+						A2($author$project$Tools$Geometry$Geometry$Point2d, 0.5 + (computer.eO.bt / computer.b1.cW), 0.5 - (computer.eO.bu / computer.b1.cW)))
 				});
 		} else {
 			var appMsg = message.a;
@@ -8424,7 +8465,7 @@ var $author$project$Scene2d$Drawable = F2(
 	function (a, b) {
 		return {$: 0, a: a, b: b};
 	});
-var $author$project$Scene2d$Geometry$defaultGeometry = {gJ: 0, bt: 0, g4: 1, bu: 0, g5: 1, fk: 0};
+var $author$project$Scene2d$Geometry$defaultGeometry = {gH: 0, bt: 0, g2: 1, bu: 0, g3: 1, fi: 0};
 var $author$project$Scene2d$circle = F2(
 	function (radius, color) {
 		return A2(
@@ -8461,7 +8502,7 @@ var $author$project$Scene2d$Geometry$move = F2(
 		var dz = _v0.c;
 		return _Utils_update(
 			geometry,
-			{bt: geometry.bt + dx, bu: geometry.bu + dy, fk: geometry.fk + dz});
+			{bt: geometry.bt + dx, bu: geometry.bu + dy, fi: geometry.fi + dz});
 	});
 var $author$project$Scene2d$move = function (vec) {
 	return $author$project$Scene2d$mapGeometry(
@@ -8520,7 +8561,7 @@ var $elm$core$List$concatMap = F2(
 	});
 var $author$project$Scene2d$Camera$getViewportAspectRatio = function (_v0) {
 	var camera = _v0;
-	return camera.g1;
+	return camera.g$;
 };
 var $joakin$elm_canvas$Canvas$Settings$Text$Center = 2;
 var $joakin$elm_canvas$Canvas$Settings$Text$Middle = 2;
@@ -8587,9 +8628,9 @@ var $joakin$elm_canvas$Canvas$Internal$Canvas$Arc = F5(
 	});
 var $joakin$elm_canvas$Canvas$arc = F3(
 	function (pos, radius, _v0) {
-		var startAngle = _v0.gS;
-		var endAngle = _v0.fE;
-		var clockwise = _v0.fu;
+		var startAngle = _v0.gQ;
+		var endAngle = _v0.fC;
+		var clockwise = _v0.fs;
 		return A5($joakin$elm_canvas$Canvas$Internal$Canvas$Arc, pos, radius, startAngle, endAngle, !clockwise);
 	});
 var $joakin$elm_canvas$Canvas$Internal$Canvas$ArcTo = F3(
@@ -8646,10 +8687,10 @@ var $joakin$elm_canvas$Canvas$circle = F2(
 var $joakin$elm_canvas$Canvas$Texture$dimensions = function (texture) {
 	if (!texture.$) {
 		var image = texture.a;
-		return {fN: image.fN, cY: image.cY};
+		return {fL: image.fL, cW: image.cW};
 	} else {
 		var data = texture.a;
-		return {fN: data.fN, cY: data.cY};
+		return {fL: data.fL, cW: data.cW};
 	}
 };
 var $joakin$elm_canvas$Canvas$Internal$Canvas$Fill = function (a) {
@@ -8669,15 +8710,15 @@ var $joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$font = function (f) 
 		$elm$json$Json$Encode$string(f));
 };
 var $joakin$elm_canvas$Canvas$Settings$Text$font = function (_v0) {
-	var size = _v0.e0;
-	var family = _v0.hP;
+	var size = _v0.e_;
+	var family = _v0.hN;
 	return $joakin$elm_canvas$Canvas$Internal$Canvas$SettingCommand(
 		$joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$font(
 			$elm$core$String$fromInt(size) + ('px ' + family)));
 };
 var $author$project$Scene2d$Camera$getViewPoint = function (_v0) {
 	var camera = _v0;
-	return camera.cc;
+	return camera.cb;
 };
 var $author$project$Scene2d$Camera$getX = A2(
 	$elm$core$Basics$composeR,
@@ -8695,11 +8736,11 @@ var $author$project$Scene2d$Camera$getZ = A2(
 	$elm$core$Basics$composeR,
 	$author$project$Scene2d$Camera$getViewPoint,
 	function ($) {
-		return $.fk;
+		return $.fi;
 	});
 var $author$project$Scene2d$Camera$horizontalAngleOfView = function (_v0) {
 	var camera = _v0;
-	return camera.fO;
+	return camera.fM;
 };
 var $elm$core$Basics$tan = _Basics_tan;
 var $author$project$Scene2d$Camera$getBoundingBoxAtZ = F2(
@@ -8708,17 +8749,17 @@ var $author$project$Scene2d$Camera$getBoundingBoxAtZ = F2(
 		var halfHeightAtZ = (($author$project$Scene2d$Camera$getZ(camera) - z) * $elm$core$Basics$tan(0.5 * angle)) / $author$project$Scene2d$Camera$getViewportAspectRatio(camera);
 		var halfWidthAtZ = ($author$project$Scene2d$Camera$getZ(camera) - z) * $elm$core$Basics$tan(0.5 * angle);
 		return {
-			fq: $author$project$Scene2d$Camera$getY(camera) + A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, halfHeightAtZ),
-			fY: $author$project$Scene2d$Camera$getX(camera) - halfWidthAtZ,
-			gI: $author$project$Scene2d$Camera$getX(camera) + halfWidthAtZ,
-			jc: $author$project$Scene2d$Camera$getY(camera) - A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, halfHeightAtZ)
+			fo: $author$project$Scene2d$Camera$getY(camera) + A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, halfHeightAtZ),
+			fW: $author$project$Scene2d$Camera$getX(camera) - halfWidthAtZ,
+			gG: $author$project$Scene2d$Camera$getX(camera) + halfWidthAtZ,
+			jb: $author$project$Scene2d$Camera$getY(camera) - A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, halfHeightAtZ)
 		};
 	});
 var $author$project$Scene2d$isBehindTheCamera = F2(
 	function (camera, _v0) {
 		var geometry = _v0.a;
 		return _Utils_cmp(
-			geometry.fk,
+			geometry.fi,
 			$author$project$Scene2d$Camera$getZ(camera)) > 0;
 	});
 var $joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$lineCap = function (cap) {
@@ -8810,7 +8851,7 @@ var $author$project$Scene2d$Geometry$rotateAroundItsCenter = F2(
 	function (angle, geometry) {
 		return _Utils_update(
 			geometry,
-			{gJ: geometry.gJ + angle});
+			{gH: geometry.gH + angle});
 	});
 var $elm$core$Basics$cos = _Basics_cos;
 var $author$project$Scene2d$Geometry$rotatePoint = F2(
@@ -8842,13 +8883,13 @@ var $author$project$Scene2d$Geometry$scaleX = F2(
 	function (k, geometry) {
 		return _Utils_update(
 			geometry,
-			{g4: geometry.g4 * k});
+			{g2: geometry.g2 * k});
 	});
 var $author$project$Scene2d$Geometry$scaleY = F2(
 	function (k, geometry) {
 		return _Utils_update(
 			geometry,
-			{g5: geometry.g5 * k});
+			{g3: geometry.g3 * k});
 	});
 var $author$project$Scene2d$Geometry$scaleAroundOrigin = F3(
 	function (xScale, yScale, geometry) {
@@ -9001,7 +9042,7 @@ var $joakin$elm_canvas$Canvas$text = F3(
 				aI: _List_Nil,
 				a9: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
 				ba: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableText(
-					{ex: $elm$core$Maybe$Nothing, gu: point, gX: str})
+					{ev: $elm$core$Maybe$Nothing, gs: point, gV: str})
 			});
 	});
 var $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableTexture = F2(
@@ -9111,12 +9152,12 @@ var $joakin$elm_canvas$Canvas$Settings$Advanced$transform = function (transforms
 						var y = t.b;
 						return A2($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$translate, x, y);
 					default:
-						var m11 = t.a.f4;
-						var m12 = t.a.f5;
-						var m21 = t.a.f8;
-						var m22 = t.a.f9;
-						var dx = t.a.hG;
-						var dy = t.a.hH;
+						var m11 = t.a.f2;
+						var m12 = t.a.f3;
+						var m21 = t.a.f6;
+						var m22 = t.a.f7;
+						var dx = t.a.hE;
+						var dy = t.a.hF;
 						return A6($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$transform, m11, m12, m21, m22, dx, dy);
 				}
 			},
@@ -9132,9 +9173,9 @@ var $author$project$Scene2d$render = F4(
 		var geometry = _v0.a;
 		var bareDrawable = _v0.b;
 		var rotationAndScale = function (_v10) {
-			var rotation = _v10.gJ;
-			var xScale = _v10.g4;
-			var yScale = _v10.g5;
+			var rotation = _v10.gH;
+			var xScale = _v10.g2;
+			var yScale = _v10.g3;
 			return _List_fromArray(
 				[
 					$joakin$elm_canvas$Canvas$Settings$Advanced$rotate(
@@ -9145,11 +9186,11 @@ var $author$project$Scene2d$render = F4(
 		var cameraPerspective = function (_v9) {
 			var x = _v9.bt;
 			var y = _v9.bu;
-			var z = _v9.fk;
+			var z = _v9.fi;
 			var cameraBoundingBoxAtZ = A2($author$project$Scene2d$Camera$getBoundingBoxAtZ, z, camera);
-			var cameraWidthAtZ = cameraBoundingBoxAtZ.gI - cameraBoundingBoxAtZ.fY;
+			var cameraWidthAtZ = cameraBoundingBoxAtZ.gG - cameraBoundingBoxAtZ.fW;
 			var scaleFactor = gameWidthInPixels / cameraWidthAtZ;
-			var _v8 = _Utils_Tuple2(scaleFactor * (x - cameraBoundingBoxAtZ.fY), scaleFactor * (y - cameraBoundingBoxAtZ.jc));
+			var _v8 = _Utils_Tuple2(scaleFactor * (x - cameraBoundingBoxAtZ.fW), scaleFactor * (y - cameraBoundingBoxAtZ.jb));
 			var xTranslate = _v8.a;
 			var yTranslate = _v8.b;
 			return _List_fromArray(
@@ -9179,11 +9220,11 @@ var $author$project$Scene2d$render = F4(
 								return helper(
 									A2(
 										$author$project$Scene2d$move,
-										_Utils_Tuple3(geometry_.bt, geometry_.bu, geometry_.fk),
+										_Utils_Tuple3(geometry_.bt, geometry_.bu, geometry_.fi),
 										A2(
 											$author$project$Scene2d$rotateAroundOrigin,
-											geometry_.gJ,
-											A3($author$project$Scene2d$scaleAroundOrigin, geometry_.g4, geometry_.g5, drawable))));
+											geometry_.gH,
+											A3($author$project$Scene2d$scaleAroundOrigin, geometry_.g2, geometry_.g3, drawable))));
 							},
 							elements));
 				case 1:
@@ -9243,15 +9284,15 @@ var $author$project$Scene2d$render = F4(
 									$joakin$elm_canvas$Canvas$Settings$Text$align(2),
 									$joakin$elm_canvas$Canvas$Settings$Text$baseLine(2),
 									$joakin$elm_canvas$Canvas$Settings$Text$font(
-									{hP: 'futura-pt-condensed', e0: parameters.e0})
+									{hN: 'futura-pt-condensed', e_: parameters.e_})
 								]),
 							_Utils_Tuple2(0, 0),
-							parameters.gX)
+							parameters.gV)
 						]);
 				case 5:
 					var parameters = bareDrawable_.a;
 					var maybeStroke = function () {
-						var _v4 = parameters.e4;
+						var _v4 = parameters.e2;
 						if (_v4.$ === 1) {
 							return _List_Nil;
 						} else {
@@ -9263,7 +9304,7 @@ var $author$project$Scene2d$render = F4(
 						}
 					}();
 					var maybeFillColor = function () {
-						var _v3 = parameters.ed;
+						var _v3 = parameters.eb;
 						if (_v3.$ === 1) {
 							return _List_Nil;
 						} else {
@@ -9288,7 +9329,7 @@ var $author$project$Scene2d$render = F4(
 										maybeStroke,
 										_List_fromArray(
 											[
-												$joakin$elm_canvas$Canvas$Settings$Line$lineWidth(parameters.es),
+												$joakin$elm_canvas$Canvas$Settings$Line$lineWidth(parameters.eq),
 												$joakin$elm_canvas$Canvas$Settings$Line$lineCap(1),
 												$joakin$elm_canvas$Canvas$Settings$Line$lineJoin(1)
 											])))),
@@ -9297,8 +9338,8 @@ var $author$project$Scene2d$render = F4(
 									A3(
 									$joakin$elm_canvas$Canvas$arc,
 									_Utils_Tuple2(0, 0),
-									parameters.gD,
-									{fu: parameters.fu, fE: parameters.fE, gS: parameters.gS})
+									parameters.gB,
+									{fs: parameters.fs, fC: parameters.fC, gQ: parameters.gQ})
 								]))
 						]);
 				case 6:
@@ -9321,9 +9362,9 @@ var $author$project$Scene2d$render = F4(
 										x,
 										A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, y)));
 							case 2:
-								var start = extension.a.i4;
-								var end = extension.a.fD;
-								var radius = extension.a.gD;
+								var start = extension.a.i3;
+								var end = extension.a.fB;
+								var radius = extension.a.gB;
 								return A3(
 									$joakin$elm_canvas$Canvas$arcTo,
 									_Utils_Tuple2(
@@ -9334,9 +9375,9 @@ var $author$project$Scene2d$render = F4(
 										A2($author$project$Scene2d$Camera$reverseIfYIsUp, camera, end.bu)),
 									radius);
 							default:
-								var control1 = extension.a.hp;
-								var control2 = extension.a.hq;
-								var end = extension.a.fD;
+								var control1 = extension.a.hn;
+								var control2 = extension.a.ho;
+								var end = extension.a.fB;
 								return A3(
 									$joakin$elm_canvas$Canvas$bezierCurveTo,
 									_Utils_Tuple2(
@@ -9351,7 +9392,7 @@ var $author$project$Scene2d$render = F4(
 						}
 					};
 					var maybeStroke = function () {
-						var _v6 = parameters.e4;
+						var _v6 = parameters.e2;
 						if (_v6.$ === 1) {
 							return _List_Nil;
 						} else {
@@ -9363,7 +9404,7 @@ var $author$project$Scene2d$render = F4(
 						}
 					}();
 					var maybeFillColor = function () {
-						var _v5 = parameters.ed;
+						var _v5 = parameters.eb;
 						if (_v5.$ === 1) {
 							return _List_Nil;
 						} else {
@@ -9388,7 +9429,7 @@ var $author$project$Scene2d$render = F4(
 										maybeStroke,
 										_List_fromArray(
 											[
-												$joakin$elm_canvas$Canvas$Settings$Line$lineWidth(parameters.es),
+												$joakin$elm_canvas$Canvas$Settings$Line$lineWidth(parameters.eq),
 												$joakin$elm_canvas$Canvas$Settings$Line$lineCap(1),
 												$joakin$elm_canvas$Canvas$Settings$Line$lineJoin(1)
 											])))),
@@ -9404,8 +9445,8 @@ var $author$project$Scene2d$render = F4(
 					var width = bareDrawable_.a;
 					var height = bareDrawable_.b;
 					var texture = bareDrawable_.c;
-					var textureWidth = $joakin$elm_canvas$Canvas$Texture$dimensions(texture).cY;
-					var textureHeight = $joakin$elm_canvas$Canvas$Texture$dimensions(texture).fN;
+					var textureWidth = $joakin$elm_canvas$Canvas$Texture$dimensions(texture).cW;
+					var textureHeight = $joakin$elm_canvas$Canvas$Texture$dimensions(texture).fL;
 					var scaleFactorForTexture = width / textureWidth;
 					return _List_fromArray(
 						[
@@ -9863,7 +9904,7 @@ var $joakin$elm_canvas$Canvas$renderTextFill = F5(
 	function (txt, x, y, maybeColor, cmds) {
 		return A2(
 			$elm$core$List$cons,
-			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$fillText, txt.gX, x, y, txt.ex),
+			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$fillText, txt.gV, x, y, txt.ev),
 			function () {
 				if (!maybeColor.$) {
 					var color = maybeColor.a;
@@ -9906,7 +9947,7 @@ var $joakin$elm_canvas$Canvas$renderTextStroke = F5(
 	function (txt, x, y, maybeColor, cmds) {
 		return A2(
 			$elm$core$List$cons,
-			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$strokeText, txt.gX, x, y, txt.ex),
+			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$strokeText, txt.gV, x, y, txt.ev),
 			function () {
 				if (!maybeColor.$) {
 					var color = maybeColor.a;
@@ -9921,7 +9962,7 @@ var $joakin$elm_canvas$Canvas$renderTextStroke = F5(
 	});
 var $joakin$elm_canvas$Canvas$renderTextDrawOp = F3(
 	function (drawOp, txt, cmds) {
-		var _v0 = txt.gu;
+		var _v0 = txt.gs;
 		var x = _v0.a;
 		var y = _v0.b;
 		switch (drawOp.$) {
@@ -9998,11 +10039,11 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$drawTexture = F4(
 			function () {
 				if (!t.$) {
 					var image = t.a;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.cY, image.fN, x, y, image.cY, image.fN, image.dl);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.cW, image.fL, x, y, image.cW, image.fL, image.dj);
 				} else {
 					var sprite = t.a;
 					var image = t.b;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.bt, sprite.bu, sprite.cY, sprite.fN, x, y, sprite.cY, sprite.fN, image.dl);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.bt, sprite.bu, sprite.cW, sprite.fL, x, y, sprite.cW, sprite.fL, image.dj);
 				}
 			}(),
 			cmds);
@@ -10126,7 +10167,7 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$decodeTextureImage = A2(
 				function (tagName, width, height) {
 					return (tagName === 'IMG') ? $elm$core$Maybe$Just(
 						$joakin$elm_canvas$Canvas$Internal$Texture$TImage(
-							{fN: height, dl: image, cY: width})) : $elm$core$Maybe$Nothing;
+							{fL: height, dj: image, cW: width})) : $elm$core$Maybe$Nothing;
 				}),
 			A2($elm$json$Json$Decode$field, 'tagName', $elm$json$Json$Decode$string),
 			A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$float),
@@ -10182,15 +10223,15 @@ var $joakin$elm_canvas$Canvas$toHtmlWith = F3(
 					$joakin$elm_canvas$Canvas$render(entities)),
 				A2(
 					$elm$core$List$cons,
-					$elm$html$Html$Attributes$height(options.fN),
+					$elm$html$Html$Attributes$height(options.fL),
 					A2(
 						$elm$core$List$cons,
-						$elm$html$Html$Attributes$width(options.cY),
+						$elm$html$Html$Attributes$width(options.cW),
 						attrs))),
 			A2(
 				$elm$core$List$cons,
 				_Utils_Tuple2('__canvas', $joakin$elm_canvas$Canvas$cnvs),
-				A2($elm$core$List$map, $joakin$elm_canvas$Canvas$renderTextureSource, options.gY)));
+				A2($elm$core$List$map, $joakin$elm_canvas$Canvas$renderTextureSource, options.gW)));
 	});
 var $joakin$elm_canvas$Canvas$toHtml = F3(
 	function (_v0, attrs, entities) {
@@ -10198,14 +10239,14 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 		var h = _v0.b;
 		return A3(
 			$joakin$elm_canvas$Canvas$toHtmlWith,
-			{fN: h, gY: _List_Nil, cY: w},
+			{fL: h, gW: _List_Nil, cW: w},
 			attrs,
 			entities);
 	});
 var $author$project$Scene2d$toHtml = F2(
 	function (_v0, drawables) {
-		var sceneWidthInPixels = _v0.i_;
-		var camera = _v0.he;
+		var sceneWidthInPixels = _v0.iZ;
+		var camera = _v0.hc;
 		var width = sceneWidthInPixels;
 		var height = width / $author$project$Scene2d$Camera$getViewportAspectRatio(camera);
 		var renderables = A2(
@@ -10231,8 +10272,8 @@ var $author$project$CanvasExample$Main$view = F2(
 		return A2(
 			$author$project$Scene2d$toHtml,
 			{
-				he: $author$project$CanvasExample$Main$camera(computer),
-				i_: $elm$core$Basics$round(computer.b2.cY)
+				hc: $author$project$CanvasExample$Main$camera(computer),
+				iZ: $elm$core$Basics$round(computer.b1.cW)
 			},
 			_List_fromArray(
 				[
@@ -10247,33 +10288,33 @@ var $author$project$CanvasExample$Main$view = F2(
 						A3($author$project$Scene2d$rectangle, 2, 2, $avh4$elm_color$Color$lightGray))),
 					A2(
 					$author$project$Scene2d$moveX,
-					$elm$core$Basics$sin(3 * computer.d4),
+					$elm$core$Basics$sin(3 * computer.d2),
 					$author$project$Scene2d$group(
 						_List_fromArray(
 							[
 								A2($author$project$Scene2d$circle, 1.5, $avh4$elm_color$Color$lightPurple),
 								A2(
 								$author$project$Scene2d$moveY,
-								$elm$core$Basics$sin(3 * computer.d4),
+								$elm$core$Basics$sin(3 * computer.d2),
 								A2($author$project$Scene2d$circle, 0.5, $avh4$elm_color$Color$darkPurple))
 							]))),
 					A2(
 					$author$project$Scene2d$moveY,
-					model.cE.bu,
+					model.cD.bu,
 					A2(
 						$author$project$Scene2d$moveX,
-						model.cE.bt,
+						model.cD.bt,
 						A2($author$project$Scene2d$circle, 0.2, $avh4$elm_color$Color$white)))
 				]));
 	});
 var $author$project$CanvasExample$Main$main = $author$project$Playground$Playground$simpleApplication(
-	{hY: true, h5: $author$project$CanvasExample$Main$init, h6: $author$project$CanvasExample$Main$initialConfigurations, jg: $author$project$CanvasExample$Main$update, jk: $author$project$CanvasExample$Main$view});
+	{hW: true, h3: $author$project$CanvasExample$Main$init, h4: $author$project$CanvasExample$Main$initialConfigurations, jg: $author$project$CanvasExample$Main$update, jk: $author$project$CanvasExample$Main$view});
 _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (inputs) {
 			return $elm$json$Json$Decode$succeed(
-				{h7: inputs});
+				{h5: inputs});
 		},
 		A2(
 			$elm$json$Json$Decode$field,
@@ -10303,7 +10344,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																		$elm$json$Json$Decode$andThen,
 																		function (clock) {
 																			return $elm$json$Json$Decode$succeed(
-																				{d4: clock, hA: devicePixelRatio, hE: dt, $8: keyboard, eQ: pointer, b2: screen, i$: sensoState, jm: wheel});
+																				{d2: clock, hy: devicePixelRatio, hC: dt, id: keyboard, eO: pointer, b1: screen, i_: sensoState, jm: wheel});
 																		},
 																		A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 																},
@@ -10342,7 +10383,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																														$elm$json$Json$Decode$andThen,
 																														function (alt) {
 																															return $elm$json$Json$Decode$succeed(
-																																{g7: alt, ho: control, eb: down, hD: downs, fY: left, iQ: pressedKeys, gI: right, i0: shift, fd: up});
+																																{g5: alt, hm: control, d9: down, hB: downs, fW: left, iO: pressedKeys, gG: right, i$: shift, fb: up});
 																														},
 																														A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																												},
@@ -10396,7 +10437,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																										$elm$json$Json$Decode$andThen,
 																										function (down) {
 																											return $elm$json$Json$Decode$succeed(
-																												{eb: down, ic: isDown, iw: move, iV: rightDown, iW: rightUp, fd: up, bt: x, bu: y});
+																												{d9: down, ia: isDown, iu: move, iU: rightDown, iV: rightUp, fb: up, bt: x, bu: y});
 																										},
 																										A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																								},
@@ -10424,7 +10465,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 												$elm$json$Json$Decode$andThen,
 												function (height) {
 													return $elm$json$Json$Decode$succeed(
-														{fN: height, cY: width});
+														{fL: height, cW: width});
 												},
 												A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 										},
@@ -10449,7 +10490,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																$elm$json$Json$Decode$andThen,
 																function (center) {
 																	return $elm$json$Json$Decode$succeed(
-																		{hh: center, eb: down, fY: left, gI: right, fd: up});
+																		{hf: center, d9: down, fW: left, gG: right, fb: up});
 																},
 																A2(
 																	$elm$json$Json$Decode$field,
@@ -10464,7 +10505,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																						$elm$json$Json$Decode$andThen,
 																						function (f) {
 																							return $elm$json$Json$Decode$succeed(
-																								{cn: f, bt: x, bu: y});
+																								{cm: f, bt: x, bu: y});
 																						},
 																						A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																				},
@@ -10485,7 +10526,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cn: f, bt: x, bu: y});
+																						{cm: f, bt: x, bu: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -10506,7 +10547,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cn: f, bt: x, bu: y});
+																				{cm: f, bt: x, bu: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -10527,7 +10568,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cn: f, bt: x, bu: y});
+																		{cm: f, bt: x, bu: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -10548,7 +10589,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cn: f, bt: x, bu: y});
+																{cm: f, bt: x, bu: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -10566,7 +10607,7 @@ _Platform_export({'CanvasExample':{'Main':{'init':$author$project$CanvasExample$
 								$elm$json$Json$Decode$andThen,
 								function (deltaX) {
 									return $elm$json$Json$Decode$succeed(
-										{hx: deltaX, hy: deltaY});
+										{hv: deltaX, hw: deltaY});
 								},
 								A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 						},

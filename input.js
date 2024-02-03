@@ -1,6 +1,13 @@
 export { sendInputsToElmApp, inputs };
 
-const prevent = (eventType) => {
+// prevent browser's default behavior for undo/redo
+document.addEventListener("keydown", function (e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+    e.preventDefault();
+  }
+});
+
+const preventElmInputs = (eventType) => {
   document.addEventListener(
     eventType,
     function (e) {
@@ -16,10 +23,10 @@ const prevent = (eventType) => {
   );
 };
 
-prevent("pointerdown");
-prevent("mousedown");
-prevent("wheel");
-prevent("keydown");
+preventElmInputs("pointerdown");
+preventElmInputs("mousedown");
+preventElmInputs("wheel");
+preventElmInputs("keydown");
 
 const inputs =
   /* 
