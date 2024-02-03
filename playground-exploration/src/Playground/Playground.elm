@@ -2,7 +2,7 @@ port module Playground.Playground exposing
     ( application
     , boolConfig, colorConfig, configBlock, floatConfig, intConfig, optionsConfig
     , getBool, getColor, getFloat, getInt, getOption
-    , Computer, Keyboard, Pointer, Screen, toX, toXY, toY
+    , Computer, Keyboard, Pointer, Screen
     , Playground, simpleApplication
     )
 
@@ -182,18 +182,6 @@ type alias Screen =
 
 type alias Keyboard =
     Computer.Keyboard
-
-
-toX =
-    Computer.toX
-
-
-toY =
-    Computer.toY
-
-
-toXY =
-    Computer.toXY
 
 
 
@@ -538,6 +526,14 @@ viewComputer model =
         computer =
             currentComputer model.tape
 
+        boolAsText : Bool -> String
+        boolAsText bool =
+            if bool then
+                "True"
+
+            else
+                "False"
+
         fpsAsText : Tape appModel -> String
         fpsAsText tape =
             case Tape.getFps tape of
@@ -559,6 +555,8 @@ viewComputer model =
         , div [ class "flex flex-col gap-2" ]
             [ div [ class "text-2xl font-bold" ] [ text "Inputs" ]
             , div [] [ Html.text ("pressedKeys: " ++ (computer.keyboard.pressedKeys |> List.intersperse " " |> String.concat)) ]
+            , div [] [ Html.text ("keyboard.shift: " ++ (computer.keyboard.shift |> boolAsText)) ]
+            , div [] [ Html.text ("keyboard.control: " ++ (computer.keyboard.control |> boolAsText)) ]
             , div [] [ Html.text ("downs: " ++ (computer.keyboard.downs |> List.intersperse " " |> String.concat)) ]
             , div [] [ Html.text ("delta time: " ++ Round.round 4 computer.dt) ]
             , div [] [ Html.text ("clock: " ++ Round.round 4 computer.clock) ]

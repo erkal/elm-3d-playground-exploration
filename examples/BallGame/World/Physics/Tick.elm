@@ -4,7 +4,7 @@ import BallGame.World exposing (Ball, World, mapBall)
 import BallGame.World.Physics.Collision.BallToPolygons as BallToPolygons
 import BallGame.World.Physics.Collision.Primitives.Geometry2d exposing (Vector2d, add, distance, dotProduct, scaleBy, translateBy)
 import BallGame.World.Physics.Collision.PushBallOut as PushBallOut
-import Playground.Playground exposing (Computer, getFloat, toX, toY)
+import Playground.Playground exposing (Computer, Keyboard, getFloat)
 
 
 tick : Computer -> World -> World
@@ -24,6 +24,38 @@ moveBall computer ball =
         |> tickRotation computer
         |> physics computer
         |> updateTrail
+
+
+toX : Keyboard -> Float
+toX keyboard =
+    (if keyboard.right then
+        1
+
+     else
+        0
+    )
+        - (if keyboard.left then
+            1
+
+           else
+            0
+          )
+
+
+toY : Keyboard -> Float
+toY keyboard =
+    (if keyboard.up then
+        1
+
+     else
+        0
+    )
+        - (if keyboard.down then
+            1
+
+           else
+            0
+          )
 
 
 handleArrowKeys : Computer -> Ball -> Ball

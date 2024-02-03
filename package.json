@@ -23,7 +23,7 @@
     "@lydell/elm-json": "^0.2.13-1",
     "chokidar-cli": "^3.0.0",
     "elm-tooling": "^1.14.0",
-    "elm-watch": "^1.2.0-beta.3",
+    "elm-watch": "^1.2.0-beta.5",
     "gh-pages": "^6.1.0",
     "prettier": "^3.1.0",
     "run-pty": "^4.0.3",
