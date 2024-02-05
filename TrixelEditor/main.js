@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.fg.cG === region.fT.cG)
+	if (region.fg.cG === region.fU.cG)
 	{
 		return 'on line ' + region.fg.cG;
 	}
-	return 'on lines ' + region.fg.cG + ' through ' + region.fT.cG;
+	return 'on lines ' + region.fg.cG + ' through ' + region.fU.cG;
 }
 
 
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.hu);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.hv);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.jq) && (_VirtualDom_doc.title = title = doc.jq);
+				(title !== doc.jw) && (_VirtualDom_doc.title = title = doc.jw);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.iP;
-	var onUrlRequest = impl.iQ;
+	var onUrlChange = impl.iS;
+	var onUrlRequest = impl.iT;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.gU === next.gU
-							&& curr.f2 === next.f2
-							&& curr.gP.a === next.gP.a
+							&& curr.gV === next.gV
+							&& curr.f3 === next.f3
+							&& curr.gQ.a === next.gQ.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { id: 'hidden', hz: 'visibilitychange' }
+		? { ig: 'hidden', hB: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { id: 'mozHidden', hz: 'mozvisibilitychange' }
+		? { ig: 'mozHidden', hB: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { id: 'msHidden', hz: 'msvisibilitychange' }
+		? { ig: 'msHidden', hB: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { id: 'webkitHidden', hz: 'webkitvisibilitychange' }
-		: { id: 'hidden', hz: 'visibilitychange' };
+		? { ig: 'webkitHidden', hB: 'webkitvisibilitychange' }
+		: { ig: 'hidden', hB: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		g0: _Browser_getScene(),
-		hi: {
-			jB: _Browser_window.pageXOffset,
-			jG: _Browser_window.pageYOffset,
-			jy: _Browser_doc.documentElement.clientWidth,
-			ia: _Browser_doc.documentElement.clientHeight
+		g1: _Browser_getScene(),
+		hj: {
+			jH: _Browser_window.pageXOffset,
+			jM: _Browser_window.pageYOffset,
+			jE: _Browser_doc.documentElement.clientWidth,
+			id: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		jy: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		ia: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		jE: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		id: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			g0: {
-				jy: node.scrollWidth,
-				ia: node.scrollHeight
+			g1: {
+				jE: node.scrollWidth,
+				id: node.scrollHeight
 			},
-			hi: {
-				jB: node.scrollLeft,
-				jG: node.scrollTop,
-				jy: node.clientWidth,
-				ia: node.clientHeight
+			hj: {
+				jH: node.scrollLeft,
+				jM: node.scrollTop,
+				jE: node.clientWidth,
+				id: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			g0: _Browser_getScene(),
-			hi: {
-				jB: x,
-				jG: y,
-				jy: _Browser_doc.documentElement.clientWidth,
-				ia: _Browser_doc.documentElement.clientHeight
+			g1: _Browser_getScene(),
+			hj: {
+				jH: x,
+				jM: y,
+				jE: _Browser_doc.documentElement.clientWidth,
+				id: _Browser_doc.documentElement.clientHeight
 			},
-			hX: {
-				jB: x + rect.left,
-				jG: y + rect.top,
-				jy: rect.width,
-				ia: rect.height
+			hZ: {
+				jH: x + rect.left,
+				jM: y + rect.top,
+				jE: rect.width,
+				id: rect.height
 			}
 		};
 	});
@@ -4401,8 +4401,8 @@ var _Regex_never = /.^/;
 var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
-	if (options.iJ) { flags += 'm'; }
-	if (options.hv) { flags += 'i'; }
+	if (options.iM) { flags += 'm'; }
+	if (options.hx) { flags += 'i'; }
 
 	try
 	{
@@ -4546,11 +4546,11 @@ var _MJS_v2setY = F2(function(y, a) {
 });
 
 var _MJS_v2toRecord = function(a) {
-    return { jB: a[0], jG: a[1] };
+    return { jH: a[0], jM: a[1] };
 };
 
 var _MJS_v2fromRecord = function(r) {
-    return new Float64Array([r.jB, r.jG]);
+    return new Float64Array([r.jH, r.jM]);
 };
 
 var _MJS_v2add = F2(function(a, b) {
@@ -4659,11 +4659,11 @@ var _MJS_v3setZ = F2(function(z, a) {
 });
 
 var _MJS_v3toRecord = function(a) {
-    return { jB: a[0], jG: a[1], fz: a[2] };
+    return { jH: a[0], jM: a[1], fz: a[2] };
 };
 
 var _MJS_v3fromRecord = function(r) {
-    return new Float64Array([r.jB, r.jG, r.fz]);
+    return new Float64Array([r.jH, r.jM, r.fz]);
 };
 
 var _MJS_v3add = F2(function(a, b) {
@@ -4819,11 +4819,11 @@ var _MJS_v4setW = F2(function(w, a) {
 });
 
 var _MJS_v4toRecord = function(a) {
-    return { jB: a[0], jG: a[1], fz: a[2], hk: a[3] };
+    return { jH: a[0], jM: a[1], fz: a[2], hl: a[3] };
 };
 
 var _MJS_v4fromRecord = function(r) {
-    return new Float64Array([r.jB, r.jG, r.fz, r.hk]);
+    return new Float64Array([r.jH, r.jM, r.fz, r.hl]);
 };
 
 var _MJS_v4add = F2(function(a, b) {
@@ -4929,31 +4929,31 @@ var _MJS_m4x4identity = new Float64Array([
 
 var _MJS_m4x4fromRecord = function(r) {
     var m = new Float64Array(16);
-    m[0] = r.gi;
-    m[1] = r.gm;
-    m[2] = r.gq;
-    m[3] = r.gu;
-    m[4] = r.gj;
-    m[5] = r.gn;
-    m[6] = r.gr;
-    m[7] = r.gv;
-    m[8] = r.gk;
-    m[9] = r.go;
-    m[10] = r.gs;
-    m[11] = r.gw;
-    m[12] = r.gl;
-    m[13] = r.gp;
-    m[14] = r.gt;
-    m[15] = r.gx;
+    m[0] = r.gj;
+    m[1] = r.gn;
+    m[2] = r.gr;
+    m[3] = r.gv;
+    m[4] = r.gk;
+    m[5] = r.go;
+    m[6] = r.gs;
+    m[7] = r.gw;
+    m[8] = r.gl;
+    m[9] = r.gp;
+    m[10] = r.gt;
+    m[11] = r.gx;
+    m[12] = r.gm;
+    m[13] = r.gq;
+    m[14] = r.gu;
+    m[15] = r.gy;
     return m;
 };
 
 var _MJS_m4x4toRecord = function(m) {
     return {
-        gi: m[0], gm: m[1], gq: m[2], gu: m[3],
-        gj: m[4], gn: m[5], gr: m[6], gv: m[7],
-        gk: m[8], go: m[9], gs: m[10], gw: m[11],
-        gl: m[12], gp: m[13], gt: m[14], gx: m[15]
+        gj: m[0], gn: m[1], gr: m[2], gv: m[3],
+        gk: m[4], go: m[5], gs: m[6], gw: m[7],
+        gl: m[8], gp: m[9], gt: m[10], gx: m[11],
+        gm: m[12], gq: m[13], gu: m[14], gy: m[15]
     };
 };
 
@@ -5850,7 +5850,7 @@ function _WebGL_doBindAttribute(gl, attribute, mesh, attributes) {
   // The length of the number of vertices that
   // complete one 'thing' based on the drawing mode.
   // ie, 2 for Lines, 3 for Triangles, etc.
-  var elemSize = mesh.a.fR;
+  var elemSize = mesh.a.fS;
 
   var idxKeys = [];
   for (var i = 0; i < elemSize; i++) {
@@ -5911,9 +5911,9 @@ function _WebGL_doBindAttribute(gl, attribute, mesh, attributes) {
  *  @return {Object} buffer.buffers - will be used to buffer attributes
  */
 function _WebGL_doBindSetup(gl, mesh) {
-  if (mesh.a.f5 > 0) {
+  if (mesh.a.f6 > 0) {
     var indexBuffer = gl.createBuffer();
-    var indices = _WebGL_makeIndexedBuffer(mesh.c, mesh.a.f5);
+    var indices = _WebGL_makeIndexedBuffer(mesh.c, mesh.a.f6);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     return {
@@ -5923,7 +5923,7 @@ function _WebGL_doBindSetup(gl, mesh) {
     };
   } else {
     return {
-      numIndices: mesh.a.fR * _WebGL_listLength(mesh.b),
+      numIndices: mesh.a.fS * _WebGL_listLength(mesh.b),
       indexBuffer: null,
       buffers: {}
     };
@@ -6102,9 +6102,9 @@ var _WebGL_drawGL = F2(function (model, domNode) {
 
     if (buffer.indexBuffer) {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indexBuffer);
-      gl.drawElements(entity.d.a.gB, buffer.numIndices, gl.UNSIGNED_INT, 0);
+      gl.drawElements(entity.d.a.gC, buffer.numIndices, gl.UNSIGNED_INT, 0);
     } else {
-      gl.drawArrays(entity.d.a.gB, 0, buffer.numIndices);
+      gl.drawArrays(entity.d.a.gC, 0, buffer.numIndices);
     }
   }
 
@@ -6169,7 +6169,7 @@ function _WebGL_createUniformSetters(gl, model, program, uniformsMap) {
           gl.activeTexture(gl.TEXTURE0 + currentTexture);
           var tex = cache.textures.get(texture);
           if (!tex) {
-            tex = texture.hG(gl);
+            tex = texture.hI(gl);
             cache.textures.set(texture, tex);
           }
           gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -6856,9 +6856,9 @@ var $author$project$TrixelEditor$TrixelGrid$Face$toComparable = function (_v0) {
 		}());
 };
 var $author$project$TrixelEditor$World$empty = {
-	hr: 150,
+	hs: 150,
 	cM: 1,
-	js: $turboMaCk$any_dict$Dict$Any$empty($author$project$TrixelEditor$TrixelGrid$Face$toComparable)
+	jy: $turboMaCk$any_dict$Dict$Any$empty($author$project$TrixelEditor$TrixelGrid$Face$toComparable)
 };
 var $author$project$Tools$Pages$Pages$Pages = $elm$core$Basics$identity;
 var $author$project$Tools$SelectList$SelectList$SelectList = $elm$core$Basics$identity;
@@ -6870,8 +6870,8 @@ var $author$project$Tools$SelectList$SelectList$init = function (_v0) {
 var $author$project$Tools$Pages$Pages$init = F4(
 	function (encodePage, pageDecoder, first, rest) {
 		return {
-			fS: encodePage,
-			gH: pageDecoder,
+			fT: encodePage,
+			gI: pageDecoder,
 			az: $author$project$Tools$SelectList$SelectList$init(
 				_Utils_Tuple2(first, rest)),
 			fo: '',
@@ -6882,7 +6882,7 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$Idle = {$: 0};
 var $author$project$Tools$PanAndZoom$PanAndZoom$PAZ = $elm$core$Basics$identity;
 var $author$project$Tools$Geometry$Geometry$Point2d = F2(
 	function (x, y) {
-		return {jB: x, jG: y};
+		return {jH: x, jM: y};
 	});
 var $author$project$Tools$PanAndZoom$PanAndZoom$init = function (_v0) {
 	var minZoom = _v0.by;
@@ -6906,7 +6906,7 @@ var $author$project$TrixelEditor$Main$init = function (computer) {
 			$elm$core$Basics$always(
 				$elm$json$Json$Encode$string('')),
 			$elm$json$Json$Decode$succeed($author$project$TrixelEditor$World$empty),
-			{iK: '1', cL: $author$project$TrixelEditor$World$empty},
+			{iN: '1', cL: $author$project$TrixelEditor$World$empty},
 			_List_Nil),
 		bz: $author$project$Tools$PanAndZoom$PanAndZoom$init(
 			{bx: 70, by: 10}),
@@ -6915,7 +6915,7 @@ var $author$project$TrixelEditor$Main$init = function (computer) {
 };
 var $author$project$Playground$Configurations$Block = F3(
 	function (name, isOpen, configs) {
-		return {a6: configs, io: isOpen, iK: name};
+		return {a6: configs, ir: isOpen, iN: name};
 	});
 var $author$project$Playground$Configurations$configBlock = F3(
 	function (name, isOn, configList) {
@@ -6978,7 +6978,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {fZ: fragment, f2: host, gK: path, gP: port_, gU: protocol, gV: query};
+		return {f_: fragment, f3: host, gL: path, gQ: port_, gV: protocol, gW: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -7258,14 +7258,14 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Playground$Playground$ShowingNothing = 0;
-var $author$project$Playground$Senso$initSensoPress = {cs: 0, jB: 0, jG: 0};
+var $author$project$Playground$Senso$initSensoPress = {cs: 0, jH: 0, jM: 0};
 var $author$project$Playground$Senso$init = {
-	hx: $author$project$Playground$Senso$initSensoPress,
-	fO: $author$project$Playground$Senso$initSensoPress,
-	it: $author$project$Playground$Senso$initSensoPress,
-	i7: $author$project$Playground$Senso$initSensoPress,
-	fm: {hx: $author$project$Playground$Senso$initSensoPress, fO: $author$project$Playground$Senso$initSensoPress, it: $author$project$Playground$Senso$initSensoPress, i7: $author$project$Playground$Senso$initSensoPress, hf: $author$project$Playground$Senso$initSensoPress},
-	hf: $author$project$Playground$Senso$initSensoPress
+	hz: $author$project$Playground$Senso$initSensoPress,
+	fP: $author$project$Playground$Senso$initSensoPress,
+	iw: $author$project$Playground$Senso$initSensoPress,
+	ja: $author$project$Playground$Senso$initSensoPress,
+	fm: {hz: $author$project$Playground$Senso$initSensoPress, fP: $author$project$Playground$Senso$initSensoPress, iw: $author$project$Playground$Senso$initSensoPress, ja: $author$project$Playground$Senso$initSensoPress, hg: $author$project$Playground$Senso$initSensoPress},
+	hg: $author$project$Playground$Senso$initSensoPress
 };
 var $author$project$Playground$Computer$init = F2(
 	function (initialConfigurations, inputs) {
@@ -7307,9 +7307,9 @@ var $author$project$Playground$Playground$init = F2(
 	function (app, flags) {
 		return _Utils_Tuple2(
 			{
-				cq: flags.ew.b7.jy < 500,
+				cq: flags.ew.b7.jE < 500,
 				aK: 0,
-				jo: A2(
+				ju: A2(
 					app.cA ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
 					A2($author$project$Playground$Computer$init, app.cC, flags.ew),
 					app.b_)
@@ -7364,7 +7364,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{bO: clock, eq: devicePixelRatio, br: dt, b1: keyboard, b6: pointer, b7: screen, g2: sensoState, ci: wheel});
+																		{bO: clock, eq: devicePixelRatio, br: dt, b1: keyboard, b6: pointer, b7: screen, g3: sensoState, ci: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -7403,7 +7403,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{hn: alt, hF: control, fO: down, hS: downs, it: left, i0: pressedKeys, i7: right, je: shift, hf: up});
+																														{ho: alt, hH: control, fP: down, hU: downs, iw: left, i3: pressedKeys, ja: right, ji: shift, hg: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -7457,7 +7457,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{fO: down, $9: isDown, iG: move, i8: rightDown, i9: rightUp, hf: up, jB: x, jG: y});
+																										{fP: down, iq: isDown, iJ: move, jb: rightDown, jc: rightUp, hg: up, jH: x, jM: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
@@ -7485,7 +7485,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 										$elm$json$Json$Decode$andThen,
 										function (height) {
 											return $elm$json$Json$Decode$succeed(
-												{ia: height, jy: width});
+												{id: height, jE: width});
 										},
 										A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 								},
@@ -7510,7 +7510,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (center) {
 															return $elm$json$Json$Decode$succeed(
-																{hx: center, fO: down, it: left, i7: right, hf: up});
+																{hz: center, fP: down, iw: left, ja: right, hg: up});
 														},
 														A2(
 															$elm$json$Json$Decode$field,
@@ -7525,7 +7525,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cs: f, jB: x, jG: y});
+																						{cs: f, jH: x, jM: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -7546,7 +7546,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cs: f, jB: x, jG: y});
+																				{cs: f, jH: x, jM: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -7567,7 +7567,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cs: f, jB: x, jG: y});
+																		{cs: f, jH: x, jM: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -7588,7 +7588,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cs: f, jB: x, jG: y});
+																{cs: f, jH: x, jM: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -7609,7 +7609,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 												$elm$json$Json$Decode$andThen,
 												function (f) {
 													return $elm$json$Json$Decode$succeed(
-														{cs: f, jB: x, jG: y});
+														{cs: f, jH: x, jM: y});
 												},
 												A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 										},
@@ -7627,7 +7627,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 						$elm$json$Json$Decode$andThen,
 						function (deltaX) {
 							return $elm$json$Json$Decode$succeed(
-								{hM: deltaX, hN: deltaY});
+								{hO: deltaX, hP: deltaY});
 						},
 						A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 				},
@@ -7642,7 +7642,7 @@ var $author$project$Playground$Playground$subscriptions = F2(
 					$elm$core$Platform$Sub$map,
 					$author$project$Playground$Playground$FromApp,
 					app.dX(
-						$author$project$Playground$Tape$currentAppModel(model.jo)))
+						$author$project$Playground$Tape$currentAppModel(model.ju)))
 				]));
 	});
 var $elm$core$Platform$Cmd$map = _Platform_map;
@@ -7748,41 +7748,41 @@ var $author$project$Tools$SelectList$SelectList$removeAfter = function (_v0) {
 var $author$project$Playground$Senso$lerpTo = F2(
 	function (target, current) {
 		var interpolationFactor = 0.3;
-		return {cs: current.cs + ((target.cs - current.cs) * interpolationFactor), jB: current.jB + ((target.jB - current.jB) * interpolationFactor), jG: current.jG + ((target.jG - current.jG) * interpolationFactor)};
+		return {cs: current.cs + ((target.cs - current.cs) * interpolationFactor), jH: current.jH + ((target.jH - current.jH) * interpolationFactor), jM: current.jM + ((target.jM - current.jM) * interpolationFactor)};
 	});
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
 var $author$project$Playground$Senso$normalizeCoordinates = function (_v0) {
-	var x = _v0.jB;
-	var y = _v0.jG;
+	var x = _v0.jH;
+	var y = _v0.jM;
 	var f = _v0.cs;
-	return {cs: f, jB: ((x / 3) * 2) - 1, jG: -(((y / 3) * 2) - 1)};
+	return {cs: f, jH: ((x / 3) * 2) - 1, jM: -(((y / 3) * 2) - 1)};
 };
 var $author$project$Playground$Senso$update = F2(
 	function (sensoState, senso) {
 		return {
-			hx: A2(
+			hz: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.hx,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.hx)),
-			fO: A2(
+				sensoState.hz,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.hz)),
+			fP: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.fO,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.fO)),
-			it: A2(
+				sensoState.fP,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.fP)),
+			iw: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.it,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.it)),
-			i7: A2(
+				sensoState.iw,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.iw)),
+			ja: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.i7,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.i7)),
+				sensoState.ja,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.ja)),
 			fm: sensoState,
-			hf: A2(
+			hg: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.hf,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.hf))
+				sensoState.hg,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.hg))
 		};
 	});
 var $author$project$Playground$Computer$tick = F2(
@@ -7796,7 +7796,7 @@ var $author$project$Playground$Computer$tick = F2(
 				b1: inputs.b1,
 				b6: inputs.b6,
 				b7: inputs.b7,
-				dU: A2($author$project$Playground$Senso$update, inputs.g2, computer.dU),
+				dU: A2($author$project$Playground$Senso$update, inputs.g3, computer.dU),
 				ci: inputs.ci
 			});
 	});
@@ -7874,23 +7874,23 @@ var $author$project$Playground$Playground$handleAppUpdate = F3(
 		switch (msg.$) {
 			case 5:
 				var appMsg = msg.a;
-				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.bH, appMsg, model.jo);
+				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.bH, appMsg, model.ju);
 				var newTape = _v1.a;
 				var appCmd = _v1.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{jo: newTape}),
+						{ju: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			case 3:
 				var inputs = msg.a;
-				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.bH, inputs, model.jo);
+				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.bH, inputs, model.ju);
 				var newTape = _v2.a;
 				var appCmd = _v2.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{jo: newTape}),
+						{ju: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			default:
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -8618,7 +8618,7 @@ var $author$project$Playground$Playground$handleConfigurationsMsg = F2(
 			return _Utils_update(
 				model,
 				{
-					jo: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.jo)
+					ju: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.ju)
 				});
 		} else {
 			return model;
@@ -8671,7 +8671,7 @@ var $author$project$Playground$Playground$handleTapeScreenControls = F2(
 			return _Utils_update(
 				model,
 				{
-					jo: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.jo)
+					ju: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.ju)
 				});
 		} else {
 			return model;
@@ -8738,7 +8738,7 @@ var $author$project$Playground$Icons$draw = $elm$svg$Svg$svg(
 var $elm$svg$Svg$Attributes$fillRule = _VirtualDom_attribute('fill-rule');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $author$project$Playground$Icons$icons = {
-	hC: $author$project$Playground$Icons$draw(
+	hE: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8749,7 +8749,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hH: $author$project$Playground$Icons$draw(
+	hJ: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8760,7 +8760,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	h3: $author$project$Playground$Icons$draw(
+	h5: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8771,7 +8771,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	h4: $author$project$Playground$Icons$draw(
+	h6: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8782,7 +8782,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	h9: $author$project$Playground$Icons$draw(
+	ic: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8793,7 +8793,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ie: $author$project$Playground$Icons$draw(
+	ih: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8804,7 +8804,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	is: $author$project$Playground$Icons$draw(
+	iv: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8815,7 +8815,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iH: $author$project$Playground$Icons$draw(
+	iK: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8833,7 +8833,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iI: $author$project$Playground$Icons$draw(
+	iL: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8851,7 +8851,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iX: $author$project$Playground$Icons$draw(
+	i_: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8862,7 +8862,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iY: $author$project$Playground$Icons$draw(
+	i$: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8873,7 +8873,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iZ: $author$project$Playground$Icons$draw(
+	i0: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8884,7 +8884,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i_: $author$project$Playground$Icons$draw(
+	i1: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8906,7 +8906,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i5: $author$project$Playground$Icons$draw(
+	i8: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8917,7 +8917,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jo: $author$project$Playground$Icons$draw(
+	ju: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8930,7 +8930,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jr: $author$project$Playground$Icons$draw(
+	jx: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8943,7 +8943,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jt: $author$project$Playground$Icons$draw(
+	jz: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8954,7 +8954,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jv: $author$project$Playground$Icons$draw(
+	jB: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8965,7 +8965,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jL: $author$project$Playground$Icons$draw(
+	jR: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -8976,7 +8976,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jO: $author$project$Playground$Icons$draw(
+	jU: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -9105,10 +9105,10 @@ var $author$project$Playground$Tape$playPauseButton = function (_v0) {
 			return A3(
 				tapeButtonWithIcon,
 				$author$project$Tools$SelectList$SelectList$isAtEnd(timeline),
-				$author$project$Playground$Icons$icons.iZ,
+				$author$project$Playground$Icons$icons.i0,
 				$author$project$Playground$Tape$PressedPlayButton);
 		default:
-			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iX, $author$project$Playground$Tape$PressedPauseButton);
+			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.i_, $author$project$Playground$Tape$PressedPauseButton);
 	}
 };
 var $author$project$Playground$Tape$PressedRecordButton = {$: 2};
@@ -9132,11 +9132,11 @@ var $author$project$Playground$Tape$tapeToggleButton = function (_v0) {
 		case 0:
 			return $elm$html$Html$text('');
 		case 1:
-			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.jo);
+			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.ju);
 		case 2:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hH);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hJ);
 		default:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hH);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hJ);
 	}
 };
 var $author$project$Playground$Tape$SliderMovedTo = function (a) {
@@ -9330,7 +9330,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 			return $elm$core$String$fromInt(fps);
 		}
 	};
-	var computer = $author$project$Playground$Tape$currentComputer(model.jo);
+	var computer = $author$project$Playground$Tape$currentComputer(model.ju);
 	var boolAsText = function (bool) {
 		return bool ? 'True' : 'False';
 	};
@@ -9367,7 +9367,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'fps: ' + fpsAsText(model.jo))
+								'fps: ' + fpsAsText(model.ju))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9376,7 +9376,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'frame: ' + $elm$core$String$fromInt(
-									$author$project$Playground$Tape$getCurrentFrameIndex(model.jo)))
+									$author$project$Playground$Tape$getCurrentFrameIndex(model.ju)))
 							]))
 					])),
 				A2(
@@ -9404,7 +9404,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'pressedKeys: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.b1.i0)))
+									A2($elm$core$List$intersperse, ' ', computer.b1.i3)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9412,7 +9412,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.shift: ' + boolAsText(computer.b1.je))
+								'keyboard.shift: ' + boolAsText(computer.b1.ji))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9420,7 +9420,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.control: ' + boolAsText(computer.b1.hF))
+								'keyboard.control: ' + boolAsText(computer.b1.hH))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9429,7 +9429,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'downs: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.b1.hS)))
+									A2($elm$core$List$intersperse, ' ', computer.b1.hU)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9453,7 +9453,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer is down: ' + (computer.b6.$9 ? 'yes' : 'no'))
+								'pointer is down: ' + (computer.b6.iq ? 'yes' : 'no'))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9461,7 +9461,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.b6.jB))
+								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.b6.jH))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9469,7 +9469,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.b6.jG))
+								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.b6.jM))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9477,7 +9477,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.ci.hM))
+								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.ci.hO))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9485,7 +9485,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.ci.hN))
+								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.ci.hP))
 							]))
 					]))
 			]));
@@ -9603,7 +9603,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {ii: index, iA: match, iO: number, jj: submatches};
+		return {il: index, iD: match, iR: number, jo: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -9620,7 +9620,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{hv: false, iJ: false},
+		{hx: false, iM: false},
 		string);
 };
 var $elm$core$Result$map = F2(
@@ -9748,7 +9748,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.jj;
+							return $.jo;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -9830,7 +9830,7 @@ var $elm$html$Html$Events$onCheck = function (tagger) {
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $author$project$Playground$ConfigurationsView$viewSliderInput = function (_v0) {
-	var name = _v0.iK;
+	var name = _v0.iN;
 	var value = _v0.ft;
 	var min = _v0.eQ;
 	var max = _v0.eL;
@@ -9968,7 +9968,7 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 				{
 					eL: max,
 					eQ: min,
-					iK: name,
+					iN: name,
 					eU: $author$project$Playground$Configurations$SetFloat(name),
 					fh: 0.01 * (max - min),
 					ft: value
@@ -9982,7 +9982,7 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 				{
 					eL: max,
 					eQ: min,
-					iK: name,
+					iN: name,
 					eU: A2(
 						$elm$core$Basics$composeR,
 						$elm$core$Basics$round,
@@ -10113,7 +10113,7 @@ var $author$project$Playground$ConfigurationsView$viewBlock = function (block) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(block.iK)
+						$elm$html$Html$text(block.iN)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -10146,11 +10146,11 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'left',
-					$elm$core$String$fromFloat(computer.b6.jB + (0.5 * computer.b7.jy)) + 'px'),
+					$elm$core$String$fromFloat(computer.b6.jH + (0.5 * computer.b7.jE)) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'top',
-					$elm$core$String$fromFloat((-computer.b6.jG) + (0.5 * computer.b7.ia)) + 'px')
+					$elm$core$String$fromFloat((-computer.b6.jM) + (0.5 * computer.b7.id)) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -10159,7 +10159,7 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							computer.b6.$9 ? 'text-black/80' : 'text-black/40')
+							computer.b6.iq ? 'text-black/80' : 'text-black/40')
 						]),
 					_List_fromArray(
 						[$author$project$Playground$Icons$icons.b6]))
@@ -10167,7 +10167,7 @@ var $author$project$Playground$Playground$viewPointer = F2(
 	});
 var $author$project$Playground$Playground$viewHUD = F2(
 	function (computer, model) {
-		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.jL);
+		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.jR);
 		var viewTape = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -10180,7 +10180,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromTapeControls,
-					$author$project$Playground$Tape$view(model.jo))
+					$author$project$Playground$Tape$view(model.ju))
 				]));
 		var viewInputs = A2(
 			$elm$html$Html$div,
@@ -10192,7 +10192,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(
-						$author$project$Playground$Tape$currentComputer(model.jo).b7.ia) + 'px'),
+						$author$project$Playground$Tape$currentComputer(model.ju).b7.id) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aK !== 1)
 				]),
@@ -10209,7 +10209,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b7.ia) + 'px'),
+					$elm$core$String$fromFloat(computer.b7.id) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aK !== 2)
 				]),
@@ -10219,20 +10219,20 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromConfigurationsEditor,
 					$author$project$Playground$ConfigurationsView$viewConfigurations(
-						$author$project$Playground$Tape$currentComputer(model.jo).aU))
+						$author$project$Playground$Tape$currentComputer(model.ju).aU))
 				]));
-		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.jt);
-		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aK === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hC);
-		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home of all examples', '../WebPage/index.html', $author$project$Playground$Icons$icons.ie);
-		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.h4);
+		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.jz);
+		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aK === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hE);
+		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.ih);
+		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.h6);
 		var configurationsButton = A5(
 			$author$project$Playground$Playground$leftBarButton,
 			$elm$core$List$isEmpty(
-				$author$project$Playground$Tape$currentComputer(model.jo).aU),
+				$author$project$Playground$Tape$currentComputer(model.ju).aU),
 			model.aK === 2,
 			$author$project$Playground$Playground$ClickedOnShowConfigurationsButton,
 			'Configurations',
-			$author$project$Playground$Icons$icons.h3);
+			$author$project$Playground$Icons$icons.h5);
 		var leftStripe = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -10250,7 +10250,19 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('flex flex-col')
 						]),
 					_List_fromArray(
-						[yinYangButton, configurationsButton, inputsButton])),
+						[
+							yinYangButton,
+							configurationsButton,
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
+									$author$project$Playground$Tape$isNoTape(model.ju))
+								]),
+							_List_fromArray(
+								[inputsButton]))
+						])),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -10294,7 +10306,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('absolute left-0 top-0'),
 							$elm$html$Html$Attributes$class('pointer-events-none'),
 							$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
-							$author$project$Playground$Tape$isRecording(model.jo) || $author$project$Playground$Tape$isNoTape(model.jo))
+							$author$project$Playground$Tape$isRecording(model.ju) || $author$project$Playground$Tape$isNoTape(model.ju))
 						]),
 					_List_fromArray(
 						[
@@ -10305,7 +10317,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 	});
 var $author$project$Playground$Playground$view = F2(
 	function (app, model) {
-		var computer = $author$project$Playground$Tape$currentComputer(model.jo);
+		var computer = $author$project$Playground$Tape$currentComputer(model.ju);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -10317,11 +10329,11 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'width',
-					$elm$core$String$fromFloat(computer.b7.jy) + 'px'),
+					$elm$core$String$fromFloat(computer.b7.jE) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b7.ia) + 'px')
+					$elm$core$String$fromFloat(computer.b7.id) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -10331,7 +10343,7 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 						app.ch,
 						computer,
-						$author$project$Playground$Tape$currentAppModel(model.jo))),
+						$author$project$Playground$Tape$currentAppModel(model.ju))),
 					A2($author$project$Playground$Playground$viewHUD, computer, model)
 				]));
 	});
@@ -10395,7 +10407,7 @@ var $author$project$TrixelEditor$World$setBackgroundColorIndex = F2(
 	function (colorIndex, world) {
 		return _Utils_update(
 			world,
-			{hr: colorIndex});
+			{hs: colorIndex});
 	});
 var $author$project$TrixelEditor$World$setPalette = F2(
 	function (palette, world) {
@@ -10413,7 +10425,7 @@ var $author$project$Tools$Pages$Pages$addNewLevel = F2(
 				$author$project$Tools$SelectList$SelectList$add(
 					_Utils_update(
 						currentLevel,
-						{iK: currentLevel.iK + ' copy'})),
+						{iN: currentLevel.iN + ' copy'})),
 				p);
 		} else {
 			return p;
@@ -10430,7 +10442,7 @@ var $author$project$Tools$Pages$Pages$changeLevelName = F2(
 					function (item) {
 						return _Utils_update(
 							item,
-							{iK: newName});
+							{iN: newName});
 					}),
 				p);
 		} else {
@@ -10439,7 +10451,7 @@ var $author$project$Tools$Pages$Pages$changeLevelName = F2(
 	});
 var $author$project$Tools$Pages$Pages$Item = F2(
 	function (name, page) {
-		return {iK: name, cL: page};
+		return {iN: name, cL: page};
 	});
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$json$Json$Decode$fail = _Json_fail;
@@ -10454,7 +10466,7 @@ var $author$project$Tools$Pages$Pages$importJSON = F2(
 						$elm$json$Json$Decode$map2,
 						$author$project$Tools$Pages$Pages$Item,
 						A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
-						A2($elm$json$Json$Decode$field, 'page', p.gH));
+						A2($elm$json$Json$Decode$field, 'page', p.gI));
 					return A2(
 						$elm$core$Result$withDefault,
 						p.az,
@@ -10519,10 +10531,10 @@ var $author$project$Tools$Pages$Pages$handleImportExport = F2(
 											[
 												_Utils_Tuple2(
 												'name',
-												$elm$json$Json$Encode$string(item.iK)),
+												$elm$json$Json$Encode$string(item.iN)),
 												_Utils_Tuple2(
 												'page',
-												p.fS(item.cL))
+												p.fT(item.cL))
 											]));
 								},
 								$author$project$Tools$SelectList$SelectList$toList(p.az)))
@@ -10845,12 +10857,12 @@ var $author$project$TrixelEditor$World$insert = F3(
 		return _Utils_update(
 			world,
 			{
-				js: A3($turboMaCk$any_dict$Dict$Any$insert, triangle, colorIndex, world.js)
+				jy: A3($turboMaCk$any_dict$Dict$Any$insert, triangle, colorIndex, world.jy)
 			});
 	});
 var $author$project$TrixelEditor$Main$insertTrixelOnPointerDown = F2(
 	function (computer, model) {
-		return computer.b6.$9 ? A2(
+		return computer.b6.iq ? A2(
 			$author$project$TrixelEditor$Main$mapCurrentWorld,
 			A2(
 				$author$project$TrixelEditor$World$insert,
@@ -11237,12 +11249,12 @@ var $author$project$TrixelEditor$World$remove = F2(
 		return _Utils_update(
 			world,
 			{
-				js: A2($turboMaCk$any_dict$Dict$Any$remove, triangle, world.js)
+				jy: A2($turboMaCk$any_dict$Dict$Any$remove, triangle, world.jy)
 			});
 	});
 var $author$project$TrixelEditor$Main$removeTrixelOnShiftMouseDown = F2(
 	function (computer, model) {
-		return (computer.b1.je && computer.b6.$9) ? A2(
+		return (computer.b1.ji && computer.b6.iq) ? A2(
 			$author$project$TrixelEditor$Main$mapCurrentWorld,
 			$author$project$TrixelEditor$World$remove(
 				$author$project$TrixelEditor$TrixelGrid$Face$at(model.b2)),
@@ -11250,8 +11262,8 @@ var $author$project$TrixelEditor$Main$removeTrixelOnShiftMouseDown = F2(
 	});
 var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $author$project$TrixelEditor$TrixelGrid$CoordinateTransformations$fromCanvasCoordinates = function (_v0) {
-	var x = _v0.jB;
-	var y = _v0.jG;
+	var x = _v0.jH;
+	var y = _v0.jM;
 	return {
 		d2: (2 / $elm$core$Basics$sqrt(3)) * x,
 		d4: (((-1) / $elm$core$Basics$sqrt(3)) * x) + y
@@ -11263,7 +11275,7 @@ var $ianmackenzie$elm_units$Length$meters = function (numMeters) {
 };
 var $author$project$Geometry$Point = F3(
 	function (x, y, z) {
-		return {jB: x, jG: y, fz: z};
+		return {jH: x, jM: y, fz: z};
 	});
 var $elm$core$Basics$pi = _Basics_pi;
 var $ianmackenzie$elm_units$Angle$radians = function (numRadians) {
@@ -11283,11 +11295,11 @@ var $ianmackenzie$elm_geometry$Direction3d$componentIn = F2(
 	function (_v0, _v1) {
 		var d2 = _v0;
 		var d1 = _v1;
-		return ((d1.jB * d2.jB) + (d1.jG * d2.jG)) + (d1.fz * d2.fz);
+		return ((d1.jH * d2.jH) + (d1.jM * d2.jM)) + (d1.fz * d2.fz);
 	});
 var $ianmackenzie$elm_geometry$Axis3d$direction = function (_v0) {
 	var axis = _v0;
-	return axis.hP;
+	return axis.hR;
 };
 var $ianmackenzie$elm_units$Quantity$multiplyBy = F2(
 	function (scale, _v0) {
@@ -11304,9 +11316,9 @@ var $ianmackenzie$elm_geometry$Point3d$signedDistanceFrom = F2(
 		var p = _v1;
 		var _v2 = plane.eV;
 		var p0 = _v2;
-		var _v3 = plane.iN;
+		var _v3 = plane.iQ;
 		var n = _v3;
-		return (((p.jB - p0.jB) * n.jB) + ((p.jG - p0.jG) * n.jG)) + ((p.fz - p0.fz) * n.fz);
+		return (((p.jH - p0.jH) * n.jH) + ((p.jM - p0.jM) * n.jM)) + ((p.fz - p0.fz) * n.fz);
 	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Point3d = $elm$core$Basics$identity;
 var $ianmackenzie$elm_geometry$Point3d$translateIn = F3(
@@ -11314,13 +11326,13 @@ var $ianmackenzie$elm_geometry$Point3d$translateIn = F3(
 		var d = _v0;
 		var distance = _v1;
 		var p = _v2;
-		return {jB: p.jB + (distance * d.jB), jG: p.jG + (distance * d.jG), fz: p.fz + (distance * d.fz)};
+		return {jH: p.jH + (distance * d.jH), jM: p.jM + (distance * d.jM), fz: p.fz + (distance * d.fz)};
 	});
 var $ianmackenzie$elm_geometry$Axis3d$intersectionWithPlane = F2(
 	function (plane, axis) {
 		var axisDirection = $ianmackenzie$elm_geometry$Axis3d$direction(axis);
 		var _v0 = plane;
-		var normalDirection = _v0.iN;
+		var normalDirection = _v0.iQ;
 		var normalComponent = A2($ianmackenzie$elm_geometry$Direction3d$componentIn, normalDirection, axisDirection);
 		if (!normalComponent) {
 			return $elm$core$Maybe$Nothing;
@@ -11335,7 +11347,7 @@ var $ianmackenzie$elm_geometry$Axis3d$intersectionWithPlane = F2(
 var $ianmackenzie$elm_geometry$Geometry$Types$Point2d = $elm$core$Basics$identity;
 var $ianmackenzie$elm_geometry$Point2d$pixels = F2(
 	function (x, y) {
-		return {jB: x, jG: y};
+		return {jH: x, jM: y};
 	});
 var $ianmackenzie$elm_units$Quantity$at = F2(
 	function (_v0, _v1) {
@@ -11350,7 +11362,7 @@ var $ianmackenzie$elm_geometry$Frame2d$copy = function (_v0) {
 };
 var $ianmackenzie$elm_geometry$Rectangle2d$axes = function (_v0) {
 	var rectangle = _v0;
-	return $ianmackenzie$elm_geometry$Frame2d$copy(rectangle.hq);
+	return $ianmackenzie$elm_geometry$Frame2d$copy(rectangle.hr);
 };
 var $ianmackenzie$elm_geometry$Rectangle2d$dimensions = function (_v0) {
 	var rectangle = _v0;
@@ -11361,20 +11373,20 @@ var $ianmackenzie$elm_geometry$Vector3d$direction = function (_v0) {
 	var v = _v0;
 	var largestComponent = A2(
 		$elm$core$Basics$max,
-		$elm$core$Basics$abs(v.jB),
+		$elm$core$Basics$abs(v.jH),
 		A2(
 			$elm$core$Basics$max,
-			$elm$core$Basics$abs(v.jG),
+			$elm$core$Basics$abs(v.jM),
 			$elm$core$Basics$abs(v.fz)));
 	if (!largestComponent) {
 		return $elm$core$Maybe$Nothing;
 	} else {
 		var scaledZ = v.fz / largestComponent;
-		var scaledY = v.jG / largestComponent;
-		var scaledX = v.jB / largestComponent;
+		var scaledY = v.jM / largestComponent;
+		var scaledX = v.jH / largestComponent;
 		var scaledLength = $elm$core$Basics$sqrt(((scaledX * scaledX) + (scaledY * scaledY)) + (scaledZ * scaledZ));
 		return $elm$core$Maybe$Just(
-			{jB: scaledX / scaledLength, jG: scaledY / scaledLength, fz: scaledZ / scaledLength});
+			{jH: scaledX / scaledLength, jM: scaledY / scaledLength, fz: scaledZ / scaledLength});
 	}
 };
 var $ianmackenzie$elm_units$Quantity$divideBy = F2(
@@ -11398,7 +11410,7 @@ var $ianmackenzie$elm_geometry$Direction3d$unsafe = function (givenComponents) {
 	return givenComponents;
 };
 var $ianmackenzie$elm_geometry$Direction3d$negativeZ = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{jB: 0, jG: 0, fz: -1});
+	{jH: 0, jM: 0, fz: -1});
 var $ianmackenzie$elm_units$Quantity$per = F2(
 	function (_v0, _v1) {
 		var independentValue = _v0;
@@ -11413,18 +11425,18 @@ var $ianmackenzie$elm_geometry$Direction3d$placeIn = F2(
 		var k = _v2;
 		var _v3 = frame.fy;
 		var j = _v3;
-		var _v4 = frame.jE;
+		var _v4 = frame.jK;
 		var i = _v4;
-		return {jB: ((i.jB * d.jB) + (j.jB * d.jG)) + (k.jB * d.fz), jG: ((i.jG * d.jB) + (j.jG * d.jG)) + (k.jG * d.fz), fz: ((i.fz * d.jB) + (j.fz * d.jG)) + (k.fz * d.fz)};
+		return {jH: ((i.jH * d.jH) + (j.jH * d.jM)) + (k.jH * d.fz), jM: ((i.jM * d.jH) + (j.jM * d.jM)) + (k.jM * d.fz), fz: ((i.fz * d.jH) + (j.fz * d.jM)) + (k.fz * d.fz)};
 	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Axis3d = $elm$core$Basics$identity;
 var $ianmackenzie$elm_geometry$Axis3d$through = F2(
 	function (givenPoint, givenDirection) {
-		return {hP: givenDirection, eV: givenPoint};
+		return {hR: givenDirection, eV: givenPoint};
 	});
 var $ianmackenzie$elm_geometry$Direction3d$reverse = function (_v0) {
 	var d = _v0;
-	return {jB: -d.jB, jG: -d.jG, fz: -d.fz};
+	return {jH: -d.jH, jM: -d.jM, fz: -d.fz};
 };
 var $ianmackenzie$elm_geometry$Frame3d$zDirection = function (_v0) {
 	var properties = _v0;
@@ -11441,9 +11453,9 @@ var $ianmackenzie$elm_geometry$Point2d$xCoordinateIn = F2(
 		var p = _v1;
 		var _v2 = frame.eV;
 		var p0 = _v2;
-		var _v3 = frame.jE;
+		var _v3 = frame.jK;
 		var d = _v3;
-		return ((p.jB - p0.jB) * d.jB) + ((p.jG - p0.jG) * d.jG);
+		return ((p.jH - p0.jH) * d.jH) + ((p.jM - p0.jM) * d.jM);
 	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Vector3d = $elm$core$Basics$identity;
 var $ianmackenzie$elm_geometry$Vector3d$xyz = F3(
@@ -11451,7 +11463,7 @@ var $ianmackenzie$elm_geometry$Vector3d$xyz = F3(
 		var x = _v0;
 		var y = _v1;
 		var z = _v2;
-		return {jB: x, jG: y, fz: z};
+		return {jH: x, jM: y, fz: z};
 	});
 var $ianmackenzie$elm_geometry$Point3d$xyzIn = F4(
 	function (_v0, _v1, _v2, _v3) {
@@ -11465,9 +11477,9 @@ var $ianmackenzie$elm_geometry$Point3d$xyzIn = F4(
 		var k = _v5;
 		var _v6 = frame.fy;
 		var j = _v6;
-		var _v7 = frame.jE;
+		var _v7 = frame.jK;
 		var i = _v7;
-		return {jB: ((p0.jB + (x * i.jB)) + (y * j.jB)) + (z * k.jB), jG: ((p0.jG + (x * i.jG)) + (y * j.jG)) + (z * k.jG), fz: ((p0.fz + (x * i.fz)) + (y * j.fz)) + (z * k.fz)};
+		return {jH: ((p0.jH + (x * i.jH)) + (y * j.jH)) + (z * k.jH), jM: ((p0.jM + (x * i.jM)) + (y * j.jM)) + (z * k.jM), fz: ((p0.fz + (x * i.fz)) + (y * j.fz)) + (z * k.fz)};
 	});
 var $ianmackenzie$elm_geometry$Point2d$yCoordinateIn = F2(
 	function (_v0, _v1) {
@@ -11477,7 +11489,7 @@ var $ianmackenzie$elm_geometry$Point2d$yCoordinateIn = F2(
 		var p0 = _v2;
 		var _v3 = frame.fy;
 		var d = _v3;
-		return ((p.jB - p0.jB) * d.jB) + ((p.jG - p0.jG) * d.jG);
+		return ((p.jH - p0.jH) * d.jH) + ((p.jM - p0.jM) * d.jM);
 	});
 var $ianmackenzie$elm_units$Quantity$zero = 0;
 var $ianmackenzie$elm_3d_camera$Camera3d$ray = F3(
@@ -11542,13 +11554,13 @@ var $elm$core$Basics$sin = _Basics_sin;
 var $ianmackenzie$elm_geometry$Direction2d$fromAngle = function (_v0) {
 	var angle = _v0;
 	return {
-		jB: $elm$core$Basics$cos(angle),
-		jG: $elm$core$Basics$sin(angle)
+		jH: $elm$core$Basics$cos(angle),
+		jM: $elm$core$Basics$sin(angle)
 	};
 };
 var $ianmackenzie$elm_geometry$Direction2d$rotateCounterclockwise = function (_v0) {
 	var d = _v0;
-	return {jB: -d.jG, jG: d.jB};
+	return {jH: -d.jM, jM: d.jH};
 };
 var $ianmackenzie$elm_geometry$Frame2d$unsafe = function (properties) {
 	return properties;
@@ -11558,7 +11570,7 @@ var $ianmackenzie$elm_geometry$Frame2d$withXDirection = F2(
 		return $ianmackenzie$elm_geometry$Frame2d$unsafe(
 			{
 				eV: givenOrigin,
-				jE: givenDirection,
+				jK: givenDirection,
 				fy: $ianmackenzie$elm_geometry$Direction2d$rotateCounterclockwise(givenDirection)
 			});
 	});
@@ -11574,7 +11586,7 @@ var $ianmackenzie$elm_geometry$Rectangle2d$withDimensions = F3(
 		var givenWidth = _v0.a;
 		var givenHeight = _v0.b;
 		return {
-			hq: A2($ianmackenzie$elm_geometry$Frame2d$withAngle, givenAngle, givenCenter),
+			hr: A2($ianmackenzie$elm_geometry$Frame2d$withAngle, givenAngle, givenCenter),
 			bP: _Utils_Tuple2(
 				$ianmackenzie$elm_units$Quantity$abs(givenWidth),
 				$ianmackenzie$elm_units$Quantity$abs(givenHeight))
@@ -11582,17 +11594,17 @@ var $ianmackenzie$elm_geometry$Rectangle2d$withDimensions = F3(
 	});
 var $ianmackenzie$elm_geometry$Point3d$xCoordinate = function (_v0) {
 	var p = _v0;
-	return p.jB;
+	return p.jH;
 };
 var $ianmackenzie$elm_geometry$Point2d$xy = F2(
 	function (_v0, _v1) {
 		var x = _v0;
 		var y = _v1;
-		return {jB: x, jG: y};
+		return {jH: x, jM: y};
 	});
 var $ianmackenzie$elm_geometry$Point3d$yCoordinate = function (_v0) {
 	var p = _v0;
-	return p.jG;
+	return p.jM;
 };
 var $ianmackenzie$elm_geometry$Point3d$zCoordinate = function (_v0) {
 	var p = _v0;
@@ -11600,8 +11612,8 @@ var $ianmackenzie$elm_geometry$Point3d$zCoordinate = function (_v0) {
 };
 var $author$project$Camera$mouseOverPlane = F4(
 	function (camera, screen, _v0, plane) {
-		var x = _v0.jB;
-		var y = _v0.jG;
+		var x = _v0.jH;
+		var y = _v0.jM;
 		var toPoint = function (p) {
 			return A3(
 				$author$project$Geometry$Point,
@@ -11615,8 +11627,8 @@ var $author$project$Camera$mouseOverPlane = F4(
 		var screenRect = A3(
 			$ianmackenzie$elm_geometry$Rectangle2d$withDimensions,
 			_Utils_Tuple2(
-				$ianmackenzie$elm_units$Pixels$float(screen.jy),
-				$ianmackenzie$elm_units$Pixels$float(screen.ia)),
+				$ianmackenzie$elm_units$Pixels$float(screen.jE),
+				$ianmackenzie$elm_units$Pixels$float(screen.id)),
 			$ianmackenzie$elm_units$Angle$degrees(0),
 			A2($ianmackenzie$elm_geometry$Point2d$pixels, 0, 0));
 		var mousePosition = A2(
@@ -11635,28 +11647,28 @@ var $ianmackenzie$elm_geometry$Point3d$translateBy = F2(
 	function (_v0, _v1) {
 		var v = _v0;
 		var p = _v1;
-		return {jB: p.jB + v.jB, jG: p.jG + v.jG, fz: p.fz + v.fz};
+		return {jH: p.jH + v.jH, jM: p.jM + v.jM, fz: p.fz + v.fz};
 	});
 var $ianmackenzie$elm_geometry$Geometry$Types$Plane3d = $elm$core$Basics$identity;
 var $ianmackenzie$elm_geometry$Plane3d$withNormalDirection = F2(
 	function (givenNormalDirection, givenPoint) {
-		return {iN: givenNormalDirection, eV: givenPoint};
+		return {iQ: givenNormalDirection, eV: givenPoint};
 	});
 var $ianmackenzie$elm_geometry$Plane3d$translateBy = F2(
 	function (vector, _v0) {
 		var plane = _v0;
 		return A2(
 			$ianmackenzie$elm_geometry$Plane3d$withNormalDirection,
-			plane.iN,
+			plane.iQ,
 			A2($ianmackenzie$elm_geometry$Point3d$translateBy, vector, plane.eV));
 	});
-var $ianmackenzie$elm_geometry$Point3d$origin = {jB: 0, jG: 0, fz: 0};
+var $ianmackenzie$elm_geometry$Point3d$origin = {jH: 0, jM: 0, fz: 0};
 var $ianmackenzie$elm_geometry$Plane3d$through = F2(
 	function (givenPoint, givenNormalDirection) {
-		return {iN: givenNormalDirection, eV: givenPoint};
+		return {iQ: givenNormalDirection, eV: givenPoint};
 	});
 var $ianmackenzie$elm_geometry$Direction3d$positiveZ = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{jB: 0, jG: 0, fz: 1});
+	{jH: 0, jM: 0, fz: 1});
 var $ianmackenzie$elm_geometry$Direction3d$z = $ianmackenzie$elm_geometry$Direction3d$positiveZ;
 var $ianmackenzie$elm_geometry$Plane3d$xy = A2($ianmackenzie$elm_geometry$Plane3d$through, $ianmackenzie$elm_geometry$Point3d$origin, $ianmackenzie$elm_geometry$Direction3d$z);
 var $author$project$Camera$mouseOverXYAtZ = F4(
@@ -11684,8 +11696,8 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$get = F2(
 		var yIsUp = _v0.d7;
 		var p = _v1;
 		return {
-			iV: p.aF.jB,
-			iW: A2($author$project$Tools$PanAndZoom$PanAndZoom$negativeIf, !yIsUp, p.aF.jG),
+			iY: p.aF.jH,
+			iZ: A2($author$project$Tools$PanAndZoom$PanAndZoom$negativeIf, !yIsUp, p.aF.jM),
 			W: p.W
 		};
 	});
@@ -11695,8 +11707,8 @@ var $ianmackenzie$elm_geometry$Direction3d$from = F2(
 		var p1 = _v0;
 		var p2 = _v1;
 		var deltaZ = p2.fz - p1.fz;
-		var deltaY = p2.jG - p1.jG;
-		var deltaX = p2.jB - p1.jB;
+		var deltaY = p2.jM - p1.jM;
+		var deltaX = p2.jH - p1.jH;
 		var largestComponent = A2(
 			$elm$core$Basics$max,
 			$elm$core$Basics$abs(deltaX),
@@ -11712,7 +11724,7 @@ var $ianmackenzie$elm_geometry$Direction3d$from = F2(
 			var scaledX = deltaX / largestComponent;
 			var scaledLength = $elm$core$Basics$sqrt(((scaledX * scaledX) + (scaledY * scaledY)) + (scaledZ * scaledZ));
 			return $elm$core$Maybe$Just(
-				{jB: scaledX / scaledLength, jG: scaledY / scaledLength, fz: scaledZ / scaledLength});
+				{jH: scaledX / scaledLength, jM: scaledY / scaledLength, fz: scaledZ / scaledLength});
 		}
 	});
 var $ianmackenzie$elm_geometry$Point3d$fromMeters = function (givenCoordinates) {
@@ -11723,19 +11735,19 @@ var $ianmackenzie$elm_geometry$Vector3d$cross = F2(
 	function (_v0, _v1) {
 		var v2 = _v0;
 		var v1 = _v1;
-		return {jB: (v1.jG * v2.fz) - (v1.fz * v2.jG), jG: (v1.fz * v2.jB) - (v1.jB * v2.fz), fz: (v1.jB * v2.jG) - (v1.jG * v2.jB)};
+		return {jH: (v1.jM * v2.fz) - (v1.fz * v2.jM), jM: (v1.fz * v2.jH) - (v1.jH * v2.fz), fz: (v1.jH * v2.jM) - (v1.jM * v2.jH)};
 	});
 var $ianmackenzie$elm_geometry$Vector3d$from = F2(
 	function (_v0, _v1) {
 		var p1 = _v0;
 		var p2 = _v1;
-		return {jB: p2.jB - p1.jB, jG: p2.jG - p1.jG, fz: p2.fz - p1.fz};
+		return {jH: p2.jH - p1.jH, jM: p2.jM - p1.jM, fz: p2.fz - p1.fz};
 	});
 var $ianmackenzie$elm_geometry$Vector3d$dot = F2(
 	function (_v0, _v1) {
 		var v2 = _v0;
 		var v1 = _v1;
-		return ((v1.jB * v2.jB) + (v1.jG * v2.jG)) + (v1.fz * v2.fz);
+		return ((v1.jH * v2.jH) + (v1.jM * v2.jM)) + (v1.fz * v2.fz);
 	});
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
@@ -11753,20 +11765,20 @@ var $ianmackenzie$elm_geometry$Vector3d$minus = F2(
 	function (_v0, _v1) {
 		var v2 = _v0;
 		var v1 = _v1;
-		return {jB: v1.jB - v2.jB, jG: v1.jG - v2.jG, fz: v1.fz - v2.fz};
+		return {jH: v1.jH - v2.jH, jM: v1.jM - v2.jM, fz: v1.fz - v2.fz};
 	});
 var $ianmackenzie$elm_geometry$Vector3d$projectionIn = F2(
 	function (_v0, _v1) {
 		var d = _v0;
 		var v = _v1;
-		var projectedLength = ((v.jB * d.jB) + (v.jG * d.jG)) + (v.fz * d.fz);
-		return {jB: d.jB * projectedLength, jG: d.jG * projectedLength, fz: d.fz * projectedLength};
+		var projectedLength = ((v.jH * d.jH) + (v.jM * d.jM)) + (v.fz * d.fz);
+		return {jH: d.jH * projectedLength, jM: d.jM * projectedLength, fz: d.fz * projectedLength};
 	});
 var $ianmackenzie$elm_geometry$Vector3d$reverse = function (_v0) {
 	var v = _v0;
-	return {jB: -v.jB, jG: -v.jG, fz: -v.fz};
+	return {jH: -v.jH, jM: -v.jM, fz: -v.fz};
 };
-var $ianmackenzie$elm_geometry$Vector3d$zero = {jB: 0, jG: 0, fz: 0};
+var $ianmackenzie$elm_geometry$Vector3d$zero = {jH: 0, jM: 0, fz: 0};
 var $ianmackenzie$elm_geometry$Direction3d$orthonormalize = F3(
 	function (xVector, xyVector, xyzVector) {
 		return A2(
@@ -11796,23 +11808,23 @@ var $ianmackenzie$elm_geometry$Direction3d$orthonormalize = F3(
 var $ianmackenzie$elm_geometry$Direction3d$perpendicularTo = function (_v0) {
 	var d = _v0;
 	var absZ = $elm$core$Basics$abs(d.fz);
-	var absY = $elm$core$Basics$abs(d.jG);
-	var absX = $elm$core$Basics$abs(d.jB);
+	var absY = $elm$core$Basics$abs(d.jM);
+	var absX = $elm$core$Basics$abs(d.jH);
 	if (_Utils_cmp(absX, absY) < 1) {
 		if (_Utils_cmp(absX, absZ) < 1) {
-			var scale = $elm$core$Basics$sqrt((d.fz * d.fz) + (d.jG * d.jG));
-			return {jB: 0, jG: (-d.fz) / scale, fz: d.jG / scale};
+			var scale = $elm$core$Basics$sqrt((d.fz * d.fz) + (d.jM * d.jM));
+			return {jH: 0, jM: (-d.fz) / scale, fz: d.jM / scale};
 		} else {
-			var scale = $elm$core$Basics$sqrt((d.jG * d.jG) + (d.jB * d.jB));
-			return {jB: (-d.jG) / scale, jG: d.jB / scale, fz: 0};
+			var scale = $elm$core$Basics$sqrt((d.jM * d.jM) + (d.jH * d.jH));
+			return {jH: (-d.jM) / scale, jM: d.jH / scale, fz: 0};
 		}
 	} else {
 		if (_Utils_cmp(absY, absZ) < 1) {
-			var scale = $elm$core$Basics$sqrt((d.fz * d.fz) + (d.jB * d.jB));
-			return {jB: d.fz / scale, jG: 0, fz: (-d.jB) / scale};
+			var scale = $elm$core$Basics$sqrt((d.fz * d.fz) + (d.jH * d.jH));
+			return {jH: d.fz / scale, jM: 0, fz: (-d.jH) / scale};
 		} else {
-			var scale = $elm$core$Basics$sqrt((d.jB * d.jB) + (d.jG * d.jG));
-			return {jB: (-d.jG) / scale, jG: d.jB / scale, fz: 0};
+			var scale = $elm$core$Basics$sqrt((d.jH * d.jH) + (d.jM * d.jM));
+			return {jH: (-d.jM) / scale, jM: d.jH / scale, fz: 0};
 		}
 	}
 };
@@ -11822,7 +11834,7 @@ var $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis = function (direct
 	var dX = _v0;
 	var _v1 = direction;
 	var d = _v1;
-	var yDirection = {jB: (d.jG * dX.fz) - (d.fz * dX.jG), jG: (d.fz * dX.jB) - (d.jB * dX.fz), fz: (d.jB * dX.jG) - (d.jG * dX.jB)};
+	var yDirection = {jH: (d.jM * dX.fz) - (d.fz * dX.jM), jM: (d.fz * dX.jH) - (d.jH * dX.fz), fz: (d.jH * dX.jM) - (d.jM * dX.jH)};
 	return _Utils_Tuple2(xDirection, yDirection);
 };
 var $ianmackenzie$elm_geometry$Direction3d$toVector = function (_v0) {
@@ -11839,11 +11851,11 @@ var $ianmackenzie$elm_geometry$Frame3d$withZDirection = F2(
 		var computedXDirection = _v0.a;
 		var computedYDirection = _v0.b;
 		return $ianmackenzie$elm_geometry$Frame3d$unsafe(
-			{eV: givenOrigin, jE: computedXDirection, fy: computedYDirection, fA: givenZDirection});
+			{eV: givenOrigin, jK: computedXDirection, fy: computedYDirection, fA: givenZDirection});
 	});
 var $ianmackenzie$elm_3d_camera$Viewpoint3d$lookAt = function (_arguments) {
-	var zVector = A2($ianmackenzie$elm_geometry$Vector3d$from, _arguments.bW, _arguments.fX);
-	var yVector = $ianmackenzie$elm_geometry$Direction3d$toVector(_arguments.hg);
+	var zVector = A2($ianmackenzie$elm_geometry$Vector3d$from, _arguments.bW, _arguments.fY);
+	var yVector = $ianmackenzie$elm_geometry$Direction3d$toVector(_arguments.hh);
 	var xVector = A2($ianmackenzie$elm_geometry$Vector3d$cross, zVector, yVector);
 	var _v0 = A3($ianmackenzie$elm_geometry$Direction3d$orthonormalize, zVector, yVector, xVector);
 	if (!_v0.$) {
@@ -11852,18 +11864,18 @@ var $ianmackenzie$elm_3d_camera$Viewpoint3d$lookAt = function (_arguments) {
 		var normalizedYDirection = _v1.b;
 		var normalizedXDirection = _v1.c;
 		return $ianmackenzie$elm_geometry$Frame3d$unsafe(
-			{eV: _arguments.fX, jE: normalizedXDirection, fy: normalizedYDirection, fA: normalizedZDirection});
+			{eV: _arguments.fY, jK: normalizedXDirection, fy: normalizedYDirection, fA: normalizedZDirection});
 	} else {
 		var _v2 = $ianmackenzie$elm_geometry$Vector3d$direction(zVector);
 		if (!_v2.$) {
 			var zDirection = _v2.a;
-			return A2($ianmackenzie$elm_geometry$Frame3d$withZDirection, zDirection, _arguments.fX);
+			return A2($ianmackenzie$elm_geometry$Frame3d$withZDirection, zDirection, _arguments.fY);
 		} else {
-			var _v3 = $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis(_arguments.hg);
+			var _v3 = $ianmackenzie$elm_geometry$Direction3d$perpendicularBasis(_arguments.hh);
 			var arbitraryZDirection = _v3.a;
 			var arbitraryXDirection = _v3.b;
 			return $ianmackenzie$elm_geometry$Frame3d$unsafe(
-				{eV: _arguments.fX, jE: arbitraryXDirection, fy: _arguments.hg, fA: arbitraryZDirection});
+				{eV: _arguments.fY, jK: arbitraryXDirection, fy: _arguments.hh, fA: arbitraryZDirection});
 		}
 	}
 };
@@ -11882,7 +11894,7 @@ var $ianmackenzie$elm_units$Angle$tan = function (_v0) {
 };
 var $ianmackenzie$elm_3d_camera$Camera3d$perspective = function (_arguments) {
 	var halfFieldOfView = $ianmackenzie$elm_units$Quantity$half(
-		$ianmackenzie$elm_units$Quantity$abs(_arguments.hh));
+		$ianmackenzie$elm_units$Quantity$abs(_arguments.hi));
 	var frustumSlope = $ianmackenzie$elm_units$Angle$tan(halfFieldOfView);
 	return {
 		e6: $ianmackenzie$elm_3d_camera$Camera3d$Types$Perspective(frustumSlope),
@@ -11890,20 +11902,20 @@ var $ianmackenzie$elm_3d_camera$Camera3d$perspective = function (_arguments) {
 	};
 };
 var $ianmackenzie$elm_geometry$Direction3d$positiveY = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{jB: 0, jG: 1, fz: 0});
+	{jH: 0, jM: 1, fz: 0});
 var $author$project$Camera$perspective = function (_v0) {
 	var focalPoint = _v0.bW;
-	var eyePoint = _v0.fX;
-	var upDirection = _v0.hg;
+	var eyePoint = _v0.fY;
+	var upDirection = _v0.hh;
 	return $ianmackenzie$elm_3d_camera$Camera3d$perspective(
 		{
-			hh: $ianmackenzie$elm_units$Angle$radians(
+			hi: $ianmackenzie$elm_units$Angle$radians(
 				2 * $elm$core$Basics$atan(0.5)),
 			fv: $ianmackenzie$elm_3d_camera$Viewpoint3d$lookAt(
 				{
-					fX: $ianmackenzie$elm_geometry$Point3d$fromMeters(eyePoint),
+					fY: $ianmackenzie$elm_geometry$Point3d$fromMeters(eyePoint),
 					bW: $ianmackenzie$elm_geometry$Point3d$fromMeters(focalPoint),
-					hg: A2(
+					hh: A2(
 						$elm$core$Maybe$withDefault,
 						$ianmackenzie$elm_geometry$Direction3d$positiveY,
 						A2(
@@ -11919,14 +11931,14 @@ var $author$project$TrixelEditor$Main$toPerspectiveCamera = F2(
 			$author$project$Tools$PanAndZoom$PanAndZoom$get,
 			{d7: true},
 			panAndZoomUI);
-		var panX = _v0.iV;
-		var panY = _v0.iW;
+		var panX = _v0.iY;
+		var panY = _v0.iZ;
 		var zoom = _v0.W;
 		return $author$project$Camera$perspective(
 			{
-				fX: {jB: panX, jG: panY, fz: screen.ia / zoom},
-				bW: {jB: panX, jG: panY, fz: 0},
-				hg: {jB: 0, jG: 1, fz: 0}
+				fY: {jH: panX, jM: panY, fz: screen.id / zoom},
+				bW: {jH: panX, jM: panY, fz: 0},
+				hh: {jH: 0, jM: 1, fz: 0}
 			});
 	});
 var $author$project$TrixelEditor$Main$updateMouseOverUV = F2(
@@ -11944,7 +11956,7 @@ var $author$project$TrixelEditor$Main$updateMouseOverUV = F2(
 				model,
 				{
 					b2: $author$project$TrixelEditor$TrixelGrid$CoordinateTransformations$fromCanvasCoordinates(
-						{jB: p.jB, jG: p.jG})
+						{jH: p.jH, jM: p.jM})
 				});
 		}
 	});
@@ -11958,8 +11970,8 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$getPointerPositionInLocalCoordin
 		var zoom = _v1.W;
 		return A2(
 			$author$project$Tools$Geometry$Geometry$Point2d,
-			pan.jB + (computer.b6.jB / zoom),
-			A2($author$project$Tools$PanAndZoom$PanAndZoom$negativeIf, !yIsUp, pan.jG + (computer.b6.jG / zoom)));
+			pan.jH + (computer.b6.jH / zoom),
+			A2($author$project$Tools$PanAndZoom$PanAndZoom$negativeIf, !yIsUp, pan.jM + (computer.b6.jM / zoom)));
 	});
 var $author$project$Tools$PanAndZoom$PanAndZoom$setState = F2(
 	function (state, _v0) {
@@ -11982,13 +11994,13 @@ var $author$project$Tools$Geometry$Geometry$translateBy = F2(
 	function (_v0, _v1) {
 		var dx = _v0.a;
 		var dy = _v0.b;
-		var x = _v1.jB;
-		var y = _v1.jG;
-		return {jB: x + dx, jG: y + dy};
+		var x = _v1.jH;
+		var y = _v1.jM;
+		return {jH: x + dx, jM: y + dy};
 	});
 var $author$project$Tools$Geometry$Geometry$vectorFrom = F2(
 	function (p, q) {
-		return _Utils_Tuple2(q.jB - p.jB, q.jG - p.jG);
+		return _Utils_Tuple2(q.jH - p.jH, q.jM - p.jM);
 	});
 var $author$project$Tools$Geometry$Geometry$scaleAbout = F3(
 	function (centerPoint, scale, point) {
@@ -12016,13 +12028,13 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$continueZoomingWithWheel = F2(
 		var wheel = computer.ci;
 		var clock = computer.bO;
 		var p = _v0;
-		var _v1 = _Utils_Tuple2((!(!wheel.hM)) || (!(!wheel.hN)), p.a$);
+		var _v1 = _Utils_Tuple2((!(!wheel.hO)) || (!(!wheel.hP)), p.a$);
 		if (_v1.a && (_v1.b.$ === 1)) {
 			var lastWheelDeltaYArrivedAt = _v1.b.a.cD;
 			var zoomSpeed = 0.002 * (p.bx - p.by);
 			return A3(
 				$author$project$Tools$PanAndZoom$PanAndZoom$zoomAround,
-				zoomSpeed * (-wheel.hN),
+				zoomSpeed * (-wheel.hP),
 				A3(
 					$author$project$Tools$PanAndZoom$PanAndZoom$getPointerPositionInLocalCoordinates,
 					computer,
@@ -12032,7 +12044,7 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$continueZoomingWithWheel = F2(
 					$author$project$Tools$PanAndZoom$PanAndZoom$setState,
 					$author$project$Tools$PanAndZoom$PanAndZoom$ZoomingWithWheel(
 						{
-							cD: ((!(!wheel.hM)) && (!wheel.hN)) ? lastWheelDeltaYArrivedAt : clock
+							cD: ((!(!wheel.hO)) && (!wheel.hP)) ? lastWheelDeltaYArrivedAt : clock
 						}),
 					p));
 		} else {
@@ -12046,14 +12058,14 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$panWithSpaceBar = F2(
 		var p = _v1;
 		var _v2 = p.a$;
 		if (_v2.$ === 2) {
-			var pointerPositionAtPanStart = _v2.a.gO;
-			var panAtStart = _v2.a.gI;
+			var pointerPositionAtPanStart = _v2.a.gP;
+			var panAtStart = _v2.a.gJ;
 			var translation = A2(
 				$author$project$Tools$Geometry$Geometry$scaleBy,
 				1 / p.W,
 				A2(
 					$author$project$Tools$Geometry$Geometry$vectorFrom,
-					A2($author$project$Tools$Geometry$Geometry$Point2d, pointer.jB, pointer.jG),
+					A2($author$project$Tools$Geometry$Geometry$Point2d, pointer.jH, pointer.jM),
 					pointerPositionAtPanStart));
 			return _Utils_update(
 				p,
@@ -12069,7 +12081,7 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$panWithWheel = F2(
 		var wheel = _v0.ci;
 		var keyboard = _v0.b1;
 		var p = _v1;
-		var _v2 = _Utils_Tuple2(p.a$, keyboard.hF);
+		var _v2 = _Utils_Tuple2(p.a$, keyboard.hH);
 		if ((!_v2.a.$) && (!_v2.b)) {
 			var _v3 = _v2.a;
 			var translation = A2(
@@ -12078,7 +12090,7 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$panWithWheel = F2(
 				A2(
 					$author$project$Tools$Geometry$Geometry$scaleBy,
 					1 / p.W,
-					_Utils_Tuple2(wheel.hM, -wheel.hN)));
+					_Utils_Tuple2(wheel.hO, -wheel.hP)));
 			return _Utils_update(
 				p,
 				{
@@ -12105,12 +12117,12 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$startPanningWithSpaceBar = F2(
 		var keyboard = _v0.b1;
 		var pointer = _v0.b6;
 		var p = _v1;
-		return (A2($elm$core$List$member, 'Space', keyboard.i0) && pointer.fO) ? A2(
+		return (A2($elm$core$List$member, 'Space', keyboard.i3) && pointer.fP) ? A2(
 			$author$project$Tools$PanAndZoom$PanAndZoom$setState,
 			$author$project$Tools$PanAndZoom$PanAndZoom$PanningWithSpaceBar(
 				{
-					gI: p.aF,
-					gO: A2($author$project$Tools$Geometry$Geometry$Point2d, pointer.jB, pointer.jG)
+					gJ: p.aF,
+					gP: A2($author$project$Tools$Geometry$Geometry$Point2d, pointer.jH, pointer.jM)
 				}),
 			p) : p;
 	});
@@ -12120,7 +12132,7 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$startZoomingWithWheel = F2(
 		var keyboard = _v0.b1;
 		var clock = _v0.bO;
 		var p = _v1;
-		var _v2 = _Utils_Tuple2(keyboard.hF, p.a$);
+		var _v2 = _Utils_Tuple2(keyboard.hH, p.a$);
 		if (_v2.a && (!_v2.b.$)) {
 			var _v3 = _v2.b;
 			return A2(
@@ -12136,17 +12148,17 @@ var $author$project$Tools$PanAndZoom$PanAndZoom$stopPanningWithSpaceBar = F2(
 	function (_v0, _v1) {
 		var pointer = _v0.b6;
 		var p = _v1;
-		return pointer.hf ? A2($author$project$Tools$PanAndZoom$PanAndZoom$setState, $author$project$Tools$PanAndZoom$PanAndZoom$Idle, p) : p;
+		return pointer.hg ? A2($author$project$Tools$PanAndZoom$PanAndZoom$setState, $author$project$Tools$PanAndZoom$PanAndZoom$Idle, p) : p;
 	});
 var $author$project$Tools$PanAndZoom$PanAndZoom$stopZoomingWithWheelByDeltaX = F2(
 	function (_v0, _v1) {
 		var wheel = _v0.ci;
 		var clock = _v0.bO;
 		var p = _v1;
-		var _v2 = _Utils_Tuple2(!(!wheel.hM), p.a$);
+		var _v2 = _Utils_Tuple2(!(!wheel.hO), p.a$);
 		if (_v2.a && (_v2.b.$ === 1)) {
 			var lastWheelDeltaYArrivedAt = _v2.b.a.cD;
-			return ((!(!wheel.hM)) && ((clock - lastWheelDeltaYArrivedAt) > 0.06)) ? A2($author$project$Tools$PanAndZoom$PanAndZoom$setState, $author$project$Tools$PanAndZoom$PanAndZoom$Idle, p) : p;
+			return ((!(!wheel.hO)) && ((clock - lastWheelDeltaYArrivedAt) > 0.06)) ? A2($author$project$Tools$PanAndZoom$PanAndZoom$setState, $author$project$Tools$PanAndZoom$PanAndZoom$Idle, p) : p;
 		} else {
 			return p;
 		}
@@ -12228,7 +12240,7 @@ var $author$project$TrixelEditor$Main$cursorForSpaceDragging = F2(
 		return A2(
 			$elm$html$Html$Attributes$style,
 			'cursor',
-			A2($elm$core$List$member, 'Space', computer.b1.i0) ? ($author$project$Tools$PanAndZoom$PanAndZoom$isPanningWithSpaceBar(model.bz) ? 'grabbing' : 'grab') : 'default');
+			A2($elm$core$List$member, 'Space', computer.b1.i3) ? ($author$project$Tools$PanAndZoom$PanAndZoom$isPanningWithSpaceBar(model.bz) ? 'grabbing' : 'grab') : 'default');
 	});
 var $author$project$TrixelEditor$Main$FromLevelEditor = function (a) {
 	return {$: 4, a: a};
@@ -12345,7 +12357,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 				$elm$html$Html$Attributes$title('Move Level Up')
 			]),
 		_List_fromArray(
-			[$author$project$Playground$Icons$icons.iI]));
+			[$author$project$Playground$Icons$icons.iL]));
 	var moveLevelDownButton = A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -12355,7 +12367,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 				$elm$html$Html$Attributes$title('Move Level Down')
 			]),
 		_List_fromArray(
-			[$author$project$Playground$Icons$icons.iH]));
+			[$author$project$Playground$Icons$icons.iK]));
 	var deleteCurrentLevelButton = A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -12365,7 +12377,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 				$elm$html$Html$Attributes$title('Delete Level')
 			]),
 		_List_fromArray(
-			[$author$project$Playground$Icons$icons.jr]));
+			[$author$project$Playground$Icons$icons.jx]));
 	var addNewLevelButton = A2(
 		$elm$html$Html$button,
 		_List_fromArray(
@@ -12375,7 +12387,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 				$elm$html$Html$Attributes$title('Duplicate Level')
 			]),
 		_List_fromArray(
-			[$author$project$Playground$Icons$icons.i_]));
+			[$author$project$Playground$Icons$icons.i1]));
 	var levelItem = F2(
 		function (index, levelName) {
 			return A2(
@@ -12407,7 +12419,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 										$elm$html$Html$Attributes$class('w-[100px] bg-transparent'),
 										$elm$html$Html$Attributes$placeholder('Enter Level Name'),
 										$elm$html$Html$Attributes$value(
-										$author$project$Tools$SelectList$SelectList$getCurrent(p.az).iK),
+										$author$project$Tools$SelectList$SelectList$getCurrent(p.az).iN),
 										$elm$html$Html$Events$onInput($author$project$Tools$Pages$Pages$ChangedCurrentLevelsNameTo),
 										$elm$html$Html$Attributes$autocomplete(false)
 									]),
@@ -12450,7 +12462,7 @@ var $author$project$Tools$Pages$Pages$view = function (_v0) {
 					$elm$core$List$indexedMap,
 					F2(
 						function (index, _v1) {
-							var name = _v1.iK;
+							var name = _v1.iN;
 							return A2(levelItem, index, name);
 						}),
 					$author$project$Tools$SelectList$SelectList$toList(p.az))),
@@ -14154,7 +14166,7 @@ var $author$project$TrixelEditor$Main$editorContent = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b7.ia - 80) + 'px'),
+					$elm$core$String$fromFloat(computer.b7.id - 80) + 'px'),
 					$elm$html$Html$Attributes$class('bg-black/20'),
 					$elm$html$Html$Attributes$class('border-[0.5px] border-white/20'),
 					$elm$html$Html$Attributes$class('overflow-y-scroll'),
@@ -14186,7 +14198,7 @@ var $author$project$TrixelEditor$Main$editorToggleButton = function (model) {
 					]),
 				_List_fromArray(
 					[
-						model.bQ ? $author$project$Playground$Icons$icons.hH : $author$project$Playground$Icons$icons.iY
+						model.bQ ? $author$project$Playground$Icons$icons.hJ : $author$project$Playground$Icons$icons.i$
 					]))
 			]));
 };
@@ -14347,7 +14359,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Material$matte = function (materialColor)
 };
 var $ianmackenzie$elm_geometry$Vector3d$meters = F3(
 	function (x, y, z) {
-		return {jB: x, jG: y, fz: z};
+		return {jH: x, jM: y, fz: z};
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$Types$Entity = $elm$core$Basics$identity;
 var $ianmackenzie$elm_3d_scene$Scene3d$Types$Transformed = F2(
@@ -14357,7 +14369,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Types$Transformed = F2(
 var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$compose = F2(
 	function (t1, t2) {
 		return {
-			f8: _Utils_eq(t1.f8, t2.f8),
+			f9: _Utils_eq(t1.f9, t2.f9),
 			H: ((t1.H * t2.H) + (t1.I * t2.K)) + (t1.J * t2.N),
 			I: ((t1.H * t2.I) + (t1.I * t2.L)) + (t1.J * t2.O),
 			J: ((t1.H * t2.J) + (t1.I * t2.M)) + (t1.J * t2.P),
@@ -14402,7 +14414,7 @@ var $ianmackenzie$elm_geometry$Vector3d$unwrap = function (_v0) {
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$translateBy = function (displacement) {
 	var v = $ianmackenzie$elm_geometry$Vector3d$unwrap(displacement);
-	return {f8: true, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: v.jB, ab: v.jG, ac: v.fz, dS: 1};
+	return {f9: true, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: v.jH, ab: v.jM, ac: v.fz, dS: 1};
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Entity$translateBy = F2(
 	function (displacement, givenDrawable) {
@@ -14448,10 +14460,10 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$rotateAround = F2(
 		var sinHalfAngle = $elm$core$Basics$sin(halfAngle);
 		var a = $ianmackenzie$elm_geometry$Direction3d$unwrap(
 			$ianmackenzie$elm_geometry$Axis3d$direction(axis));
-		var qx = a.jB * sinHalfAngle;
+		var qx = a.jH * sinHalfAngle;
 		var wx = qw * qx;
 		var xx = qx * qx;
-		var qy = a.jG * sinHalfAngle;
+		var qy = a.jM * sinHalfAngle;
 		var wy = qw * qy;
 		var xy = qx * qy;
 		var yy = qy * qy;
@@ -14469,7 +14481,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$rotateAround = F2(
 		var zz = qz * qz;
 		var a00 = 1 - (2 * (yy + zz));
 		var a11 = 1 - (2 * (xx + zz));
-		return {f8: true, H: a00, I: a10, J: a20, K: a01, L: a11, M: a21, N: a02, O: a12, P: a22, aa: ((p0.jB - (a00 * p0.jB)) - (a01 * p0.jG)) - (a02 * p0.fz), ab: ((p0.jG - (a10 * p0.jB)) - (a11 * p0.jG)) - (a12 * p0.fz), ac: ((p0.fz - (a20 * p0.jB)) - (a21 * p0.jG)) - (a22 * p0.fz), dS: 1};
+		return {f9: true, H: a00, I: a10, J: a20, K: a01, L: a11, M: a21, N: a02, O: a12, P: a22, aa: ((p0.jH - (a00 * p0.jH)) - (a01 * p0.jM)) - (a02 * p0.fz), ab: ((p0.jM - (a10 * p0.jH)) - (a11 * p0.jM)) - (a12 * p0.fz), ac: ((p0.fz - (a20 * p0.jH)) - (a21 * p0.jM)) - (a22 * p0.fz), dS: 1};
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$Entity$rotateAround = F3(
 	function (axis, angle, givenDrawable) {
@@ -14495,7 +14507,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$scaleAbout = F2(
 	function (point, k) {
 		var p = $ianmackenzie$elm_geometry$Point3d$unwrap(point);
 		var oneMinusK = 1 - k;
-		return {f8: k >= 0, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: oneMinusK * p.jB, ab: oneMinusK * p.jG, ac: oneMinusK * p.fz, dS: k};
+		return {f9: k >= 0, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: oneMinusK * p.jH, ab: oneMinusK * p.jM, ac: oneMinusK * p.fz, dS: k};
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$Entity$scaleAbout = F3(
 	function (centerPoint, scale, givenDrawable) {
@@ -14511,8 +14523,8 @@ var $ianmackenzie$elm_3d_scene$Scene3d$scaleAbout = F3(
 var $author$project$Scene$scale = $ianmackenzie$elm_3d_scene$Scene3d$scaleAbout($ianmackenzie$elm_geometry$Point3d$origin);
 var $author$project$Scene$scaleAround = F2(
 	function (_v0, factor) {
-		var x = _v0.jB;
-		var y = _v0.jG;
+		var x = _v0.jH;
+		var y = _v0.jM;
 		var z = _v0.fz;
 		return A2(
 			$elm$core$Basics$composeR,
@@ -14528,8 +14540,8 @@ var $author$project$TrixelEditor$TrixelGrid$CoordinateTransformations$toCanvasCo
 	var u = _v0.d2;
 	var v = _v0.d4;
 	return {
-		jB: ($elm$core$Basics$sqrt(3) / 2) * u,
-		jG: ((1 / 2) * u) + v
+		jH: ($elm$core$Basics$sqrt(3) / 2) * u,
+		jM: ((1 / 2) * u) + v
 	};
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Types$Group = function (a) {
@@ -14585,13 +14597,13 @@ var $ianmackenzie$elm_units$Quantity$min = F2(
 		return A2($elm$core$Basics$min, x, y);
 	});
 var $ianmackenzie$elm_geometry$BoundingBox3d$fromExtrema = function (given) {
-	return (A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.dB, given.dE) && (A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.dC, given.dF) && A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.gy, given.gz))) ? given : {
+	return (A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.dB, given.dE) && (A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.dC, given.dF) && A2($ianmackenzie$elm_units$Quantity$lessThanOrEqualTo, given.gz, given.gA))) ? given : {
 		dB: A2($ianmackenzie$elm_units$Quantity$max, given.dE, given.dB),
 		dC: A2($ianmackenzie$elm_units$Quantity$max, given.dF, given.dC),
-		gy: A2($ianmackenzie$elm_units$Quantity$max, given.gz, given.gy),
+		gz: A2($ianmackenzie$elm_units$Quantity$max, given.gA, given.gz),
 		dE: A2($ianmackenzie$elm_units$Quantity$min, given.dE, given.dB),
 		dF: A2($ianmackenzie$elm_units$Quantity$min, given.dF, given.dC),
-		gz: A2($ianmackenzie$elm_units$Quantity$min, given.gz, given.gy)
+		gA: A2($ianmackenzie$elm_units$Quantity$min, given.gA, given.gz)
 	};
 };
 var $ianmackenzie$elm_geometry$Triangle3d$vertices = function (_v0) {
@@ -14622,7 +14634,7 @@ var $ianmackenzie$elm_geometry$Triangle3d$boundingBox = function (triangle) {
 				$ianmackenzie$elm_units$Quantity$max,
 				y1,
 				A2($ianmackenzie$elm_units$Quantity$max, y2, y3)),
-			gy: A2(
+			gz: A2(
 				$ianmackenzie$elm_units$Quantity$max,
 				z1,
 				A2($ianmackenzie$elm_units$Quantity$max, z2, z3)),
@@ -14634,7 +14646,7 @@ var $ianmackenzie$elm_geometry$Triangle3d$boundingBox = function (triangle) {
 				$ianmackenzie$elm_units$Quantity$min,
 				y1,
 				A2($ianmackenzie$elm_units$Quantity$min, y2, y3)),
-			gz: A2(
+			gA: A2(
 				$ianmackenzie$elm_units$Quantity$min,
 				z1,
 				A2($ianmackenzie$elm_units$Quantity$min, z2, z3))
@@ -14895,14 +14907,14 @@ var $ianmackenzie$elm_geometry$BoundingBox3d$midY = function (_v0) {
 };
 var $ianmackenzie$elm_geometry$BoundingBox3d$midZ = function (_v0) {
 	var boundingBox = _v0;
-	return A3($ianmackenzie$elm_units$Quantity$interpolateFrom, boundingBox.gz, boundingBox.gy, 0.5);
+	return A3($ianmackenzie$elm_units$Quantity$interpolateFrom, boundingBox.gA, boundingBox.gz, 0.5);
 };
 var $ianmackenzie$elm_geometry$Point3d$xyz = F3(
 	function (_v0, _v1, _v2) {
 		var x = _v0;
 		var y = _v1;
 		var z = _v2;
-		return {jB: x, jG: y, fz: z};
+		return {jH: x, jM: y, fz: z};
 	});
 var $ianmackenzie$elm_geometry$BoundingBox3d$centerPoint = function (boundingBox) {
 	return A3(
@@ -14921,7 +14933,7 @@ var $ianmackenzie$elm_geometry$BoundingBox3d$maxY = function (_v0) {
 };
 var $ianmackenzie$elm_geometry$BoundingBox3d$maxZ = function (_v0) {
 	var boundingBox = _v0;
-	return boundingBox.gy;
+	return boundingBox.gz;
 };
 var $ianmackenzie$elm_geometry$BoundingBox3d$minX = function (_v0) {
 	var boundingBox = _v0;
@@ -14933,7 +14945,7 @@ var $ianmackenzie$elm_geometry$BoundingBox3d$minY = function (_v0) {
 };
 var $ianmackenzie$elm_geometry$BoundingBox3d$minZ = function (_v0) {
 	var boundingBox = _v0;
-	return boundingBox.gz;
+	return boundingBox.gA;
 };
 var $ianmackenzie$elm_units$Quantity$minus = F2(
 	function (_v0, _v1) {
@@ -14962,11 +14974,11 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Entity$toBounds = function (boundingBox) 
 	var yDimension = _v0.b;
 	var zDimension = _v0.c;
 	return {
-		hy: $ianmackenzie$elm_geometry$Point3d$unwrap(
+		hA: $ianmackenzie$elm_geometry$Point3d$unwrap(
 			$ianmackenzie$elm_geometry$BoundingBox3d$centerPoint(boundingBox)),
-		h6: xDimension / 2,
-		h7: yDimension / 2,
-		h8: zDimension / 2
+		h9: xDimension / 2,
+		ia: yDimension / 2,
+		ib: zDimension / 2
 	};
 };
 var $elm_explorations$linear_algebra$Math$Matrix4$fromRecord = _MJS_m4x4fromRecord;
@@ -14983,14 +14995,14 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Entity$triangleVertexPositions = function
 	var p2 = $ianmackenzie$elm_geometry$Point3d$toMeters(secondPoint);
 	var p3 = $ianmackenzie$elm_geometry$Point3d$toMeters(thirdPoint);
 	return $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-		{gi: p1.jB, gj: p2.jB, gk: p3.jB, gl: 0, gm: p1.jG, gn: p2.jG, go: p3.jG, gp: 0, gq: p1.fz, gr: p2.fz, gs: p3.fz, gt: 0, gu: 0, gv: 0, gw: 0, gx: 0});
+		{gj: p1.jH, gk: p2.jH, gl: p3.jH, gm: 0, gn: p1.jM, go: p2.jM, gp: p3.jM, gq: 0, gr: p1.fz, gs: p2.fz, gt: p3.fz, gu: 0, gv: 0, gw: 0, gx: 0, gy: 0});
 };
 var $elm_explorations$webgl$WebGL$Mesh3 = F2(
 	function (a, b) {
 		return {$: 2, a: a, b: b};
 	});
 var $elm_explorations$webgl$WebGL$triangles = $elm_explorations$webgl$WebGL$Mesh3(
-	{fR: 3, f5: 0, gB: 4});
+	{fS: 3, f6: 0, gC: 4});
 var $ianmackenzie$elm_3d_scene$Scene3d$Entity$triangleVertices = $elm_explorations$webgl$WebGL$triangles(
 	_List_fromArray(
 		[
@@ -15240,7 +15252,7 @@ var $elm_explorations$webgl$WebGL$MeshIndexed3 = F3(
 		return {$: 3, a: a, b: b, c: c};
 	});
 var $elm_explorations$webgl$WebGL$indexedTriangles = $elm_explorations$webgl$WebGL$MeshIndexed3(
-	{fR: 1, f5: 3, gB: 4});
+	{fS: 1, f6: 3, gC: 4});
 var $ianmackenzie$elm_3d_scene$Scene3d$Entity$triangleShadowMesh = function () {
 	var triangleShadowVertices = _List_fromArray(
 		[
@@ -15336,7 +15348,7 @@ var $ianmackenzie$elm_geometry$Triangle3d$from = F3(
 	});
 var $ianmackenzie$elm_geometry$Point3d$meters = F3(
 	function (x, y, z) {
-		return {jB: x, jG: y, fz: z};
+		return {jH: x, jM: y, fz: z};
 	});
 var $author$project$Scene$triangle = F2(
 	function (material_, _v0) {
@@ -15348,9 +15360,9 @@ var $author$project$Scene$triangle = F2(
 			material_,
 			A3(
 				$ianmackenzie$elm_geometry$Triangle3d$from,
-				A3($ianmackenzie$elm_geometry$Point3d$meters, p.jB, p.jG, p.fz),
-				A3($ianmackenzie$elm_geometry$Point3d$meters, q.jB, q.jG, q.fz),
-				A3($ianmackenzie$elm_geometry$Point3d$meters, r.jB, r.jG, r.fz)));
+				A3($ianmackenzie$elm_geometry$Point3d$meters, p.jH, p.jM, p.fz),
+				A3($ianmackenzie$elm_geometry$Point3d$meters, q.jH, q.jM, q.fz),
+				A3($ianmackenzie$elm_geometry$Point3d$meters, r.jH, r.jM, r.fz)));
 	});
 var $author$project$TrixelEditor$Main$drawFace = F3(
 	function (computer, palette, _v0) {
@@ -15368,22 +15380,22 @@ var $author$project$TrixelEditor$Main$drawFace = F3(
 						return {d2: 2 / 3, d4: 2 / 3};
 					}
 				}());
-			return {jB: c.jB, jG: c.jG, fz: 0};
+			return {jH: c.jH, jM: c.jM, fz: 0};
 		}();
 		var drawLeftFace = A2(
 			$author$project$Scene$triangle,
 			$ianmackenzie$elm_3d_scene$Scene3d$Material$matte(
 				A2($author$project$TrixelEditor$ColorPalette$get, colorIndex, palette)),
 			_Utils_Tuple3(
-				{jB: 0, jG: 0, fz: 0},
+				{jH: 0, jM: 0, fz: 0},
 				{
-					jB: $elm$core$Basics$cos(
+					jH: $elm$core$Basics$cos(
 						$elm$core$Basics$degrees(30)),
-					jG: $elm$core$Basics$sin(
+					jM: $elm$core$Basics$sin(
 						$elm$core$Basics$degrees(30)),
 					fz: 0
 				},
-				{jB: 0, jG: 1, fz: 0}));
+				{jH: 0, jM: 1, fz: 0}));
 		var drawRightFace = A2(
 			$author$project$Scene$moveY,
 			1 + $elm$core$Basics$sin(
@@ -15398,8 +15410,8 @@ var $author$project$TrixelEditor$Main$drawFace = F3(
 					drawLeftFace)));
 		var _v2 = $author$project$TrixelEditor$TrixelGrid$CoordinateTransformations$toCanvasCoordinates(
 			{d2: u, d4: v});
-		var x = _v2.jB;
-		var y = _v2.jG;
+		var x = _v2.jH;
+		var y = _v2.jM;
 		return A2(
 			$author$project$Scene$moveY,
 			y,
@@ -15443,7 +15455,7 @@ var $author$project$TrixelEditor$Main$drawFaces = F2(
 			A2(
 				$elm$core$List$map,
 				A2($author$project$TrixelEditor$Main$drawFace, computer, world.cM),
-				$turboMaCk$any_dict$Dict$Any$toList(world.js)));
+				$turboMaCk$any_dict$Dict$Any$toList(world.jy)));
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$BackgroundColor = $elm$core$Basics$identity;
 var $ianmackenzie$elm_3d_scene$Scene3d$backgroundColor = function (color) {
@@ -15530,8 +15542,8 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Types$CieXyz = F3(
 var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$chromaticityToCieXyz = F2(
 	function (_v0, _v1) {
 		var intensity = _v0;
-		var x = _v1.jB;
-		var y = _v1.jG;
+		var x = _v1.jH;
+		var y = _v1.jM;
 		return A3($ianmackenzie$elm_3d_scene$Scene3d$Types$CieXyz, (intensity * x) / y, intensity, (intensity * ((1 - x) - y)) / y);
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$cieXyzToLinearRgb = function (_v0) {
@@ -15547,18 +15559,18 @@ var $ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$chromaticityToLinearRgb 
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$modelMatrix = function (transformation) {
 	return $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-		{gi: transformation.H, gj: transformation.K, gk: transformation.N, gl: transformation.aa, gm: transformation.I, gn: transformation.L, go: transformation.O, gp: transformation.ab, gq: transformation.J, gr: transformation.M, gs: transformation.P, gt: transformation.ac, gu: 0, gv: 0, gw: 0, gx: 1});
+		{gj: transformation.H, gk: transformation.K, gl: transformation.N, gm: transformation.aa, gn: transformation.I, go: transformation.L, gp: transformation.O, gq: transformation.ab, gr: transformation.J, gs: transformation.M, gt: transformation.P, gu: transformation.ac, gv: 0, gw: 0, gx: 0, gy: 1});
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$createRenderPass = F5(
 	function (sceneProperties, viewMatrix, projectionMatrix, transformation, drawFunction) {
-		var normalSign = transformation.f8 ? 1 : (-1);
+		var normalSign = transformation.f9 ? 1 : (-1);
 		var modelScale = A4($elm_explorations$linear_algebra$Math$Vector4$vec4, transformation.dS, transformation.dS, transformation.dS, normalSign);
 		return A6(
 			drawFunction,
 			sceneProperties,
 			modelScale,
 			$ianmackenzie$elm_3d_scene$Scene3d$Transformation$modelMatrix(transformation),
-			transformation.f8,
+			transformation.f9,
 			viewMatrix,
 			projectionMatrix);
 	});
@@ -15591,21 +15603,21 @@ var $ianmackenzie$elm_3d_scene$Scene3d$collectRenderPasses = F6(
 						$elm$core$List$cons,
 						A5($ianmackenzie$elm_3d_scene$Scene3d$createRenderPass, sceneProperties, viewMatrix, projectionMatrix, currentTransformation, meshDrawFunction),
 						accumulated.ah);
-					return {ah: updatedMeshes, aG: accumulated.aG, jd: accumulated.jd};
+					return {ah: updatedMeshes, aG: accumulated.aG, jh: accumulated.jh};
 				case 3:
 					var pointDrawFunction = node.b;
 					var updatedPoints = A2(
 						$elm$core$List$cons,
 						A5($ianmackenzie$elm_3d_scene$Scene3d$createRenderPass, sceneProperties, viewMatrix, projectionMatrix, currentTransformation, pointDrawFunction),
 						accumulated.aG);
-					return {ah: accumulated.ah, aG: updatedPoints, jd: accumulated.jd};
+					return {ah: accumulated.ah, aG: updatedPoints, jh: accumulated.jh};
 				case 2:
 					var shadowDrawFunction = node.a;
 					var updatedShadows = A2(
 						$elm$core$List$cons,
 						A5($ianmackenzie$elm_3d_scene$Scene3d$createRenderPass, sceneProperties, viewMatrix, projectionMatrix, currentTransformation, shadowDrawFunction),
-						accumulated.jd);
-					return {ah: accumulated.ah, aG: accumulated.aG, jd: updatedShadows};
+						accumulated.jh);
+					return {ah: accumulated.ah, aG: accumulated.aG, jh: updatedShadows};
 				default:
 					var childNodes = node.a;
 					return A3(
@@ -15656,7 +15668,7 @@ var $elm_explorations$webgl$WebGL$Mesh1 = F2(
 		return {$: 0, a: a, b: b};
 	});
 var $elm_explorations$webgl$WebGL$triangleStrip = $elm_explorations$webgl$WebGL$Mesh1(
-	{fR: 1, f5: 0, gB: 5});
+	{fS: 1, f6: 0, gC: 5});
 var $ianmackenzie$elm_3d_scene$Scene3d$fullScreenQuadMesh = $elm_explorations$webgl$WebGL$triangleStrip(
 	_List_fromArray(
 		[
@@ -15818,13 +15830,13 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$placementFrame = function 
 	return $ianmackenzie$elm_geometry$Frame3d$unsafe(
 		{
 			eV: $ianmackenzie$elm_geometry$Point3d$unsafe(
-				{jB: transformation.aa, jG: transformation.ab, fz: transformation.ac}),
-			jE: $ianmackenzie$elm_geometry$Direction3d$unsafe(
-				{jB: transformation.H, jG: transformation.I, fz: transformation.J}),
+				{jH: transformation.aa, jM: transformation.ab, fz: transformation.ac}),
+			jK: $ianmackenzie$elm_geometry$Direction3d$unsafe(
+				{jH: transformation.H, jM: transformation.I, fz: transformation.J}),
 			fy: $ianmackenzie$elm_geometry$Direction3d$unsafe(
-				{jB: transformation.K, jG: transformation.L, fz: transformation.M}),
+				{jH: transformation.K, jM: transformation.L, fz: transformation.M}),
 			fA: $ianmackenzie$elm_geometry$Direction3d$unsafe(
-				{jB: transformation.N, jG: transformation.O, fz: transformation.P})
+				{jH: transformation.N, jM: transformation.O, fz: transformation.P})
 		});
 };
 var $ianmackenzie$elm_geometry$Direction3d$relativeTo = F2(
@@ -15835,9 +15847,9 @@ var $ianmackenzie$elm_geometry$Direction3d$relativeTo = F2(
 		var k = _v2;
 		var _v3 = frame.fy;
 		var j = _v3;
-		var _v4 = frame.jE;
+		var _v4 = frame.jK;
 		var i = _v4;
-		return {jB: ((d.jB * i.jB) + (d.jG * i.jG)) + (d.fz * i.fz), jG: ((d.jB * j.jB) + (d.jG * j.jG)) + (d.fz * j.fz), fz: ((d.jB * k.jB) + (d.jG * k.jG)) + (d.fz * k.fz)};
+		return {jH: ((d.jH * i.jH) + (d.jM * i.jM)) + (d.fz * i.fz), jM: ((d.jH * j.jH) + (d.jM * j.jM)) + (d.fz * j.fz), fz: ((d.jH * k.jH) + (d.jM * k.jM)) + (d.fz * k.fz)};
 	});
 var $ianmackenzie$elm_geometry$Point3d$relativeTo = F2(
 	function (_v0, _v1) {
@@ -15845,20 +15857,20 @@ var $ianmackenzie$elm_geometry$Point3d$relativeTo = F2(
 		var p = _v1;
 		var _v2 = frame.eV;
 		var p0 = _v2;
-		var deltaX = p.jB - p0.jB;
-		var deltaY = p.jG - p0.jG;
+		var deltaX = p.jH - p0.jH;
+		var deltaY = p.jM - p0.jM;
 		var deltaZ = p.fz - p0.fz;
 		var _v3 = frame.fA;
 		var k = _v3;
 		var _v4 = frame.fy;
 		var j = _v4;
-		var _v5 = frame.jE;
+		var _v5 = frame.jK;
 		var i = _v5;
-		return {jB: ((deltaX * i.jB) + (deltaY * i.jG)) + (deltaZ * i.fz), jG: ((deltaX * j.jB) + (deltaY * j.jG)) + (deltaZ * j.fz), fz: ((deltaX * k.jB) + (deltaY * k.jG)) + (deltaZ * k.fz)};
+		return {jH: ((deltaX * i.jH) + (deltaY * i.jM)) + (deltaZ * i.fz), jM: ((deltaX * j.jH) + (deltaY * j.jM)) + (deltaZ * j.fz), fz: ((deltaX * k.jH) + (deltaY * k.jM)) + (deltaZ * k.fz)};
 	});
 var $ianmackenzie$elm_geometry$Frame3d$xDirection = function (_v0) {
 	var properties = _v0;
-	return properties.jE;
+	return properties.jK;
 };
 var $ianmackenzie$elm_geometry$Frame3d$yDirection = function (_v0) {
 	var properties = _v0;
@@ -15871,7 +15883,7 @@ var $ianmackenzie$elm_geometry$Frame3d$relativeTo = F2(
 				$ianmackenzie$elm_geometry$Point3d$relativeTo,
 				otherFrame,
 				$ianmackenzie$elm_geometry$Frame3d$originPoint(frame)),
-			jE: A2(
+			jK: A2(
 				$ianmackenzie$elm_geometry$Direction3d$relativeTo,
 				otherFrame,
 				$ianmackenzie$elm_geometry$Frame3d$xDirection(frame)),
@@ -15896,15 +15908,15 @@ var $ianmackenzie$elm_geometry$BoundingBox3d$union = F2(
 		return {
 			dB: A2($ianmackenzie$elm_units$Quantity$max, b1.dB, b2.dB),
 			dC: A2($ianmackenzie$elm_units$Quantity$max, b1.dC, b2.dC),
-			gy: A2($ianmackenzie$elm_units$Quantity$max, b1.gy, b2.gy),
+			gz: A2($ianmackenzie$elm_units$Quantity$max, b1.gz, b2.gz),
 			dE: A2($ianmackenzie$elm_units$Quantity$min, b1.dE, b2.dE),
 			dF: A2($ianmackenzie$elm_units$Quantity$min, b1.dF, b2.dF),
-			gz: A2($ianmackenzie$elm_units$Quantity$min, b1.gz, b2.gz)
+			gA: A2($ianmackenzie$elm_units$Quantity$min, b1.gA, b2.gA)
 		};
 	});
 var $ianmackenzie$elm_geometry$Point3d$coordinates = function (_v0) {
 	var p = _v0;
-	return _Utils_Tuple3(p.jB, p.jG, p.fz);
+	return _Utils_Tuple3(p.jH, p.jM, p.fz);
 };
 var $ianmackenzie$elm_units$Quantity$plus = F2(
 	function (_v0, _v1) {
@@ -15930,30 +15942,30 @@ var $ianmackenzie$elm_geometry$BoundingBox3d$withDimensions = F2(
 		return {
 			dB: A2($ianmackenzie$elm_units$Quantity$plus, halfLength, x0),
 			dC: A2($ianmackenzie$elm_units$Quantity$plus, halfWidth, y0),
-			gy: A2($ianmackenzie$elm_units$Quantity$plus, halfHeight, z0),
+			gz: A2($ianmackenzie$elm_units$Quantity$plus, halfHeight, z0),
 			dE: A2($ianmackenzie$elm_units$Quantity$minus, halfLength, x0),
 			dF: A2($ianmackenzie$elm_units$Quantity$minus, halfWidth, y0),
-			gz: A2($ianmackenzie$elm_units$Quantity$minus, halfHeight, z0)
+			gA: A2($ianmackenzie$elm_units$Quantity$minus, halfHeight, z0)
 		};
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$updateViewBounds = F4(
 	function (viewFrame, scale, modelBounds, current) {
-		var originalCenter = modelBounds.hy;
-		var modelZDimension = (2 * modelBounds.h8) * scale;
-		var modelYDimension = (2 * modelBounds.h7) * scale;
-		var modelXDimension = (2 * modelBounds.h6) * scale;
+		var originalCenter = modelBounds.hA;
+		var modelZDimension = (2 * modelBounds.ib) * scale;
+		var modelYDimension = (2 * modelBounds.ia) * scale;
+		var modelXDimension = (2 * modelBounds.h9) * scale;
 		var modelCenterZ = originalCenter.fz * scale;
-		var modelCenterY = originalCenter.jG * scale;
-		var modelCenterX = originalCenter.jB * scale;
+		var modelCenterY = originalCenter.jM * scale;
+		var modelCenterX = originalCenter.jH * scale;
 		var k = $ianmackenzie$elm_geometry$Direction3d$unwrap(
 			$ianmackenzie$elm_geometry$Frame3d$zDirection(viewFrame));
-		var zDimension = ($elm$core$Basics$abs(modelXDimension * k.jB) + $elm$core$Basics$abs(modelYDimension * k.jG)) + $elm$core$Basics$abs(modelZDimension * k.fz);
+		var zDimension = ($elm$core$Basics$abs(modelXDimension * k.jH) + $elm$core$Basics$abs(modelYDimension * k.jM)) + $elm$core$Basics$abs(modelZDimension * k.fz);
 		var j = $ianmackenzie$elm_geometry$Direction3d$unwrap(
 			$ianmackenzie$elm_geometry$Frame3d$yDirection(viewFrame));
-		var yDimension = ($elm$core$Basics$abs(modelXDimension * j.jB) + $elm$core$Basics$abs(modelYDimension * j.jG)) + $elm$core$Basics$abs(modelZDimension * j.fz);
+		var yDimension = ($elm$core$Basics$abs(modelXDimension * j.jH) + $elm$core$Basics$abs(modelYDimension * j.jM)) + $elm$core$Basics$abs(modelZDimension * j.fz);
 		var i = $ianmackenzie$elm_geometry$Direction3d$unwrap(
 			$ianmackenzie$elm_geometry$Frame3d$xDirection(viewFrame));
-		var xDimension = ($elm$core$Basics$abs(modelXDimension * i.jB) + $elm$core$Basics$abs(modelYDimension * i.jG)) + $elm$core$Basics$abs(modelZDimension * i.fz);
+		var xDimension = ($elm$core$Basics$abs(modelXDimension * i.jH) + $elm$core$Basics$abs(modelYDimension * i.jM)) + $elm$core$Basics$abs(modelZDimension * i.fz);
 		var nodeBounds = A2(
 			$ianmackenzie$elm_geometry$BoundingBox3d$withDimensions,
 			_Utils_Tuple3(xDimension, yDimension, zDimension),
@@ -16061,36 +16073,36 @@ var $ianmackenzie$elm_3d_scene$Scene3d$getViewBounds = F4(
 			}
 		}
 	});
-var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$identity = {f8: true, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: 0, ab: 0, ac: 0, dS: 1};
+var $ianmackenzie$elm_3d_scene$Scene3d$Transformation$identity = {f9: true, H: 1, I: 0, J: 0, K: 0, L: 1, M: 0, N: 0, O: 0, P: 1, aa: 0, ab: 0, ac: 0, dS: 1};
 var $ianmackenzie$elm_3d_scene$Scene3d$initStencil = $ianmackenzie$elm_3d_scene$Scene3d$updateStencil(
 	{cu: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace, eI: 0, e8: $ianmackenzie$elm_3d_scene$Scene3d$initialStencilCount, cW: $elm_explorations$webgl$WebGL$Settings$StencilTest$always, fx: 255, c5: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace, c6: $elm_explorations$webgl$WebGL$Settings$StencilTest$replace});
 var $ianmackenzie$elm_geometry$Vector3d$length = function (_v0) {
 	var v = _v0;
 	var largestComponent = A2(
 		$elm$core$Basics$max,
-		$elm$core$Basics$abs(v.jB),
+		$elm$core$Basics$abs(v.jH),
 		A2(
 			$elm$core$Basics$max,
-			$elm$core$Basics$abs(v.jG),
+			$elm$core$Basics$abs(v.jM),
 			$elm$core$Basics$abs(v.fz)));
 	if (!largestComponent) {
 		return $ianmackenzie$elm_units$Quantity$zero;
 	} else {
 		var scaledZ = v.fz / largestComponent;
-		var scaledY = v.jG / largestComponent;
-		var scaledX = v.jB / largestComponent;
+		var scaledY = v.jM / largestComponent;
+		var scaledX = v.jH / largestComponent;
 		var scaledLength = $elm$core$Basics$sqrt(((scaledX * scaledX) + (scaledY * scaledY)) + (scaledZ * scaledZ));
 		return scaledLength * largestComponent;
 	}
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Types$Light = $elm$core$Basics$identity;
-var $ianmackenzie$elm_3d_scene$Scene3d$Light$disabled = {da: 0, hw: false, dq: 0, e2: 0, dP: 0, fq: 0, jB: 0, jG: 0, fz: 0};
+var $ianmackenzie$elm_3d_scene$Scene3d$Light$disabled = {da: 0, hy: false, dq: 0, e2: 0, dP: 0, fq: 0, jH: 0, jM: 0, fz: 0};
 var $ianmackenzie$elm_3d_scene$Scene3d$lightPair = F2(
 	function (_v0, _v1) {
 		var first = _v0;
 		var second = _v1;
 		return $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-			{gi: first.jB, gj: first.dP, gk: second.jB, gl: second.dP, gm: first.jG, gn: first.dq, go: second.jG, gp: second.dq, gq: first.fz, gr: first.da, gs: second.fz, gt: second.da, gu: first.fq, gv: first.e2, gw: second.fq, gx: second.e2});
+			{gj: first.jH, gk: first.dP, gl: second.jH, gm: second.dP, gn: first.jM, go: first.dq, gp: second.jM, gq: second.dq, gr: first.fz, gs: first.da, gt: second.fz, gu: second.da, gv: first.fq, gw: first.e2, gx: second.fq, gy: second.e2});
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$lightingDisabled = _Utils_Tuple2(
 	{
@@ -16119,9 +16131,9 @@ var $ianmackenzie$elm_3d_scene$Scene3d$outsideStencil = _List_fromArray(
 var $ianmackenzie$elm_3d_camera$WebGL$Matrices$projectionMatrix = F2(
 	function (_v0, _v1) {
 		var camera = _v0;
-		var nearClipDepth = _v1.iL;
-		var farClipDepth = _v1.h2;
-		var aspectRatio = _v1.hp;
+		var nearClipDepth = _v1.iO;
+		var farClipDepth = _v1.h4;
+		var aspectRatio = _v1.hq;
 		var _v2 = $ianmackenzie$elm_units$Quantity$abs(nearClipDepth);
 		var n = _v2;
 		var _v3 = $ianmackenzie$elm_units$Quantity$abs(farClipDepth);
@@ -16130,13 +16142,13 @@ var $ianmackenzie$elm_3d_camera$WebGL$Matrices$projectionMatrix = F2(
 		if (!_v4.$) {
 			var frustumSlope = _v4.a;
 			return $elm$core$Basics$isInfinite(f) ? $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-				{gi: 1 / (aspectRatio * frustumSlope), gj: 0, gk: 0, gl: 0, gm: 0, gn: 1 / frustumSlope, go: 0, gp: 0, gq: 0, gr: 0, gs: -1, gt: (-2) * n, gu: 0, gv: 0, gw: -1, gx: 0}) : $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-				{gi: 1 / (aspectRatio * frustumSlope), gj: 0, gk: 0, gl: 0, gm: 0, gn: 1 / frustumSlope, go: 0, gp: 0, gq: 0, gr: 0, gs: (-(f + n)) / (f - n), gt: (((-2) * f) * n) / (f - n), gu: 0, gv: 0, gw: -1, gx: 0});
+				{gj: 1 / (aspectRatio * frustumSlope), gk: 0, gl: 0, gm: 0, gn: 0, go: 1 / frustumSlope, gp: 0, gq: 0, gr: 0, gs: 0, gt: -1, gu: (-2) * n, gv: 0, gw: 0, gx: -1, gy: 0}) : $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
+				{gj: 1 / (aspectRatio * frustumSlope), gk: 0, gl: 0, gm: 0, gn: 0, go: 1 / frustumSlope, gp: 0, gq: 0, gr: 0, gs: 0, gt: (-(f + n)) / (f - n), gu: (((-2) * f) * n) / (f - n), gv: 0, gw: 0, gx: -1, gy: 0});
 		} else {
 			var viewportHeight = _v4.a;
 			return $elm$core$Basics$isInfinite(f) ? $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-				{gi: 2 / (aspectRatio * viewportHeight), gj: 0, gk: 0, gl: 0, gm: 0, gn: 2 / viewportHeight, go: 0, gp: 0, gq: 0, gr: 0, gs: 0, gt: -1, gu: 0, gv: 0, gw: 0, gx: 1}) : $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-				{gi: 2 / (aspectRatio * viewportHeight), gj: 0, gk: 0, gl: 0, gm: 0, gn: 2 / viewportHeight, go: 0, gp: 0, gq: 0, gr: 0, gs: (-2) / (f - n), gt: (-(f + n)) / (f - n), gu: 0, gv: 0, gw: 0, gx: 1});
+				{gj: 2 / (aspectRatio * viewportHeight), gk: 0, gl: 0, gm: 0, gn: 0, go: 2 / viewportHeight, gp: 0, gq: 0, gr: 0, gs: 0, gt: 0, gu: -1, gv: 0, gw: 0, gx: 0, gy: 1}) : $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
+				{gj: 2 / (aspectRatio * viewportHeight), gk: 0, gl: 0, gm: 0, gn: 0, go: 2 / viewportHeight, gp: 0, gq: 0, gr: 0, gs: 0, gt: (-2) / (f - n), gu: (-(f + n)) / (f - n), gv: 0, gw: 0, gx: 0, gy: 1});
 		}
 	});
 var $ianmackenzie$elm_3d_scene$Scene3d$enabledFlag = F2(
@@ -16180,10 +16192,10 @@ var $ianmackenzie$elm_3d_scene$Scene3d$renderWithinShadows = F3(
 	});
 var $elm_explorations$linear_algebra$Math$Matrix4$toRecord = _MJS_m4x4toRecord;
 var $ianmackenzie$elm_geometry$Direction3d$positiveX = $ianmackenzie$elm_geometry$Direction3d$unsafe(
-	{jB: 1, jG: 0, fz: 0});
+	{jH: 1, jM: 0, fz: 0});
 var $ianmackenzie$elm_geometry$Direction3d$x = $ianmackenzie$elm_geometry$Direction3d$positiveX;
 var $ianmackenzie$elm_geometry$Direction3d$y = $ianmackenzie$elm_geometry$Direction3d$positiveY;
-var $ianmackenzie$elm_geometry$Frame3d$atOrigin = {eV: $ianmackenzie$elm_geometry$Point3d$origin, jE: $ianmackenzie$elm_geometry$Direction3d$x, fy: $ianmackenzie$elm_geometry$Direction3d$y, fA: $ianmackenzie$elm_geometry$Direction3d$z};
+var $ianmackenzie$elm_geometry$Frame3d$atOrigin = {eV: $ianmackenzie$elm_geometry$Point3d$origin, jK: $ianmackenzie$elm_geometry$Direction3d$x, fy: $ianmackenzie$elm_geometry$Direction3d$y, fA: $ianmackenzie$elm_geometry$Direction3d$z};
 var $ianmackenzie$elm_geometry_linear_algebra_interop$Geometry$Interop$LinearAlgebra$Frame3d$toMat4 = function (frame) {
 	var p = $ianmackenzie$elm_geometry$Point3d$unwrap(
 		$ianmackenzie$elm_geometry$Frame3d$originPoint(frame));
@@ -16194,7 +16206,7 @@ var $ianmackenzie$elm_geometry_linear_algebra_interop$Geometry$Interop$LinearAlg
 	var i = $ianmackenzie$elm_geometry$Direction3d$unwrap(
 		$ianmackenzie$elm_geometry$Frame3d$xDirection(frame));
 	return $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-		{gi: i.jB, gj: j.jB, gk: k.jB, gl: p.jB, gm: i.jG, gn: j.jG, go: k.jG, gp: p.jG, gq: i.fz, gr: j.fz, gs: k.fz, gt: p.fz, gu: 0, gv: 0, gw: 0, gx: 1});
+		{gj: i.jH, gk: j.jH, gl: k.jH, gm: p.jH, gn: i.jM, go: j.jM, gp: k.jM, gq: p.jM, gr: i.fz, gs: j.fz, gt: k.fz, gu: p.fz, gv: 0, gw: 0, gx: 0, gy: 1});
 };
 var $ianmackenzie$elm_3d_camera$WebGL$Matrices$modelViewMatrix = F2(
 	function (modelFrame, _v0) {
@@ -16222,7 +16234,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 	var viewFrame = $ianmackenzie$elm_geometry$Frame3d$unsafe(
 		{
 			eV: $ianmackenzie$elm_3d_camera$Viewpoint3d$eyePoint(viewpoint),
-			jE: $ianmackenzie$elm_3d_camera$Viewpoint3d$xDirection(viewpoint),
+			jK: $ianmackenzie$elm_3d_camera$Viewpoint3d$xDirection(viewpoint),
 			fy: $ianmackenzie$elm_3d_camera$Viewpoint3d$yDirection(viewpoint),
 			fA: $ianmackenzie$elm_geometry$Direction3d$reverse(
 				$ianmackenzie$elm_3d_camera$Viewpoint3d$viewDirection(viewpoint))
@@ -16266,8 +16278,8 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 		var projectionMatrix = A2(
 			$ianmackenzie$elm_3d_camera$WebGL$Matrices$projectionMatrix,
 			_arguments.bM,
-			{hp: _arguments.hp, h2: farClipDepth, iL: nearClipDepth});
-		var projectionType = $elm_explorations$linear_algebra$Math$Matrix4$toRecord(projectionMatrix).gx;
+			{hq: _arguments.hq, h4: farClipDepth, iO: nearClipDepth});
+		var projectionType = $elm_explorations$linear_algebra$Math$Matrix4$toRecord(projectionMatrix).gy;
 		var eyePointOrDirectionToCamera = (!projectionType) ? $ianmackenzie$elm_geometry$Point3d$toMeters(
 			$ianmackenzie$elm_3d_camera$Viewpoint3d$eyePoint(viewpoint)) : $ianmackenzie$elm_geometry$Direction3d$unwrap(
 			$ianmackenzie$elm_geometry$Direction3d$reverse(
@@ -16299,22 +16311,22 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 		var referenceWhite = _v6;
 		var sceneProperties = $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
 			{
-				gi: 0,
-				gj: eyePointOrDirectionToCamera.jB,
-				gk: $elm_explorations$linear_algebra$Math$Vector3$getX(referenceWhite),
-				gl: _arguments.g8,
-				gm: 0,
-				gn: eyePointOrDirectionToCamera.jG,
-				go: $elm_explorations$linear_algebra$Math$Vector3$getY(referenceWhite),
-				gp: $ianmackenzie$elm_units$Length$inMeters(sceneDiameter),
-				gq: 0,
-				gr: eyePointOrDirectionToCamera.fz,
-				gs: $elm_explorations$linear_algebra$Math$Vector3$getZ(referenceWhite),
-				gt: toneMapType,
-				gu: 0,
-				gv: projectionType,
-				gw: 0,
-				gx: toneMapParam
+				gj: 0,
+				gk: eyePointOrDirectionToCamera.jH,
+				gl: $elm_explorations$linear_algebra$Math$Vector3$getX(referenceWhite),
+				gm: _arguments.g9,
+				gn: 0,
+				go: eyePointOrDirectionToCamera.jM,
+				gp: $elm_explorations$linear_algebra$Math$Vector3$getY(referenceWhite),
+				gq: $ianmackenzie$elm_units$Length$inMeters(sceneDiameter),
+				gr: 0,
+				gs: eyePointOrDirectionToCamera.fz,
+				gt: $elm_explorations$linear_algebra$Math$Vector3$getZ(referenceWhite),
+				gu: toneMapType,
+				gv: 0,
+				gw: projectionType,
+				gx: 0,
+				gy: toneMapParam
 			});
 		var renderPasses = A6(
 			$ianmackenzie$elm_3d_scene$Scene3d$collectRenderPasses,
@@ -16323,7 +16335,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 			projectionMatrix,
 			$ianmackenzie$elm_3d_scene$Scene3d$Transformation$identity,
 			rootNode,
-			{ah: _List_Nil, aG: _List_Nil, jd: _List_Nil});
+			{ah: _List_Nil, aG: _List_Nil, jh: _List_Nil});
 		var _v7 = _arguments.dw;
 		switch (_v7.$) {
 			case 0:
@@ -16346,7 +16358,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 							A3($ianmackenzie$elm_3d_scene$Scene3d$call, renderPasses.ah, $ianmackenzie$elm_3d_scene$Scene3d$lightingDisabled, $ianmackenzie$elm_3d_scene$Scene3d$depthTestDefault),
 							_List_fromArray(
 							[$ianmackenzie$elm_3d_scene$Scene3d$initStencil]),
-							A3($ianmackenzie$elm_3d_scene$Scene3d$call, renderPasses.jd, lightMatrices.cF, $ianmackenzie$elm_3d_scene$Scene3d$createShadowStencil),
+							A3($ianmackenzie$elm_3d_scene$Scene3d$call, renderPasses.jh, lightMatrices.cF, $ianmackenzie$elm_3d_scene$Scene3d$createShadowStencil),
 							_List_fromArray(
 							[
 								$ianmackenzie$elm_3d_scene$Scene3d$storeStencilValue(0)
@@ -16371,7 +16383,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities = function (_arguments) {
 							$ianmackenzie$elm_3d_scene$Scene3d$depthTestDefault),
 							_List_fromArray(
 							[$ianmackenzie$elm_3d_scene$Scene3d$initStencil]),
-							A2($ianmackenzie$elm_3d_scene$Scene3d$createShadows, renderPasses.jd, shadowCasters),
+							A2($ianmackenzie$elm_3d_scene$Scene3d$createShadows, renderPasses.jh, shadowCasters),
 							A3(
 							$ianmackenzie$elm_3d_scene$Scene3d$renderWithinShadows,
 							renderPasses.ah,
@@ -16429,7 +16441,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$composite = F2(
 			$elm$core$List$concatMap,
 			function (scene) {
 				return $ianmackenzie$elm_3d_scene$Scene3d$toWebGLEntities(
-					{hp: aspectRatio, bM: _arguments.bM, bN: _arguments.bN, bU: scene.bU, $7: scene.$7, dw: scene.dw, g8: scalingFactor, d$: scene.d$, d6: scene.d6});
+					{hq: aspectRatio, bM: _arguments.bM, bN: _arguments.bN, bU: scene.bU, $7: scene.$7, dw: scene.dw, g9: scalingFactor, d$: scene.d$, d6: scene.d6});
 			},
 			scenes);
 		var widthCss = A2(
@@ -16483,25 +16495,25 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Light$chromaticity = function (xy) {
 	return xy;
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Light$daylight = $ianmackenzie$elm_3d_scene$Scene3d$Light$chromaticity(
-	{jB: 0.31271, jG: 0.32902});
+	{jH: 0.31271, jM: 0.32902});
 var $ianmackenzie$elm_3d_scene$Scene3d$Light$directional = F2(
 	function (_v0, light) {
 		var shadowFlag = _v0;
-		var _v1 = $ianmackenzie$elm_geometry$Direction3d$unwrap(light.hP);
-		var x = _v1.jB;
-		var y = _v1.jG;
+		var _v1 = $ianmackenzie$elm_geometry$Direction3d$unwrap(light.hR);
+		var x = _v1.jH;
+		var y = _v1.jM;
 		var z = _v1.fz;
 		var _v2 = A2($ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$chromaticityToLinearRgb, light.ex, light.ei);
 		var rgb = _v2;
 		return {
 			da: $elm_explorations$linear_algebra$Math$Vector3$getZ(rgb),
-			hw: shadowFlag,
+			hy: shadowFlag,
 			dq: $elm_explorations$linear_algebra$Math$Vector3$getY(rgb),
 			e2: 0,
 			dP: $elm_explorations$linear_algebra$Math$Vector3$getX(rgb),
 			fq: 1,
-			jB: -x,
-			jG: -y,
+			jH: -x,
+			jM: -y,
 			fz: -z
 		};
 	});
@@ -16528,29 +16540,29 @@ var $ianmackenzie$elm_units$Illuminance$inLux = function (_v0) {
 var $ianmackenzie$elm_3d_scene$Scene3d$Light$soft = function (light) {
 	soft:
 	while (true) {
-		if (_Utils_eq(light.ij, $ianmackenzie$elm_units$Quantity$zero) && _Utils_eq(light.ik, $ianmackenzie$elm_units$Quantity$zero)) {
+		if (_Utils_eq(light.im, $ianmackenzie$elm_units$Quantity$zero) && _Utils_eq(light.$9, $ianmackenzie$elm_units$Quantity$zero)) {
 			return $ianmackenzie$elm_3d_scene$Scene3d$Light$disabled;
 		} else {
 			if (A2(
 				$ianmackenzie$elm_units$Quantity$greaterThan,
-				$ianmackenzie$elm_units$Quantity$abs(light.ij),
-				$ianmackenzie$elm_units$Quantity$abs(light.ik))) {
+				$ianmackenzie$elm_units$Quantity$abs(light.im),
+				$ianmackenzie$elm_units$Quantity$abs(light.$9))) {
 				var $temp$light = {
 					ei: light.ei,
-					ij: light.ik,
-					ik: light.ij,
-					hg: $ianmackenzie$elm_geometry$Direction3d$reverse(light.hg)
+					im: light.$9,
+					$9: light.im,
+					hh: $ianmackenzie$elm_geometry$Direction3d$reverse(light.hh)
 				};
 				light = $temp$light;
 				continue soft;
 			} else {
 				var nitsBelow = $elm$core$Basics$abs(
-					$ianmackenzie$elm_units$Illuminance$inLux(light.ik) / $elm$core$Basics$pi);
+					$ianmackenzie$elm_units$Illuminance$inLux(light.$9) / $elm$core$Basics$pi);
 				var nitsAbove = $elm$core$Basics$abs(
-					$ianmackenzie$elm_units$Illuminance$inLux(light.ij) / $elm$core$Basics$pi);
-				var _v0 = $ianmackenzie$elm_geometry$Direction3d$unwrap(light.hg);
-				var x = _v0.jB;
-				var y = _v0.jG;
+					$ianmackenzie$elm_units$Illuminance$inLux(light.im) / $elm$core$Basics$pi);
+				var _v0 = $ianmackenzie$elm_geometry$Direction3d$unwrap(light.hh);
+				var x = _v0.jH;
+				var y = _v0.jM;
 				var z = _v0.fz;
 				var _v1 = A2(
 					$ianmackenzie$elm_3d_scene$Scene3d$ColorConversions$chromaticityToLinearRgb,
@@ -16559,13 +16571,13 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Light$soft = function (light) {
 				var rgb = _v1;
 				return {
 					da: nitsAbove * $elm_explorations$linear_algebra$Math$Vector3$getZ(rgb),
-					hw: false,
+					hy: false,
 					dq: nitsAbove * $elm_explorations$linear_algebra$Math$Vector3$getY(rgb),
 					e2: nitsBelow / nitsAbove,
 					dP: nitsAbove * $elm_explorations$linear_algebra$Math$Vector3$getX(rgb),
 					fq: 3,
-					jB: x,
-					jG: y,
+					jH: x,
+					jM: y,
 					fz: z
 				};
 			}
@@ -16574,7 +16586,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Light$soft = function (light) {
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$Light$overhead = function (_arguments) {
 	return $ianmackenzie$elm_3d_scene$Scene3d$Light$soft(
-		{ei: _arguments.ei, ij: _arguments.ex, ik: $ianmackenzie$elm_units$Quantity$zero, hg: _arguments.hg});
+		{ei: _arguments.ei, im: _arguments.ex, $9: $ianmackenzie$elm_units$Quantity$zero, hh: _arguments.hh});
 };
 var $ianmackenzie$elm_units$Temperature$inKelvins = function (_v0) {
 	var numKelvins = _v0;
@@ -16589,7 +16601,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Light$colorTemperature = function (temper
 	var x = (t <= 4000) ? ((((((-0.2661239) * 1.0e9) / ((t * t) * t)) - ((0.2343589 * 1.0e6) / (t * t))) + ((0.8776956 * 1.0e3) / t)) + 0.17991) : ((((((-3.0258469) * 1.0e9) / ((t * t) * t)) + ((2.1070379 * 1.0e6) / (t * t))) + ((0.2226347 * 1.0e3) / t)) + 0.24039);
 	var y = (t <= 2222) ? (((((-1.1063814) * ((x * x) * x)) - (1.3481102 * (x * x))) + (2.18555832 * x)) - 0.20219683) : ((t <= 4000) ? (((((-0.9549476) * ((x * x) * x)) - (1.37418593 * (x * x))) + (2.09137015 * x)) - 0.16748867) : ((((3.081758 * ((x * x) * x)) - (5.8733867 * (x * x))) + (3.75112997 * x)) - 0.37001483));
 	return $ianmackenzie$elm_3d_scene$Scene3d$Light$chromaticity(
-		{jB: x, jG: y});
+		{jH: x, jM: y});
 };
 var $ianmackenzie$elm_units$Temperature$Temperature = $elm$core$Basics$identity;
 var $ianmackenzie$elm_units$Temperature$kelvins = function (numKelvins) {
@@ -16618,7 +16630,7 @@ var $ianmackenzie$elm_3d_scene$Scene3d$eraseLight = function (_v0) {
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$lightCastsShadows = function (_v0) {
 	var properties = _v0;
-	return properties.hw;
+	return properties.hy;
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$noLights = $ianmackenzie$elm_3d_scene$Scene3d$SingleUnshadowedPass($ianmackenzie$elm_3d_scene$Scene3d$lightingDisabled.a);
 var $elm$core$List$partition = F2(
@@ -16642,7 +16654,7 @@ var $elm$core$List$partition = F2(
 var $ianmackenzie$elm_3d_scene$Scene3d$singleLight = function (_v0) {
 	var light = _v0;
 	return $elm_explorations$linear_algebra$Math$Matrix4$fromRecord(
-		{gi: light.jB, gj: light.dP, gk: 0, gl: 0, gm: light.jG, gn: light.dq, go: 0, gp: 0, gq: light.fz, gr: light.da, gs: 0, gt: 0, gu: light.fq, gv: light.e2, gw: 0, gx: 0});
+		{gj: light.jH, gk: light.dP, gl: 0, gm: 0, gn: light.jM, go: light.dq, gp: 0, gq: 0, gr: light.fz, gs: light.da, gt: 0, gu: 0, gv: light.fq, gw: light.e2, gx: 0, gy: 0});
 };
 var $ianmackenzie$elm_3d_scene$Scene3d$eightLights = F8(
 	function (first, second, third, fourth, fifth, sixth, seventh, eigth) {
@@ -16697,23 +16709,23 @@ var $ianmackenzie$elm_3d_scene$Scene3d$threeLights = F3(
 var $author$project$ModifiedFromScene3d$Scenes$sunnyWithDevicePixelRatio = function (_arguments) {
 	var sun = A2(
 		$ianmackenzie$elm_3d_scene$Scene3d$Light$directional,
-		$ianmackenzie$elm_3d_scene$Scene3d$Light$castsShadows(_arguments.jd),
+		$ianmackenzie$elm_3d_scene$Scene3d$Light$castsShadows(_arguments.jh),
 		{
 			ei: $ianmackenzie$elm_3d_scene$Scene3d$Light$sunlight,
-			hP: _arguments.jl,
+			hR: _arguments.jq,
 			ex: $ianmackenzie$elm_units$Illuminance$lux(80000)
 		});
 	var sky = $ianmackenzie$elm_3d_scene$Scene3d$Light$overhead(
 		{
 			ei: $ianmackenzie$elm_3d_scene$Scene3d$Light$skylight,
 			ex: $ianmackenzie$elm_units$Illuminance$lux(20000),
-			hg: _arguments.hg
+			hh: _arguments.hh
 		});
 	var environment = $ianmackenzie$elm_3d_scene$Scene3d$Light$overhead(
 		{
 			ei: $ianmackenzie$elm_3d_scene$Scene3d$Light$daylight,
 			ex: $ianmackenzie$elm_units$Illuminance$lux(15000),
-			hg: $ianmackenzie$elm_geometry$Direction3d$reverse(_arguments.hg)
+			hh: $ianmackenzie$elm_geometry$Direction3d$reverse(_arguments.hh)
 		});
 	var lights = A3($ianmackenzie$elm_3d_scene$Scene3d$threeLights, sun, sky, environment);
 	return $ianmackenzie$elm_3d_scene$Scene3d$custom(
@@ -16736,8 +16748,8 @@ var $ianmackenzie$elm_geometry$Direction3d$xyZ = F2(
 		var phi = _v1;
 		var cosPhi = $elm$core$Basics$cos(phi);
 		return {
-			jB: cosPhi * $elm$core$Basics$cos(theta),
-			jG: cosPhi * $elm$core$Basics$sin(theta),
+			jH: cosPhi * $elm$core$Basics$cos(theta),
+			jM: cosPhi * $elm$core$Basics$sin(theta),
 			fz: $elm$core$Basics$sin(phi)
 		};
 	});
@@ -16751,16 +16763,16 @@ var $author$project$Scene$sunny = F2(
 				eq: _arguments.eq,
 				bP: _Utils_Tuple2(
 					$ianmackenzie$elm_units$Pixels$int(
-						$elm$core$Basics$round(_arguments.b7.jy)),
+						$elm$core$Basics$round(_arguments.b7.jE)),
 					$ianmackenzie$elm_units$Pixels$int(
-						$elm$core$Basics$round(_arguments.b7.ia))),
+						$elm$core$Basics$round(_arguments.b7.id))),
 				bU: shapes,
-				jd: true,
-				jl: A2(
+				jh: true,
+				jq: A2(
 					$ianmackenzie$elm_geometry$Direction3d$xyZ,
-					$ianmackenzie$elm_units$Angle$radians(_arguments.jk),
-					$ianmackenzie$elm_units$Angle$radians(_arguments.jm)),
-				hg: $ianmackenzie$elm_geometry$Direction3d$z
+					$ianmackenzie$elm_units$Angle$radians(_arguments.jp),
+					$ianmackenzie$elm_units$Angle$radians(_arguments.jr)),
+				hh: $ianmackenzie$elm_geometry$Direction3d$z
 			});
 	});
 var $author$project$TrixelEditor$Main$viewWebGLCanvas = F2(
@@ -16770,13 +16782,13 @@ var $author$project$TrixelEditor$Main$viewWebGLCanvas = F2(
 			{
 				fD: A2(
 					$author$project$TrixelEditor$ColorPalette$get,
-					$author$project$Tools$Pages$Pages$current(model.ak).hr,
+					$author$project$Tools$Pages$Pages$current(model.ak).hs,
 					$author$project$Tools$Pages$Pages$current(model.ak).cM),
 				bM: A2($author$project$TrixelEditor$Main$toPerspectiveCamera, computer.b7, model.bz),
 				eq: computer.eq,
 				b7: computer.b7,
-				jk: $elm$core$Basics$degrees(225),
-				jm: $elm$core$Basics$degrees(315)
+				jp: $elm$core$Basics$degrees(225),
+				jr: $elm$core$Basics$degrees(315)
 			},
 			_List_fromArray(
 				[
@@ -16869,7 +16881,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																		$elm$json$Json$Decode$andThen,
 																		function (clock) {
 																			return $elm$json$Json$Decode$succeed(
-																				{bO: clock, eq: devicePixelRatio, br: dt, b1: keyboard, b6: pointer, b7: screen, g2: sensoState, ci: wheel});
+																				{bO: clock, eq: devicePixelRatio, br: dt, b1: keyboard, b6: pointer, b7: screen, g3: sensoState, ci: wheel});
 																		},
 																		A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 																},
@@ -16908,7 +16920,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																														$elm$json$Json$Decode$andThen,
 																														function (alt) {
 																															return $elm$json$Json$Decode$succeed(
-																																{hn: alt, hF: control, fO: down, hS: downs, it: left, i0: pressedKeys, i7: right, je: shift, hf: up});
+																																{ho: alt, hH: control, fP: down, hU: downs, iw: left, i3: pressedKeys, ja: right, ji: shift, hg: up});
 																														},
 																														A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																												},
@@ -16962,7 +16974,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																										$elm$json$Json$Decode$andThen,
 																										function (down) {
 																											return $elm$json$Json$Decode$succeed(
-																												{fO: down, $9: isDown, iG: move, i8: rightDown, i9: rightUp, hf: up, jB: x, jG: y});
+																												{fP: down, iq: isDown, iJ: move, jb: rightDown, jc: rightUp, hg: up, jH: x, jM: y});
 																										},
 																										A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																								},
@@ -16990,7 +17002,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 												$elm$json$Json$Decode$andThen,
 												function (height) {
 													return $elm$json$Json$Decode$succeed(
-														{ia: height, jy: width});
+														{id: height, jE: width});
 												},
 												A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 										},
@@ -17015,7 +17027,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																$elm$json$Json$Decode$andThen,
 																function (center) {
 																	return $elm$json$Json$Decode$succeed(
-																		{hx: center, fO: down, it: left, i7: right, hf: up});
+																		{hz: center, fP: down, iw: left, ja: right, hg: up});
 																},
 																A2(
 																	$elm$json$Json$Decode$field,
@@ -17030,7 +17042,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																						$elm$json$Json$Decode$andThen,
 																						function (f) {
 																							return $elm$json$Json$Decode$succeed(
-																								{cs: f, jB: x, jG: y});
+																								{cs: f, jH: x, jM: y});
 																						},
 																						A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																				},
@@ -17051,7 +17063,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cs: f, jB: x, jG: y});
+																						{cs: f, jH: x, jM: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -17072,7 +17084,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cs: f, jB: x, jG: y});
+																				{cs: f, jH: x, jM: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -17093,7 +17105,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cs: f, jB: x, jG: y});
+																		{cs: f, jH: x, jM: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -17114,7 +17126,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cs: f, jB: x, jG: y});
+																{cs: f, jH: x, jM: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -17132,7 +17144,7 @@ _Platform_export({'TrixelEditor':{'Main':{'init':$author$project$TrixelEditor$Ma
 								$elm$json$Json$Decode$andThen,
 								function (deltaX) {
 									return $elm$json$Json$Decode$succeed(
-										{hM: deltaX, hN: deltaY});
+										{hO: deltaX, hP: deltaY});
 								},
 								A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 						},

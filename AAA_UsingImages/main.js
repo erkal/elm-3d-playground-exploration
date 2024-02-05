@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.eS.cn === region.fr.cn)
+	if (region.eS.cn === region.fs.cn)
 	{
 		return 'on line ' + region.eS.cn;
 	}
-	return 'on lines ' + region.eS.cn + ' through ' + region.fr.cn;
+	return 'on lines ' + region.eS.cn + ' through ' + region.fs.cn;
 }
 
 
@@ -1857,8 +1857,8 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.hT,
-		impl.i6,
+		impl.hW,
+		impl.jc,
 		impl.dC,
 		function() { return function() {} }
 	);
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.hT,
-		impl.i6,
+		impl.hW,
+		impl.jc,
 		impl.dC,
 		function(sendToApp, initialModel) {
-			var view = impl.i9;
+			var view = impl.jf;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.hT,
-		impl.i6,
+		impl.hW,
+		impl.jc,
 		impl.dC,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.eP && impl.eP(sendToApp)
-			var view = impl.i9;
+			var view = impl.jf;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.g_);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.g$);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.i1) && (_VirtualDom_doc.title = title = doc.i1);
+				(title !== doc.i7) && (_VirtualDom_doc.title = title = doc.i7);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.iq;
-	var onUrlRequest = impl.ir;
+	var onUrlChange = impl.it;
+	var onUrlRequest = impl.iu;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.gq === next.gq
-							&& curr.fC === next.fC
-							&& curr.gl.a === next.gl.a
+							&& curr.gr === next.gr
+							&& curr.fD === next.fD
+							&& curr.gm.a === next.gm.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,12 +4069,12 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		hT: function(flags)
+		hW: function(flags)
 		{
-			return A3(impl.hT, flags, _Browser_getUrl(), key);
+			return A3(impl.hW, flags, _Browser_getUrl(), key);
 		},
-		i9: impl.i9,
-		i6: impl.i6,
+		jf: impl.jf,
+		jc: impl.jc,
 		dC: impl.dC
 	});
 }
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { hN: 'hidden', g3: 'visibilitychange' }
+		? { hQ: 'hidden', g5: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { hN: 'mozHidden', g3: 'mozvisibilitychange' }
+		? { hQ: 'mozHidden', g5: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { hN: 'msHidden', g3: 'msvisibilitychange' }
+		? { hQ: 'msHidden', g5: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { hN: 'webkitHidden', g3: 'webkitvisibilitychange' }
-		: { hN: 'hidden', g3: 'visibilitychange' };
+		? { hQ: 'webkitHidden', g5: 'webkitvisibilitychange' }
+		: { hQ: 'hidden', g5: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		gz: _Browser_getScene(),
-		gP: {
+		gA: _Browser_getScene(),
+		gQ: {
 			b1: _Browser_window.pageXOffset,
 			b2: _Browser_window.pageYOffset,
-			jb: _Browser_doc.documentElement.clientWidth,
-			hK: _Browser_doc.documentElement.clientHeight
+			jh: _Browser_doc.documentElement.clientWidth,
+			hN: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		jb: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		hK: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		jh: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		hN: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			gz: {
-				jb: node.scrollWidth,
-				hK: node.scrollHeight
+			gA: {
+				jh: node.scrollWidth,
+				hN: node.scrollHeight
 			},
-			gP: {
+			gQ: {
 				b1: node.scrollLeft,
 				b2: node.scrollTop,
-				jb: node.clientWidth,
-				hK: node.clientHeight
+				jh: node.clientWidth,
+				hN: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			gz: _Browser_getScene(),
-			gP: {
+			gA: _Browser_getScene(),
+			gQ: {
 				b1: x,
 				b2: y,
-				jb: _Browser_doc.documentElement.clientWidth,
-				hK: _Browser_doc.documentElement.clientHeight
+				jh: _Browser_doc.documentElement.clientWidth,
+				hN: _Browser_doc.documentElement.clientHeight
 			},
-			hu: {
+			hw: {
 				b1: x + rect.left,
 				b2: y + rect.top,
-				jb: rect.width,
-				hK: rect.height
+				jh: rect.width,
+				hN: rect.height
 			}
 		};
 	});
@@ -4401,8 +4401,8 @@ var _Regex_never = /.^/;
 var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
-	if (options.ik) { flags += 'm'; }
-	if (options.g$) { flags += 'i'; }
+	if (options.$9) { flags += 'm'; }
+	if (options.g1) { flags += 'i'; }
 
 	try
 	{
@@ -5006,7 +5006,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {fx: fragment, fC: host, gh: path, gl: port_, gq: protocol, gr: query};
+		return {fy: fragment, fD: host, gi: path, gm: port_, gr: protocol, gs: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5288,16 +5288,16 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Playground$Playground$ShowingNothing = 0;
 var $author$project$Playground$Senso$initSensoPress = {cc: 0, b1: 0, b2: 0};
 var $author$project$Playground$Senso$init = {
-	g1: $author$project$Playground$Senso$initSensoPress,
+	g3: $author$project$Playground$Senso$initSensoPress,
 	d2: $author$project$Playground$Senso$initSensoPress,
-	fL: $author$project$Playground$Senso$initSensoPress,
-	gw: $author$project$Playground$Senso$initSensoPress,
-	eY: {g1: $author$project$Playground$Senso$initSensoPress, d2: $author$project$Playground$Senso$initSensoPress, fL: $author$project$Playground$Senso$initSensoPress, gw: $author$project$Playground$Senso$initSensoPress, e2: $author$project$Playground$Senso$initSensoPress},
+	fM: $author$project$Playground$Senso$initSensoPress,
+	gx: $author$project$Playground$Senso$initSensoPress,
+	eY: {g3: $author$project$Playground$Senso$initSensoPress, d2: $author$project$Playground$Senso$initSensoPress, fM: $author$project$Playground$Senso$initSensoPress, gx: $author$project$Playground$Senso$initSensoPress, e2: $author$project$Playground$Senso$initSensoPress},
 	e2: $author$project$Playground$Senso$initSensoPress
 };
 var $author$project$Playground$Computer$init = F2(
 	function (initialConfigurations, inputs) {
-		return {g4: inputs.g4, aR: initialConfigurations, hk: inputs.hk, hp: inputs.hp, h1: inputs.h1, iA: inputs.iA, iO: inputs.iO, dz: $author$project$Playground$Senso$init, ja: inputs.ja};
+		return {g6: inputs.g6, aR: initialConfigurations, hm: inputs.hm, hr: inputs.hr, h4: inputs.h4, iD: inputs.iD, iS: inputs.iS, dz: $author$project$Playground$Senso$init, jg: inputs.jg};
 	});
 var $author$project$Playground$Tape$Recording = {$: 1};
 var $author$project$Playground$Tape$Tape = F2(
@@ -5341,12 +5341,12 @@ var $author$project$Playground$Playground$init = F2(
 	function (app, flags) {
 		return _Utils_Tuple2(
 			{
-				ca: flags.hV.iO.jb < 500,
+				ca: flags.hY.iS.jh < 500,
 				aH: 0,
-				i$: A2(
-					app.hI ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
-					A2($author$project$Playground$Computer$init, app.hU, flags.hV),
-					app.hT)
+				i5: A2(
+					app.hL ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
+					A2($author$project$Playground$Computer$init, app.hX, flags.hY),
+					app.hW)
 			},
 			$elm$core$Platform$Cmd$none);
 	});
@@ -5398,7 +5398,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{g4: clock, hk: devicePixelRatio, hp: dt, h1: keyboard, iA: pointer, iO: screen, iP: sensoState, ja: wheel});
+																		{g6: clock, hm: devicePixelRatio, hr: dt, h4: keyboard, iD: pointer, iS: screen, iT: sensoState, jg: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -5437,7 +5437,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{gU: alt, ha: control, d2: down, ho: downs, fL: left, iC: pressedKeys, gw: right, iR: shift, e2: up});
+																														{gV: alt, hc: control, d2: down, hq: downs, fM: left, iF: pressedKeys, gx: right, iV: shift, e2: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -5491,7 +5491,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{d2: down, h_: isDown, ih: move, iJ: rightDown, iK: rightUp, e2: up, b1: x, b2: y});
+																										{d2: down, h1: isDown, ik: move, iM: rightDown, iN: rightUp, e2: up, b1: x, b2: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
@@ -5519,7 +5519,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 										$elm$json$Json$Decode$andThen,
 										function (height) {
 											return $elm$json$Json$Decode$succeed(
-												{hK: height, jb: width});
+												{hN: height, jh: width});
 										},
 										A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 								},
@@ -5544,7 +5544,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (center) {
 															return $elm$json$Json$Decode$succeed(
-																{g1: center, d2: down, fL: left, gw: right, e2: up});
+																{g3: center, d2: down, fM: left, gx: right, e2: up});
 														},
 														A2(
 															$elm$json$Json$Decode$field,
@@ -5661,7 +5661,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 						$elm$json$Json$Decode$andThen,
 						function (deltaX) {
 							return $elm$json$Json$Decode$succeed(
-								{hh: deltaX, hi: deltaY});
+								{hj: deltaX, hk: deltaY});
 						},
 						A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 				},
@@ -5676,7 +5676,7 @@ var $author$project$Playground$Playground$subscriptions = F2(
 					$elm$core$Platform$Sub$map,
 					$author$project$Playground$Playground$FromApp,
 					app.dC(
-						$author$project$Playground$Tape$currentAppModel(model.i$)))
+						$author$project$Playground$Tape$currentAppModel(model.i5)))
 				]));
 	});
 var $elm$core$Platform$Cmd$map = _Platform_map;
@@ -5796,22 +5796,22 @@ var $author$project$Playground$Senso$normalizeCoordinates = function (_v0) {
 var $author$project$Playground$Senso$update = F2(
 	function (sensoState, senso) {
 		return {
-			g1: A2(
+			g3: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.g1,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.g1)),
+				sensoState.g3,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.g3)),
 			d2: A2(
 				$author$project$Playground$Senso$lerpTo,
 				sensoState.d2,
 				$author$project$Playground$Senso$normalizeCoordinates(senso.d2)),
-			fL: A2(
+			fM: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.fL,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.fL)),
-			gw: A2(
+				sensoState.fM,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.fM)),
+			gx: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.gw,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.gw)),
+				sensoState.gx,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.gx)),
 			eY: sensoState,
 			e2: A2(
 				$author$project$Playground$Senso$lerpTo,
@@ -5824,14 +5824,14 @@ var $author$project$Playground$Computer$tick = F2(
 		return _Utils_update(
 			computer,
 			{
-				g4: computer.g4 + inputs.hp,
-				hk: inputs.hk,
-				hp: inputs.hp,
-				h1: inputs.h1,
-				iA: inputs.iA,
-				iO: inputs.iO,
-				dz: A2($author$project$Playground$Senso$update, inputs.iP, computer.dz),
-				ja: inputs.ja
+				g6: computer.g6 + inputs.hr,
+				hm: inputs.hm,
+				hr: inputs.hr,
+				h4: inputs.h4,
+				iD: inputs.iD,
+				iS: inputs.iS,
+				dz: A2($author$project$Playground$Senso$update, inputs.iT, computer.dz),
+				jg: inputs.jg
 			});
 	});
 var $elm$core$Maybe$withDefault = F2(
@@ -5854,8 +5854,8 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 				var tapeClock = state.a.eX;
 				return _Utils_Tuple2(
 					((_Utils_cmp(
-						tapeClock + inputs.hp,
-						$author$project$Playground$Tape$currentComputer(tape).g4) > 0) ? A2(
+						tapeClock + inputs.hr,
+						$author$project$Playground$Tape$currentComputer(tape).g6) > 0) ? A2(
 						$elm$core$Basics$composeR,
 						$author$project$Playground$Tape$goToNext,
 						$elm$core$Maybe$withDefault(
@@ -5863,7 +5863,7 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 						A2(
 							$author$project$Playground$Tape$Tape,
 							$author$project$Playground$Tape$Playing(
-								{eX: tapeClock + inputs.hp}),
+								{eX: tapeClock + inputs.hr}),
 							timeLine)),
 					$elm$core$Platform$Cmd$none);
 			case 1:
@@ -5908,23 +5908,23 @@ var $author$project$Playground$Playground$handleAppUpdate = F3(
 		switch (msg.$) {
 			case 5:
 				var appMsg = msg.a;
-				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.i6, appMsg, model.i$);
+				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.jc, appMsg, model.i5);
 				var newTape = _v1.a;
 				var appCmd = _v1.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i$: newTape}),
+						{i5: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			case 3:
 				var inputs = msg.a;
-				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.i6, inputs, model.i$);
+				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.jc, inputs, model.i5);
 				var newTape = _v2.a;
 				var appCmd = _v2.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i$: newTape}),
+						{i5: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			default:
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6656,7 +6656,7 @@ var $author$project$Playground$Playground$handleConfigurationsMsg = F2(
 			return _Utils_update(
 				model,
 				{
-					i$: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i$)
+					i5: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i5)
 				});
 		} else {
 			return model;
@@ -6680,7 +6680,7 @@ var $author$project$Playground$Tape$startPlaying = function (tape) {
 		$author$project$Playground$Tape$Tape,
 		$author$project$Playground$Tape$Playing(
 			{
-				eX: $author$project$Playground$Tape$currentComputer(tape).g4
+				eX: $author$project$Playground$Tape$currentComputer(tape).g6
 			}),
 		timeLine);
 };
@@ -6709,7 +6709,7 @@ var $author$project$Playground$Playground$handleTapeScreenControls = F2(
 			return _Utils_update(
 				model,
 				{
-					i$: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i$)
+					i5: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i5)
 				});
 		} else {
 			return model;
@@ -6777,7 +6777,7 @@ var $author$project$Playground$Icons$draw = $elm$svg$Svg$svg(
 var $elm$svg$Svg$Attributes$fillRule = _VirtualDom_attribute('fill-rule');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $author$project$Playground$Icons$icons = {
-	g7: $author$project$Playground$Icons$draw(
+	g9: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6788,7 +6788,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hc: $author$project$Playground$Icons$draw(
+	he: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6799,7 +6799,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hC: $author$project$Playground$Icons$draw(
+	hE: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6810,7 +6810,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hD: $author$project$Playground$Icons$draw(
+	hF: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6821,7 +6821,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hJ: $author$project$Playground$Icons$draw(
+	hM: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6832,7 +6832,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	hO: $author$project$Playground$Icons$draw(
+	hR: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6843,7 +6843,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	h4: $author$project$Playground$Icons$draw(
+	h7: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6854,7 +6854,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ii: $author$project$Playground$Icons$draw(
+	il: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6872,7 +6872,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ij: $author$project$Playground$Icons$draw(
+	im: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6890,7 +6890,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iw: $author$project$Playground$Icons$draw(
+	iz: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6901,7 +6901,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ix: $author$project$Playground$Icons$draw(
+	iA: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6912,7 +6912,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iy: $author$project$Playground$Icons$draw(
+	iB: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6923,7 +6923,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iz: $author$project$Playground$Icons$draw(
+	iC: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6934,7 +6934,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iA: $author$project$Playground$Icons$draw(
+	iD: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6945,7 +6945,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iH: $author$project$Playground$Icons$draw(
+	iK: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6956,7 +6956,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i$: $author$project$Playground$Icons$draw(
+	i5: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6969,7 +6969,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i2: $author$project$Playground$Icons$draw(
+	i8: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6982,7 +6982,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i3: $author$project$Playground$Icons$draw(
+	i9: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6993,7 +6993,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i5: $author$project$Playground$Icons$draw(
+	jb: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7004,7 +7004,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jm: $author$project$Playground$Icons$draw(
+	js: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7015,7 +7015,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jp: $author$project$Playground$Icons$draw(
+	jv: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7144,10 +7144,10 @@ var $author$project$Playground$Tape$playPauseButton = function (_v0) {
 			return A3(
 				tapeButtonWithIcon,
 				$author$project$Tools$SelectList$SelectList$isAtEnd(timeline),
-				$author$project$Playground$Icons$icons.iy,
+				$author$project$Playground$Icons$icons.iB,
 				$author$project$Playground$Tape$PressedPlayButton);
 		default:
-			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iw, $author$project$Playground$Tape$PressedPauseButton);
+			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iz, $author$project$Playground$Tape$PressedPauseButton);
 	}
 };
 var $author$project$Playground$Tape$PressedRecordButton = {$: 2};
@@ -7171,11 +7171,11 @@ var $author$project$Playground$Tape$tapeToggleButton = function (_v0) {
 		case 0:
 			return $elm$html$Html$text('');
 		case 1:
-			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i$);
+			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i5);
 		case 2:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hc);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.he);
 		default:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hc);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.he);
 	}
 };
 var $author$project$Playground$Tape$SliderMovedTo = function (a) {
@@ -7325,7 +7325,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 		$elm$core$Maybe$map,
 		function (t) {
 			return $elm$core$Basics$round(
-				60 / ($author$project$Playground$Tape$currentComputer(tape).g4 - t));
+				60 / ($author$project$Playground$Tape$currentComputer(tape).g6 - t));
 		},
 		A2(
 			$elm$core$Maybe$map,
@@ -7333,7 +7333,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 				$elm$core$Basics$composeR,
 				$elm$core$Tuple$first,
 				function ($) {
-					return $.g4;
+					return $.g6;
 				}),
 			$elm$core$List$head(
 				A2(
@@ -7369,7 +7369,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 			return $elm$core$String$fromInt(fps);
 		}
 	};
-	var computer = $author$project$Playground$Tape$currentComputer(model.i$);
+	var computer = $author$project$Playground$Tape$currentComputer(model.i5);
 	var boolAsText = function (bool) {
 		return bool ? 'True' : 'False';
 	};
@@ -7406,7 +7406,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'fps: ' + fpsAsText(model.i$))
+								'fps: ' + fpsAsText(model.i5))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7415,7 +7415,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'frame: ' + $elm$core$String$fromInt(
-									$author$project$Playground$Tape$getCurrentFrameIndex(model.i$)))
+									$author$project$Playground$Tape$getCurrentFrameIndex(model.i5)))
 							]))
 					])),
 				A2(
@@ -7443,7 +7443,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'pressedKeys: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.h1.iC)))
+									A2($elm$core$List$intersperse, ' ', computer.h4.iF)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7451,7 +7451,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.shift: ' + boolAsText(computer.h1.iR))
+								'keyboard.shift: ' + boolAsText(computer.h4.iV))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7459,7 +7459,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.control: ' + boolAsText(computer.h1.ha))
+								'keyboard.control: ' + boolAsText(computer.h4.hc))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7468,7 +7468,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'downs: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.h1.ho)))
+									A2($elm$core$List$intersperse, ' ', computer.h4.hq)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7476,7 +7476,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.hp))
+								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.hr))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7484,7 +7484,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.g4))
+								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.g6))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7492,7 +7492,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer is down: ' + (computer.iA.h_ ? 'yes' : 'no'))
+								'pointer is down: ' + (computer.iD.h1 ? 'yes' : 'no'))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7500,7 +7500,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.iA.b1))
+								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.iD.b1))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7508,7 +7508,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.iA.b2))
+								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.iD.b2))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7516,7 +7516,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.ja.hh))
+								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.jg.hj))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7524,7 +7524,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.ja.hi))
+								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.jg.hk))
 							]))
 					]))
 			]));
@@ -7642,7 +7642,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {hS: index, ib: match, ip: number, iW: submatches};
+		return {hV: index, ie: match, is: number, i$: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -7659,7 +7659,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{g$: false, ik: false},
+		{g1: false, $9: false},
 		string);
 };
 var $elm$core$Result$map = F2(
@@ -7787,7 +7787,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.iW;
+							return $.i$;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -7869,7 +7869,7 @@ var $elm$html$Html$Events$onCheck = function (tagger) {
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $author$project$Playground$ConfigurationsView$viewSliderInput = function (_v0) {
-	var name = _v0.il;
+	var name = _v0.io;
 	var value = _v0.e3;
 	var min = _v0.eq;
 	var max = _v0.el;
@@ -8007,7 +8007,7 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 				{
 					el: max,
 					eq: min,
-					il: name,
+					io: name,
 					eu: $author$project$Playground$Configurations$SetFloat(name),
 					eT: 0.01 * (max - min),
 					e3: value
@@ -8021,7 +8021,7 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 				{
 					el: max,
 					eq: min,
-					il: name,
+					io: name,
 					eu: A2(
 						$elm$core$Basics$composeR,
 						$elm$core$Basics$round,
@@ -8152,7 +8152,7 @@ var $author$project$Playground$ConfigurationsView$viewBlock = function (block) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(block.il)
+						$elm$html$Html$text(block.io)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -8185,11 +8185,11 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'left',
-					$elm$core$String$fromFloat(computer.iA.b1 + (0.5 * computer.iO.jb)) + 'px'),
+					$elm$core$String$fromFloat(computer.iD.b1 + (0.5 * computer.iS.jh)) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'top',
-					$elm$core$String$fromFloat((-computer.iA.b2) + (0.5 * computer.iO.hK)) + 'px')
+					$elm$core$String$fromFloat((-computer.iD.b2) + (0.5 * computer.iS.hN)) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8198,15 +8198,15 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							computer.iA.h_ ? 'text-black/80' : 'text-black/40')
+							computer.iD.h1 ? 'text-black/80' : 'text-black/40')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.iA]))
+						[$author$project$Playground$Icons$icons.iD]))
 				]));
 	});
 var $author$project$Playground$Playground$viewHUD = F2(
 	function (computer, model) {
-		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.jm);
+		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.js);
 		var viewTape = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8219,7 +8219,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromTapeControls,
-					$author$project$Playground$Tape$view(model.i$))
+					$author$project$Playground$Tape$view(model.i5))
 				]));
 		var viewInputs = A2(
 			$elm$html$Html$div,
@@ -8231,7 +8231,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(
-						$author$project$Playground$Tape$currentComputer(model.i$).iO.hK) + 'px'),
+						$author$project$Playground$Tape$currentComputer(model.i5).iS.hN) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aH !== 1)
 				]),
@@ -8248,7 +8248,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.iO.hK) + 'px'),
+					$elm$core$String$fromFloat(computer.iS.hN) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
 					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aH !== 2)
 				]),
@@ -8258,20 +8258,20 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromConfigurationsEditor,
 					$author$project$Playground$ConfigurationsView$viewConfigurations(
-						$author$project$Playground$Tape$currentComputer(model.i$).aR))
+						$author$project$Playground$Tape$currentComputer(model.i5).aR))
 				]));
-		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.i3);
-		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aH === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.g7);
-		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home of all examples', '../WebPage/index.html', $author$project$Playground$Icons$icons.hO);
-		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hD);
+		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.i9);
+		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aH === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.g9);
+		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.hR);
+		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hF);
 		var configurationsButton = A5(
 			$author$project$Playground$Playground$leftBarButton,
 			$elm$core$List$isEmpty(
-				$author$project$Playground$Tape$currentComputer(model.i$).aR),
+				$author$project$Playground$Tape$currentComputer(model.i5).aR),
 			model.aH === 2,
 			$author$project$Playground$Playground$ClickedOnShowConfigurationsButton,
 			'Configurations',
-			$author$project$Playground$Icons$icons.hC);
+			$author$project$Playground$Icons$icons.hE);
 		var leftStripe = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8289,7 +8289,19 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('flex flex-col')
 						]),
 					_List_fromArray(
-						[yinYangButton, configurationsButton, inputsButton])),
+						[
+							yinYangButton,
+							configurationsButton,
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
+									$author$project$Playground$Tape$isNoTape(model.i5))
+								]),
+							_List_fromArray(
+								[inputsButton]))
+						])),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -8333,7 +8345,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('absolute left-0 top-0'),
 							$elm$html$Html$Attributes$class('pointer-events-none'),
 							$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
-							$author$project$Playground$Tape$isRecording(model.i$) || $author$project$Playground$Tape$isNoTape(model.i$))
+							$author$project$Playground$Tape$isRecording(model.i5) || $author$project$Playground$Tape$isNoTape(model.i5))
 						]),
 					_List_fromArray(
 						[
@@ -8344,7 +8356,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 	});
 var $author$project$Playground$Playground$view = F2(
 	function (app, model) {
-		var computer = $author$project$Playground$Tape$currentComputer(model.i$);
+		var computer = $author$project$Playground$Tape$currentComputer(model.i5);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8356,11 +8368,11 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'width',
-					$elm$core$String$fromFloat(computer.iO.jb) + 'px'),
+					$elm$core$String$fromFloat(computer.iS.jh) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.iO.hK) + 'px')
+					$elm$core$String$fromFloat(computer.iS.hN) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8368,38 +8380,38 @@ var $author$project$Playground$Playground$view = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromApp,
 					A2(
-						app.i9,
+						app.jf,
 						computer,
-						$author$project$Playground$Tape$currentAppModel(model.i$))),
+						$author$project$Playground$Tape$currentAppModel(model.i5))),
 					A2($author$project$Playground$Playground$viewHUD, computer, model)
 				]));
 	});
 var $author$project$Playground$Playground$application = function (app) {
 	return $elm$browser$Browser$element(
 		{
-			hT: $author$project$Playground$Playground$init(app),
+			hW: $author$project$Playground$Playground$init(app),
 			dC: $author$project$Playground$Playground$subscriptions(app),
-			i6: $author$project$Playground$Playground$update(app),
-			i9: $author$project$Playground$Playground$view(app)
+			jc: $author$project$Playground$Playground$update(app),
+			jf: $author$project$Playground$Playground$view(app)
 		});
 };
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Playground$Playground$simpleApplication = function (simpleApp) {
 	return $author$project$Playground$Playground$application(
 		{
-			hI: simpleApp.hI,
-			hT: simpleApp.hT,
-			hU: simpleApp.hU,
+			hL: simpleApp.hL,
+			hW: simpleApp.hW,
+			hX: simpleApp.hX,
 			dC: function (_v0) {
 				return $elm$core$Platform$Sub$none;
 			},
-			i6: F3(
+			jc: F3(
 				function (computer, msg, appModel) {
 					return _Utils_Tuple2(
-						A3(simpleApp.i6, computer, msg, appModel),
+						A3(simpleApp.jc, computer, msg, appModel),
 						$elm$core$Platform$Cmd$none);
 				}),
-			i9: simpleApp.i9
+			jf: simpleApp.jf
 		});
 };
 var $author$project$AAA_UsingImages$Main$update = F3(
@@ -8420,13 +8432,13 @@ var $author$project$AAA_UsingImages$Main$view = F2(
 			_List_Nil);
 	});
 var $author$project$AAA_UsingImages$Main$main = $author$project$Playground$Playground$simpleApplication(
-	{hI: false, hT: $author$project$AAA_UsingImages$Main$init, hU: $author$project$AAA_UsingImages$Main$initialConfigurations, i6: $author$project$AAA_UsingImages$Main$update, i9: $author$project$AAA_UsingImages$Main$view});
+	{hL: false, hW: $author$project$AAA_UsingImages$Main$init, hX: $author$project$AAA_UsingImages$Main$initialConfigurations, jc: $author$project$AAA_UsingImages$Main$update, jf: $author$project$AAA_UsingImages$Main$view});
 _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingImages$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (inputs) {
 			return $elm$json$Json$Decode$succeed(
-				{hV: inputs});
+				{hY: inputs});
 		},
 		A2(
 			$elm$json$Json$Decode$field,
@@ -8456,7 +8468,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 																		$elm$json$Json$Decode$andThen,
 																		function (clock) {
 																			return $elm$json$Json$Decode$succeed(
-																				{g4: clock, hk: devicePixelRatio, hp: dt, h1: keyboard, iA: pointer, iO: screen, iP: sensoState, ja: wheel});
+																				{g6: clock, hm: devicePixelRatio, hr: dt, h4: keyboard, iD: pointer, iS: screen, iT: sensoState, jg: wheel});
 																		},
 																		A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 																},
@@ -8495,7 +8507,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 																														$elm$json$Json$Decode$andThen,
 																														function (alt) {
 																															return $elm$json$Json$Decode$succeed(
-																																{gU: alt, ha: control, d2: down, ho: downs, fL: left, iC: pressedKeys, gw: right, iR: shift, e2: up});
+																																{gV: alt, hc: control, d2: down, hq: downs, fM: left, iF: pressedKeys, gx: right, iV: shift, e2: up});
 																														},
 																														A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																												},
@@ -8549,7 +8561,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 																										$elm$json$Json$Decode$andThen,
 																										function (down) {
 																											return $elm$json$Json$Decode$succeed(
-																												{d2: down, h_: isDown, ih: move, iJ: rightDown, iK: rightUp, e2: up, b1: x, b2: y});
+																												{d2: down, h1: isDown, ik: move, iM: rightDown, iN: rightUp, e2: up, b1: x, b2: y});
 																										},
 																										A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																								},
@@ -8577,7 +8589,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 												$elm$json$Json$Decode$andThen,
 												function (height) {
 													return $elm$json$Json$Decode$succeed(
-														{hK: height, jb: width});
+														{hN: height, jh: width});
 												},
 												A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 										},
@@ -8602,7 +8614,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 																$elm$json$Json$Decode$andThen,
 																function (center) {
 																	return $elm$json$Json$Decode$succeed(
-																		{g1: center, d2: down, fL: left, gw: right, e2: up});
+																		{g3: center, d2: down, fM: left, gx: right, e2: up});
 																},
 																A2(
 																	$elm$json$Json$Decode$field,
@@ -8719,7 +8731,7 @@ _Platform_export({'AAA_UsingImages':{'Main':{'init':$author$project$AAA_UsingIma
 								$elm$json$Json$Decode$andThen,
 								function (deltaX) {
 									return $elm$json$Json$Decode$succeed(
-										{hh: deltaX, hi: deltaY});
+										{hj: deltaX, hk: deltaY});
 								},
 								A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 						},
