@@ -40,41 +40,41 @@ view computer model =
             [ div [ class "text-3xl font-extrabold mb-8 tracking-tight" ]
                 [ span [] [ text "Erkal's Home Page" ]
                 ]
-            , viewExamples computer model
+            , viewPages computer model
             ]
         ]
 
 
-viewExamples : Computer -> Model -> Html Never
-viewExamples computer model =
+viewPages : Computer -> Model -> Html Never
+viewPages computer model =
     div
         [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
-        [ viewExample "TrixelEditor" "A trixel editor with zoom and pan"
-        , viewExample "RedFacedCube" "The Red-Faced Cube: One of the puzzles from Martin Gardner's column. It has a unique solution!"
-        , viewExample "WaveInWave" "A Creative coding example"
-        , viewExample "ColorShower" "A Creative coding example"
-        , viewExample "DancingCubes" "A Creative coding example"
-        , viewExample "BallGame" "Continuous collision detection for circle to polygon. Roll the ball with arrow keys"
-        , viewExample "Carousel" "A carousel that works with mouse, keyboard and touch"
-        , viewExample "HappyBirthdayAndrey" "This was a birthday card made for Andrey Kuzmin"
-        , viewExample "IsomorphismGame" "A prototype for a game on graph isomorphism"
-        , viewExample "JohnHarrisEightRollingCubes" "One of the puzzles from Martin Gardner's column"
-        , viewExample "MultipleShadowsFromIanMackenzie" "Using the lighting from an example by Ian Mackenzie"
-        , viewExample "PlanetarySystem" "Simple example for grouping objects"
-        , viewExample "RecursiveRotation" "Simple example for recursion"
-        , viewExample "RecursiveTree" "Simple example for recursion"
-        , viewExample "TheSomaCube" "Just a start for a puzzle game. It is not working yet"
-        , viewExample "GooeyEffect" "An example showing the use of GLSL shaders"
-        , viewExample "GrowingSquares" "A Creative coding example"
-        , viewExample "TurningBlocks" "A Creative coding example"
-        , viewExample "ZoomAndPan" "Zooming and panning"
-        , viewExample "CubeAndCube" "Another simple example with pastel colors"
-        , viewExample "CanvasExample" "An elm-playground-like API on top of joakin/elm-canvas"
+        [ viewPage "TrixelEditor" "A trixel editor with zoom and pan"
+        , viewPage "RedFacedCube" "The Red-Faced Cube: One of the puzzles from Martin Gardner's column. It has a unique solution!"
+        , viewPage "WaveInWave" "A Creative coding example"
+        , viewPage "ColorShower" "A Creative coding example"
+        , viewPage "DancingCubes" "A Creative coding example"
+        , viewPage "BallGame" "Continuous collision detection for circle to polygon. Roll the ball with arrow keys"
+        , viewPage "Carousel" "A carousel that works with mouse, keyboard and touch"
+        , viewPage "HappyBirthdayAndrey" "This was a birthday card made for Andrey Kuzmin"
+        , viewPage "IsomorphismGame" "A prototype for a game on graph isomorphism"
+        , viewPage "JohnHarrisEightRollingCubes" "One of the puzzles from Martin Gardner's column"
+        , viewPage "MultipleShadowsFromIanMackenzie" "Using the lighting from an example by Ian Mackenzie"
+        , viewPage "PlanetarySystem" "Simple example for grouping objects"
+        , viewPage "RecursiveRotation" "Simple example for recursion"
+        , viewPage "RecursiveTree" "Simple example for recursion"
+        , viewPage "TheSomaCube" "Just a start for a puzzle game. It is not working yet"
+        , viewPage "GooeyEffect" "An example showing the use of GLSL shaders"
+        , viewPage "GrowingSquares" "A Creative coding example"
+        , viewPage "TurningBlocks" "A Creative coding example"
+        , viewPage "ZoomAndPan" "Zooming and panning"
+        , viewPage "CubeAndCube" "Another simple example with pastel colors"
+        , viewPage "CanvasExample" "An elm-playground-like API on top of joakin/elm-canvas"
         ]
 
 
-viewExample : String -> String -> Html Never
-viewExample exampleName descriptionText =
+viewPage : String -> String -> Html Never
+viewPage exampleName descriptionText =
     let
         exampleLink =
             "../" ++ exampleName ++ "/index.html"
@@ -83,7 +83,7 @@ viewExample exampleName descriptionText =
             "../" ++ exampleName ++ "/image.png"
 
         sourceCodeLink =
-            "https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/" ++ exampleName
+            "https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/" ++ exampleName
     in
     div
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"

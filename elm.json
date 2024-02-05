@@ -1,8 +1,8 @@
 {
     "type": "application",
     "source-directories": [
-        "examples",
-        "examples-private",
+        "pages",
+        "pages-private",
         "playground-exploration/src",
         "tree/src",
         "scene-3d/src",
@@ -26,6 +26,7 @@
             "elm-community/maybe-extra": "5.3.0",
             "elm-community/result-extra": "2.4.0",
             "elm-explorations/linear-algebra": "1.0.3",
+            "elm-explorations/markdown": "1.0.0",
             "elm-explorations/webgl": "1.1.3",
             "evancz/elm-playground": "1.0.3",
             "f0i/debug-to-json": "1.0.6",

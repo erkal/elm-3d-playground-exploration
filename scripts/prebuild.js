@@ -3,7 +3,7 @@ const path = require("path");
 const shell = require("shelljs");
 
 const buildDir = "./build";
-const exampleDirs = ["./examples", "./examples-private"];
+const exampleDirs = ["./pages", "./pages-private"];
 
 // Delete the build directory if it exists
 if (shell.test("-d", buildDir)) {
@@ -22,18 +22,18 @@ shell.cp("playground-exploration/src/PlayEGI.js", buildDir);
 // Initialize a variable for targets JSON
 let targets = {};
 
-// Function to process each examples directory
+// Function to process each pages directory
 function processDirectory(dir) {
   if (!shell.test("-d", dir)) {
     return;
   }
 
-  // Read all directories in the examples directory
-  const examples = fs.readdirSync(dir).filter((file) => {
+  // Read all directories in the pages directory
+  const pages = fs.readdirSync(dir).filter((file) => {
     return fs.statSync(path.join(dir, file)).isDirectory();
   });
 
-  examples.forEach((exampleName) => {
+  pages.forEach((exampleName) => {
     const examplePath = path.join(dir, exampleName);
     const buildExamplePath = path.join(buildDir, exampleName);
 

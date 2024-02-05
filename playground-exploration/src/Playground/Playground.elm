@@ -406,7 +406,7 @@ viewHUD computer model =
 
         homeButton : Html (Msg appMsg)
         homeButton =
-            leftBarLinkButton "Home of all examples" "../WebPage/index.html" Icons.icons.home
+            leftBarLinkButton "Home" "../WebPage/index.html" Icons.icons.home
 
         twitterLink : Html (Msg appMsg)
         twitterLink =
@@ -426,7 +426,7 @@ viewHUD computer model =
                 [ div [ class "flex flex-col" ]
                     [ yinYangButton
                     , configurationsButton
-                    , inputsButton
+                    , div [ hiddenIf (Tape.isNoTape model.tape) ] [ inputsButton ]
                     ]
                 , div [ class "flex flex-col" ]
                     [ twitterLink

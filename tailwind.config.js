@@ -3,10 +3,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'mono': ['Fira Code', 'monospace'], // Fira Code as first preference
-      }
-    }
+        mono: ["Fira Code", "monospace"], // Fira Code as first preference
+      },
+    },
   },
   variants: {},
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };

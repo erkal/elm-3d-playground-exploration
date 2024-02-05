@@ -39,10 +39,10 @@ To begin with the development setup, follow the steps listed below:
    npm run dev
    ```
 
-   This starts serving of all examples. To access them, launch your browser and navigate to [http://localhost:8000/](http://localhost:8000/). From here, proceed to the `index.html` file of your chosen example.
+   This starts serving of all pages. To access them, launch your browser and navigate to [http://localhost:8000/](http://localhost:8000/). From here, proceed to the `index.html` file of your chosen example.
 
    With this setup, when you alter your code, the modifications will take effect immediately, without any loss of the current state. This efficient, seamless functionality is made possible by the exceptional [lydell/elm-watch](https://github.com/lydell/elm-watch), which flawlessly manages hot reloading.
 
 5. **Adding a new example:**
 
-   Copy one of the existing examples and change the module names of the Elm files in it accordingly. And you are ready to go.
+   Copy one of the existing pages and change the module names of the Elm files in it accordingly. And you are ready to go.
