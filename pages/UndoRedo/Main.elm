@@ -98,7 +98,7 @@ view computer model =
             [ markdownBlock """
 #  Resolving the "Great Undo-Redo Quandary" in Elm
 
-[Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/examples/UndoRedo)
+[Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/UndoRedo)
 
 This post unfolds in two parts: The initial segment showcases the ease of crafting undo/redo functionality using Elm. If you have **already implemented undo/redo in Elm**, feel free to leap forward to the second part. Here, we confront a prevalent issue linked with undo/redo and offer a straightforward and efficient solution.
 
