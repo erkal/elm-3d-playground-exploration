@@ -56,29 +56,52 @@ update : Computer -> Message Msg -> Model -> Model
 update computer message model =
     case message of
         Tick ->
-            if pressedKeyboardShortcutForUndo computer then
-                case model.lastSelectedInteractive of
-                    UndoRedoUsual ->
-                        { model | undoListUsual = model.undoListUsual |> UndoList.undo }
+            model
+                |> handleKeyboardShortcutsForUndoRedo computer
 
-                    UndoRedoSafe ->
-                        { model | undoListSafe = model.undoListSafe |> UndoList.undo }
+        Message msg ->
+            model
+                |> handleSelectingInteractive msg
+                |> handleEditingTextArea msg
+                |> handleUndoRedoButtons msg
 
-            else if pressedKeyboardShortcutForRedo computer then
-                case model.lastSelectedInteractive of
-                    UndoRedoUsual ->
-                        { model | undoListUsual = model.undoListUsual |> UndoList.redo }
 
-                    UndoRedoSafe ->
-                        { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+handleKeyboardShortcutsForUndoRedo : Computer -> Model -> Model
+handleKeyboardShortcutsForUndoRedo computer model =
+    if pressedKeyboardShortcutForUndo computer then
+        case model.lastSelectedInteractive of
+            UndoRedoUsual ->
+                { model | undoListUsual = model.undoListUsual |> UndoList.undo }
 
-            else
-                model
+            UndoRedoSafe ->
+                { model | undoListSafe = model.undoListSafe |> UndoList.undo }
 
-        Message (SelectedInteractive interactiveID) ->
+    else if pressedKeyboardShortcutForRedo computer then
+        case model.lastSelectedInteractive of
+            UndoRedoUsual ->
+                { model | undoListUsual = model.undoListUsual |> UndoList.redo }
+
+            UndoRedoSafe ->
+                { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+
+    else
+        model
+
+
+handleSelectingInteractive : Msg -> Model -> Model
+handleSelectingInteractive msg model =
+    case msg of
+        SelectedInteractive interactiveID ->
             { model | lastSelectedInteractive = interactiveID }
 
-        Message (EditedTextArea interactiveID str) ->
+        _ ->
+            model
+
+
+handleEditingTextArea : Msg -> Model -> Model
+handleEditingTextArea msg model =
+    case msg of
+        EditedTextArea interactiveID str ->
             case interactiveID of
                 UndoRedoUsual ->
                     { model | undoListUsual = model.undoListUsual |> UndoList.new str }
@@ -86,7 +109,14 @@ update computer message model =
                 UndoRedoSafe ->
                     { model | undoListSafe = model.undoListSafe |> UndoList.newSafe str }
 
-        Message (PressedUndoButton interactiveID) ->
+        _ ->
+            model
+
+
+handleUndoRedoButtons : Msg -> Model -> Model
+handleUndoRedoButtons msg model =
+    case msg of
+        PressedUndoButton interactiveID ->
             case interactiveID of
                 UndoRedoUsual ->
                     { model | undoListUsual = model.undoListUsual |> UndoList.undo }
@@ -94,13 +124,16 @@ update computer message model =
                 UndoRedoSafe ->
                     { model | undoListSafe = model.undoListSafe |> UndoList.undo }
 
-        Message (PressedRedoButton interactiveID) ->
+        PressedRedoButton interactiveID ->
             case interactiveID of
                 UndoRedoUsual ->
                     { model | undoListUsual = model.undoListUsual |> UndoList.redo }
 
                 UndoRedoSafe ->
                     { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+
+        _ ->
+            model
 
 
 pressedKeyboardShortcutForUndo : Computer -> Bool
