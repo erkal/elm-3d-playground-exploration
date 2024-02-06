@@ -156,7 +156,10 @@ type alias UndoList state =
 
 As an example, let's consider the following `UndoList String`:
 ```elm
-UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
+{ past = [ "ABC", "AB", "A" ]
+, present = "ABCD"
+, future = [ "ABCDE", "ABCDEF" ]
+}
 ```
 Note that the list for the `past` is reversed for efficiency purposes. This represents a scenario where the user has typed "ABCDEF" and performed 'undo' twice.
 
