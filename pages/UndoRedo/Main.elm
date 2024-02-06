@@ -24,6 +24,7 @@ main =
 type alias Model =
     { undoListUsual : UndoList String
     , undoListSafe : UndoList String
+    , lastSelectedInteractive : InteractiveID
     }
 
 
@@ -31,6 +32,7 @@ init : Computer -> Model
 init computer =
     { undoListUsual = UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
     , undoListSafe = UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
+    , lastSelectedInteractive = UndoRedoUsual
     }
 
 
@@ -44,7 +46,8 @@ type InteractiveID
 
 
 type Msg
-    = PressedUndoButton InteractiveID
+    = SelectedInteractive InteractiveID
+    | PressedUndoButton InteractiveID
     | PressedRedoButton InteractiveID
     | EditedTextArea InteractiveID String
 
@@ -53,7 +56,27 @@ update : Computer -> Message Msg -> Model -> Model
 update computer message model =
     case message of
         Tick ->
-            model
+            if pressedKeyboardShortcutForUndo computer then
+                case model.lastSelectedInteractive of
+                    UndoRedoUsual ->
+                        { model | undoListUsual = model.undoListUsual |> UndoList.undo }
+
+                    UndoRedoSafe ->
+                        { model | undoListSafe = model.undoListSafe |> UndoList.undo }
+
+            else if pressedKeyboardShortcutForRedo computer then
+                case model.lastSelectedInteractive of
+                    UndoRedoUsual ->
+                        { model | undoListUsual = model.undoListUsual |> UndoList.redo }
+
+                    UndoRedoSafe ->
+                        { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+
+            else
+                model
+
+        Message (SelectedInteractive interactiveID) ->
+            { model | lastSelectedInteractive = interactiveID }
 
         Message (EditedTextArea interactiveID str) ->
             case interactiveID of
@@ -78,6 +101,24 @@ update computer message model =
 
                 UndoRedoSafe ->
                     { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+
+
+pressedKeyboardShortcutForUndo : Computer -> Bool
+pressedKeyboardShortcutForUndo computer =
+    List.all identity
+        [ computer.keyboard.control
+        , not computer.keyboard.shift
+        , List.member "KeyZ" computer.keyboard.downs
+        ]
+
+
+pressedKeyboardShortcutForRedo : Computer -> Bool
+pressedKeyboardShortcutForRedo computer =
+    List.all identity
+        [ computer.keyboard.control
+        , computer.keyboard.shift
+        , List.member "KeyZ" computer.keyboard.downs
+        ]
 
 
 
@@ -137,10 +178,13 @@ As you click the undo and redo buttons below and edit text in the text area, you
             , markdownBlock """
 Editing within the text area creates a new undo item via the following function:
 
-```markdown
+```elm
 new : state -> UndoList state -> UndoList state
 new state { past, present } =
-    UndoList (present :: past) state []
+    { past = present :: past
+    , present = state
+    , future = []
+    }
 ```
 
 Note that when entering a new state into UndoList, any existing future states are removed, similar to most applications with undo/redo functionality. This brings us to the second part of this post.
@@ -160,14 +204,21 @@ Initially, I believed that *undo trees* were the only viable solution. However, 
 This method ensures no state loss and is easy to implement in Elm.
 We use the standard `UndoList` data structure with an additional function:
 
-```markdown
+```elm
 newSafe : state -> UndoList state -> UndoList state
 newSafe state { past, present, future } =
     if List.isEmpty future then
-        UndoList (present :: past) state []
+        -- this case is handled the same way as in `new`
+        { past = present :: past
+        , present = state
+        , future = []
+        }
 
     else
-        UndoList (present :: List.reverse future ++ present :: past) state []
+        { past = present :: List.reverse future ++ present :: past
+        , present = state
+        , future = []
+        }
 ```
 
 Below is an interactive demonstration showing how it works.
@@ -186,7 +237,7 @@ Below is an interactive demonstration showing how it works.
             , markdownBlock """
 Note that contrary to the resource referenced above, we **batch consecutive undos**. This approach simplifies the process and prevents the *exponential growth* [described here](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md#memory-space-usage).
 
-In conclusion, adding undo/redo functionality to your Elm applications is surprisingly straightforward. But that's not all - if you already have undo/redo in place, making it safe is as simple as adding a mere five lines of code (writing the `newSafe` function described earlier and using it instead of  the function `new`).
+In conclusion, adding undo/redo functionality to your Elm applications is surprisingly straightforward. But that's not all - if you already have undo/redo in place, making it safe is as simple as adding a few lines of code (writing the `newSafe` function described earlier and using it instead of  the function `new`).
 """
             ]
         ]
@@ -230,6 +281,7 @@ viewTextArea computer model interactiveID =
         , class "text-black bg-white"
         , class "font-mono"
         , Html.Events.onInput (EditedTextArea interactiveID)
+        , Html.Events.onFocus (SelectedInteractive interactiveID)
         , value
             (case interactiveID of
                 UndoRedoUsual ->
