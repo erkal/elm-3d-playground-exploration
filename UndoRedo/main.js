@@ -8563,6 +8563,28 @@ var $author$project$UndoRedo$UndoList$newSafe = F2(
 			state,
 			_List_Nil);
 	});
+var $author$project$UndoRedo$Main$handleEditingTextArea = F2(
+	function (msg, model) {
+		if (msg.$ === 3) {
+			var interactiveID = msg.a;
+			var str = msg.b;
+			if (!interactiveID) {
+				return _Utils_update(
+					model,
+					{
+						Z: A2($author$project$UndoRedo$UndoList$new, str, model.Z)
+					});
+			} else {
+				return _Utils_update(
+					model,
+					{
+						Y: A2($author$project$UndoRedo$UndoList$newSafe, str, model.Y)
+					});
+			}
+		} else {
+			return model;
+		}
+	});
 var $elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -8638,12 +8660,61 @@ var $author$project$UndoRedo$UndoList$undo = function (_v0) {
 			A2($elm$core$List$cons, present, future));
 	}
 };
-var $author$project$UndoRedo$Main$update = F3(
-	function (computer, message, model) {
-		if (!message.$) {
-			if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForUndo(computer)) {
+var $author$project$UndoRedo$Main$handleKeyboardShortcutsForUndoRedo = F2(
+	function (computer, model) {
+		if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForUndo(computer)) {
+			var _v0 = model.cG;
+			if (!_v0) {
+				return _Utils_update(
+					model,
+					{
+						Z: $author$project$UndoRedo$UndoList$undo(model.Z)
+					});
+			} else {
+				return _Utils_update(
+					model,
+					{
+						Y: $author$project$UndoRedo$UndoList$undo(model.Y)
+					});
+			}
+		} else {
+			if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForRedo(computer)) {
 				var _v1 = model.cG;
 				if (!_v1) {
+					return _Utils_update(
+						model,
+						{
+							Z: $author$project$UndoRedo$UndoList$redo(model.Z)
+						});
+				} else {
+					return _Utils_update(
+						model,
+						{
+							Y: $author$project$UndoRedo$UndoList$redo(model.Y)
+						});
+				}
+			} else {
+				return model;
+			}
+		}
+	});
+var $author$project$UndoRedo$Main$handleSelectingInteractive = F2(
+	function (msg, model) {
+		if (!msg.$) {
+			var interactiveID = msg.a;
+			return _Utils_update(
+				model,
+				{cG: interactiveID});
+		} else {
+			return model;
+		}
+	});
+var $author$project$UndoRedo$Main$handleUndoRedoButtons = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 1:
+				var interactiveID = msg.a;
+				if (!interactiveID) {
 					return _Utils_update(
 						model,
 						{
@@ -8656,81 +8727,38 @@ var $author$project$UndoRedo$Main$update = F3(
 							Y: $author$project$UndoRedo$UndoList$undo(model.Y)
 						});
 				}
-			} else {
-				if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForRedo(computer)) {
-					var _v2 = model.cG;
-					if (!_v2) {
-						return _Utils_update(
-							model,
-							{
-								Z: $author$project$UndoRedo$UndoList$redo(model.Z)
-							});
-					} else {
-						return _Utils_update(
-							model,
-							{
-								Y: $author$project$UndoRedo$UndoList$redo(model.Y)
-							});
-					}
-				} else {
-					return model;
-				}
-			}
-		} else {
-			switch (message.a.$) {
-				case 0:
-					var interactiveID = message.a.a;
+			case 2:
+				var interactiveID = msg.a;
+				if (!interactiveID) {
 					return _Utils_update(
 						model,
-						{cG: interactiveID});
-				case 3:
-					var _v3 = message.a;
-					var interactiveID = _v3.a;
-					var str = _v3.b;
-					if (!interactiveID) {
-						return _Utils_update(
-							model,
-							{
-								Z: A2($author$project$UndoRedo$UndoList$new, str, model.Z)
-							});
-					} else {
-						return _Utils_update(
-							model,
-							{
-								Y: A2($author$project$UndoRedo$UndoList$newSafe, str, model.Y)
-							});
-					}
-				case 1:
-					var interactiveID = message.a.a;
-					if (!interactiveID) {
-						return _Utils_update(
-							model,
-							{
-								Z: $author$project$UndoRedo$UndoList$undo(model.Z)
-							});
-					} else {
-						return _Utils_update(
-							model,
-							{
-								Y: $author$project$UndoRedo$UndoList$undo(model.Y)
-							});
-					}
-				default:
-					var interactiveID = message.a.a;
-					if (!interactiveID) {
-						return _Utils_update(
-							model,
-							{
-								Z: $author$project$UndoRedo$UndoList$redo(model.Z)
-							});
-					} else {
-						return _Utils_update(
-							model,
-							{
-								Y: $author$project$UndoRedo$UndoList$redo(model.Y)
-							});
-					}
-			}
+						{
+							Z: $author$project$UndoRedo$UndoList$redo(model.Z)
+						});
+				} else {
+					return _Utils_update(
+						model,
+						{
+							Y: $author$project$UndoRedo$UndoList$redo(model.Y)
+						});
+				}
+			default:
+				return model;
+		}
+	});
+var $author$project$UndoRedo$Main$update = F3(
+	function (computer, message, model) {
+		if (!message.$) {
+			return A2($author$project$UndoRedo$Main$handleKeyboardShortcutsForUndoRedo, computer, model);
+		} else {
+			var msg = message.a;
+			return A2(
+				$author$project$UndoRedo$Main$handleUndoRedoButtons,
+				msg,
+				A2(
+					$author$project$UndoRedo$Main$handleEditingTextArea,
+					msg,
+					A2($author$project$UndoRedo$Main$handleSelectingInteractive, msg, model)));
 		}
 	});
 var $author$project$UndoRedo$Main$UndoRedoSafe = 1;

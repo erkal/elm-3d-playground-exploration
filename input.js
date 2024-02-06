@@ -179,41 +179,40 @@ const sendInputsToElmApp = (app) => {
     listen to events and update the inputs
   */
   window.addEventListener("keydown", (e) => {
-    if (!e.repeat) {
-      inputs.keyboard.downs.push(e.code);
-      inputs.keyboard.pressedKeys.push(e.code);
+    inputs.keyboard.downs.push(e.code);
+    inputs.keyboard.pressedKeys.push(e.code);
 
-      if (isControlKey(e)) {
-        inputs.keyboard.control = true;
-      }
+    if (isControlKey(e)) {
+      inputs.keyboard.control = true;
+    }
 
-      if (isAltKey(e)) {
-        inputs.keyboard.alt = true;
-      }
+    if (isAltKey(e)) {
+      inputs.keyboard.alt = true;
+    }
 
-      if (isShiftKey(e)) {
-        inputs.keyboard.shift = true;
-      }
+    if (isShiftKey(e)) {
+      inputs.keyboard.shift = true;
+    }
 
-      if (isArrowLeftKey(e)) {
-        inputs.keyboard.left = true;
-      }
+    if (isArrowLeftKey(e)) {
+      inputs.keyboard.left = true;
+    }
 
-      if (isArrowRightKey(e)) {
-        inputs.keyboard.right = true;
-      }
+    if (isArrowRightKey(e)) {
+      inputs.keyboard.right = true;
+    }
 
-      if (isArrowUpKey(e)) {
-        inputs.keyboard.up = true;
-      }
+    if (isArrowUpKey(e)) {
+      inputs.keyboard.up = true;
+    }
 
-      if (isArrowDownKey(e)) {
-        inputs.keyboard.down = true;
-      }
+    if (isArrowDownKey(e)) {
+      inputs.keyboard.down = true;
     }
   });
 
   window.addEventListener("keyup", (e) => {
+    console.log("keyup", e.code);
     inputs.keyboard.pressedKeys = inputs.keyboard.pressedKeys.filter(
       (code) => code != e.code
     );
