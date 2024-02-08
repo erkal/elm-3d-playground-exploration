@@ -8688,9 +8688,30 @@ var $author$project$Playground$Playground$FromConfigurationsEditor = function (a
 var $author$project$Playground$Playground$FromTapeControls = function (a) {
 	return {$: 6, a: a};
 };
-var $author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf = function (condition) {
-	return condition ? A2($elm$html$Html$Attributes$style, 'display', 'none') : $elm$html$Html$Attributes$class('');
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
 };
+var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
+var $author$project$Playground$Playground$iconLink = F3(
+	function (title, linkAddress, icon) {
+		return A2(
+			$elm$html$Html$a,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('p-2 w-12 h-12'),
+					$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+					$elm$html$Html$Attributes$href(linkAddress),
+					$elm$html$Html$Attributes$target('_blank'),
+					$elm$html$Html$Attributes$title(title)
+				]),
+			_List_fromArray(
+				[icon]));
+	});
 var $elm$svg$Svg$Attributes$clipRule = _VirtualDom_attribute('clip-rule');
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
@@ -8960,6 +8981,11 @@ var $author$project$Playground$Icons$icons = {
 				_List_Nil)
 			]))
 };
+var $author$project$Playground$Playground$githubLink = A3($author$project$Playground$Playground$iconLink, 'GitHub', 'https://github.com/erkal', $author$project$Playground$Icons$icons.hG);
+var $author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf = function (condition) {
+	return condition ? A2($elm$html$Html$Attributes$style, 'display', 'none') : $elm$html$Html$Attributes$class('');
+};
+var $author$project$Playground$Playground$homeButton = A3($author$project$Playground$Playground$iconLink, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.hS);
 var $author$project$Playground$Tape$isNoTape = function (_v0) {
 	var state = _v0.a;
 	return _Utils_eq(state, $author$project$Playground$Tape$NoTape);
@@ -8990,7 +9016,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
 var $author$project$Playground$Playground$leftBarButton = F5(
 	function (hidden, isSelected, msg, title, icon) {
 		return A2(
@@ -9007,29 +9032,7 @@ var $author$project$Playground$Playground$leftBarButton = F5(
 			_List_fromArray(
 				[icon]));
 	});
-var $elm$html$Html$a = _VirtualDom_node('a');
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
-var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
-var $author$project$Playground$Playground$leftBarLinkButton = F3(
-	function (title, linkAddress, icon) {
-		return A2(
-			$elm$html$Html$a,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('p-2 w-12 h-12'),
-					$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-					$elm$html$Html$Attributes$href(linkAddress),
-					$elm$html$Html$Attributes$target('_blank'),
-					$elm$html$Html$Attributes$title(title)
-				]),
-			_List_fromArray(
-				[icon]));
-	});
+var $author$project$Playground$Playground$twitterLink = A3($author$project$Playground$Playground$iconLink, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.i7);
 var $author$project$Playground$Tape$PressedPauseButton = {$: 1};
 var $author$project$Playground$Tape$PressedPlayButton = {$: 3};
 var $elm$json$Json$Encode$bool = _Json_wrap;
@@ -10193,10 +10196,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$author$project$Playground$ConfigurationsView$viewConfigurations(
 						$author$project$Playground$Tape$currentComputer(model.i3).aS))
 				]));
-		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.i7);
 		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aI === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hb);
-		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.hS);
-		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hG);
 		var configurationsButton = A5(
 			$author$project$Playground$Playground$leftBarButton,
 			$elm$core$List$isEmpty(
@@ -10242,7 +10242,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('flex flex-col')
 						]),
 					_List_fromArray(
-						[twitterLink, githubLink, homeButton]))
+						[$author$project$Playground$Playground$twitterLink, $author$project$Playground$Playground$githubLink, $author$project$Playground$Playground$homeButton]))
 				]));
 		return model.ca ? A2(
 			$elm$html$Html$div,

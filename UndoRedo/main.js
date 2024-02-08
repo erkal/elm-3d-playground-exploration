@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.fb.cJ === region.fL.cJ)
+	if (region.fc.cK === region.fM.cK)
 	{
-		return 'on line ' + region.fb.cJ;
+		return 'on line ' + region.fc.cK;
 	}
-	return 'on lines ' + region.fb.cJ + ' through ' + region.fL.cJ;
+	return 'on lines ' + region.fc.cK + ' through ' + region.fM.cK;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b1,
-		impl.bO,
-		impl.d_,
+		impl.b2,
+		impl.bP,
+		impl.d$,
 		function() { return function() {} }
 	);
 });
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		bj: func(record.bj),
-		fd: record.fd,
-		e_: record.e_
+		bk: func(record.bk),
+		fe: record.fe,
+		e$: record.e$
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.bj;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.fd;
+		var message = !tag ? value : tag < 3 ? value.a : value.bk;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.fe;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.e_) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.e$) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b1,
-		impl.bO,
-		impl.d_,
+		impl.b2,
+		impl.bP,
+		impl.d$,
 		function(sendToApp, initialModel) {
-			var view = impl.cj;
+			var view = impl.ck;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b1,
-		impl.bO,
-		impl.d_,
+		impl.b2,
+		impl.bP,
+		impl.d$,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.e8 && impl.e8(sendToApp)
-			var view = impl.cj;
+			var divertHrefToApp = impl.e9 && impl.e9(sendToApp)
+			var view = impl.ck;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.hf);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.he);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.i8) && (_VirtualDom_doc.title = title = doc.i8);
+				(title !== doc.i9) && (_VirtualDom_doc.title = title = doc.i9);
 			});
 		}
 	);
@@ -4043,7 +4043,7 @@ function _Browser_application(impl)
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		e8: function(sendToApp)
+		e9: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.gJ === next.gJ
+							&& curr.gI === next.gI
 							&& curr.fV === next.fV
-							&& curr.gE.a === next.gE.a
+							&& curr.gD.a === next.gD.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		b1: function(flags)
+		b2: function(flags)
 		{
-			return A3(impl.b1, flags, _Browser_getUrl(), key);
+			return A3(impl.b2, flags, _Browser_getUrl(), key);
 		},
-		cj: impl.cj,
-		bO: impl.bO,
-		d_: impl.d_
+		ck: impl.ck,
+		bP: impl.bP,
+		d$: impl.d$
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { h$: 'hidden', hl: 'visibilitychange' }
+		? { h$: 'hidden', hk: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { h$: 'mozHidden', hl: 'mozvisibilitychange' }
+		? { h$: 'mozHidden', hk: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { h$: 'msHidden', hl: 'msvisibilitychange' }
+		? { h$: 'msHidden', hk: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { h$: 'webkitHidden', hl: 'webkitvisibilitychange' }
-		: { h$: 'hidden', hl: 'visibilitychange' };
+		? { h$: 'webkitHidden', hk: 'webkitvisibilitychange' }
+		: { h$: 'hidden', hk: 'visibilitychange' };
 }
 
 
@@ -4232,11 +4232,11 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		gR: _Browser_getScene(),
-		g5: {
-			jk: _Browser_window.pageXOffset,
-			jp: _Browser_window.pageYOffset,
-			jh: _Browser_doc.documentElement.clientWidth,
+		gQ: _Browser_getScene(),
+		g4: {
+			jl: _Browser_window.pageXOffset,
+			jq: _Browser_window.pageYOffset,
+			ji: _Browser_doc.documentElement.clientWidth,
 			hY: _Browser_doc.documentElement.clientHeight
 		}
 	};
@@ -4247,7 +4247,7 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		jh: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		ji: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
 		hY: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
@@ -4271,14 +4271,14 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			gR: {
-				jh: node.scrollWidth,
+			gQ: {
+				ji: node.scrollWidth,
 				hY: node.scrollHeight
 			},
-			g5: {
-				jk: node.scrollLeft,
-				jp: node.scrollTop,
-				jh: node.clientWidth,
+			g4: {
+				jl: node.scrollLeft,
+				jq: node.scrollTop,
+				ji: node.clientWidth,
 				hY: node.clientHeight
 			}
 		};
@@ -4309,17 +4309,17 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			gR: _Browser_getScene(),
-			g5: {
-				jk: x,
-				jp: y,
-				jh: _Browser_doc.documentElement.clientWidth,
+			gQ: _Browser_getScene(),
+			g4: {
+				jl: x,
+				jq: y,
+				ji: _Browser_doc.documentElement.clientWidth,
 				hY: _Browser_doc.documentElement.clientHeight
 			},
-			hI: {
-				jk: x + rect.left,
-				jp: y + rect.top,
-				jh: rect.width,
+			hH: {
+				jl: x + rect.left,
+				jq: y + rect.top,
+				ji: rect.width,
 				hY: rect.height
 			}
 		};
@@ -4402,7 +4402,7 @@ var _Regex_fromStringWith = F2(function(options, string)
 {
 	var flags = 'g';
 	if (options.it) { flags += 'm'; }
-	if (options.hh) { flags += 'i'; }
+	if (options.hg) { flags += 'i'; }
 
 	try
 	{
@@ -4568,9 +4568,9 @@ function _Markdown_formatOptions(options)
 {
 	function toHighlight(code, lang)
 	{
-		if (!lang && $elm$core$Maybe$isJust(options.fF))
+		if (!lang && $elm$core$Maybe$isJust(options.fG))
 		{
-			lang = options.fF.a;
+			lang = options.fG.a;
 		}
 
 		if (typeof hljs !== 'undefined' && lang && hljs.listLanguages().indexOf(lang) >= 0)
@@ -4586,10 +4586,10 @@ function _Markdown_formatOptions(options)
 	return {
 		highlight: toHighlight,
 		gfm: gfm,
-		tables: gfm && gfm.i5,
-		breaks: gfm && gfm.hg,
-		sanitize: options.iU,
-		smartypants: options.i$
+		tables: gfm && gfm.i6,
+		breaks: gfm && gfm.hf,
+		sanitize: options.iV,
+		smartypants: options.i0
 	};
 }
 var $elm$core$List$cons = _List_cons;
@@ -5073,20 +5073,27 @@ var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $author$project$UndoRedo$UndoList$UndoList = F3(
 	function (past, present, future) {
-		return {fS: future, gz: past, dQ: present};
+		return {hP: future, iF: past, dR: present};
 	});
 var $author$project$UndoRedo$Main$UndoRedoUsual = 0;
 var $author$project$UndoRedo$Main$init = function (computer) {
 	return {
-		cG: 0,
-		Y: A3(
+		cH: 0,
+		ag: A3(
 			$author$project$UndoRedo$UndoList$UndoList,
 			_List_fromArray(
 				['ABC', 'AB', 'A']),
 			'ABCD',
 			_List_fromArray(
 				['ABCDE', 'ABCDEF'])),
-		Z: A3(
+		ah: A3(
+			$author$project$UndoRedo$UndoList$UndoList,
+			_List_fromArray(
+				['ABC', 'AB', 'A']),
+			'ABCD',
+			_List_fromArray(
+				['ABCDE', 'ABCDEF'])),
+		ai: A3(
 			$author$project$UndoRedo$UndoList$UndoList,
 			_List_fromArray(
 				['ABC', 'AB', 'A']),
@@ -5125,7 +5132,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {fQ: fragment, fV: host, gA: path, gE: port_, gJ: protocol, gK: query};
+		return {fR: fragment, fV: host, gz: path, gD: port_, gI: protocol, gJ: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5405,18 +5412,18 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Playground$Playground$ShowingNothing = 0;
-var $author$project$Playground$Senso$initSensoPress = {cv: 0, jk: 0, jp: 0};
+var $author$project$Playground$Senso$initSensoPress = {cw: 0, jl: 0, jq: 0};
 var $author$project$Playground$Senso$init = {
-	hj: $author$project$Playground$Senso$initSensoPress,
-	fH: $author$project$Playground$Senso$initSensoPress,
+	hi: $author$project$Playground$Senso$initSensoPress,
+	fI: $author$project$Playground$Senso$initSensoPress,
 	ie: $author$project$Playground$Senso$initSensoPress,
-	iR: $author$project$Playground$Senso$initSensoPress,
-	fh: {hj: $author$project$Playground$Senso$initSensoPress, fH: $author$project$Playground$Senso$initSensoPress, ie: $author$project$Playground$Senso$initSensoPress, iR: $author$project$Playground$Senso$initSensoPress, g4: $author$project$Playground$Senso$initSensoPress},
-	g4: $author$project$Playground$Senso$initSensoPress
+	iS: $author$project$Playground$Senso$initSensoPress,
+	fi: {hi: $author$project$Playground$Senso$initSensoPress, fI: $author$project$Playground$Senso$initSensoPress, ie: $author$project$Playground$Senso$initSensoPress, iS: $author$project$Playground$Senso$initSensoPress, g3: $author$project$Playground$Senso$initSensoPress},
+	g3: $author$project$Playground$Senso$initSensoPress
 };
 var $author$project$Playground$Computer$init = F2(
 	function (initialConfigurations, inputs) {
-		return {bT: inputs.bT, aZ: initialConfigurations, bU: inputs.bU, bB: inputs.bB, b4: inputs.b4, b8: inputs.b8, b9: inputs.b9, dX: $author$project$Playground$Senso$init, ck: inputs.ck};
+		return {bU: inputs.bU, a_: initialConfigurations, bV: inputs.bV, bC: inputs.bC, b5: inputs.b5, b9: inputs.b9, ca: inputs.ca, dY: $author$project$Playground$Senso$init, cl: inputs.cl};
 	});
 var $author$project$Playground$Tape$Recording = {$: 1};
 var $author$project$Playground$Tape$Tape = F2(
@@ -5460,12 +5467,12 @@ var $author$project$Playground$Playground$init = F2(
 	function (app, flags) {
 		return _Utils_Tuple2(
 			{
-				ct: flags.er.b9.jh < 500,
-				aO: 0,
-				i6: A2(
-					app.cD ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
-					A2($author$project$Playground$Computer$init, app.cF, flags.er),
-					app.b1)
+				cu: flags.es.ca.ji < 500,
+				aP: 0,
+				i7: A2(
+					app.cE ? $author$project$Playground$Tape$init : $author$project$Playground$Tape$initNoTape,
+					A2($author$project$Playground$Computer$init, app.cG, flags.es),
+					app.b2)
 			},
 			$elm$core$Platform$Cmd$none);
 	});
@@ -5517,7 +5524,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (clock) {
 																	return $elm$json$Json$Decode$succeed(
-																		{bT: clock, bU: devicePixelRatio, bB: dt, b4: keyboard, b8: pointer, b9: screen, gT: sensoState, ck: wheel});
+																		{bU: clock, bV: devicePixelRatio, bC: dt, b5: keyboard, b9: pointer, ca: screen, gS: sensoState, cl: wheel});
 																},
 																A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 														},
@@ -5556,7 +5563,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																												$elm$json$Json$Decode$andThen,
 																												function (alt) {
 																													return $elm$json$Json$Decode$succeed(
-																														{g9: alt, hr: control, fH: down, hD: downs, ie: left, iK: pressedKeys, iR: right, iY: shift, g4: up});
+																														{g8: alt, hq: control, fI: down, hC: downs, ie: left, iL: pressedKeys, iS: right, iZ: shift, g3: up});
 																												},
 																												A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																										},
@@ -5610,7 +5617,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																								$elm$json$Json$Decode$andThen,
 																								function (down) {
 																									return $elm$json$Json$Decode$succeed(
-																										{fH: down, h8: isDown, iq: move, iS: rightDown, iT: rightUp, g4: up, jk: x, jp: y});
+																										{fI: down, h8: isDown, iq: move, iT: rightDown, iU: rightUp, g3: up, jl: x, jq: y});
 																								},
 																								A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																						},
@@ -5638,7 +5645,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 										$elm$json$Json$Decode$andThen,
 										function (height) {
 											return $elm$json$Json$Decode$succeed(
-												{hY: height, jh: width});
+												{hY: height, ji: width});
 										},
 										A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 								},
@@ -5663,7 +5670,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (center) {
 															return $elm$json$Json$Decode$succeed(
-																{hj: center, fH: down, ie: left, iR: right, g4: up});
+																{hi: center, fI: down, ie: left, iS: right, g3: up});
 														},
 														A2(
 															$elm$json$Json$Decode$field,
@@ -5678,7 +5685,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cv: f, jk: x, jp: y});
+																						{cw: f, jl: x, jq: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -5699,7 +5706,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cv: f, jk: x, jp: y});
+																				{cw: f, jl: x, jq: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -5720,7 +5727,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cv: f, jk: x, jp: y});
+																		{cw: f, jl: x, jq: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -5741,7 +5748,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cv: f, jk: x, jp: y});
+																{cw: f, jl: x, jq: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -5762,7 +5769,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 												$elm$json$Json$Decode$andThen,
 												function (f) {
 													return $elm$json$Json$Decode$succeed(
-														{cv: f, jk: x, jp: y});
+														{cw: f, jl: x, jq: y});
 												},
 												A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 										},
@@ -5780,7 +5787,7 @@ var $author$project$Playground$Playground$tick = _Platform_incomingPort(
 						$elm$json$Json$Decode$andThen,
 						function (deltaX) {
 							return $elm$json$Json$Decode$succeed(
-								{hy: deltaX, hz: deltaY});
+								{hx: deltaX, hy: deltaY});
 						},
 						A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 				},
@@ -5794,8 +5801,8 @@ var $author$project$Playground$Playground$subscriptions = F2(
 					A2(
 					$elm$core$Platform$Sub$map,
 					$author$project$Playground$Playground$FromApp,
-					app.d_(
-						$author$project$Playground$Tape$currentAppModel(model.i6)))
+					app.d$(
+						$author$project$Playground$Tape$currentAppModel(model.i7)))
 				]));
 	});
 var $elm$core$Platform$Cmd$map = _Platform_map;
@@ -5901,41 +5908,41 @@ var $author$project$Tools$SelectList$SelectList$removeAfter = function (_v0) {
 var $author$project$Playground$Senso$lerpTo = F2(
 	function (target, current) {
 		var interpolationFactor = 0.3;
-		return {cv: current.cv + ((target.cv - current.cv) * interpolationFactor), jk: current.jk + ((target.jk - current.jk) * interpolationFactor), jp: current.jp + ((target.jp - current.jp) * interpolationFactor)};
+		return {cw: current.cw + ((target.cw - current.cw) * interpolationFactor), jl: current.jl + ((target.jl - current.jl) * interpolationFactor), jq: current.jq + ((target.jq - current.jq) * interpolationFactor)};
 	});
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
 var $author$project$Playground$Senso$normalizeCoordinates = function (_v0) {
-	var x = _v0.jk;
-	var y = _v0.jp;
-	var f = _v0.cv;
-	return {cv: f, jk: ((x / 3) * 2) - 1, jp: -(((y / 3) * 2) - 1)};
+	var x = _v0.jl;
+	var y = _v0.jq;
+	var f = _v0.cw;
+	return {cw: f, jl: ((x / 3) * 2) - 1, jq: -(((y / 3) * 2) - 1)};
 };
 var $author$project$Playground$Senso$update = F2(
 	function (sensoState, senso) {
 		return {
-			hj: A2(
+			hi: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.hj,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.hj)),
-			fH: A2(
+				sensoState.hi,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.hi)),
+			fI: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.fH,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.fH)),
+				sensoState.fI,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.fI)),
 			ie: A2(
 				$author$project$Playground$Senso$lerpTo,
 				sensoState.ie,
 				$author$project$Playground$Senso$normalizeCoordinates(senso.ie)),
-			iR: A2(
+			iS: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.iR,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.iR)),
-			fh: sensoState,
-			g4: A2(
+				sensoState.iS,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.iS)),
+			fi: sensoState,
+			g3: A2(
 				$author$project$Playground$Senso$lerpTo,
-				sensoState.g4,
-				$author$project$Playground$Senso$normalizeCoordinates(senso.g4))
+				sensoState.g3,
+				$author$project$Playground$Senso$normalizeCoordinates(senso.g3))
 		};
 	});
 var $author$project$Playground$Computer$tick = F2(
@@ -5943,14 +5950,14 @@ var $author$project$Playground$Computer$tick = F2(
 		return _Utils_update(
 			computer,
 			{
-				bT: computer.bT + inputs.bB,
-				bU: inputs.bU,
-				bB: inputs.bB,
-				b4: inputs.b4,
-				b8: inputs.b8,
+				bU: computer.bU + inputs.bC,
+				bV: inputs.bV,
+				bC: inputs.bC,
+				b5: inputs.b5,
 				b9: inputs.b9,
-				dX: A2($author$project$Playground$Senso$update, inputs.gT, computer.dX),
-				ck: inputs.ck
+				ca: inputs.ca,
+				dY: A2($author$project$Playground$Senso$update, inputs.gS, computer.dY),
+				cl: inputs.cl
 			});
 	});
 var $elm$core$Maybe$withDefault = F2(
@@ -5970,11 +5977,11 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 			case 2:
 				return _Utils_Tuple2(tape, $elm$core$Platform$Cmd$none);
 			case 3:
-				var tapeClock = state.a.fg;
+				var tapeClock = state.a.fh;
 				return _Utils_Tuple2(
 					((_Utils_cmp(
-						tapeClock + inputs.bB,
-						$author$project$Playground$Tape$currentComputer(tape).bT) > 0) ? A2(
+						tapeClock + inputs.bC,
+						$author$project$Playground$Tape$currentComputer(tape).bU) > 0) ? A2(
 						$elm$core$Basics$composeR,
 						$author$project$Playground$Tape$goToNext,
 						$elm$core$Maybe$withDefault(
@@ -5982,7 +5989,7 @@ var $author$project$Playground$Tape$updateOnTick = F3(
 						A2(
 							$author$project$Playground$Tape$Tape,
 							$author$project$Playground$Tape$Playing(
-								{fg: tapeClock + inputs.bB}),
+								{fh: tapeClock + inputs.bC}),
 							timeLine)),
 					$elm$core$Platform$Cmd$none);
 			case 1:
@@ -6027,23 +6034,23 @@ var $author$project$Playground$Playground$handleAppUpdate = F3(
 		switch (msg.$) {
 			case 5:
 				var appMsg = msg.a;
-				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.bO, appMsg, model.i6);
+				var _v1 = A3($author$project$Playground$Tape$updateOnAppMsg, app.bP, appMsg, model.i7);
 				var newTape = _v1.a;
 				var appCmd = _v1.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i6: newTape}),
+						{i7: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			case 3:
 				var inputs = msg.a;
-				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.bO, inputs, model.i6);
+				var _v2 = A3($author$project$Playground$Tape$updateOnTick, app.bP, inputs, model.i7);
 				var newTape = _v2.a;
 				var appCmd = _v2.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i6: newTape}),
+						{i7: newTape}),
 					A2($elm$core$Platform$Cmd$map, $author$project$Playground$Playground$FromApp, appCmd));
 			default:
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6055,7 +6062,7 @@ var $author$project$Playground$Playground$handleClickOnDistractionFreeButton = F
 		if (!msg.$) {
 			return _Utils_update(
 				model,
-				{ct: !model.ct});
+				{cu: !model.cu});
 		} else {
 			return model;
 		}
@@ -6069,8 +6076,8 @@ var $author$project$Playground$Playground$handleClickOnLeftBarButtonsButton = F2
 				return _Utils_update(
 					model,
 					{
-						aO: function () {
-							var _v1 = model.aO;
+						aP: function () {
+							var _v1 = model.aP;
 							if (_v1 === 1) {
 								return 0;
 							} else {
@@ -6082,8 +6089,8 @@ var $author$project$Playground$Playground$handleClickOnLeftBarButtonsButton = F2
 				return _Utils_update(
 					model,
 					{
-						aO: function () {
-							var _v2 = model.aO;
+						aP: function () {
+							var _v2 = model.aP;
 							if (_v2 === 2) {
 								return 0;
 							} else {
@@ -6117,7 +6124,7 @@ var $author$project$Playground$Configurations$mapConfigs = F2(
 		return _Utils_update(
 			block,
 			{
-				bb: up(block.bb)
+				bc: up(block.bc)
 			});
 	});
 var $author$project$Playground$Configurations$BoolConfig = function (a) {
@@ -6752,7 +6759,7 @@ var $author$project$Playground$Computer$updateConfigurations = F2(
 		return _Utils_update(
 			computer,
 			{
-				aZ: A2($author$project$Playground$Configurations$update, configurationsMsg, computer.aZ)
+				a_: A2($author$project$Playground$Configurations$update, configurationsMsg, computer.a_)
 			});
 	});
 var $author$project$Playground$Tape$updateConfigurations = F2(
@@ -6775,7 +6782,7 @@ var $author$project$Playground$Playground$handleConfigurationsMsg = F2(
 			return _Utils_update(
 				model,
 				{
-					i6: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i6)
+					i7: A2($author$project$Playground$Tape$updateConfigurations, configurationsMsg, model.i7)
 				});
 		} else {
 			return model;
@@ -6799,7 +6806,7 @@ var $author$project$Playground$Tape$startPlaying = function (tape) {
 		$author$project$Playground$Tape$Tape,
 		$author$project$Playground$Tape$Playing(
 			{
-				fg: $author$project$Playground$Tape$currentComputer(tape).bT
+				fh: $author$project$Playground$Tape$currentComputer(tape).bU
 			}),
 		timeLine);
 };
@@ -6828,7 +6835,7 @@ var $author$project$Playground$Playground$handleTapeScreenControls = F2(
 			return _Utils_update(
 				model,
 				{
-					i6: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i6)
+					i7: A2($author$project$Playground$Tape$updateOnTapeMsg, tapeMsg, model.i7)
 				});
 		} else {
 			return model;
@@ -6874,9 +6881,30 @@ var $author$project$Playground$Playground$FromConfigurationsEditor = function (a
 var $author$project$Playground$Playground$FromTapeControls = function (a) {
 	return {$: 6, a: a};
 };
-var $author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf = function (condition) {
-	return condition ? A2($elm$html$Html$Attributes$style, 'display', 'none') : $elm$html$Html$Attributes$class('');
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
 };
+var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
+var $author$project$Playground$Playground$iconLink = F3(
+	function (title, linkAddress, icon) {
+		return A2(
+			$elm$html$Html$a,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('p-2 w-12 h-12'),
+					$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+					$elm$html$Html$Attributes$href(linkAddress),
+					$elm$html$Html$Attributes$target('_blank'),
+					$elm$html$Html$Attributes$title(title)
+				]),
+			_List_fromArray(
+				[icon]));
+	});
 var $elm$svg$Svg$Attributes$clipRule = _VirtualDom_attribute('clip-rule');
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
@@ -6896,7 +6924,7 @@ var $author$project$Playground$Icons$draw = $elm$svg$Svg$svg(
 var $elm$svg$Svg$Attributes$fillRule = _VirtualDom_attribute('fill-rule');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $author$project$Playground$Icons$icons = {
-	ho: $author$project$Playground$Icons$draw(
+	hn: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -6907,7 +6935,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ht: $author$project$Playground$Icons$draw(
+	hs: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7009,7 +7037,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iF: $author$project$Playground$Icons$draw(
+	iG: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7020,7 +7048,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iG: $author$project$Playground$Icons$draw(
+	iH: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7031,7 +7059,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iH: $author$project$Playground$Icons$draw(
+	iI: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7042,7 +7070,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iI: $author$project$Playground$Icons$draw(
+	iJ: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7053,7 +7081,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	b8: $author$project$Playground$Icons$draw(
+	b9: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7064,7 +7092,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	iP: $author$project$Playground$Icons$draw(
+	iQ: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7075,7 +7103,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i6: $author$project$Playground$Icons$draw(
+	i7: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7088,7 +7116,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	i9: $author$project$Playground$Icons$draw(
+	ja: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7101,7 +7129,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ja: $author$project$Playground$Icons$draw(
+	jb: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7112,7 +7140,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jc: $author$project$Playground$Icons$draw(
+	jd: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7123,7 +7151,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	ju: $author$project$Playground$Icons$draw(
+	jv: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7134,7 +7162,7 @@ var $author$project$Playground$Icons$icons = {
 					]),
 				_List_Nil)
 			])),
-	jx: $author$project$Playground$Icons$draw(
+	jy: $author$project$Playground$Icons$draw(
 		_List_fromArray(
 			[
 				A2(
@@ -7146,6 +7174,11 @@ var $author$project$Playground$Icons$icons = {
 				_List_Nil)
 			]))
 };
+var $author$project$Playground$Playground$githubLink = A3($author$project$Playground$Playground$iconLink, 'GitHub', 'https://github.com/erkal', $author$project$Playground$Icons$icons.hR);
+var $author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf = function (condition) {
+	return condition ? A2($elm$html$Html$Attributes$style, 'display', 'none') : $elm$html$Html$Attributes$class('');
+};
+var $author$project$Playground$Playground$homeButton = A3($author$project$Playground$Playground$iconLink, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.h0);
 var $author$project$Playground$Tape$isNoTape = function (_v0) {
 	var state = _v0.a;
 	return _Utils_eq(state, $author$project$Playground$Tape$NoTape);
@@ -7176,7 +7209,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
 var $author$project$Playground$Playground$leftBarButton = F5(
 	function (hidden, isSelected, msg, title, icon) {
 		return A2(
@@ -7193,29 +7225,7 @@ var $author$project$Playground$Playground$leftBarButton = F5(
 			_List_fromArray(
 				[icon]));
 	});
-var $elm$html$Html$a = _VirtualDom_node('a');
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
-var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
-var $author$project$Playground$Playground$leftBarLinkButton = F3(
-	function (title, linkAddress, icon) {
-		return A2(
-			$elm$html$Html$a,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('p-2 w-12 h-12'),
-					$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
-					$elm$html$Html$Attributes$href(linkAddress),
-					$elm$html$Html$Attributes$target('_blank'),
-					$elm$html$Html$Attributes$title(title)
-				]),
-			_List_fromArray(
-				[icon]));
-	});
+var $author$project$Playground$Playground$twitterLink = A3($author$project$Playground$Playground$iconLink, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.jb);
 var $author$project$Playground$Tape$PressedPauseButton = {$: 1};
 var $author$project$Playground$Tape$PressedPlayButton = {$: 3};
 var $elm$json$Json$Encode$bool = _Json_wrap;
@@ -7263,10 +7273,10 @@ var $author$project$Playground$Tape$playPauseButton = function (_v0) {
 			return A3(
 				tapeButtonWithIcon,
 				$author$project$Tools$SelectList$SelectList$isAtEnd(timeline),
-				$author$project$Playground$Icons$icons.iH,
+				$author$project$Playground$Icons$icons.iI,
 				$author$project$Playground$Tape$PressedPlayButton);
 		default:
-			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iF, $author$project$Playground$Tape$PressedPauseButton);
+			return A3(tapeButtonWithIcon, false, $author$project$Playground$Icons$icons.iG, $author$project$Playground$Tape$PressedPauseButton);
 	}
 };
 var $author$project$Playground$Tape$PressedRecordButton = {$: 2};
@@ -7290,11 +7300,11 @@ var $author$project$Playground$Tape$tapeToggleButton = function (_v0) {
 		case 0:
 			return $elm$html$Html$text('');
 		case 1:
-			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i6);
+			return A2(recButton, $author$project$Playground$Tape$PressedPauseButton, $author$project$Playground$Icons$icons.i7);
 		case 2:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.ht);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hs);
 		default:
-			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.ht);
+			return A2(recButton, $author$project$Playground$Tape$PressedRecordButton, $author$project$Playground$Icons$icons.hs);
 	}
 };
 var $author$project$Playground$Tape$SliderMovedTo = function (a) {
@@ -7444,7 +7454,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 		$elm$core$Maybe$map,
 		function (t) {
 			return $elm$core$Basics$round(
-				60 / ($author$project$Playground$Tape$currentComputer(tape).bT - t));
+				60 / ($author$project$Playground$Tape$currentComputer(tape).bU - t));
 		},
 		A2(
 			$elm$core$Maybe$map,
@@ -7452,7 +7462,7 @@ var $author$project$Playground$Tape$getFps = function (tape) {
 				$elm$core$Basics$composeR,
 				$elm$core$Tuple$first,
 				function ($) {
-					return $.bT;
+					return $.bU;
 				}),
 			$elm$core$List$head(
 				A2(
@@ -7488,7 +7498,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 			return $elm$core$String$fromInt(fps);
 		}
 	};
-	var computer = $author$project$Playground$Tape$currentComputer(model.i6);
+	var computer = $author$project$Playground$Tape$currentComputer(model.i7);
 	var boolAsText = function (bool) {
 		return bool ? 'True' : 'False';
 	};
@@ -7525,7 +7535,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'fps: ' + fpsAsText(model.i6))
+								'fps: ' + fpsAsText(model.i7))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7534,7 +7544,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'frame: ' + $elm$core$String$fromInt(
-									$author$project$Playground$Tape$getCurrentFrameIndex(model.i6)))
+									$author$project$Playground$Tape$getCurrentFrameIndex(model.i7)))
 							]))
 					])),
 				A2(
@@ -7562,7 +7572,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'pressedKeys: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.b4.iK)))
+									A2($elm$core$List$intersperse, ' ', computer.b5.iL)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7570,7 +7580,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.shift: ' + boolAsText(computer.b4.iY))
+								'keyboard.shift: ' + boolAsText(computer.b5.iZ))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7578,7 +7588,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'keyboard.control: ' + boolAsText(computer.b4.hr))
+								'keyboard.control: ' + boolAsText(computer.b5.hq))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7587,7 +7597,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 							[
 								$elm$html$Html$text(
 								'downs: ' + $elm$core$String$concat(
-									A2($elm$core$List$intersperse, ' ', computer.b4.hD)))
+									A2($elm$core$List$intersperse, ' ', computer.b5.hC)))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7595,7 +7605,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.bB))
+								'delta time: ' + A2($myrho$elm_round$Round$round, 4, computer.bC))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7603,7 +7613,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.bT))
+								'clock: ' + A2($myrho$elm_round$Round$round, 4, computer.bU))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7611,7 +7621,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer is down: ' + (computer.b8.h8 ? 'yes' : 'no'))
+								'pointer is down: ' + (computer.b9.h8 ? 'yes' : 'no'))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7619,7 +7629,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.b8.jk))
+								'pointer.x: ' + A2($myrho$elm_round$Round$round, 2, computer.b9.jl))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7627,7 +7637,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.b8.jp))
+								'pointer.y: ' + A2($myrho$elm_round$Round$round, 2, computer.b9.jq))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7635,7 +7645,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.ck.hy))
+								'wheel deltaX: ' + $elm$core$String$fromFloat(computer.cl.hx))
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -7643,7 +7653,7 @@ var $author$project$Playground$Playground$viewComputer = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(
-								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.ck.hz))
+								'wheel deltaY: ' + $elm$core$String$fromFloat(computer.cl.hy))
 							]))
 					]))
 			]));
@@ -7702,13 +7712,13 @@ var $avh4$elm_color$Color$toRgba = function (_v0) {
 	var g = _v0.b;
 	var b = _v0.c;
 	var a = _v0.d;
-	return {bQ: a, ee: b, eq: g, e2: r};
+	return {bR: a, ef: b, er: g, e3: r};
 };
 var $noahzgordon$elm_color_extra$Color$Convert$colorToHex = function (cl) {
 	var _v0 = $avh4$elm_color$Color$toRgba(cl);
-	var red = _v0.e2;
-	var green = _v0.eq;
-	var blue = _v0.ee;
+	var red = _v0.e3;
+	var green = _v0.er;
+	var blue = _v0.ef;
 	return A2(
 		$elm$core$String$join,
 		'',
@@ -7761,7 +7771,7 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
-		return {h3: index, ik: match, iy: number, i2: submatches};
+		return {h3: index, ik: match, iy: number, i3: submatches};
 	});
 var $elm$regex$Regex$findAtMost = _Regex_findAtMost;
 var $elm$core$String$fromList = _String_fromList;
@@ -7778,7 +7788,7 @@ var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
 var $elm$regex$Regex$fromString = function (string) {
 	return A2(
 		$elm$regex$Regex$fromStringWith,
-		{hh: false, it: false},
+		{hg: false, it: false},
 		string);
 };
 var $elm$core$Result$map = F2(
@@ -7906,7 +7916,7 @@ var $noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
 					$elm$core$Basics$composeR,
 					$elm$core$Maybe$map(
 						function ($) {
-							return $.i2;
+							return $.i3;
 						}),
 					A2(
 						$elm$core$Basics$composeR,
@@ -7989,11 +7999,11 @@ var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $author$project$Playground$ConfigurationsView$viewSliderInput = function (_v0) {
 	var name = _v0.iu;
-	var value = _v0.fo;
-	var min = _v0.eL;
-	var max = _v0.eG;
-	var step = _v0.fc;
-	var onChange = _v0.eP;
+	var value = _v0.fp;
+	var min = _v0.eM;
+	var max = _v0.eH;
+	var step = _v0.fd;
+	var onChange = _v0.eQ;
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -8124,12 +8134,12 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 			var value = config.b;
 			return $author$project$Playground$ConfigurationsView$viewSliderInput(
 				{
-					eG: max,
-					eL: min,
+					eH: max,
+					eM: min,
 					iu: name,
-					eP: $author$project$Playground$Configurations$SetFloat(name),
-					fc: 0.01 * (max - min),
-					fo: value
+					eQ: $author$project$Playground$Configurations$SetFloat(name),
+					fd: 0.01 * (max - min),
+					fp: value
 				});
 		case 1:
 			var _v3 = config.a;
@@ -8138,15 +8148,15 @@ var $author$project$Playground$ConfigurationsView$viewConfig = function (_v0) {
 			var value = config.b;
 			return $author$project$Playground$ConfigurationsView$viewSliderInput(
 				{
-					eG: max,
-					eL: min,
+					eH: max,
+					eM: min,
 					iu: name,
-					eP: A2(
+					eQ: A2(
 						$elm$core$Basics$composeR,
 						$elm$core$Basics$round,
 						$author$project$Playground$Configurations$SetInt(name)),
-					fc: 1,
-					fo: value
+					fd: 1,
+					fp: value
 				});
 		case 2:
 			var value = config.a;
@@ -8280,7 +8290,7 @@ var $author$project$Playground$ConfigurationsView$viewBlock = function (block) {
 						$elm$html$Html$Attributes$class('text-sm'),
 						$elm$html$Html$Attributes$class('flex flex-col gap-4')
 					]),
-				A2($elm$core$List$map, $author$project$Playground$ConfigurationsView$viewConfig, block.bb))
+				A2($elm$core$List$map, $author$project$Playground$ConfigurationsView$viewConfig, block.bc))
 			]));
 };
 var $author$project$Playground$ConfigurationsView$viewConfigurations = function (configurations) {
@@ -8304,11 +8314,11 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'left',
-					$elm$core$String$fromFloat(computer.b8.jk + (0.5 * computer.b9.jh)) + 'px'),
+					$elm$core$String$fromFloat(computer.b9.jl + (0.5 * computer.ca.ji)) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'top',
-					$elm$core$String$fromFloat((-computer.b8.jp) + (0.5 * computer.b9.hY)) + 'px')
+					$elm$core$String$fromFloat((-computer.b9.jq) + (0.5 * computer.ca.hY)) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8317,15 +8327,15 @@ var $author$project$Playground$Playground$viewPointer = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							computer.b8.h8 ? 'text-black/80' : 'text-black/40')
+							computer.b9.h8 ? 'text-black/80' : 'text-black/40')
 						]),
 					_List_fromArray(
-						[$author$project$Playground$Icons$icons.b8]))
+						[$author$project$Playground$Icons$icons.b9]))
 				]));
 	});
 var $author$project$Playground$Playground$viewHUD = F2(
 	function (computer, model) {
-		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.ju);
+		var yinYangButton = A5($author$project$Playground$Playground$leftBarButton, false, false, $author$project$Playground$Playground$ClickedDistractionFreeButton, 'Distraction Free Mode', $author$project$Playground$Icons$icons.jv);
 		var viewTape = A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8338,7 +8348,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromTapeControls,
-					$author$project$Playground$Tape$view(model.i6))
+					$author$project$Playground$Tape$view(model.i7))
 				]));
 		var viewInputs = A2(
 			$elm$html$Html$div,
@@ -8350,9 +8360,9 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$Attributes$style,
 					'height',
 					$elm$core$String$fromFloat(
-						$author$project$Playground$Tape$currentComputer(model.i6).b9.hY) + 'px'),
+						$author$project$Playground$Tape$currentComputer(model.i7).ca.hY) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
-					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aO !== 1)
+					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aP !== 1)
 				]),
 			_List_fromArray(
 				[
@@ -8367,9 +8377,9 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b9.hY) + 'px'),
+					$elm$core$String$fromFloat(computer.ca.hY) + 'px'),
 					$elm$html$Html$Attributes$class('pointer-events-auto'),
-					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aO !== 2)
+					$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(model.aP !== 2)
 				]),
 			_List_fromArray(
 				[
@@ -8377,17 +8387,14 @@ var $author$project$Playground$Playground$viewHUD = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromConfigurationsEditor,
 					$author$project$Playground$ConfigurationsView$viewConfigurations(
-						$author$project$Playground$Tape$currentComputer(model.i6).aZ))
+						$author$project$Playground$Tape$currentComputer(model.i7).a_))
 				]));
-		var twitterLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'Twitter', 'https://twitter.com/AzizErkalSelman', $author$project$Playground$Icons$icons.ja);
-		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aO === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.ho);
-		var homeButton = A3($author$project$Playground$Playground$leftBarLinkButton, 'Home', '../WebPage/index.html', $author$project$Playground$Icons$icons.h0);
-		var githubLink = A3($author$project$Playground$Playground$leftBarLinkButton, 'GitHub', 'https://github.com/erkal/elm-3d-playground-exploration', $author$project$Playground$Icons$icons.hR);
+		var inputsButton = A5($author$project$Playground$Playground$leftBarButton, false, model.aP === 1, $author$project$Playground$Playground$ClickedOnShowInputsButton, 'Inputs', $author$project$Playground$Icons$icons.hn);
 		var configurationsButton = A5(
 			$author$project$Playground$Playground$leftBarButton,
 			$elm$core$List$isEmpty(
-				$author$project$Playground$Tape$currentComputer(model.i6).aZ),
-			model.aO === 2,
+				$author$project$Playground$Tape$currentComputer(model.i7).a_),
+			model.aP === 2,
 			$author$project$Playground$Playground$ClickedOnShowConfigurationsButton,
 			'Configurations',
 			$author$project$Playground$Icons$icons.hQ);
@@ -8416,7 +8423,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							_List_fromArray(
 								[
 									$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
-									$author$project$Playground$Tape$isNoTape(model.i6))
+									$author$project$Playground$Tape$isNoTape(model.i7))
 								]),
 							_List_fromArray(
 								[inputsButton]))
@@ -8428,9 +8435,9 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('flex flex-col')
 						]),
 					_List_fromArray(
-						[twitterLink, githubLink, homeButton]))
+						[$author$project$Playground$Playground$twitterLink, $author$project$Playground$Playground$githubLink, $author$project$Playground$Playground$homeButton]))
 				]));
-		return model.ct ? A2(
+		return model.cu ? A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
@@ -8464,7 +8471,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 							$elm$html$Html$Attributes$class('absolute left-0 top-0'),
 							$elm$html$Html$Attributes$class('pointer-events-none'),
 							$author$project$Tools$HtmlHelpers$HtmlHelpers$hiddenIf(
-							$author$project$Playground$Tape$isRecording(model.i6) || $author$project$Playground$Tape$isNoTape(model.i6))
+							$author$project$Playground$Tape$isRecording(model.i7) || $author$project$Playground$Tape$isNoTape(model.i7))
 						]),
 					_List_fromArray(
 						[
@@ -8475,7 +8482,7 @@ var $author$project$Playground$Playground$viewHUD = F2(
 	});
 var $author$project$Playground$Playground$view = F2(
 	function (app, model) {
-		var computer = $author$project$Playground$Tape$currentComputer(model.i6);
+		var computer = $author$project$Playground$Tape$currentComputer(model.i7);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8487,11 +8494,11 @@ var $author$project$Playground$Playground$view = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'width',
-					$elm$core$String$fromFloat(computer.b9.jh) + 'px'),
+					$elm$core$String$fromFloat(computer.ca.ji) + 'px'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'height',
-					$elm$core$String$fromFloat(computer.b9.hY) + 'px')
+					$elm$core$String$fromFloat(computer.ca.hY) + 'px')
 				]),
 			_List_fromArray(
 				[
@@ -8499,87 +8506,130 @@ var $author$project$Playground$Playground$view = F2(
 					$elm$html$Html$map,
 					$author$project$Playground$Playground$FromApp,
 					A2(
-						app.cj,
+						app.ck,
 						computer,
-						$author$project$Playground$Tape$currentAppModel(model.i6))),
+						$author$project$Playground$Tape$currentAppModel(model.i7))),
 					A2($author$project$Playground$Playground$viewHUD, computer, model)
 				]));
 	});
 var $author$project$Playground$Playground$application = function (app) {
 	return $elm$browser$Browser$element(
 		{
-			b1: $author$project$Playground$Playground$init(app),
-			d_: $author$project$Playground$Playground$subscriptions(app),
-			bO: $author$project$Playground$Playground$update(app),
-			cj: $author$project$Playground$Playground$view(app)
+			b2: $author$project$Playground$Playground$init(app),
+			d$: $author$project$Playground$Playground$subscriptions(app),
+			bP: $author$project$Playground$Playground$update(app),
+			ck: $author$project$Playground$Playground$view(app)
 		});
 };
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Playground$Playground$simpleApplication = function (simpleApp) {
 	return $author$project$Playground$Playground$application(
 		{
-			cD: simpleApp.cD,
-			b1: simpleApp.b1,
-			cF: simpleApp.cF,
-			d_: function (_v0) {
+			cE: simpleApp.cE,
+			b2: simpleApp.b2,
+			cG: simpleApp.cG,
+			d$: function (_v0) {
 				return $elm$core$Platform$Sub$none;
 			},
-			bO: F3(
+			bP: F3(
 				function (computer, msg, appModel) {
 					return _Utils_Tuple2(
-						A3(simpleApp.bO, computer, msg, appModel),
+						A3(simpleApp.bP, computer, msg, appModel),
 						$elm$core$Platform$Cmd$none);
 				}),
-			cj: simpleApp.cj
+			ck: simpleApp.ck
 		});
 };
 var $author$project$UndoRedo$UndoList$new = F2(
 	function (state, _v0) {
-		var past = _v0.gz;
-		var present = _v0.dQ;
-		return A3(
-			$author$project$UndoRedo$UndoList$UndoList,
-			A2($elm$core$List$cons, present, past),
-			state,
-			_List_Nil);
+		var past = _v0.iF;
+		var present = _v0.dR;
+		return {
+			hP: _List_Nil,
+			iF: A2($elm$core$List$cons, present, past),
+			dR: state
+		};
 	});
 var $author$project$UndoRedo$UndoList$newSafe = F2(
 	function (state, _v0) {
-		var past = _v0.gz;
-		var present = _v0.dQ;
-		var future = _v0.fS;
-		return $elm$core$List$isEmpty(future) ? A3(
-			$author$project$UndoRedo$UndoList$UndoList,
-			A2($elm$core$List$cons, present, past),
-			state,
-			_List_Nil) : A3(
-			$author$project$UndoRedo$UndoList$UndoList,
-			A2(
-				$elm$core$List$cons,
-				present,
-				_Utils_ap(
-					$elm$core$List$reverse(future),
-					A2($elm$core$List$cons, present, past))),
-			state,
-			_List_Nil);
+		var past = _v0.iF;
+		var present = _v0.dR;
+		var future = _v0.hP;
+		var _v1 = $elm$core$List$reverse(future);
+		if (!_v1.b) {
+			return {
+				hP: _List_Nil,
+				iF: A2($elm$core$List$cons, present, past),
+				dR: state
+			};
+		} else {
+			var head = _v1.a;
+			var tail = _v1.b;
+			return {
+				hP: _List_Nil,
+				iF: A2(
+					$elm$core$List$cons,
+					present,
+					_Utils_ap(
+						$elm$core$List$reverse(tail),
+						A2(
+							$elm$core$List$cons,
+							head,
+							_Utils_ap(
+								tail,
+								A2($elm$core$List$cons, present, past))))),
+				dR: state
+			};
+		}
+	});
+var $author$project$UndoRedo$UndoList$newSafeConcise = F2(
+	function (state, _v0) {
+		var past = _v0.iF;
+		var present = _v0.dR;
+		var future = _v0.hP;
+		if (!future.b) {
+			return {
+				hP: _List_Nil,
+				iF: A2($elm$core$List$cons, present, past),
+				dR: state
+			};
+		} else {
+			return {
+				hP: _List_Nil,
+				iF: A2(
+					$elm$core$List$cons,
+					present,
+					_Utils_ap(
+						$elm$core$List$reverse(future),
+						A2($elm$core$List$cons, present, past))),
+				dR: state
+			};
+		}
 	});
 var $author$project$UndoRedo$Main$handleEditingTextArea = F2(
 	function (msg, model) {
 		if (msg.$ === 3) {
 			var interactiveID = msg.a;
 			var str = msg.b;
-			if (!interactiveID) {
-				return _Utils_update(
-					model,
-					{
-						Z: A2($author$project$UndoRedo$UndoList$new, str, model.Z)
-					});
-			} else {
-				return _Utils_update(
-					model,
-					{
-						Y: A2($author$project$UndoRedo$UndoList$newSafe, str, model.Y)
-					});
+			switch (interactiveID) {
+				case 0:
+					return _Utils_update(
+						model,
+						{
+							ai: A2($author$project$UndoRedo$UndoList$new, str, model.ai)
+						});
+				case 1:
+					return _Utils_update(
+						model,
+						{
+							ag: A2($author$project$UndoRedo$UndoList$newSafe, str, model.ag)
+						});
+				default:
+					return _Utils_update(
+						model,
+						{
+							ah: A2($author$project$UndoRedo$UndoList$newSafeConcise, str, model.ah)
+						});
 			}
 		} else {
 			return model;
@@ -8612,9 +8662,9 @@ var $author$project$UndoRedo$Main$pressedKeyboardShortcutForRedo = function (com
 		$elm$core$Basics$identity,
 		_List_fromArray(
 			[
-				computer.b4.hr,
-				computer.b4.iY,
-				A2($elm$core$List$member, 'KeyZ', computer.b4.hD)
+				computer.b5.hq,
+				computer.b5.iZ,
+				A2($elm$core$List$member, 'KeyZ', computer.b5.hC)
 			]));
 };
 var $author$project$UndoRedo$Main$pressedKeyboardShortcutForUndo = function (computer) {
@@ -8623,75 +8673,89 @@ var $author$project$UndoRedo$Main$pressedKeyboardShortcutForUndo = function (com
 		$elm$core$Basics$identity,
 		_List_fromArray(
 			[
-				computer.b4.hr,
-				!computer.b4.iY,
-				A2($elm$core$List$member, 'KeyZ', computer.b4.hD)
+				computer.b5.hq,
+				!computer.b5.iZ,
+				A2($elm$core$List$member, 'KeyZ', computer.b5.hC)
 			]));
 };
-var $author$project$UndoRedo$UndoList$redo = function (_v0) {
-	var past = _v0.gz;
-	var present = _v0.dQ;
-	var future = _v0.fS;
+var $author$project$UndoRedo$UndoList$redo = function (undoList) {
+	var past = undoList.iF;
+	var present = undoList.dR;
+	var future = undoList.hP;
 	if (!future.b) {
-		return A3($author$project$UndoRedo$UndoList$UndoList, past, present, future);
+		return undoList;
 	} else {
 		var x = future.a;
 		var xs = future.b;
-		return A3(
-			$author$project$UndoRedo$UndoList$UndoList,
-			A2($elm$core$List$cons, present, past),
-			x,
-			xs);
+		return {
+			hP: xs,
+			iF: A2($elm$core$List$cons, present, past),
+			dR: x
+		};
 	}
 };
-var $author$project$UndoRedo$UndoList$undo = function (_v0) {
-	var past = _v0.gz;
-	var present = _v0.dQ;
-	var future = _v0.fS;
+var $author$project$UndoRedo$UndoList$undo = function (undoList) {
+	var past = undoList.iF;
+	var present = undoList.dR;
+	var future = undoList.hP;
 	if (!past.b) {
-		return A3($author$project$UndoRedo$UndoList$UndoList, past, present, future);
+		return undoList;
 	} else {
 		var x = past.a;
 		var xs = past.b;
-		return A3(
-			$author$project$UndoRedo$UndoList$UndoList,
-			xs,
-			x,
-			A2($elm$core$List$cons, present, future));
+		return {
+			hP: A2($elm$core$List$cons, present, future),
+			iF: xs,
+			dR: x
+		};
 	}
 };
 var $author$project$UndoRedo$Main$handleKeyboardShortcutsForUndoRedo = F2(
 	function (computer, model) {
 		if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForUndo(computer)) {
-			var _v0 = model.cG;
-			if (!_v0) {
-				return _Utils_update(
-					model,
-					{
-						Z: $author$project$UndoRedo$UndoList$undo(model.Z)
-					});
-			} else {
-				return _Utils_update(
-					model,
-					{
-						Y: $author$project$UndoRedo$UndoList$undo(model.Y)
-					});
+			var _v0 = model.cH;
+			switch (_v0) {
+				case 0:
+					return _Utils_update(
+						model,
+						{
+							ai: $author$project$UndoRedo$UndoList$undo(model.ai)
+						});
+				case 1:
+					return _Utils_update(
+						model,
+						{
+							ag: $author$project$UndoRedo$UndoList$undo(model.ag)
+						});
+				default:
+					return _Utils_update(
+						model,
+						{
+							ah: $author$project$UndoRedo$UndoList$undo(model.ah)
+						});
 			}
 		} else {
 			if ($author$project$UndoRedo$Main$pressedKeyboardShortcutForRedo(computer)) {
-				var _v1 = model.cG;
-				if (!_v1) {
-					return _Utils_update(
-						model,
-						{
-							Z: $author$project$UndoRedo$UndoList$redo(model.Z)
-						});
-				} else {
-					return _Utils_update(
-						model,
-						{
-							Y: $author$project$UndoRedo$UndoList$redo(model.Y)
-						});
+				var _v1 = model.cH;
+				switch (_v1) {
+					case 0:
+						return _Utils_update(
+							model,
+							{
+								ai: $author$project$UndoRedo$UndoList$redo(model.ai)
+							});
+					case 1:
+						return _Utils_update(
+							model,
+							{
+								ag: $author$project$UndoRedo$UndoList$redo(model.ag)
+							});
+					default:
+						return _Utils_update(
+							model,
+							{
+								ah: $author$project$UndoRedo$UndoList$redo(model.ah)
+							});
 				}
 			} else {
 				return model;
@@ -8704,7 +8768,7 @@ var $author$project$UndoRedo$Main$handleSelectingInteractive = F2(
 			var interactiveID = msg.a;
 			return _Utils_update(
 				model,
-				{cG: interactiveID});
+				{cH: interactiveID});
 		} else {
 			return model;
 		}
@@ -8714,33 +8778,47 @@ var $author$project$UndoRedo$Main$handleUndoRedoButtons = F2(
 		switch (msg.$) {
 			case 1:
 				var interactiveID = msg.a;
-				if (!interactiveID) {
-					return _Utils_update(
-						model,
-						{
-							Z: $author$project$UndoRedo$UndoList$undo(model.Z)
-						});
-				} else {
-					return _Utils_update(
-						model,
-						{
-							Y: $author$project$UndoRedo$UndoList$undo(model.Y)
-						});
+				switch (interactiveID) {
+					case 0:
+						return _Utils_update(
+							model,
+							{
+								ai: $author$project$UndoRedo$UndoList$undo(model.ai)
+							});
+					case 1:
+						return _Utils_update(
+							model,
+							{
+								ag: $author$project$UndoRedo$UndoList$undo(model.ag)
+							});
+					default:
+						return _Utils_update(
+							model,
+							{
+								ah: $author$project$UndoRedo$UndoList$undo(model.ah)
+							});
 				}
 			case 2:
 				var interactiveID = msg.a;
-				if (!interactiveID) {
-					return _Utils_update(
-						model,
-						{
-							Z: $author$project$UndoRedo$UndoList$redo(model.Z)
-						});
-				} else {
-					return _Utils_update(
-						model,
-						{
-							Y: $author$project$UndoRedo$UndoList$redo(model.Y)
-						});
+				switch (interactiveID) {
+					case 0:
+						return _Utils_update(
+							model,
+							{
+								ai: $author$project$UndoRedo$UndoList$redo(model.ai)
+							});
+					case 1:
+						return _Utils_update(
+							model,
+							{
+								ag: $author$project$UndoRedo$UndoList$redo(model.ag)
+							});
+					default:
+						return _Utils_update(
+							model,
+							{
+								ah: $author$project$UndoRedo$UndoList$redo(model.ah)
+							});
 				}
 			default:
 				return model;
@@ -8762,12 +8840,13 @@ var $author$project$UndoRedo$Main$update = F3(
 		}
 	});
 var $author$project$UndoRedo$Main$UndoRedoSafe = 1;
+var $author$project$UndoRedo$Main$UndoRedoSafeConcise = 2;
 var $elm_explorations$markdown$Markdown$defaultOptions = {
-	fF: $elm$core$Maybe$Nothing,
+	fG: $elm$core$Maybe$Nothing,
 	hS: $elm$core$Maybe$Just(
-		{hg: false, i5: false}),
-	iU: true,
-	i$: false
+		{hf: false, i6: false}),
+	iV: true,
+	i0: false
 };
 var $elm$core$Maybe$isJust = function (maybe) {
 	if (!maybe.$) {
@@ -8778,15 +8857,21 @@ var $elm$core$Maybe$isJust = function (maybe) {
 };
 var $elm_explorations$markdown$Markdown$toHtmlWith = _Markdown_toHtml;
 var $elm_explorations$markdown$Markdown$toHtml = $elm_explorations$markdown$Markdown$toHtmlWith($elm_explorations$markdown$Markdown$defaultOptions);
-var $author$project$UndoRedo$Main$markdownBlock = function (str) {
-	return A2(
-		$elm_explorations$markdown$Markdown$toHtml,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('prose lg:prose-xl prose-invert'),
-				$elm$html$Html$Attributes$class('select-text')
-			]),
-		str);
+var $author$project$UndoRedo$Main$markdownBlock = $elm_explorations$markdown$Markdown$toHtml(
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('prose prose-gruvbox lg:prose-xl max-w-none'),
+			$elm$html$Html$Attributes$class('select-text')
+		]));
+var $author$project$UndoRedo$Main$header = function (interactiveID) {
+	switch (interactiveID) {
+		case 0:
+			return 'The **usual** undo/redo';
+		case 1:
+			return 'The **safe** undo/redo';
+		default:
+			return 'The **concise** safe undo/redo';
+	}
 };
 var $author$project$UndoRedo$Main$PressedRedoButton = function (a) {
 	return {$: 2, a: a};
@@ -8825,12 +8910,12 @@ var $author$project$UndoRedo$Main$viewButtons = F3(
 					$author$project$UndoRedo$Main$button,
 					$author$project$UndoRedo$Main$PressedUndoButton(interactiveID),
 					'Undo',
-					$author$project$Playground$Icons$icons.jc),
+					$author$project$Playground$Icons$icons.jd),
 					A3(
 					$author$project$UndoRedo$Main$button,
 					$author$project$UndoRedo$Main$PressedRedoButton(interactiveID),
 					'Redo',
-					$author$project$Playground$Icons$icons.iP)
+					$author$project$Playground$Icons$icons.iQ)
 				]));
 	});
 var $author$project$UndoRedo$Main$EditedTextArea = F2(
@@ -8862,10 +8947,13 @@ var $author$project$UndoRedo$Main$viewTextArea = F3(
 					$author$project$UndoRedo$Main$SelectedInteractive(interactiveID)),
 					$elm$html$Html$Attributes$value(
 					function () {
-						if (!interactiveID) {
-							return model.Z.dQ;
-						} else {
-							return model.Y.dQ;
+						switch (interactiveID) {
+							case 0:
+								return model.ai.dR;
+							case 1:
+								return model.ag.dR;
+							default:
+								return model.ah.dR;
 						}
 					}())
 				]),
@@ -8888,8 +8976,18 @@ var $author$project$UndoRedo$Main$viewUndoItem = function (str) {
 				$elm$html$Html$text(str)
 			]));
 };
-var $author$project$UndoRedo$Main$viewUndoListSafe = F2(
-	function (computer, model) {
+var $author$project$UndoRedo$Main$viewUndoList = F3(
+	function (computer, model, interactiveID) {
+		var undoList = function () {
+			switch (interactiveID) {
+				case 0:
+					return model.ai;
+				case 1:
+					return model.ag;
+				default:
+					return model.ah;
+			}
+		}();
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8907,16 +9005,16 @@ var $author$project$UndoRedo$Main$viewUndoListSafe = F2(
 					A2(
 						$elm$core$List$map,
 						$author$project$UndoRedo$Main$viewUndoItem,
-						$elm$core$List$reverse(model.Y.gz))),
+						$elm$core$List$reverse(undoList.iF))),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('flex flex-col rounded-lg ring-8 ring-white z-10')
+							$elm$html$Html$Attributes$class('flex flex-col rounded-lg ring-4 ring-white z-10')
 						]),
 					_List_fromArray(
 						[
-							$author$project$UndoRedo$Main$viewUndoItem(model.Y.dQ)
+							$author$project$UndoRedo$Main$viewUndoItem(undoList.dR)
 						])),
 					A2(
 					$elm$html$Html$div,
@@ -8924,46 +9022,35 @@ var $author$project$UndoRedo$Main$viewUndoListSafe = F2(
 						[
 							$elm$html$Html$Attributes$class('flex flex-col')
 						]),
-					A2($elm$core$List$map, $author$project$UndoRedo$Main$viewUndoItem, model.Y.fS))
+					A2($elm$core$List$map, $author$project$UndoRedo$Main$viewUndoItem, undoList.hP))
 				]));
 	});
-var $author$project$UndoRedo$Main$viewUndoListUsual = F2(
-	function (computer, model) {
+var $author$project$UndoRedo$Main$viewUndoListInteractive = F3(
+	function (computer, model, interactiveID) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('flex-1 flex flex-col')
+					$elm$html$Html$Attributes$class('flex flex-col gap-8'),
+					$elm$html$Html$Attributes$class('bg-white/5 p-4 rounded-lg'),
+					$elm$html$Html$Attributes$class('shadow-lg')
 				]),
 			_List_fromArray(
 				[
+					$author$project$UndoRedo$Main$markdownBlock(
+					$author$project$UndoRedo$Main$header(interactiveID)),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('flex flex-col')
-						]),
-					A2(
-						$elm$core$List$map,
-						$author$project$UndoRedo$Main$viewUndoItem,
-						$elm$core$List$reverse(model.Z.gz))),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('flex flex-col rounded-lg ring-8 ring-white z-10')
+							$elm$html$Html$Attributes$class('p-2 flex flex-col sm:flex-row gap-8')
 						]),
 					_List_fromArray(
 						[
-							$author$project$UndoRedo$Main$viewUndoItem(model.Z.dQ)
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('flex flex-col')
-						]),
-					A2($elm$core$List$map, $author$project$UndoRedo$Main$viewUndoItem, model.Z.fS))
+							A3($author$project$UndoRedo$Main$viewButtons, computer, model, interactiveID),
+							A3($author$project$UndoRedo$Main$viewTextArea, computer, model, interactiveID),
+							A3($author$project$UndoRedo$Main$viewUndoList, computer, model, interactiveID)
+						]))
 				]));
 	});
 var $author$project$UndoRedo$Main$view = F2(
@@ -8972,8 +9059,8 @@ var $author$project$UndoRedo$Main$view = F2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('absolute w-full h-full'),
-					$elm$html$Html$Attributes$class('bg-gradient-to-br from-gray-800 via-gray-900 to-black'),
+					$elm$html$Html$Attributes$class('absolute w-full h-full z-10'),
+					$elm$html$Html$Attributes$class('bg-[#303030]'),
 					$elm$html$Html$Attributes$class('overflow-y-auto')
 				]),
 			_List_fromArray(
@@ -8982,89 +9069,37 @@ var $author$project$UndoRedo$Main$view = F2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('mx-auto container max-w-4xl p-12 sm:px-12 text-lg text-white'),
+							$elm$html$Html$Attributes$class('mx-auto container max-w-5xl p-12 sm:px-12'),
 							$elm$html$Html$Attributes$class('flex flex-col gap-8')
 						]),
 					_List_fromArray(
 						[
-							$author$project$UndoRedo$Main$markdownBlock('\n#  Resolving the "Great Undo-Redo Quandary" in Elm\n\n[Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/UndoRedo)\n\nThis post unfolds in two parts: The initial segment showcases the ease of crafting undo/redo functionality using Elm. If you have **already implemented undo/redo in Elm**, feel free to leap forward to the second part. Here, we confront a prevalent issue linked with undo/redo and offer a straightforward and efficient solution.\n\n## Part 1: Implementing Basic Undo/Redo Functionality in Elm\nImplementing undo and redo operations in Elm is surprisingly straightforward, thanks to its purity and persistent data structures. Here\'s how it\'s achieved using a simple data structure in [elm-community/undo-redo](https://package.elm-lang.org/packages/elm-community/undo-redo/latest/) package.\n\n```elm\ntype alias UndoList state =\n    { past : List state\n    , present : state\n    , future : List state\n    }\n```\n\nAs an example, let\'s consider the following `UndoList String`:\n```elm\n{ past = [ "ABC", "AB", "A" ]\n, present = "ABCD"\n, future = [ "ABCDE", "ABCDEF" ]\n}\n```\nNote that the list for the `past` is reversed for efficiency purposes. This represents a scenario where the user has typed "ABCDEF" and performed \'undo\' twice.\n\nAs you click the undo and redo buttons below and edit text in the text area, you will notice that on the right side, the `UndoList` data structure is rendered as rows; starting with past states, followed by the present state (highlighted by a thick border), and ending with future states.\n\n\n'),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$class('flex flex-col gap-8'),
-									$elm$html$Html$Attributes$class('bg-white/10 p-4 rounded-lg')
+									$elm$html$Html$Attributes$class('flex justify-end items-center mb-2 border-b border-gray-200 pb-4')
 								]),
 							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$div,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('font-bold')
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('The usual undo/redo')
-										])),
-									A2(
-									$elm$html$Html$div,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('p-2 flex flex-row gap-8')
-										]),
-									_List_fromArray(
-										[
-											A3($author$project$UndoRedo$Main$viewButtons, computer, model, 0),
-											A3($author$project$UndoRedo$Main$viewTextArea, computer, model, 0),
-											A2($author$project$UndoRedo$Main$viewUndoListUsual, computer, model)
-										]))
-								])),
-							$author$project$UndoRedo$Main$markdownBlock('\nEditing within the text area creates a new undo item via the following function:\n\n```elm\nnew : state -> UndoList state -> UndoList state\nnew state { past, present } =\n    { past = present :: past\n    , present = state\n    , future = []\n    }\n```\n\nNote that when entering a new state into UndoList, any existing future states are removed, similar to most applications with undo/redo functionality. This brings us to the second part of this post.\n\n## Part 2: Confronting the Undo/Redo Quandary\n\nIn our digital lives, **we frequently encounter a general problem when using undo/redo features in various applications**. This issue arises, for example, when we need to retrieve something that has been previously deleted.\n\nConsider the following scenario: We\'ve deleted some text or an image but soon after realize it\'s still needed. Now, what do we typically do? **We often resort to performing multiple \'undo\' actions until we retrieve the necessary information.** But this method can be nerve-wracking.\n\nWhy so? Here\'s the catch - Any accidental edits during this process could potentially wipe out our \'redo\' options. This means if we\'re not careful, **we stand at risk of losing all redo\'s**, and this adds an unnecessary layer of stress.\n\nSo, the question arises: How do we address this issue? Is there a better way to handle it?\n\nInitially, I believed that *undo trees* were the only viable solution. However, after reading [Resolving the Great Undo-Redo Quandary](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md), I became convinced otherwise. The simpler alternative presented in this resource effectively demonstrates its ease of use and efficiency.\n\nThis method ensures no state loss and is easy to implement in Elm.\nWe use the standard `UndoList` data structure with an additional function:\n\n```elm\nnewSafe : state -> UndoList state -> UndoList state\nnewSafe state { past, present, future } =\n    if List.isEmpty future then\n        -- this case is handled the same way as in `new`\n        { past = present :: past\n        , present = state\n        , future = []\n        }\n\n    else\n        { past = present :: List.reverse future ++ present :: past\n        , present = state\n        , future = []\n        }\n```\n\nBelow is an interactive demonstration showing how it works.\n'),
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('flex flex-col gap-8'),
-									$elm$html$Html$Attributes$class('bg-white/10 p-4 rounded-lg')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$div,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('font-bold')
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('The safe undo/redo')
-										])),
-									A2(
-									$elm$html$Html$div,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('p-2 flex flex-row gap-8')
-										]),
-									_List_fromArray(
-										[
-											A3($author$project$UndoRedo$Main$viewButtons, computer, model, 1),
-											A3($author$project$UndoRedo$Main$viewTextArea, computer, model, 1),
-											A2($author$project$UndoRedo$Main$viewUndoListSafe, computer, model)
-										]))
-								])),
-							$author$project$UndoRedo$Main$markdownBlock('\nNote that contrary to the resource referenced above, we **batch consecutive undos**. This approach simplifies the process and prevents the *exponential growth* [described here](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md#memory-space-usage).\n\nIn conclusion, adding undo/redo functionality to your Elm applications is surprisingly straightforward. But that\'s not all - if you already have undo/redo in place, making it safe is as simple as adding a few lines of code (writing the `newSafe` function described earlier and using it instead of  the function `new`).\n')
+								[$author$project$Playground$Playground$homeButton, $author$project$Playground$Playground$twitterLink, $author$project$Playground$Playground$githubLink])),
+							$author$project$UndoRedo$Main$markdownBlock('\n#  Resolving the "Great Undo-Redo Quandary" in Elm\n\n[Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/UndoRedo)\n\nThis post unfolds in two parts: The initial segment showcases the ease of crafting undo/redo functionality using Elm. If you have **already implemented undo/redo in Elm**, feel free to leap forward to the second part. Here, we confront a prevalent issue linked with undo/redo and offer a straightforward and efficient solution.\n## Part 1: Implementing Basic Undo/Redo Functionality in Elm\nImplementing undo and redo operations in Elm is surprisingly straightforward, thanks to its purity and persistent data structures. Here\'s how it\'s achieved using a simple data structure in [elm-community/undo-redo](https://package.elm-lang.org/packages/elm-community/undo-redo/latest/) package.\n\n```elm\ntype alias UndoList state =\n    { past : List state\n    , present : state\n    , future : List state\n    }\n```\n\nAs an example, let\'s consider the following `UndoList String`:\n```elm\n{ past = [ "ABC", "AB", "A" ]\n, present = "ABCD"\n, future = [ "ABCDE", "ABCDEF" ]\n}\n```\nNote that the list for the `past` is reversed for efficiency purposes. This represents a scenario where the user has typed "ABCDEF" and performed \'undo\' twice.\n\nAs you click the undo and redo buttons below and edit text in the text area, you will notice that the `UndoList` data structure is rendered as rows; starting with past states, followed by the present state (highlighted by a thick border), and ending with future states.\n'),
+							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 0),
+							$author$project$UndoRedo$Main$markdownBlock('\nEditing within the text area creates a new undo item via the following function:\n\n```elm\nnew : state -> UndoList state -> UndoList state\nnew state { past, present } =\n    { past = present :: past\n    , present = state\n    , future = []\n    }\n```\n\nNote that when entering a new state into UndoList, any existing future states are removed, similar to most applications with undo/redo functionality. This brings us to the second part of this post.\n\n## Part 2: Confronting the Undo/Redo Quandary\n\nIn our digital lives, **we frequently encounter a general problem when using undo/redo features in various applications**. This issue arises, for example, when we need to retrieve something that has been previously deleted.\n\nConsider the following scenario: We\'ve deleted some text or an image but soon after realize it\'s still needed. Now, what do we typically do? **We often resort to performing multiple \'undo\' actions until we retrieve the necessary information.** But this method can be nerve-wracking.\n\nWhy so? Here\'s the catch - Any accidental edits during this process could potentially wipe out our \'redo\' options. This means if we\'re not careful, **we stand at risk of losing all redo\'s**, and this adds an unnecessary layer of stress.\n\nSo, the question arises: How do we address this issue? Is there a better way to handle it?\n\nInitially, I believed that *undo trees* were the only viable solution. However, after reading [Resolving the Great Undo-Redo Quandary](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md), I became convinced otherwise. The simpler alternative presented in this resource effectively demonstrates its ease of use and efficiency.\n\nBelow is an interactive demonstration showing how it works.\n'),
+							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 1),
+							$author$project$UndoRedo$Main$markdownBlock('\nThis method ensures no state loss and is easy to implement in Elm.\nThe only modification we made was to utilize the following `newSafe` function in place of the `new` function.\n\n```elm\nnewSafe : state -> UndoList state -> UndoList state\nnewSafe state { past, present, future } =\n    case List.reverse future of\n        [] ->\n            { past = present :: past\n            , present = state\n            , future = []\n            }\n\n        head :: tail ->\n            { past = present :: List.reverse tail ++ head :: tail ++ present :: past\n            , present = state\n            , future = []\n            }\n```\n\n### Making It More Concise\n\nNote that each time we edit following an \'undo\' action, the `UndoList` expands by the length of the future list. This might not be ideal because it could lead to *exponential growth*, as [discussed here](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md#memory-space-usage).\n\nTo prevent this from happening, you can **collapse consecutive undos** into a single step:\n'),
+							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 2),
+							$author$project$UndoRedo$Main$markdownBlock('\nHere is the function that accomplishes this:\n```elm\nnewSafeConcise : state -> UndoList state -> UndoList state\nnewSafeConcise state { past, present, future } =\n    case future of\n        [] ->\n            { past = present :: past\n            , present = state\n            , future = []\n            }\n\n        _ ->\n            { past = present :: List.reverse future ++ present :: past\n            , present = state\n            , future = []\n            }\n```\n\nIn conclusion, integrating undo/redo functionality into your Elm applications is surprisingly simple. But that\'s not all - if you already have undo/redo implemented, enhancing it to be safe is as straightforward as adding a few lines of code.\n')
 						]))
 				]));
 	});
 var $author$project$UndoRedo$Main$main = $author$project$Playground$Playground$simpleApplication(
-	{cD: false, b1: $author$project$UndoRedo$Main$init, cF: _List_Nil, bO: $author$project$UndoRedo$Main$update, cj: $author$project$UndoRedo$Main$view});
+	{cE: false, b2: $author$project$UndoRedo$Main$init, cG: _List_Nil, bP: $author$project$UndoRedo$Main$update, ck: $author$project$UndoRedo$Main$view});
 _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (inputs) {
 			return $elm$json$Json$Decode$succeed(
-				{er: inputs});
+				{es: inputs});
 		},
 		A2(
 			$elm$json$Json$Decode$field,
@@ -9094,7 +9129,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																		$elm$json$Json$Decode$andThen,
 																		function (clock) {
 																			return $elm$json$Json$Decode$succeed(
-																				{bT: clock, bU: devicePixelRatio, bB: dt, b4: keyboard, b8: pointer, b9: screen, gT: sensoState, ck: wheel});
+																				{bU: clock, bV: devicePixelRatio, bC: dt, b5: keyboard, b9: pointer, ca: screen, gS: sensoState, cl: wheel});
 																		},
 																		A2($elm$json$Json$Decode$field, 'clock', $elm$json$Json$Decode$float));
 																},
@@ -9133,7 +9168,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																														$elm$json$Json$Decode$andThen,
 																														function (alt) {
 																															return $elm$json$Json$Decode$succeed(
-																																{g9: alt, hr: control, fH: down, hD: downs, ie: left, iK: pressedKeys, iR: right, iY: shift, g4: up});
+																																{g8: alt, hq: control, fI: down, hC: downs, ie: left, iL: pressedKeys, iS: right, iZ: shift, g3: up});
 																														},
 																														A2($elm$json$Json$Decode$field, 'alt', $elm$json$Json$Decode$bool));
 																												},
@@ -9187,7 +9222,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																										$elm$json$Json$Decode$andThen,
 																										function (down) {
 																											return $elm$json$Json$Decode$succeed(
-																												{fH: down, h8: isDown, iq: move, iS: rightDown, iT: rightUp, g4: up, jk: x, jp: y});
+																												{fI: down, h8: isDown, iq: move, iT: rightDown, iU: rightUp, g3: up, jl: x, jq: y});
 																										},
 																										A2($elm$json$Json$Decode$field, 'down', $elm$json$Json$Decode$bool));
 																								},
@@ -9215,7 +9250,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 												$elm$json$Json$Decode$andThen,
 												function (height) {
 													return $elm$json$Json$Decode$succeed(
-														{hY: height, jh: width});
+														{hY: height, ji: width});
 												},
 												A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$float));
 										},
@@ -9240,7 +9275,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																$elm$json$Json$Decode$andThen,
 																function (center) {
 																	return $elm$json$Json$Decode$succeed(
-																		{hj: center, fH: down, ie: left, iR: right, g4: up});
+																		{hi: center, fI: down, ie: left, iS: right, g3: up});
 																},
 																A2(
 																	$elm$json$Json$Decode$field,
@@ -9255,7 +9290,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																						$elm$json$Json$Decode$andThen,
 																						function (f) {
 																							return $elm$json$Json$Decode$succeed(
-																								{cv: f, jk: x, jp: y});
+																								{cw: f, jl: x, jq: y});
 																						},
 																						A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																				},
@@ -9276,7 +9311,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																				$elm$json$Json$Decode$andThen,
 																				function (f) {
 																					return $elm$json$Json$Decode$succeed(
-																						{cv: f, jk: x, jp: y});
+																						{cw: f, jl: x, jq: y});
 																				},
 																				A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																		},
@@ -9297,7 +9332,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																		$elm$json$Json$Decode$andThen,
 																		function (f) {
 																			return $elm$json$Json$Decode$succeed(
-																				{cv: f, jk: x, jp: y});
+																				{cw: f, jl: x, jq: y});
 																		},
 																		A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 																},
@@ -9318,7 +9353,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 																$elm$json$Json$Decode$andThen,
 																function (f) {
 																	return $elm$json$Json$Decode$succeed(
-																		{cv: f, jk: x, jp: y});
+																		{cw: f, jl: x, jq: y});
 																},
 																A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 														},
@@ -9339,7 +9374,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 														$elm$json$Json$Decode$andThen,
 														function (f) {
 															return $elm$json$Json$Decode$succeed(
-																{cv: f, jk: x, jp: y});
+																{cw: f, jl: x, jq: y});
 														},
 														A2($elm$json$Json$Decode$field, 'f', $elm$json$Json$Decode$float));
 												},
@@ -9357,7 +9392,7 @@ _Platform_export({'UndoRedo':{'Main':{'init':$author$project$UndoRedo$Main$main(
 								$elm$json$Json$Decode$andThen,
 								function (deltaX) {
 									return $elm$json$Json$Decode$succeed(
-										{hy: deltaX, hz: deltaY});
+										{hx: deltaX, hy: deltaY});
 								},
 								A2($elm$json$Json$Decode$field, 'deltaX', $elm$json$Json$Decode$float));
 						},
