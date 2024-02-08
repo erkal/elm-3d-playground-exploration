@@ -8863,14 +8863,24 @@ var $author$project$UndoRedo$Main$markdownBlock = $elm_explorations$markdown$Mar
 			$elm$html$Html$Attributes$class('prose prose-gruvbox lg:prose-xl max-w-none'),
 			$elm$html$Html$Attributes$class('select-text')
 		]));
+var $author$project$UndoRedo$Main$bgColorForInteractive = function (interactiveID) {
+	switch (interactiveID) {
+		case 0:
+			return 'bg-pink-400/40';
+		case 1:
+			return 'bg-green-400/40';
+		default:
+			return 'bg-blue-400/40';
+	}
+};
 var $author$project$UndoRedo$Main$header = function (interactiveID) {
 	switch (interactiveID) {
 		case 0:
-			return 'The **usual** undo/redo';
+			return '#### The **usual** undo/redo';
 		case 1:
-			return 'The **safe** undo/redo';
+			return '#### The **safe** undo/redo';
 		default:
-			return 'The **concise** safe undo/redo';
+			return '#### The **concise** safe undo/redo';
 	}
 };
 var $author$project$UndoRedo$Main$PressedRedoButton = function (a) {
@@ -8938,7 +8948,7 @@ var $author$project$UndoRedo$Main$viewTextArea = F3(
 			$elm$html$Html$textarea,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('flex-1 h-28 p-4 rounded-lg overflow-y-scroll'),
+					$elm$html$Html$Attributes$class('w-full p-4 rounded-lg overflow-y-scroll'),
 					$elm$html$Html$Attributes$class('text-black bg-white'),
 					$elm$html$Html$Attributes$class('font-mono'),
 					$elm$html$Html$Events$onInput(
@@ -8957,10 +8967,7 @@ var $author$project$UndoRedo$Main$viewTextArea = F3(
 						}
 					}())
 				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('todo')
-				]));
+			_List_Nil);
 	});
 var $author$project$UndoRedo$Main$viewUndoItem = function (str) {
 	return A2(
@@ -9032,7 +9039,9 @@ var $author$project$UndoRedo$Main$viewUndoListInteractive = F3(
 			_List_fromArray(
 				[
 					$elm$html$Html$Attributes$class('flex flex-col gap-8'),
-					$elm$html$Html$Attributes$class('bg-white/5 p-4 rounded-lg'),
+					$elm$html$Html$Attributes$class('my-8 p-8 rounded-lg'),
+					$elm$html$Html$Attributes$class(
+					$author$project$UndoRedo$Main$bgColorForInteractive(interactiveID)),
 					$elm$html$Html$Attributes$class('shadow-lg')
 				]),
 			_List_fromArray(
@@ -9047,8 +9056,17 @@ var $author$project$UndoRedo$Main$viewUndoListInteractive = F3(
 						]),
 					_List_fromArray(
 						[
-							A3($author$project$UndoRedo$Main$viewButtons, computer, model, interactiveID),
-							A3($author$project$UndoRedo$Main$viewTextArea, computer, model, interactiveID),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('p-2 flex flex-col items-center gap-8')
+								]),
+							_List_fromArray(
+								[
+									A3($author$project$UndoRedo$Main$viewButtons, computer, model, interactiveID),
+									A3($author$project$UndoRedo$Main$viewTextArea, computer, model, interactiveID)
+								])),
 							A3($author$project$UndoRedo$Main$viewUndoList, computer, model, interactiveID)
 						]))
 				]));
@@ -9070,7 +9088,7 @@ var $author$project$UndoRedo$Main$view = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class('mx-auto container max-w-5xl p-12 sm:px-12'),
-							$elm$html$Html$Attributes$class('flex flex-col gap-8')
+							$elm$html$Html$Attributes$class('flex flex-col gap-0')
 						]),
 					_List_fromArray(
 						[
@@ -9084,9 +9102,9 @@ var $author$project$UndoRedo$Main$view = F2(
 								[$author$project$Playground$Playground$homeButton, $author$project$Playground$Playground$twitterLink, $author$project$Playground$Playground$githubLink])),
 							$author$project$UndoRedo$Main$markdownBlock('\n#  Resolving the "Great Undo-Redo Quandary" in Elm\n\n[Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/UndoRedo)\n\nThis post unfolds in two parts: The initial segment showcases the ease of crafting undo/redo functionality using Elm. If you have **already implemented undo/redo in Elm**, feel free to leap forward to the second part. Here, we confront a prevalent issue linked with undo/redo and offer a straightforward and efficient solution.\n## Part 1: Implementing Basic Undo/Redo Functionality in Elm\nImplementing undo and redo operations in Elm is surprisingly straightforward, thanks to its purity and persistent data structures. Here\'s how it\'s achieved using a simple data structure in [elm-community/undo-redo](https://package.elm-lang.org/packages/elm-community/undo-redo/latest/) package.\n\n```elm\ntype alias UndoList state =\n    { past : List state\n    , present : state\n    , future : List state\n    }\n```\n\nAs an example, let\'s consider the following `UndoList String`:\n```elm\n{ past = [ "ABC", "AB", "A" ]\n, present = "ABCD"\n, future = [ "ABCDE", "ABCDEF" ]\n}\n```\nNote that the list for the `past` is reversed for efficiency purposes. This represents a scenario where the user has typed "ABCDEF" and performed \'undo\' twice.\n\nAs you click the undo and redo buttons below and edit text in the text area, you will notice that the `UndoList` data structure is rendered as rows; starting with past states, followed by the present state (highlighted by a thick border), and ending with future states.\n'),
 							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 0),
-							$author$project$UndoRedo$Main$markdownBlock('\nEditing within the text area creates a new undo item via the following function:\n\n```elm\nnew : state -> UndoList state -> UndoList state\nnew state { past, present } =\n    { past = present :: past\n    , present = state\n    , future = []\n    }\n```\n\nNote that when entering a new state into UndoList, any existing future states are removed, similar to most applications with undo/redo functionality. This brings us to the second part of this post.\n\n## Part 2: Confronting the Undo/Redo Quandary\n\nIn our digital lives, **we frequently encounter a general problem when using undo/redo features in various applications**. This issue arises, for example, when we need to retrieve something that has been previously deleted.\n\nConsider the following scenario: We\'ve deleted some text or an image but soon after realize it\'s still needed. Now, what do we typically do? **We often resort to performing multiple \'undo\' actions until we retrieve the necessary information.** But this method can be nerve-wracking.\n\nWhy so? Here\'s the catch - Any accidental edits during this process could potentially wipe out our \'redo\' options. This means if we\'re not careful, **we stand at risk of losing all redo\'s**, and this adds an unnecessary layer of stress.\n\nSo, the question arises: How do we address this issue? Is there a better way to handle it?\n\nInitially, I believed that *undo trees* were the only viable solution. However, after reading [Resolving the Great Undo-Redo Quandary](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md), I became convinced otherwise. The simpler alternative presented in this resource effectively demonstrates its ease of use and efficiency.\n\nBelow is an interactive demonstration showing how it works.\n'),
+							$author$project$UndoRedo$Main$markdownBlock('\nEditing within the text area creates a new undo item via the following function:\n\n```elm\nnew : state -> UndoList state -> UndoList state\nnew state { past, present } =\n    { past = present :: past\n    , present = state\n    , future = []\n    }\n```\n\nNote that when entering a new state into UndoList, any existing future states are removed, similar to most applications with undo/redo functionality. This brings us to the second part of this post.\n\n## Part 2: Confronting the Undo/Redo Quandary\n\nIn our digital lives, **we frequently encounter a general problem when using undo/redo features in various applications**. This issue arises, for example, when we need to retrieve something that has been previously deleted.\n\nConsider the following scenario: We\'ve deleted some text or an image but soon after realize it\'s still needed. Now, what do we typically do? **We often resort to performing multiple \'undo\' actions until we retrieve the necessary information.** But this method can be nerve-wracking.\n\nWhy so? Here\'s the catch - Any accidental edits during this process could potentially wipe out our \'redo\' options. This means if we\'re not careful, **we stand at risk of losing all redo\'s**, and this adds an unnecessary layer of stress.\n\nSo, the question arises: How do we address this issue? Is there a better way to handle it?\n\nInitially, I believed that *undo trees* were the only viable solution. However, after reading [Resolving the Great Undo-Redo Quandary](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md), I became convinced otherwise. The simpler alternative presented in this resource effectively demonstrates its ease of use and efficiency.\n\nThe concept behind this alternative is astonishingly straightforward. If you make edits following a series of \'undo\' actions, the future - that is, your \'redo\' options - are effectively added to your past. Additionally, your previous \'undo\' actions also become part of your past.\n\nThis ensures that **no action is ever truly lost**; everything becomes part of a recoverable history. This allows for more flexibility and less stress.\n\nBelow is an interactive demonstration showing how it works.\n'),
 							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 1),
-							$author$project$UndoRedo$Main$markdownBlock('\nThis method ensures no state loss and is easy to implement in Elm.\nThe only modification we made was to utilize the following `newSafe` function in place of the `new` function.\n\n```elm\nnewSafe : state -> UndoList state -> UndoList state\nnewSafe state { past, present, future } =\n    case List.reverse future of\n        [] ->\n            { past = present :: past\n            , present = state\n            , future = []\n            }\n\n        head :: tail ->\n            { past = present :: List.reverse tail ++ head :: tail ++ present :: past\n            , present = state\n            , future = []\n            }\n```\n\n### Making It More Concise\n\nNote that each time we edit following an \'undo\' action, the `UndoList` expands by the length of the future list. This might not be ideal because it could lead to *exponential growth*, as [discussed here](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md#memory-space-usage).\n\nTo prevent this from happening, you can **collapse consecutive undos** into a single step:\n'),
+							$author$project$UndoRedo$Main$markdownBlock('\nRemarkably, this method is quite simple to implement in Elm. It only requires a minor adjustment to the standard undo/redo implementation. The sole modification we made was **substituting the `new` function with the following `newSafe` function**.\n\n```elm\nnewSafe : state -> UndoList state -> UndoList state\nnewSafe state { past, present, future } =\n    case List.reverse future of\n        [] ->\n            { past = present :: past\n            , present = state\n            , future = []\n            }\n\n        head :: tail ->\n            { past = present :: List.reverse tail ++ head :: tail ++ present :: past\n            , present = state\n            , future = []\n            }\n```\n\n### Making It More Concise\n\nNote that each time we edit following an \'undo\' action, the `UndoList` expands by the length of the future list. This might not be ideal because it could lead to *exponential growth*, as [discussed here](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md#memory-space-usage).\n\nTo prevent this from happening, you can **collapse consecutive undos** into a single step:\n'),
 							A3($author$project$UndoRedo$Main$viewUndoListInteractive, computer, model, 2),
 							$author$project$UndoRedo$Main$markdownBlock('\nHere is the function that accomplishes this:\n```elm\nnewSafeConcise : state -> UndoList state -> UndoList state\nnewSafeConcise state { past, present, future } =\n    case future of\n        [] ->\n            { past = present :: past\n            , present = state\n            , future = []\n            }\n\n        _ ->\n            { past = present :: List.reverse future ++ present :: past\n            , present = state\n            , future = []\n            }\n```\n\nIn conclusion, integrating undo/redo functionality into your Elm applications is surprisingly simple. But that\'s not all - if you already have undo/redo implemented, enhancing it to be safe is as straightforward as adding a few lines of code.\n')
 						]))
