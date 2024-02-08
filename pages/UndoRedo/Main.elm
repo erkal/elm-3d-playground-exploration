@@ -185,7 +185,7 @@ view computer model =
         ]
         [ div
             [ class "mx-auto container max-w-5xl p-12 sm:px-12"
-            , class "flex flex-col gap-8"
+            , class "flex flex-col gap-0"
             ]
             [ div
                 [ class "flex justify-end items-center mb-2 border-b border-gray-200 pb-4" ]
@@ -248,12 +248,15 @@ So, the question arises: How do we address this issue? Is there a better way to 
 
 Initially, I believed that *undo trees* were the only viable solution. However, after reading [Resolving the Great Undo-Redo Quandary](https://github.com/zaboople/klonk/blob/404dc90559840684ad16c9ba22f9464622e675d3/TheGURQ.md), I became convinced otherwise. The simpler alternative presented in this resource effectively demonstrates its ease of use and efficiency.
 
+The concept behind this alternative is astonishingly straightforward. If you make edits following a series of 'undo' actions, the future - that is, your 'redo' options - are effectively added to your past. Additionally, your previous 'undo' actions also become part of your past.
+
+This ensures that **no action is ever truly lost**; everything becomes part of a recoverable history. This allows for more flexibility and less stress.
+
 Below is an interactive demonstration showing how it works.
 """
             , viewUndoListInteractive computer model UndoRedoSafe
             , markdownBlock """
-This method ensures no state loss and is easy to implement in Elm.
-The only modification we made was to utilize the following `newSafe` function in place of the `new` function.
+Remarkably, this method is quite simple to implement in Elm. It only requires a minor adjustment to the standard undo/redo implementation. The sole modification we made was **substituting the `new` function with the following `newSafe` function**.
 
 ```elm
 newSafe : state -> UndoList state -> UndoList state
@@ -308,26 +311,42 @@ header : InteractiveID -> String
 header interactiveID =
     case interactiveID of
         UndoRedoUsual ->
-            "The **usual** undo/redo"
+            "#### The **usual** undo/redo"
 
         UndoRedoSafe ->
-            "The **safe** undo/redo"
+            "#### The **safe** undo/redo"
 
         UndoRedoSafeConcise ->
-            "The **concise** safe undo/redo"
+            "#### The **concise** safe undo/redo"
+
+
+bgColorForInteractive : InteractiveID -> String
+bgColorForInteractive interactiveID =
+    case interactiveID of
+        UndoRedoUsual ->
+            "bg-pink-400/40"
+
+        UndoRedoSafe ->
+            "bg-green-400/40"
+
+        UndoRedoSafeConcise ->
+            "bg-blue-400/40"
 
 
 viewUndoListInteractive : Computer -> Model -> InteractiveID -> Html Msg
 viewUndoListInteractive computer model interactiveID =
     div
         [ class "flex flex-col gap-8"
-        , class "bg-white/5 p-4 rounded-lg"
+        , class "my-8 p-8 rounded-lg"
+        , class (bgColorForInteractive interactiveID)
         , class "shadow-lg"
         ]
         [ markdownBlock (header interactiveID)
         , div [ class "p-2 flex flex-col sm:flex-row gap-8" ]
-            [ viewButtons computer model interactiveID
-            , viewTextArea computer model interactiveID
+            [ div [ class "p-2 flex flex-col items-center gap-8" ]
+                [ viewButtons computer model interactiveID
+                , viewTextArea computer model interactiveID
+                ]
             , viewUndoList computer model interactiveID
             ]
         ]
@@ -366,7 +385,7 @@ viewButtons computer model interactiveID =
 viewTextArea : Computer -> Model -> InteractiveID -> Html Msg
 viewTextArea computer model interactiveID =
     textarea
-        [ class "flex-1 h-28 p-4 rounded-lg overflow-y-scroll"
+        [ class "w-full p-4 rounded-lg overflow-y-scroll"
         , class "text-black bg-white"
         , class "font-mono"
         , Html.Events.onInput (EditedTextArea interactiveID)
@@ -383,7 +402,7 @@ viewTextArea computer model interactiveID =
                     model.undoListSafeConcise.present
             )
         ]
-        [ Html.text "todo" ]
+        []
 
 
 viewUndoList : Computer -> Model -> InteractiveID -> Html Msg
