@@ -1,6 +1,6 @@
 module WebPage.Main exposing (main)
 
-import Html exposing (Html, a, div, h2, i, img, span, text)
+import Html exposing (Html, a, div, img, text)
 import Html.Attributes exposing (class, href, src, target)
 import Playground.Icons
 import Playground.Playground as Playground exposing (..)
@@ -37,8 +37,10 @@ view computer model =
             [ class "mx-auto container max-w-5xl h-full p-12 sm:px-12 text-lg text-white"
             , class "flex flex-col items-center"
             ]
-            [ div [ class "text-3xl font-extrabold mb-8 tracking-tight" ]
-                [ span [] [ text "Erkal's Home Page" ]
+            [ div
+                [ class "w-full flex justify-end items-center mb-2 border-b border-gray-200 pb-4" ]
+                [ twitterLink
+                , githubLink
                 ]
             , viewPages computer model
             ]
@@ -70,6 +72,7 @@ viewPages computer model =
         , viewPage "ZoomAndPan" "Zooming and panning"
         , viewPage "CubeAndCube" "Another simple example with pastel colors"
         , viewPage "CanvasExample" "An elm-playground-like API on top of joakin/elm-canvas"
+        , viewPage "UndoRedo" "Implementing safe undo/redo in Elm. A blog post with interactive explanations"
         ]
 
 

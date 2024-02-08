@@ -3,7 +3,7 @@ port module Playground.Playground exposing
     , boolConfig, colorConfig, configBlock, floatConfig, intConfig, optionsConfig
     , getBool, getColor, getFloat, getInt, getOption
     , Computer, Keyboard, Pointer, Screen
-    , Playground, simpleApplication
+    , Playground, githubLink, homeButton, simpleApplication, twitterLink
     )
 
 {-|
@@ -377,8 +377,8 @@ leftBarButton hidden isSelected msg title icon =
         [ icon ]
 
 
-leftBarLinkButton : String -> String -> Html (Msg appMsg) -> Html (Msg appMsg)
-leftBarLinkButton title linkAddress icon =
+iconLink : String -> String -> Html msg -> Html msg
+iconLink title linkAddress icon =
     a
         [ class "p-2 w-12 h-12"
         , class "text-white/40 hover:text-white/80"
@@ -387,6 +387,21 @@ leftBarLinkButton title linkAddress icon =
         , HA.title title
         ]
         [ icon ]
+
+
+homeButton : Html msg
+homeButton =
+    iconLink "Home" "../WebPage/index.html" Icons.icons.home
+
+
+twitterLink : Html msg
+twitterLink =
+    iconLink "Twitter" "https://twitter.com/AzizErkalSelman" Icons.icons.twitter
+
+
+githubLink : Html msg
+githubLink =
+    iconLink "GitHub" "https://github.com/erkal" Icons.icons.githubCat
 
 
 viewHUD : Computer -> Model appModel -> Html (Msg appMsg)
@@ -403,18 +418,6 @@ viewHUD computer model =
         inputsButton : Html (Msg appMsg)
         inputsButton =
             leftBarButton False (model.leftBarState == ShowingInputs) ClickedOnShowInputsButton "Inputs" Icons.icons.computer
-
-        homeButton : Html (Msg appMsg)
-        homeButton =
-            leftBarLinkButton "Home" "../WebPage/index.html" Icons.icons.home
-
-        twitterLink : Html (Msg appMsg)
-        twitterLink =
-            leftBarLinkButton "Twitter" "https://twitter.com/AzizErkalSelman" Icons.icons.twitter
-
-        githubLink : Html (Msg appMsg)
-        githubLink =
-            leftBarLinkButton "GitHub" "https://github.com/erkal/elm-3d-playground-exploration" Icons.icons.githubCat
 
         leftStripe : Html (Msg appMsg)
         leftStripe =

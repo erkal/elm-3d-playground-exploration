@@ -2,6 +2,7 @@ module UndoRedo.UndoList exposing
     ( UndoList
     , new
     , newSafe
+    , newSafeConcise
     , redo
     , undo
     )
@@ -14,41 +15,67 @@ type alias UndoList state =
     }
 
 
-
--- MODIFY
-
-
 new : state -> UndoList state -> UndoList state
 new state { past, present } =
-    UndoList (present :: past) state []
+    { past = present :: past
+    , present = state
+    , future = []
+    }
 
 
-{-| This adds a new state without losing the future states.
--}
 newSafe : state -> UndoList state -> UndoList state
 newSafe state { past, present, future } =
-    if List.isEmpty future then
-        UndoList (present :: past) state []
+    case List.reverse future of
+        [] ->
+            { past = present :: past
+            , present = state
+            , future = []
+            }
 
-    else
-        UndoList (present :: List.reverse future ++ present :: past) state []
+        head :: tail ->
+            { past = present :: List.reverse tail ++ head :: tail ++ present :: past
+            , present = state
+            , future = []
+            }
+
+
+newSafeConcise : state -> UndoList state -> UndoList state
+newSafeConcise state { past, present, future } =
+    case future of
+        [] ->
+            { past = present :: past
+            , present = state
+            , future = []
+            }
+
+        _ ->
+            { past = present :: List.reverse future ++ present :: past
+            , present = state
+            , future = []
+            }
 
 
 undo : UndoList state -> UndoList state
-undo { past, present, future } =
+undo ({ past, present, future } as undoList) =
     case past of
         [] ->
-            UndoList past present future
+            undoList
 
         x :: xs ->
-            UndoList xs x (present :: future)
+            { past = xs
+            , present = x
+            , future = present :: future
+            }
 
 
 redo : UndoList state -> UndoList state
-redo { past, present, future } =
+redo ({ past, present, future } as undoList) =
     case future of
         [] ->
-            UndoList past present future
+            undoList
 
         x :: xs ->
-            UndoList (present :: past) x xs
+            { past = present :: past
+            , present = x
+            , future = xs
+            }
