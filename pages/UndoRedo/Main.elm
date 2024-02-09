@@ -1,12 +1,13 @@
 module UndoRedo.Main exposing (main)
 
-import Html exposing (Html, div, text, textarea)
-import Html.Attributes exposing (class, value)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, input, label, text, textarea)
+import Html.Attributes as HA exposing (class, value)
+import Html.Events exposing (onClick, onMouseDown)
 import Markdown
 import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
 import Playground.Tape exposing (Message(..))
+import Tools.HtmlHelpers.HtmlHelpers exposing (classIf)
 import UndoRedo.UndoList as UndoList exposing (UndoList)
 
 
@@ -31,11 +32,29 @@ type alias Model =
 
 init : Computer -> Model
 init computer =
-    { undoListUsual = UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
-    , undoListSafe = UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
-    , undoListSafeConcise = UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
+    { undoListUsual = undoListExample
+    , undoListSafe = undoListExample
+    , undoListSafeConcise = undoListExample
     , lastSelectedInteractive = UndoRedoUsual
     }
+
+
+mapUndoList : (UndoList String -> UndoList String) -> InteractiveID -> Model -> Model
+mapUndoList f interactiveID model =
+    case interactiveID of
+        UndoRedoUsual ->
+            { model | undoListUsual = f model.undoListUsual }
+
+        UndoRedoSafe ->
+            { model | undoListSafe = f model.undoListSafe }
+
+        UndoRedoSafeConcise ->
+            { model | undoListSafeConcise = f model.undoListSafeConcise }
+
+
+undoListExample : UndoList String
+undoListExample =
+    UndoList [ "ABC", "AB", "A" ] "ABCD" [ "ABCDE", "ABCDEF" ]
 
 
 
@@ -52,6 +71,7 @@ type Msg
     = SelectedInteractive InteractiveID
     | PressedUndoButton InteractiveID
     | PressedRedoButton InteractiveID
+    | PressedResetInteractiveButton InteractiveID
     | EditedTextArea InteractiveID String
 
 
@@ -67,31 +87,16 @@ update computer message model =
                 |> handleSelectingInteractive msg
                 |> handleEditingTextArea msg
                 |> handleUndoRedoButtons msg
+                |> handleResetButton msg
 
 
 handleKeyboardShortcutsForUndoRedo : Computer -> Model -> Model
 handleKeyboardShortcutsForUndoRedo computer model =
     if pressedKeyboardShortcutForUndo computer then
-        case model.lastSelectedInteractive of
-            UndoRedoUsual ->
-                { model | undoListUsual = model.undoListUsual |> UndoList.undo }
-
-            UndoRedoSafe ->
-                { model | undoListSafe = model.undoListSafe |> UndoList.undo }
-
-            UndoRedoSafeConcise ->
-                { model | undoListSafeConcise = model.undoListSafeConcise |> UndoList.undo }
+        model |> mapUndoList UndoList.undo model.lastSelectedInteractive
 
     else if pressedKeyboardShortcutForRedo computer then
-        case model.lastSelectedInteractive of
-            UndoRedoUsual ->
-                { model | undoListUsual = model.undoListUsual |> UndoList.redo }
-
-            UndoRedoSafe ->
-                { model | undoListSafe = model.undoListSafe |> UndoList.redo }
-
-            UndoRedoSafeConcise ->
-                { model | undoListSafeConcise = model.undoListSafeConcise |> UndoList.redo }
+        model |> mapUndoList UndoList.redo model.lastSelectedInteractive
 
     else
         model
@@ -129,26 +134,20 @@ handleUndoRedoButtons : Msg -> Model -> Model
 handleUndoRedoButtons msg model =
     case msg of
         PressedUndoButton interactiveID ->
-            case interactiveID of
-                UndoRedoUsual ->
-                    { model | undoListUsual = model.undoListUsual |> UndoList.undo }
-
-                UndoRedoSafe ->
-                    { model | undoListSafe = model.undoListSafe |> UndoList.undo }
-
-                UndoRedoSafeConcise ->
-                    { model | undoListSafeConcise = model.undoListSafeConcise |> UndoList.undo }
+            model |> mapUndoList UndoList.undo interactiveID
 
         PressedRedoButton interactiveID ->
-            case interactiveID of
-                UndoRedoUsual ->
-                    { model | undoListUsual = model.undoListUsual |> UndoList.redo }
+            model |> mapUndoList UndoList.redo interactiveID
 
-                UndoRedoSafe ->
-                    { model | undoListSafe = model.undoListSafe |> UndoList.redo }
+        _ ->
+            model
 
-                UndoRedoSafeConcise ->
-                    { model | undoListSafeConcise = model.undoListSafeConcise |> UndoList.redo }
+
+handleResetButton : Msg -> Model -> Model
+handleResetButton msg model =
+    case msg of
+        PressedResetInteractiveButton interactiveID ->
+            model |> mapUndoList (always undoListExample) interactiveID
 
         _ ->
             model
@@ -188,7 +187,7 @@ view computer model =
             , class "flex flex-col gap-0"
             ]
             [ div
-                [ class "flex justify-end items-center mb-2 border-b border-gray-200 pb-4" ]
+                [ class "flex justify-end items-center border-b border-gray-200 pb-4 mb-8 sm:mb-16" ]
                 [ homeButton
                 , twitterLink
                 , githubLink
@@ -219,11 +218,11 @@ As an example, let's consider the following `UndoList String`:
 ```
 Note that the list for the `past` is reversed for efficiency purposes. This represents a scenario where the user has typed "ABCDEF" and performed 'undo' twice.
 
-As you click the undo and redo buttons below and edit text in the text area, you will notice that the `UndoList` data structure is rendered as rows; starting with past states, followed by the present state (highlighted by a thick border), and ending with future states.
+As you click the undo and redo buttons below and edit text in the input area, you will notice that the `UndoList` data structure is rendered as rows; starting with past states, followed by the present state (highlighted by a thick border), and ending with future states.
 """
             , viewUndoListInteractive computer model UndoRedoUsual
             , markdownBlock """
-Editing within the text area creates a new undo item via the following function:
+Editing within the input area creates a new undo item via the following function:
 
 ```elm
 new : state -> UndoList state -> UndoList state
@@ -336,16 +335,20 @@ bgColorForInteractive interactiveID =
 viewUndoListInteractive : Computer -> Model -> InteractiveID -> Html Msg
 viewUndoListInteractive computer model interactiveID =
     div
-        [ class "flex flex-col gap-8"
-        , class "my-8 p-8 rounded-lg"
+        [ class "relative mx-auto w-full max-w-[600px] my-8 p-12 rounded-lg"
+        , class "flex flex-col gap-16"
         , class (bgColorForInteractive interactiveID)
-        , class "shadow-lg"
+        , class "shadow-2xl"
+        , onMouseDown (SelectedInteractive interactiveID)
+        , classIf (model.lastSelectedInteractive == interactiveID) "ring-1 ring-white/60"
         ]
         [ markdownBlock (header interactiveID)
-        , div [ class "p-2 flex flex-col sm:flex-row gap-8" ]
-            [ div [ class "p-2 flex flex-col items-center gap-8" ]
+        , div [ class "absolute top-4 right-4" ]
+            [ button (PressedResetInteractiveButton interactiveID) "Reset" Icons.icons.reset ]
+        , div [ class "flex flex-col sm:flex-row gap-16" ]
+            [ div [ class "flex flex-col gap-4" ]
                 [ viewButtons computer model interactiveID
-                , viewTextArea computer model interactiveID
+                , viewInputArea computer model interactiveID
                 ]
             , viewUndoList computer model interactiveID
             ]
@@ -363,11 +366,12 @@ markdownBlock =
 button : Msg -> String -> Html Msg -> Html Msg
 button msg title icon =
     div
-        [ class "w-12 h-12 p-2"
+        [ HA.title title
+        , class "w-12 h-12 p-2"
         , class "rounded-full shadow-lg"
         , class "cursor-pointer"
-        , class "bg-black/60 text-white/60"
-        , class "hover:bg-white/60 hover:text-white"
+        , class "bg-white/60 text-black"
+        , class "hover:bg-black/60 hover:text-white/60 active:bg-black active:text-white"
         , class "transition-all"
         , onClick msg
         ]
@@ -376,33 +380,42 @@ button msg title icon =
 
 viewButtons : Computer -> Model -> InteractiveID -> Html Msg
 viewButtons computer model interactiveID =
-    div [ class "flex-none flex flex-row gap-2" ]
-        [ button (PressedUndoButton interactiveID) "Undo" Icons.icons.undo
-        , button (PressedRedoButton interactiveID) "Redo" Icons.icons.redo
+    div [ class "flex flex-col gap-2" ]
+        [ div [ class "text-gray-200 text-sm font-bold" ]
+            [ text "Press the undo/redo buttons:" ]
+        , div [ class "p-2 flex-none flex flex-row gap-2" ]
+            [ button (PressedUndoButton interactiveID) "Undo" Icons.icons.undo
+            , button (PressedRedoButton interactiveID) "Redo" Icons.icons.redo
+            ]
         ]
 
 
-viewTextArea : Computer -> Model -> InteractiveID -> Html Msg
-viewTextArea computer model interactiveID =
-    textarea
-        [ class "w-full p-4 rounded-lg overflow-y-scroll"
-        , class "text-black bg-white"
-        , class "font-mono"
-        , Html.Events.onInput (EditedTextArea interactiveID)
-        , Html.Events.onFocus (SelectedInteractive interactiveID)
-        , value
-            (case interactiveID of
-                UndoRedoUsual ->
-                    model.undoListUsual.present
+viewInputArea : Computer -> Model -> InteractiveID -> Html Msg
+viewInputArea computer model interactiveID =
+    div [ class "flex flex-col gap-2" ]
+        [ label [ class "block text-gray-200 text-sm font-bold" ]
+            [ text "And edit your input:" ]
+        , div []
+            [ input
+                [ class "p-2 w-full text-gray-900 bg-white/80 font-mono"
+                , class "focus:outline-none focus:ring focus:ring-2 focus:ring-black"
+                , Html.Events.onInput (EditedTextArea interactiveID)
+                , value
+                    (case interactiveID of
+                        UndoRedoUsual ->
+                            model.undoListUsual.present
 
-                UndoRedoSafe ->
-                    model.undoListSafe.present
+                        UndoRedoSafe ->
+                            model.undoListSafe.present
 
-                UndoRedoSafeConcise ->
-                    model.undoListSafeConcise.present
-            )
+                        UndoRedoSafeConcise ->
+                            model.undoListSafeConcise.present
+                    )
+                ]
+                []
+            , div [ class "w-full h-1 bg-black" ] []
+            ]
         ]
-        []
 
 
 viewUndoList : Computer -> Model -> InteractiveID -> Html Msg
@@ -430,7 +443,7 @@ viewUndoItem : String -> Html Msg
 viewUndoItem str =
     div
         [ class "px-2 py-1 my-px rounded-lg"
-        , class "bg-black/90 text-white/90"
+        , class "bg-black/90 text-white/90 whitespace-pre"
         , class "font-mono"
         ]
         [ text str ]

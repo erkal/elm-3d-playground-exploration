@@ -30,8 +30,9 @@ view : Computer -> Model -> Html Never
 view computer model =
     div
         [ class "absolute z-10 w-full h-full"
-        , class "bg-gradient-to-br from-blue-400 via-lightBlue-500 to-cyan-700"
+        , class "bg-[#303030]"
         , class "overflow-y-auto"
+        , class "select-text"
         ]
         [ div
             [ class "mx-auto container max-w-5xl h-full p-12 sm:px-12 text-lg text-white"
@@ -42,59 +43,63 @@ view computer model =
                 [ twitterLink
                 , githubLink
                 ]
-            , viewPages computer model
+            , cards computer model
             ]
         ]
 
 
-viewPages : Computer -> Model -> Html Never
-viewPages computer model =
+cards : Computer -> Model -> Html Never
+cards computer model =
     div
         [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
-        [ viewPage "TrixelEditor" "A trixel editor with zoom and pan"
-        , viewPage "RedFacedCube" "The Red-Faced Cube: One of the puzzles from Martin Gardner's column. It has a unique solution!"
-        , viewPage "WaveInWave" "A Creative coding example"
-        , viewPage "ColorShower" "A Creative coding example"
-        , viewPage "DancingCubes" "A Creative coding example"
-        , viewPage "BallGame" "Continuous collision detection for circle to polygon. Roll the ball with arrow keys"
-        , viewPage "Carousel" "A carousel that works with mouse, keyboard and touch"
-        , viewPage "HappyBirthdayAndrey" "This was a birthday card made for Andrey Kuzmin"
-        , viewPage "IsomorphismGame" "A prototype for a game on graph isomorphism"
-        , viewPage "JohnHarrisEightRollingCubes" "One of the puzzles from Martin Gardner's column"
-        , viewPage "MultipleShadowsFromIanMackenzie" "Using the lighting from an example by Ian Mackenzie"
-        , viewPage "PlanetarySystem" "Simple example for grouping objects"
-        , viewPage "RecursiveRotation" "Simple example for recursion"
-        , viewPage "RecursiveTree" "Simple example for recursion"
-        , viewPage "TheSomaCube" "Just a start for a puzzle game. It is not working yet"
-        , viewPage "GooeyEffect" "An example showing the use of GLSL shaders"
-        , viewPage "GrowingSquares" "A Creative coding example"
-        , viewPage "TurningBlocks" "A Creative coding example"
-        , viewPage "ZoomAndPan" "Zooming and panning"
-        , viewPage "CubeAndCube" "Another simple example with pastel colors"
-        , viewPage "CanvasExample" "An elm-playground-like API on top of joakin/elm-canvas"
-        , viewPage "UndoRedo" "Implementing safe undo/redo in Elm. A blog post with interactive explanations"
+        [ card
+            { exampleLink = "https://erkal.github.io/kite/"
+            , imageLink = "./assets/kite.png"
+            , sourceCodeLink = "https://github.com/erkal/kite"
+            }
+            "Kite: An Interactive Visualization Tool for Graph Theory"
+        , cardWithInternalLink "TrixelEditor" "A trixel editor with zoom and pan"
+        , cardWithInternalLink "RedFacedCube" "The Red-Faced Cube: One of the puzzles from Martin Gardner's column. It has a unique solution!"
+        , cardWithInternalLink "WaveInWave" "A Creative coding example"
+        , cardWithInternalLink "ColorShower" "A Creative coding example"
+        , cardWithInternalLink "DancingCubes" "A Creative coding example"
+        , cardWithInternalLink "BallGame" "Continuous collision detection for circle to polygon. Roll the ball with arrow keys"
+        , cardWithInternalLink "Carousel" "A carousel that works with mouse, keyboard and touch"
+        , cardWithInternalLink "HappyBirthdayAndrey" "This was a birthday card made for Andrey Kuzmin"
+        , cardWithInternalLink "IsomorphismGame" "A prototype for a game on graph isomorphism"
+        , cardWithInternalLink "JohnHarrisEightRollingCubes" "One of the puzzles from Martin Gardner's column"
+        , cardWithInternalLink "MultipleShadowsFromIanMackenzie" "Using the lighting from an example by Ian Mackenzie"
+        , cardWithInternalLink "PlanetarySystem" "Simple example for grouping objects"
+        , cardWithInternalLink "RecursiveRotation" "Simple example for recursion"
+        , cardWithInternalLink "RecursiveTree" "Simple example for recursion"
+        , cardWithInternalLink "TheSomaCube" "Just a start for a puzzle game. It is not working yet"
+        , cardWithInternalLink "GooeyEffect" "An example showing the use of GLSL shaders"
+        , cardWithInternalLink "GrowingSquares" "A Creative coding example"
+        , cardWithInternalLink "TurningBlocks" "A Creative coding example"
+        , cardWithInternalLink "ZoomAndPan" "Zooming and panning"
+        , cardWithInternalLink "CubeAndCube" "Another simple example with pastel colors"
+        , cardWithInternalLink "CanvasExample" "An elm-playground-like API on top of joakin/elm-canvas"
+        , cardWithInternalLink "UndoRedo" "Implementing safe undo/redo in Elm. A blog post with interactive explanations"
         ]
 
 
-viewPage : String -> String -> Html Never
-viewPage exampleName descriptionText =
-    let
-        exampleLink =
-            "../" ++ exampleName ++ "/index.html"
+cardWithInternalLink : String -> String -> Html Never
+cardWithInternalLink exampleName =
+    card
+        { exampleLink = "../" ++ exampleName ++ "/index.html"
+        , imageLink = "../" ++ exampleName ++ "/image.png"
+        , sourceCodeLink = "https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/" ++ exampleName
+        }
 
-        imageLink =
-            "../" ++ exampleName ++ "/image.png"
 
-        sourceCodeLink =
-            "https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/" ++ exampleName
-    in
+card : { exampleLink : String, imageLink : String, sourceCodeLink : String } -> String -> Html Never
+card { exampleLink, imageLink, sourceCodeLink } descriptionText =
     div
         [ class "p-6 transition-all duration-300 ease-in-out rounded-3xl shadow-lg hover:shadow-2xl"
-        , class "bg-gradient-to-b from-lightBlue-400 via-cyan-500 to-lightBlue-600 text-white"
+        , class "bg-black/50"
+        , class "flex flex-col items-center gap-8"
         ]
-        [ a
-            [ href exampleLink
-            ]
+        [ a [ href exampleLink ]
             [ div
                 [ class "relative cursor-pointer group" ]
                 [ img [ src imageLink, class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
@@ -103,11 +108,11 @@ viewPage exampleName descriptionText =
                     [ div [ class "w-20 h-20" ] [ Playground.Icons.icons.zoomToFit ] ]
                 ]
             ]
+        , div [ class "px-4 grow flex items-center" ] [ text descriptionText ]
         , a
-            [ class "inline-block mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
+            [ class "inline-block mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 transition-all duration-300 shadow-lg hover:shadow-2xl text-base font-medium tracking-wide rounded-lg"
             , href sourceCodeLink
             , target "_blank"
             ]
             [ text "Source code" ]
-        , div [ class "mt-2 text-white" ] [ text descriptionText ]
         ]

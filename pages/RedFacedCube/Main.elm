@@ -353,9 +353,8 @@ view computer model =
     div
         [ class "fixed w-full h-full" ]
         [ div [ class "absolute" ] [ Html.map never <| viewShapes computer model ]
-        , div [ class "absolute w-full h-full" ] [ explanationText computer model ]
-        , div [ class "absolute bottom-8 w-full text-center text-lg" ]
-            [ text "Roll the cube via swiping or pressing arrow keys." ]
+        , headerText computer model
+        , explanationText computer model
         , viewEditor computer model
         ]
 
@@ -379,26 +378,29 @@ explanationText computer model =
                 _ ->
                     False
     in
-    div [ class "mx-auto w-full md:w-1/2 mt-4" ]
-        [ div
-            [ class "p-4 bg-white/20 rounded-xl"
-            , class "flex flex-col gap-4"
+    div [ class "absolute w-full bottom-0 p-8" ]
+        [ div [ class "mx-auto w-full md:w-1/2 mt-4" ]
+            [ span [ classIf animatingMistakeForMustVisitEachCellBeforeReachingFinishCell "bg-red-300" ]
+                [ text "Visit each cell exactly once. " ]
+            , span [] [ text "End with the cube red side up on the (marked) finish cell. " ]
+            , span [ classIf animatingMistakeForTopFaceCannotBeRed "bg-red-300" ]
+                [ text "At no time during the tour, however, is the cube allowed to rest with the red side up."
+                ]
             ]
+        ]
+
+
+headerText : Computer -> Model -> Html Msg
+headerText computer model =
+    div [ class "absolute w-full" ]
+        [ div [ class "mx-auto w-full md:w-1/2 mt-4" ]
             [ div
-                [ class "flex flex-col gap-1"
-                , class "text-center"
+                [ class "px-8"
+                , class "flex flex-col items-center gap-4"
                 ]
                 [ div [ class "text-2xl font-bold" ] [ text "The Red-Faced Cube" ]
-                , div [ class "font-bold italic" ] [ text "A puzzle from the book Mathematical Carnival" ]
-                , div [ class "font-bold" ] [ text "(1975, Martin Gardner)" ]
-                ]
-            , div [ class "flex flex-col gap-2" ]
-                [ div [ classIf animatingMistakeForMustVisitEachCellBeforeReachingFinishCell "bg-red-300" ]
-                    [ text "- Visit each cell exactly once." ]
-                , div [] [ text "- End with the cube red side up on the (marked) finish cell." ]
-                , div [ classIf animatingMistakeForTopFaceCannotBeRed "bg-red-300" ]
-                    [ text "- At no time during the tour, however, is the cube allowed to rest with the red side up."
-                    ]
+                , div [ class "font-bold italic" ] [ text "A puzzle from the book Mathematical Carnival (1975, Martin Gardner)" ]
+                , div [] [ text "Roll the cube via swiping or pressing arrow keys." ]
                 ]
             ]
         ]
