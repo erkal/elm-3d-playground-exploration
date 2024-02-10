@@ -3,7 +3,7 @@ port module Playground.Playground exposing
     , boolConfig, colorConfig, configBlock, floatConfig, intConfig, optionsConfig
     , getBool, getColor, getFloat, getInt, getOption
     , Computer, Keyboard, Pointer, Screen
-    , Playground, githubLink, homeButton, simpleApplication, twitterLink
+    , Playground, simpleApplication
     )
 
 {-|

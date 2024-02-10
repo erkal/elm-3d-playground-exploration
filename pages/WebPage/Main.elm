@@ -1,10 +1,11 @@
 module WebPage.Main exposing (main)
 
 import Html exposing (Html, a, div, img, text)
-import Html.Attributes exposing (class, href, src, target)
-import Playground.Icons
+import Html.Attributes as HA exposing (class, href, src, target)
+import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
 import Playground.Tape exposing (Message(..))
+import Tools.StyledElements.StyledElements exposing (withHomePageHeader)
 
 
 main : Playground Model Never
@@ -28,30 +29,13 @@ type alias Model =
 
 view : Computer -> Model -> Html Never
 view computer model =
-    div
-        [ class "absolute z-10 w-full h-full"
-        , class "bg-[#303030]"
-        , class "overflow-y-auto"
-        , class "select-text"
-        ]
-        [ div
-            [ class "mx-auto container max-w-5xl h-full p-12 sm:px-12 text-lg text-white"
-            , class "flex flex-col items-center"
-            ]
-            [ div
-                [ class "w-full flex justify-end items-center mb-2 border-b border-gray-200 pb-4" ]
-                [ twitterLink
-                , githubLink
-                ]
-            , cards computer model
-            ]
-        ]
+    withHomePageHeader (cards computer model)
 
 
 cards : Computer -> Model -> Html Never
 cards computer model =
     div
-        [ class "grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8" ]
+        [ class "grid grid-cols-1 md:grid-cols-2 mb-24 gap-8 text-white text-xl" ]
         [ card
             { exampleLink = "https://erkal.github.io/kite/"
             , imageLink = "./assets/kite.png"
@@ -105,7 +89,7 @@ card { exampleLink, imageLink, sourceCodeLink } descriptionText =
                 [ img [ src imageLink, class "rounded-xl transition-all duration-300 hover:opacity-75" ] []
                 , div
                     [ class "flex opacity-0 justify-center items-center absolute inset-0 w-full h-full text-2xl font-bold text-white bg-black bg-opacity-75 rounded-xl transition-all duration-300 group-hover:opacity-100" ]
-                    [ div [ class "w-20 h-20" ] [ Playground.Icons.icons.zoomToFit ] ]
+                    [ div [ class "w-20 h-20" ] [ Icons.icons.zoomToFit ] ]
                 ]
             ]
         , div [ class "px-4 grow flex items-center" ] [ text descriptionText ]

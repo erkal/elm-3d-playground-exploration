@@ -1,13 +1,14 @@
 module UndoRedo.Main exposing (main)
 
-import Html exposing (Html, div, input, label, text, textarea)
-import Html.Attributes as HA exposing (class, value)
+import Html exposing (Html, a, div, input, label, text, textarea)
+import Html.Attributes as HA exposing (class, href, target, value)
 import Html.Events exposing (onClick, onMouseDown)
 import Markdown
 import Playground.Icons as Icons
 import Playground.Playground as Playground exposing (..)
 import Playground.Tape exposing (Message(..))
 import Tools.HtmlHelpers.HtmlHelpers exposing (classIf)
+import Tools.StyledElements.StyledElements exposing (withHomePageHeader)
 import UndoRedo.UndoList as UndoList exposing (UndoList)
 
 
@@ -177,29 +178,21 @@ pressedKeyboardShortcutForRedo computer =
 
 view : Computer -> Model -> Html Msg
 view computer model =
-    div
-        [ class "absolute w-full h-full z-10"
-        , class "bg-[#303030]"
-        , class "overflow-y-auto"
-        ]
-        [ div
-            [ class "mx-auto container max-w-5xl p-12 sm:px-12"
-            , class "flex flex-col gap-0"
-            ]
-            [ div
-                [ class "flex justify-end items-center border-b border-gray-200 pb-4 mb-8 sm:mb-16" ]
-                [ homeButton
-                , twitterLink
-                , githubLink
-                ]
-            , markdownBlock """
+    withHomePageHeader <|
+        div [ class "px-4 sm:px-16 mb-32" ]
+            [ markdownBlock """
 #  Resolving the "Great Undo-Redo Quandary" in Elm
 
 [Source code of this page](https://github.com/erkal/elm-3d-playground-exploration/tree/main/pages/UndoRedo)
 
 This post unfolds in two parts: The initial segment showcases the ease of crafting undo/redo functionality using Elm. If you have **already implemented undo/redo in Elm**, feel free to leap forward to the second part. Here, we confront a prevalent issue linked with undo/redo and offer a straightforward and efficient solution.
 ## Part 1: Implementing Basic Undo/Redo Functionality in Elm
-Implementing undo and redo operations in Elm is surprisingly straightforward, thanks to its purity and persistent data structures. Here's how it's achieved using a simple data structure in [elm-community/undo-redo](https://package.elm-lang.org/packages/elm-community/undo-redo/latest/) package.
+
+**Implementing undo and redo operations in Elm is surprisingly straightforward**, thanks to the Elm architecture. You can easily add undo/redo functionality to any existing Elm application, even if you hadn't initially planned for it. And the straightforward way of doing it proves to be time and space efficient because Elm uses [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure).
+
+**Elm stands head and shoulders above the rest** when it comes to implementing undo/redo functionality. The language almost hands you this functionality as an out-of-the-box gift.
+
+So, how exactly is this achieved? The answer lies in the use of a simple data structure found within the [elm-community/undo-redo](https://package.elm-lang.org/packages/elm-community/undo-redo/latest/) package. Here's a closer look at how it works.
 
 ```elm
 type alias UndoList state =
@@ -303,20 +296,19 @@ newSafeConcise state { past, present, future } =
 In conclusion, integrating undo/redo functionality into your Elm applications is surprisingly simple. But that's not all - if you already have undo/redo implemented, enhancing it to be safe is as straightforward as adding a few lines of code.
 """
             ]
-        ]
 
 
 header : InteractiveID -> String
 header interactiveID =
     case interactiveID of
         UndoRedoUsual ->
-            "#### The **usual** undo/redo"
+            "### The **usual** undo/redo"
 
         UndoRedoSafe ->
-            "#### The **safe** undo/redo"
+            "### The **safe** undo/redo"
 
         UndoRedoSafeConcise ->
-            "#### The **concise** safe undo/redo"
+            "### The **concise** safe undo/redo"
 
 
 bgColorForInteractive : InteractiveID -> String
@@ -335,17 +327,22 @@ bgColorForInteractive interactiveID =
 viewUndoListInteractive : Computer -> Model -> InteractiveID -> Html Msg
 viewUndoListInteractive computer model interactiveID =
     div
-        [ class "relative mx-auto w-full max-w-[600px] my-8 p-12 rounded-lg"
-        , class "flex flex-col gap-16"
+        [ class "relative mx-auto w-full max-w-[640px] my-8 rounded-lg"
+        , class "p-4 sm:p-8"
+        , class "flex flex-col gap-8"
         , class (bgColorForInteractive interactiveID)
         , class "shadow-2xl"
         , onMouseDown (SelectedInteractive interactiveID)
-        , classIf (model.lastSelectedInteractive == interactiveID) "ring-1 ring-white/60"
+        , classIf (model.lastSelectedInteractive == interactiveID) "ring-2 ring-black/60"
         ]
-        [ markdownBlock (header interactiveID)
-        , div [ class "absolute top-4 right-4" ]
-            [ button (PressedResetInteractiveButton interactiveID) "Reset" Icons.icons.reset ]
-        , div [ class "flex flex-col sm:flex-row gap-16" ]
+        [ div
+            [ class "w-full"
+            , class "flex flex-row items-center"
+            ]
+            [ div [ class "grow" ] [ markdownBlock (header interactiveID) ]
+            , div [ class "flex-none" ] [ button (PressedResetInteractiveButton interactiveID) "Reset" Icons.icons.reset ]
+            ]
+        , div [ class "flex flex-col gap-4 sm:flex-row sm:gap-16" ]
             [ div [ class "flex flex-col gap-4" ]
                 [ viewButtons computer model interactiveID
                 , viewInputArea computer model interactiveID
@@ -371,7 +368,7 @@ button msg title icon =
         , class "rounded-full shadow-lg"
         , class "cursor-pointer"
         , class "bg-white/60 text-black"
-        , class "hover:bg-black/60 hover:text-white/60 active:bg-black active:text-white"
+        , class "hover:bg-black/60 hover:text-white active:bg-black active:text-white/60"
         , class "transition-all"
         , onClick msg
         ]
@@ -381,8 +378,7 @@ button msg title icon =
 viewButtons : Computer -> Model -> InteractiveID -> Html Msg
 viewButtons computer model interactiveID =
     div [ class "flex flex-col gap-2" ]
-        [ div [ class "text-gray-200 text-sm font-bold" ]
-            [ text "Press the undo/redo buttons:" ]
+        [ markdownBlock "Press the undo/redo buttons:"
         , div [ class "p-2 flex-none flex flex-row gap-2" ]
             [ button (PressedUndoButton interactiveID) "Undo" Icons.icons.undo
             , button (PressedRedoButton interactiveID) "Redo" Icons.icons.redo
@@ -393,11 +389,11 @@ viewButtons computer model interactiveID =
 viewInputArea : Computer -> Model -> InteractiveID -> Html Msg
 viewInputArea computer model interactiveID =
     div [ class "flex flex-col gap-2" ]
-        [ label [ class "block text-gray-200 text-sm font-bold" ]
-            [ text "And edit your input:" ]
+        [ label []
+            [ markdownBlock "And edit your `state`:" ]
         , div []
             [ input
-                [ class "p-2 w-full text-gray-900 bg-white/80 font-mono"
+                [ class "p-2 w-full text-gray-900 bg-white/60 font-mono font-bold"
                 , class "focus:outline-none focus:ring focus:ring-2 focus:ring-black"
                 , Html.Events.onInput (EditedTextArea interactiveID)
                 , value
@@ -433,8 +429,9 @@ viewUndoList computer model interactiveID =
                     model.undoListSafeConcise
     in
     div [ class "flex-1 flex flex-col" ]
-        [ div [ class "flex flex-col" ] (undoList.past |> List.reverse |> List.map viewUndoItem)
-        , div [ class "flex flex-col rounded-lg ring-4 ring-white z-10" ] [ undoList.present |> viewUndoItem ]
+        [ div [ class "mb-2" ] [ markdownBlock "Current `undoList`:" ]
+        , div [ class "flex flex-col" ] (undoList.past |> List.reverse |> List.map viewUndoItem)
+        , div [ class "flex flex-col ring-8 ring-black z-10" ] [ undoList.present |> viewUndoItem ]
         , div [ class "flex flex-col" ] (undoList.future |> List.map viewUndoItem)
         ]
 
@@ -442,8 +439,8 @@ viewUndoList computer model interactiveID =
 viewUndoItem : String -> Html Msg
 viewUndoItem str =
     div
-        [ class "px-2 py-1 my-px rounded-lg"
-        , class "bg-black/90 text-white/90 whitespace-pre"
-        , class "font-mono"
+        [ class "h-8 px-2 py-1 my-px"
+        , class "text-gray-900 bg-white/60 whitespace-pre"
+        , class "font-mono font-bold"
         ]
         [ text str ]
