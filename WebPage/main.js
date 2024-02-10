@@ -8520,7 +8520,7 @@ var $author$project$WebPage$Main$cards = F2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('grid grid-cols-1 md:grid-cols-2 gap-8 py-8 px-8')
+					$elm$html$Html$Attributes$class('grid grid-cols-1 md:grid-cols-2 mb-24 gap-8 text-white text-xl')
 				]),
 			_List_fromArray(
 				[
@@ -8552,39 +8552,80 @@ var $author$project$WebPage$Main$cards = F2(
 					A2($author$project$WebPage$Main$cardWithInternalLink, 'UndoRedo', 'Implementing safe undo/redo in Elm. A blog post with interactive explanations')
 				]));
 	});
+var $author$project$Tools$StyledElements$StyledElements$withHomePageHeader = function (content) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('absolute w-full h-full z-10'),
+				$elm$html$Html$Attributes$class('bg-[#303030]'),
+				$elm$html$Html$Attributes$class('overflow-y-auto')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('mx-auto container max-w-5xl px-4 sm:px-12'),
+						$elm$html$Html$Attributes$class('flex flex-col gap-0')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('w-full sm:mt-4 sm:mb-24 mt-0 mb-12'),
+								$elm$html$Html$Attributes$class('flex justify-end items-center'),
+								$elm$html$Html$Attributes$class('border-b border-gray-200 border-opacity-50')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('p-4 w-20 h-20'),
+										$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+										$elm$html$Html$Attributes$href('../WebPage/index.html'),
+										$elm$html$Html$Attributes$title('Home')
+									]),
+								_List_fromArray(
+									[$author$project$Playground$Icons$icons.hZ])),
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('p-4 w-20 h-20'),
+										$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+										$elm$html$Html$Attributes$href('https://twitter.com/AzizErkalSelman'),
+										$elm$html$Html$Attributes$target('_blank'),
+										$elm$html$Html$Attributes$title('Twitter')
+									]),
+								_List_fromArray(
+									[$author$project$Playground$Icons$icons.i8])),
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('p-4 w-20 h-20'),
+										$elm$html$Html$Attributes$class('text-white/40 hover:text-white/80'),
+										$elm$html$Html$Attributes$href('https://github.com/erkal'),
+										$elm$html$Html$Attributes$target('_blank'),
+										$elm$html$Html$Attributes$title('GitHub')
+									]),
+								_List_fromArray(
+									[$author$project$Playground$Icons$icons.hO]))
+							])),
+						content
+					]))
+			]));
+};
 var $author$project$WebPage$Main$view = F2(
 	function (computer, model) {
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('absolute z-10 w-full h-full'),
-					$elm$html$Html$Attributes$class('bg-[#303030]'),
-					$elm$html$Html$Attributes$class('overflow-y-auto'),
-					$elm$html$Html$Attributes$class('select-text')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('mx-auto container max-w-5xl h-full p-12 sm:px-12 text-lg text-white'),
-							$elm$html$Html$Attributes$class('flex flex-col items-center')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('w-full flex justify-end items-center mb-2 border-b border-gray-200 pb-4')
-								]),
-							_List_fromArray(
-								[$author$project$Playground$Playground$twitterLink, $author$project$Playground$Playground$githubLink])),
-							A2($author$project$WebPage$Main$cards, computer, model)
-						]))
-				]));
+		return $author$project$Tools$StyledElements$StyledElements$withHomePageHeader(
+			A2($author$project$WebPage$Main$cards, computer, model));
 	});
 var $author$project$WebPage$Main$main = $author$project$Playground$Playground$simpleApplication(
 	{
