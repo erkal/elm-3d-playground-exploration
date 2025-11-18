@@ -1,9 +1,0 @@
-.DS_Store
-.idea
-node_modules
-elm-stuff
-build
-dist
-*.local
-elm-watch.json
-scripts/copy_all.sh
